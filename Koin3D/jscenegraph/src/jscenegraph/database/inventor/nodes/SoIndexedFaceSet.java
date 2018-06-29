@@ -922,7 +922,7 @@ public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
       coordIndex.operator_square_bracketI(curIndex) != SO_END_FACE_INDEX) {
 
         if (ce != null)
-          nb.polygonVertex(ce.get3((int)coordIndex.operator_square_bracket(curIndex)));
+          nb.polygonVertex(ce.get3((int)coordIndex.operator_square_bracketI(curIndex)));
         else
           nb.polygonVertex(vpCoords[coordIndex.operator_square_bracketI(curIndex)]);
 

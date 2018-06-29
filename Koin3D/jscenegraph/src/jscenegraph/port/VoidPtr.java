@@ -22,7 +22,7 @@ public class VoidPtr implements Destroyable {
 	
 	private Object object;
 	
-	private ByteBuffer buffer; 
+	private Buffer buffer; 
 	
 	private static Map<Object,VoidPtr> ptrs = new IdentityHashMap<>();
 
@@ -72,6 +72,9 @@ public class VoidPtr implements Destroyable {
 		}
 		if(object instanceof Integer[]) {
 			buffer = Util.toByteBuffer((Integer[])object);
+		}
+		if(object instanceof IntBuffer) {
+			buffer = (IntBuffer)object;
 		}
 		return buffer;
 	}
