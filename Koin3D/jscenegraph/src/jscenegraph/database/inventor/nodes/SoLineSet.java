@@ -291,7 +291,7 @@ computeBBox(SoAction action, final SbBox3f box, final SbVec3f center)
 
   else
     for (i = 0; i < numLines; i++)
-      numVerts += (int) numVertices.operator_square_bracket(i);
+      numVerts += (int) numVertices.operator_square_bracketI(i);
 
   // Next, call the method on SoNonIndexedShape that computes the
   // bounding box and center of the given number of coordinates
@@ -419,7 +419,7 @@ generatePrimitives(SoAction action)
     detail.setLineIndex(line);
 
     // Figure out number of vertices in this line
-    vertsInLine = (int) numVertices.operator_square_bracket(line);
+    vertsInLine = (int) numVertices.operator_square_bracketI(line);
     if (vertsInLine == SO_LINE_SET_USE_REST_OF_VERTICES)
       vertsInLine = (int) ce.getNum() - curVert;
 

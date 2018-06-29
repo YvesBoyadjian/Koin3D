@@ -304,7 +304,7 @@ computeBBox(SoAction action, final SbBox3f box, final SbVec3f center)
     numVerts = -1;
   else
     for (int i = 0; i < numFaces; i++)
-      numVerts += (int) numVertices.operator_square_bracket(i);
+      numVerts += (int) numVertices.operator_square_bracketI(i);
 
   // Next, call the method on SoNonIndexedShape that computes the
   // bounding box and center of the given number of coordinates
@@ -350,7 +350,7 @@ createTriangleDetail(SoRayPickAction action,
     curVert += (int) numVertices.operator_square_bracket(face);
 
   // Figure out how many vertices are in the hit face
-  int vertsInFace = (int) numVertices.operator_square_bracket(hitFace);
+  int vertsInFace = (int) numVertices.operator_square_bracketI(hitFace);
   if (vertsInFace == SO_FACE_SET_USE_REST_OF_VERTICES) {
     SoCoordinateElement ce = 
       SoCoordinateElement.getInstance(action.getState());
@@ -509,7 +509,7 @@ generatePrimitives(SoAction action)
   for (face = 0; face < numFaces; face++) {
 
     // Figure out number of vertices in this face
-    vertsInFace = (int) numVertices.operator_square_bracket(face);
+    vertsInFace = (int) numVertices.operator_square_bracketI(face);
     if (vertsInFace == SO_FACE_SET_USE_REST_OF_VERTICES)
       vertsInFace = (int) ce.getNum() - curVert;
 
@@ -661,7 +661,7 @@ figureNormals(SoState state, SoNormalBundle nb)
   }
   else
     for (int i = 0; i < numFaces; i++)
-      numNeeded += (int) numVertices.operator_square_bracket(i);
+      numNeeded += (int) numVertices.operator_square_bracketI(i);
 
   if (nb.shouldGenerate(numNeeded)) {
     generateDefaultNormals(state, nb);
@@ -705,7 +705,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
   for (i = 0; i < numFaces; i++) {
     nb.beginPolygon();
 
-    vertsInFace = (int) numVertices.operator_square_bracket(i);
+    vertsInFace = (int) numVertices.operator_square_bracketI(i);
     if (vertsInFace == SO_FACE_SET_USE_REST_OF_VERTICES)
       vertsInFace = numCoords - curCoord;
 

@@ -274,7 +274,7 @@ public SoTriangleStripSet()
   if (numStrips != 0 && numVertices.operator_square_bracketI(numStrips-1) < 0) {
     numVerts = -1;
   } else for (int i = 0; i < numStrips; i++) {
-    numVerts += (int) numVertices.operator_square_bracket(i);
+    numVerts += (int) numVertices.operator_square_bracketI(i);
   }
   computeCoordBBox(action, numVerts, box, center);
 	}
@@ -800,7 +800,7 @@ public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
   int strip, numVerts = 0;
   for (strip = 0; strip < numStrips; strip++) {
     // Figure out number of vertices in this strip
-    int vertsInStrip = (int) numVertices.operator_square_bracket(strip);
+    int vertsInStrip = (int) numVertices.operator_square_bracketI(strip);
 
     // If we got USE_REST_OF_VERTICES, use the rest of the values
     // in the coordinate array:
@@ -843,7 +843,7 @@ public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
     SbVec3f n;
 
     // Figure out number of vertices in this strip
-    int vertsInStrip = (int) numVertices.operator_square_bracket(strip);
+    int vertsInStrip = (int) numVertices.operator_square_bracketI(strip);
 
     for (int v = 0; v < vertsInStrip; v++) {
       if (v < 2) {

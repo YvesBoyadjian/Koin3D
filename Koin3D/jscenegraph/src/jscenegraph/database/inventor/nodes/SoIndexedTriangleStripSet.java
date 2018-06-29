@@ -721,7 +721,7 @@ public boolean generateDefaultNormals(SoState state,
       coordIndex.operator_square_bracketI(curIndex) != SO_END_STRIP_INDEX) {
 
         if (ce != null)
-          verts[whichVert%3] = ce.get3((int)coordIndex.operator_square_bracket(curIndex));
+          verts[whichVert%3] = ce.get3((int)coordIndex.operator_square_bracketI(curIndex));
         else
           verts[whichVert%3] = vpCoords[coordIndex.operator_square_bracketI(curIndex)];
 
