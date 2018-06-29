@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JViewer
+Bundle-SymbolicName: jsceneviewer
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: jsceneviewer.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ jscenegraph,
+ org.eclipse.swt,
+ lwjgl
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: jsceneviewer.inventor.qt,
+ jsceneviewer.inventor.qt.viewers
