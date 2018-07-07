@@ -96,22 +96,38 @@ SbVec2f, SbVec4f, SbVec2s, SbRotation
  */
 public class SbVec3f implements Cloneable, Mutable {
 	
-	protected final float[] vec = new float[3]; 
+	protected float[] vec;
+	protected int indice;
 	
 	// Default constructor. 
 	public SbVec3f() {
-		
+		vec = new float[3];
+		indice = 0;
+	}
+
+	/**
+	 * Internal contructor
+	 * @param array
+	 * @param indice
+	 */
+	public SbVec3f(float[] array, int indice) {
+		vec = array;
+		this.indice = indice;
 	}
 	
 	// java port
 	public SbVec3f(SbVec3f other) {
-		vec[0] = other.vec[0];
-		vec[1] = other.vec[1];
-		vec[2] = other.vec[2];
+		vec = new float[3];
+		indice = 0;
+		vec[0] = other.g(0);
+		vec[1] = other.g(1);
+		vec[2] = other.g(2);
 	}
 	
 	// Constructor given vector components. 
 	public SbVec3f(float[] v) {
+		vec = new float[3];
+		indice = 0;
 		 vec[0] = v[0]; vec[1] = v[1]; vec[2] = v[2]; 
 	}
 
@@ -124,6 +140,7 @@ public class SbVec3f implements Cloneable, Mutable {
 	 */
 	public SbVec3f(float x, float y, float z)
 	{ 
+		vec = new float[3]; 		
 		vec[0] = x; vec[1] = y; vec[2] = z; 
 	}
 	
@@ -131,24 +148,42 @@ public class SbVec3f implements Cloneable, Mutable {
 		return 4*3;
 	}
 	
+	/**
+	 * Internal method
+	 * @param i
+	 * @return
+	 */
+	protected float g(int i) {
+		return vec[indice+i];
+	}
+	
+	/**
+	 * Internal method
+	 * @param i
+	 * @param v
+	 */
+	protected void s(int i, float v) {
+		vec[indice+i] = v;
+	}
+	
 	// Returns right-handed cross product of vector and another vector. 
 	public SbVec3f cross(final SbVec3f v) {
 		
-		  return new SbVec3f(vec[1] * v.vec[2] - vec[2] * v.vec[1],
-				    vec[2] * v.vec[0] - vec[0] * v.vec[2],
-				    vec[0] * v.vec[1] - vec[1] * v.vec[0]);
+		  return new SbVec3f(g(1) * v.g(2) - g(2) * v.g(1),
+				    g(2) * v.g(0) - g(0) * v.g(2),
+				    g(0) * v.g(1) - g(1) * v.g(0));
 				   
 				  }
 	
 	public SbVec3f operator_cross_equal(SbVec3f v) {
 		
-		  float x = vec[1] * v.vec[2] - vec[2] * v.vec[1];
-		  float y = vec[2] * v.vec[0] - vec[0] * v.vec[2];
-		  float z = vec[0] * v.vec[1] - vec[1] * v.vec[0];
+		  float x = g(1) * v.g(2) - g(2) * v.g(1);
+		  float y = g(2) * v.g(0) - g(0) * v.g(2);
+		  float z = g(0) * v.g(1) - g(1) * v.g(0);
 		  
-		  vec[0] = x;
-		  vec[1] = y;
-		  vec[2] = z;
+		  s(0, x);
+		  s(1, y);
+		  s(2, z);
 		
 		return this;
 	}
@@ -157,18 +192,18 @@ public class SbVec3f implements Cloneable, Mutable {
 	// Returns dot (inner) product of vector and another vector. 
 	public float dot(SbVec3f v) {
 		
-		  return (vec[0] * v.vec[0] +
-				    vec[1] * v.vec[1] +
-				    vec[2] * v.vec[2]);
+		  return (g(0) * v.g(0) +
+				    g(1) * v.g(1) +
+				    g(2) * v.g(2));
 				  
 				  }
 	
 	// Returns vector components for reading only. 
     public final float[] getValueRead() {
     	float[] vecRead = new float[3];
-    	vecRead[0] = vec[0]; 
-    	vecRead[1] = vec[1]; 
-    	vecRead[2] = vec[2]; 
+    	vecRead[0] = g(0); 
+    	vecRead[1] = g(1); 
+    	vecRead[2] = g(2); 
     	return vecRead; 
     }
     
@@ -186,7 +221,7 @@ public class SbVec3f implements Cloneable, Mutable {
      * @param value
      */
     public final void setValue(int index, float value) {
-    	vec[index] = value;
+    	s(index, value);
     }
     
     /**
@@ -194,7 +229,7 @@ public class SbVec3f implements Cloneable, Mutable {
      * @return
      */
     public final FloatBuffer getValueGL() {
-    	return FloatBuffer.wrap(vec);
+    	return FloatBuffer.wrap(vec,indice,3);
     }
 	
     //
@@ -204,9 +239,9 @@ public class SbVec3f implements Cloneable, Mutable {
 public void
 getValue(final float[] x, final float[] y, final float[] z)
 {
-    x[0] = vec[0];
-    y[0] = vec[1];
-    z[0] = vec[2];
+    x[0] = g(0);
+    y[0] = g(1);
+    z[0] = g(2);
 }
         
 	//
@@ -215,10 +250,10 @@ getValue(final float[] x, final float[] y, final float[] z)
 	 
 	 public float length()
 	 {
-	  return (float)Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+	  return (float)Math.sqrt(g(0) * g(0) + g(1) * g(1) + g(2) * g(2));
 	 }
 	 	
-	  public float sqrLength() { return vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]; }
+	  public float sqrLength() { return g(0) * g(0) + g(1) * g(1) + g(2) * g(2); }
 	
 	// Changes vector to be unit length, returning 
 	// the length before normalization. 
@@ -236,29 +271,29 @@ getValue(final float[] x, final float[] y, final float[] z)
 	
 	// Negates each component of vector in place. 
 	public void negate() {
-	     vec[0] = -vec[0];
-	     vec[1] = -vec[1];
-	     vec[2] = -vec[2];	     		
+	     s(0, -g(0));
+	     s(1, -g(1));
+	     s(2, -g(2));	     		
 	}
 	
 	// Sets the vector components. 
 	public SbVec3f setValue(float[] v) {
-		 vec[0] = v[0]; vec[1] = v[1]; vec[2] = v[2]; return this; 
+		 s(0, v[0]); s(1, v[1]); s(2, v[2]); return this; 
 	}
 	
 	// Sets the vector components. 
 	public SbVec3f setValue(float x, float y, float z) {
 		
-		vec[0] = x; vec[1] = y; vec[2] = z; 
+		s(0, x); s(1, y); s(2, z); 
 		return this;
 	}
 	
 	// copy operator (java port)
 	public void copyFrom(Object other) {
 		SbVec3f sbVec3f = (SbVec3f)other;
-		vec[0] = sbVec3f.vec[0];
-		vec[1] = sbVec3f.vec[1];
-		vec[2] = sbVec3f.vec[2];
+		s(0, sbVec3f.g(0));
+		s(1, sbVec3f.g(1));
+		s(2, sbVec3f.g(2));
 	}
 	
 	protected Object clone() {
@@ -274,9 +309,9 @@ getValue(final float[] x, final float[] y, final float[] z)
 	  public SbVec3f 
 	   operator_plus_equal(SbVec3f v)
 	   {
-	       vec[0] += v.vec[0];
-	       vec[1] += v.vec[1];
-	       vec[2] += v.vec[2];
+	       s(0,g(0) + v.g(0));
+	       s(1,g(1) + v.g(1));
+	       s(2,g(2) + v.g(2));
 	   
 	       return this;
 	   }
@@ -288,9 +323,9 @@ getValue(final float[] x, final float[] y, final float[] z)
 public SbVec3f 
 operator_minus_equal(SbVec3f v)
 {
-    vec[0] -= v.vec[0];
-    vec[1] -= v.vec[1];
-    vec[2] -= v.vec[2];
+    s(0, g(0) - v.g(0));
+    s(1, g(1) - v.g(1));
+    s(2, g(2) - v.g(2));
 
     return this;
 }
@@ -303,9 +338,9 @@ operator_minus_equal(SbVec3f v)
 	 
 	public SbVec3f operator_mul_equal(float d) {
 		
-		  vec[0] *= d;
-		    vec[1] *= d;
-		    vec[2] *= d;
+		  s(0,g(0) * d);
+		    s(1,g(1) * d);
+		    s(2,g(2) * d);
 		   
 		    return this;
 	}
@@ -317,28 +352,29 @@ operator_minus_equal(SbVec3f v)
 	
 	// Component-wise vector addition operator.
 	public SbVec3f operator_add_equal(SbVec3f v) {
-		 vec[0] += v.vec[0];
-		 vec[1] += v.vec[1];
-		 vec[2] += v.vec[2];
+		 s(0,g(0) + v.g(0));
+		 s(1, g(1) + v.g(1));
+		 s(2,g(2) + v.g(2));
 		  
 		   return this;		  		
 	}
 	
 	// java port
 	public float operator_square_bracket(int i) {
-		return vec[i];
+		return g(i);
 	}
 	
 	// java port
 	public float operator_square_bracket(int i, float value) {
-		return vec[i] = value;
+		s(i, value);
+		return value;
 	}
 	
 	// Component-wise vector addition and subtraction operators. 
 	public SbVec3f substract(SbVec3f v) {
-	     vec[0] -= v.vec[0];
-          vec[1] -= v.vec[1];
-          vec[2] -= v.vec[2];
+	     s(0,g(0) - v.g(0));
+          s(1,g(1) - v.g(1));
+          s(2,g(2) - v.g(2));
       
           return this;
      	}
@@ -346,9 +382,9 @@ operator_minus_equal(SbVec3f v)
 	// Component-wise binary scalar multiplication operator. 
 	public SbVec3f operator_mul(float d) {
 		SbVec3f v = this;
-	     return new SbVec3f(v.vec[0] * d,
-	    		                     v.vec[1] * d,
-	    		                     v.vec[2] * d);
+	     return new SbVec3f(v.g(0) * d,
+	    		                     v.g(1) * d,
+	    		                     v.g(2) * d);
 	    		  	}
 
 	 //
@@ -357,9 +393,9 @@ operator_minus_equal(SbVec3f v)
 	   
 	  public SbVec3f operator_add(SbVec3f v2) {
 		  SbVec3f v1 = this;
-		     return new SbVec3f(v1.vec[0] + v2.vec[0],
-		    		                     v1.vec[1] + v2.vec[1],
-		    		                     v1.vec[2] + v2.vec[2]);
+		     return new SbVec3f(v1.g(0) + v2.g(0),
+		    		                     v1.g(1) + v2.g(1),
+		    		                     v1.g(2) + v2.g(2));
 		    		  	}
     
 	  //
@@ -368,16 +404,16 @@ operator_minus_equal(SbVec3f v)
 	   
 	  public SbVec3f operator_minus(SbVec3f v2) {
 		  SbVec3f v1 = this;
-		     return new SbVec3f(v1.vec[0] - v2.vec[0],
-		    		                      v1.vec[1] - v2.vec[1],
-		    		                      v1.vec[2] - v2.vec[2]);		    		  		  
+		     return new SbVec3f(v1.g(0) - v2.g(0),
+		    		                      v1.g(1) - v2.g(1),
+		    		                      v1.g(2) - v2.g(2));		    		  		  
 	  }
 	  
 	  //
 	// Nondestructive unary negation - returns a new vector
 	//
 	  public SbVec3f operator_minus() {
-		  return new SbVec3f(-vec[0], -vec[1], -vec[2]);
+		  return new SbVec3f(-g(0), -g(1), -g(2));
 	  }
 
 	  public SbVec3f operator_div(float d)
@@ -398,9 +434,9 @@ public boolean
 operator_equal_equal( SbVec3f v2)
 {
 	SbVec3f v1 = this;
-    return (v1.vec[0] == v2.vec[0] &&
-            v1.vec[1] == v2.vec[1] &&
-            v1.vec[2] == v2.vec[2]);
+    return (v1.g(0) == v2.g(0) &&
+            v1.g(1) == v2.g(1) &&
+            v1.g(2) == v2.g(2));
 }
 
 	  
@@ -450,17 +486,17 @@ getClosestAxis()
 
 // java port
 public float x() {
-	return getValueRead()[0];
+	return g(0);
 }
   
 //java port
 public float y() {
-	return getValueRead()[1];
+	return g(1);
 }
   
 //java port
 public float z() {
-	return getValueRead()[2];
+	return g(2);
 }
 
 /**
@@ -482,9 +518,9 @@ public static SbVec3f[] allocate(int num) {
  */
 	public DoubleConsumer[] getRef() {
 		DoubleConsumer[] ref = new DoubleConsumer[3];
-		ref[0] = value -> vec[0] = (float)value;
-		ref[1] = value -> vec[1] = (float)value;
-		ref[2] = value -> vec[2] = (float)value;
+		ref[0] = value -> s(0, (float)value);
+		ref[1] = value -> s(1, (float)value);
+		ref[2] = value -> s(2, (float)value);
 		return ref;
 	}
 
@@ -501,31 +537,31 @@ equals(final SbVec3f v, float tolerance)
 }
 
 public float getX() { // java port
-	return vec[0];
+	return g(0);
 }
 
 public float getY() {
-	return vec[1];
+	return g(1);
 }
 
 public float getZ() {
-	return vec[2];
+	return g(2);
 }
 
 public void setX(float f) { // java port
-	vec[0] = f;
+	s(0, f);
 }
 
 public void setY(float f) {
-	vec[1] = f;
+	s(1, f);
 }
 
 public void setZ(float f) {
-	vec[2] = f;
+	s(2, f);
 }
 
 public float getValueAt(int axis) { // java port
-	return vec[axis];
+	return g(axis);
 }
 
 /**
