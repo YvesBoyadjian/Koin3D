@@ -295,9 +295,9 @@ translateBy(SoState state,
 
     for (i = 0; i < 3; i++)
         elt.localMatrix.getValue()[3][i] +=
-            (elt.localMatrix.getValue()[0][i] * translation.getValue()[0] +
-             elt.localMatrix.getValue()[1][i] * translation.getValue()[1] +
-             elt.localMatrix.getValue()[2][i] * translation.getValue()[2]);
+            (elt.localMatrix.getValue()[0][i] * translation.getValueRead()[0] +
+             elt.localMatrix.getValue()[1][i] * translation.getValueRead()[1] +
+             elt.localMatrix.getValue()[2][i] * translation.getValueRead()[2]);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -344,9 +344,9 @@ scaleBy(SoState state, final SbVec3f scaleFactor)
     // matrix than to multiply two matrices...
 
     for (i = 0; i < 4; i++) {
-        elt.localMatrix.getValue()[0][i] *= scaleFactor.getValue()[0];
-        elt.localMatrix.getValue()[1][i] *= scaleFactor.getValue()[1];
-        elt.localMatrix.getValue()[2][i] *= scaleFactor.getValue()[2];
+        elt.localMatrix.getValue()[0][i] *= scaleFactor.getValueRead()[0];
+        elt.localMatrix.getValue()[1][i] *= scaleFactor.getValueRead()[1];
+        elt.localMatrix.getValue()[2][i] *= scaleFactor.getValueRead()[2];
     }
 }
 

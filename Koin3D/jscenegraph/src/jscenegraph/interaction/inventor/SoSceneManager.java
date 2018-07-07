@@ -674,7 +674,7 @@ public void destructor()
 		       SoSceneManager mgr = (SoSceneManager ) r;
 		   
 		       if (mgr.rgbMode)
-		            gl.glClearColor(mgr.bkgColor.getValue()[0], mgr.bkgColor.getValue()[1], mgr.bkgColor.getValue()[2], 0);
+		            gl.glClearColor(mgr.bkgColor.getValueRead()[0], mgr.bkgColor.getValueRead()[1], mgr.bkgColor.getValueRead()[2], 0);
 		       else gl.glClearIndex( mgr.bkgIndex );
 		   
 		       gl.glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

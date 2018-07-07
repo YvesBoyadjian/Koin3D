@@ -75,6 +75,7 @@ import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoNodeList;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
@@ -1461,9 +1462,9 @@ void fillBevel(final SbVec3f[] result, int nPoints,
         // Because of the geometry, cos(angle) is n[1] and sin(angle)
         // is -n[0], and x' is zero (the bevel always goes straight
         // back).
-        result[i].getValue()[0] = points[i].getValue()[1] * n.getValue()[0] + translation.getValue()[0];
-        result[i].getValue()[1] = points[i].getValue()[1] * n.getValue()[1] + translation.getValue()[1];
-        result[i].getValue()[2] = -points[i].getValue()[0];
+        result[i].setValue(0, points[i].getValue()[1] * n.getValue()[0] + translation.getValue()[0]);
+        result[i].setValue(1, points[i].getValue()[1] * n.getValue()[1] + translation.getValue()[1]);
+        result[i].setValue(2, -points[i].getValue()[0]);
     }
 } 
 
@@ -1490,9 +1491,9 @@ void fillBevelN(final SbVec3f[] result, int nNorms,
         // Because of the geometry, cos(angle) is n[1] and sin(angle)
         // is -n[0], and x' is zero (the bevel always goes straight
         // back).
-        result[i].getValue()[0] = norms[i].getValue()[1] * n.getValue()[0];
-        result[i].getValue()[1] = norms[i].getValue()[1] * n.getValue()[1];
-        result[i].getValue()[2] = -norms[i].getValue()[0];
+        result[i].setValue(0, norms[i].getValue()[1] * n.getValue()[0]);
+        result[i].setValue(1, norms[i].getValue()[1] * n.getValue()[1]);
+        result[i].setValue(2, -norms[i].getValue()[0]);
     }
 } 
 
@@ -1658,7 +1659,7 @@ public boolean isValid(final SoState state)
     //! All this stuff is used while generating primitives:
     private static SoText3 currentGeneratingNode;
     private final static SoPrimitiveVertex[] genPrimVerts = new SoPrimitiveVertex[3];
-    private static final SbVec3f genTranslate = new SbVec3f();
+    private static final SbVec3fSingle genTranslate = new SbVec3fSingle();
     private static int genWhichVertex = -1;
     private static int genPrimType;
     private static SoAction genAction;
@@ -2027,20 +2028,20 @@ private static void renderSideTris(GL2 gl2, int nPoints, final SbVec3f[] p1, fin
     // per character.
     for (int i = 0; i < nPoints-1; i++) {
         if (genTexCoord) gl2.glTexCoord2f(sTex[i+1], tTex[0+tTexIndex]);
-        gl2.glNormal3fv(n1[i*2+1].getValue(),0);
-        gl2.glVertex3fv(p1[i+1].getValue(),0);
+        gl2.glNormal3fv(n1[i*2+1].getValueRead(),0);
+        gl2.glVertex3fv(p1[i+1].getValueRead(),0);
 
         if (genTexCoord) gl2.glTexCoord2f(sTex[i+1], tTex[1+tTexIndex]);
-        gl2.glNormal3fv(n2[i*2+1].getValue(),0);
-        gl2.glVertex3fv(p2[i+1].getValue(),0);
+        gl2.glNormal3fv(n2[i*2+1].getValueRead(),0);
+        gl2.glVertex3fv(p2[i+1].getValueRead(),0);
 
         if (genTexCoord) gl2.glTexCoord2f(sTex[i], tTex[1+tTexIndex]);
-        gl2.glNormal3fv(n2[i*2].getValue(),0);
-        gl2.glVertex3fv(p2[i].getValue(),0);
+        gl2.glNormal3fv(n2[i*2].getValueRead(),0);
+        gl2.glVertex3fv(p2[i].getValueRead(),0);
 
         if (genTexCoord) gl2.glTexCoord2f(sTex[i], tTex[0+tTexIndex]);
-        gl2.glNormal3fv(n1[i*2].getValue(),0);
-        gl2.glVertex3fv(p1[i].getValue(),0);
+        gl2.glNormal3fv(n1[i*2].getValueRead(),0);
+        gl2.glVertex3fv(p1[i].getValueRead(),0);
     }
 }
             
@@ -2477,8 +2478,8 @@ void generateFront(GL2 gl2, int line)
         myFont.generateFrontChar(gl2, (char)chars.get(i), tobjgenerateFront);
 
         SbVec2f p = myFont.getCharOffset((char)chars.get(i));
-        genTranslate.getValue()[0] += p.getValue()[0];
-        genTranslate.getValue()[1] += p.getValue()[1];
+        genTranslate.setValue(0, genTranslate.getValueRead()[0] + p.getValue()[0]);
+        genTranslate.setValue(1, genTranslate.getValueRead()[1] + p.getValue()[1]);
     }
 }
 
@@ -2527,9 +2528,9 @@ void vtxCB(Object v)
 {
     SbVec2f vv = (SbVec2f)v;
     final float[] vertex = new float[3];
-    vertex[0] = vv.getValue()[0] + genTranslate.getValue()[0];
-    vertex[1] = vv.getValue()[1] + genTranslate.getValue()[1];
-    vertex[2] = genTranslate.getValue()[2];
+    vertex[0] = vv.getValue()[0] + genTranslate.getValueRead()[0];
+    vertex[1] = vv.getValue()[1] + genTranslate.getValueRead()[1];
+    vertex[2] = genTranslate.getValueRead()[2];
 
     SoText3 t3 = currentGeneratingNode;
     
@@ -2617,9 +2618,9 @@ private void SWAP(int a, int b, SoPrimitiveVertex[] array) {
 private void SET(int pv, int i, int row, int col,final SbVec3f[][] p,final SbVec3f[][] n, final SbVec4f texCoord,final float[] sTexCoords, final float[] tTexCoords, final int tTexCoordsIndex) 
  {
     final float[] vertex = new float[3];
-	vertex[0] = p[col][i+row].getValue()[0] + genTranslate.getValue()[0]; 
-  vertex[1] = p[col][i+row].getValue()[1] + genTranslate.getValue()[1]; 
-  vertex[2] = p[col][i+row].getValue()[2]; 
+	vertex[0] = p[col][i+row].getValueRead()[0] + genTranslate.getValueRead()[0]; 
+  vertex[1] = p[col][i+row].getValueRead()[1] + genTranslate.getValueRead()[1]; 
+  vertex[2] = p[col][i+row].getValueRead()[2]; 
   genPrimVerts[pv].setPoint(new SbVec3f(vertex));
   genPrimVerts[pv].setNormal(n[col][i*2+row]); 
   texCoord.getValue()[0] = sTexCoords[i+row]; 

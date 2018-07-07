@@ -59,6 +59,7 @@ import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -198,15 +199,15 @@ public SbVec4f  valueCallback(Object action,
 
     // Now, figure out reflection vector, from formula:
     // R = P - 2 (N . N) pointE
-    SbVec3f reflection = pointE.operator_minus( pointE.operator_mul(2.0f * normalE.dot(normalE)));
+    SbVec3fSingle reflection = new SbVec3fSingle(pointE.operator_minus( pointE.operator_mul(2.0f * normalE.dot(normalE))));
 
     // Finally, compute s/t coordinates...
     reflection.getValue()[2] += 1.0;
     float magnitude = reflection.length();
 
     // This is static so we can return a reference to it
-    result.setValue(reflection.getValue()[0] / magnitude + 0.5f,
-                    reflection.getValue()[1] / magnitude + 0.5f,
+    result.setValue(reflection.getValueRead()[0] / magnitude + 0.5f,
+                    reflection.getValueRead()[1] / magnitude + 0.5f,
                     0.0f, 1.0f);
 
     return result;

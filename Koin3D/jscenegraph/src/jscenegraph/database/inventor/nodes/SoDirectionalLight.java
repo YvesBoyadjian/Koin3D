@@ -202,7 +202,7 @@ GLRender(SoGLRenderAction action)
     // RGBA intensities of source are the product of the color and
     // intensity, with 1.0 alpha
     v3.copyFrom(color.getValue().operator_mul(intensity.getValue()));
-    v4.setValue(v3.getValue()[0], v3.getValue()[1], v3.getValue()[2], 1.0f);
+    v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
 
     gl2.glLightfv( id, GL_AMBIENT, new SbVec4f(0.0f, 0.0f, 0.0f, 1.0f).getValue(),0);
     gl2.glLightfv( id, GL_DIFFUSE,  v4.getValue(),0);
@@ -211,7 +211,7 @@ GLRender(SoGLRenderAction action)
     // "Position" is the direction vector negated with a 0.0 w
     // component. Yet another GL peccadillo.
     v3.copyFrom(direction.getValue());
-    v4.setValue(-v3.getValue()[0], -v3.getValue()[1], -v3.getValue()[2], 0.0f);
+    v4.setValue(-v3.getValueRead()[0], -v3.getValueRead()[1], -v3.getValueRead()[2], 0.0f);
     gl2.glLightfv( id, GL_POSITION, v4.getValue(),0);
 
     // Make sure no spotlight stuff is on

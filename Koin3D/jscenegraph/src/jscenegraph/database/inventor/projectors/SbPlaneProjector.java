@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbPlane;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.errors.SoDebugError;
 
@@ -353,7 +354,7 @@ project(final SbVec2f point)
     // For the remaining tasks, it is not important that it be the exact same 
     // point in space, just that it lies in the plane.  So check where it is 
     // and move it if need be.
-        if ( (!isFlatAgainstViewPlane) && postAffinePlnPnt.getValue()[2] >= 0.0 ) {
+        if ( (!isFlatAgainstViewPlane) && postAffinePlnPnt.getValueRead()[2] >= 0.0 ) {
             // Get a direction lying within the plane that is also within the
             // viewplane:
             SbVec3f dirInViewPlane = new SbVec3f(postAffineNormal.cross( new SbVec3f( 0,0,-1) ));
@@ -362,7 +363,7 @@ project(final SbVec2f point)
             SbVec3f dirInMyPlane   = new SbVec3f(dirInViewPlane.cross( postAffineNormal ));
 
 //#ifdef DEBUG
-            if ( dirInMyPlane.getValue()[2] == 0.0 ) {
+            if ( dirInMyPlane.getValueRead()[2] == 0.0 ) {
                 SoDebugError.post("SbPlaneProjector::project",
                                    "Bad value for direction in plane");
             }
@@ -370,7 +371,7 @@ project(final SbVec2f point)
             // Find out how far we need to travel along the direction
             // before we hit the z=0 plane:
             // postAffinePlnPnt[2] + distToGo * dirInMyPlane[2] = 0
-            float distToGo = (-1 * (postAffinePlnPnt.getValue()[2] )) / dirInMyPlane.getValue()[2];
+            float distToGo = (-1 * (postAffinePlnPnt.getValueRead()[2] )) / dirInMyPlane.getValueRead()[2];
             // Go a bit further to insure negative z
             postAffinePlnPnt.copyFrom(postAffinePlnPnt.operator_add(dirInMyPlane.operator_mul(1.1f * distToGo)));
         }
@@ -415,18 +416,18 @@ project(final SbVec2f point)
             vvProj.multVecMatrix( postAffinePlnPnt, projPlnPnt );
 
             // Transform from [-1,1] range to [0,1] range for normalized coords.
-            final SbVec3f nrmScnVanish1 = new SbVec3f(), nrmScnVanish2 = new SbVec3f(), nrmScnPlnPnt = new SbVec3f();
-            nrmScnVanish1.getValue()[0] = (1.0f + projVanish1.getValue()[0]) * 0.5f;
-            nrmScnVanish1.getValue()[1] = (1.0f + projVanish1.getValue()[1]) * 0.5f;
-            nrmScnVanish2.getValue()[0] = (1.0f + projVanish2.getValue()[0]) * 0.5f;
-            nrmScnVanish2.getValue()[1] = (1.0f + projVanish2.getValue()[1]) * 0.5f;
-            nrmScnPlnPnt.getValue()[0]  = (1.0f + projPlnPnt.getValue()[0])  * 0.5f;
-            nrmScnPlnPnt.getValue()[1]  = (1.0f + projPlnPnt.getValue()[1])  * 0.5f;
+            final SbVec3fSingle nrmScnVanish1 = new SbVec3fSingle(), nrmScnVanish2 = new SbVec3fSingle(), nrmScnPlnPnt = new SbVec3fSingle();
+            nrmScnVanish1.getValue()[0] = (1.0f + projVanish1.getValueRead()[0]) * 0.5f;
+            nrmScnVanish1.getValue()[1] = (1.0f + projVanish1.getValueRead()[1]) * 0.5f;
+            nrmScnVanish2.getValue()[0] = (1.0f + projVanish2.getValueRead()[0]) * 0.5f;
+            nrmScnVanish2.getValue()[1] = (1.0f + projVanish2.getValueRead()[1]) * 0.5f;
+            nrmScnPlnPnt.getValue()[0]  = (1.0f + projPlnPnt.getValueRead()[0])  * 0.5f;
+            nrmScnPlnPnt.getValue()[1]  = (1.0f + projPlnPnt.getValueRead()[1])  * 0.5f;
 
             // Finally, get the vanishing points in viewPlane coords:
-            SbVec3f vpVanish1 = new SbVec3f(nrmScnVanish1.getValue()[0] * vvW,nrmScnVanish1.getValue()[1] * vvH, 0);
-            SbVec3f vpVanish2 = new SbVec3f(nrmScnVanish2.getValue()[0] * vvW,nrmScnVanish2.getValue()[1] * vvH, 0);
-            SbVec3f  vpPlnPnt = new SbVec3f( nrmScnPlnPnt.getValue()[0] * vvW, nrmScnPlnPnt.getValue()[1] * vvH, 0);
+            SbVec3f vpVanish1 = new SbVec3f(nrmScnVanish1.getValueRead()[0] * vvW,nrmScnVanish1.getValueRead()[1] * vvH, 0);
+            SbVec3f vpVanish2 = new SbVec3f(nrmScnVanish2.getValueRead()[0] * vvW,nrmScnVanish2.getValueRead()[1] * vvH, 0);
+            SbVec3f  vpPlnPnt = new SbVec3f( nrmScnPlnPnt.getValueRead()[0] * vvW, nrmScnPlnPnt.getValueRead()[1] * vvH, 0);
 
             // Connect them to form the horizon:
             SbLine horizon = new SbLine( vpVanish1, vpVanish2 );
@@ -450,31 +451,31 @@ project(final SbVec2f point)
             float   distJ = -1 * viewVol.getNearDist();
             final SbVec3f normL = new SbVec3f(normM.cross( normN ));
             int indexU, indexV, indexW;
-            if (   Math.abs(normL.getValue()[0]) > Math.abs(normL.getValue()[1]) 
-                && Math.abs(normL.getValue()[0]) > Math.abs(normL.getValue()[2]) ) {
+            if (   Math.abs(normL.getValueRead()[0]) > Math.abs(normL.getValueRead()[1]) 
+                && Math.abs(normL.getValueRead()[0]) > Math.abs(normL.getValueRead()[2]) ) {
                 indexW = 0; indexU = 1; indexV = 2;
             }
-            else if ( Math.abs(normL.getValue()[1]) > Math.abs(normL.getValue()[2]) ) {
+            else if ( Math.abs(normL.getValueRead()[1]) > Math.abs(normL.getValueRead()[2]) ) {
                 indexW = 1; indexU = 0; indexV = 2;
             }
             else {
                 indexW = 2; indexU = 0; indexV = 1;
             }
-            final SbVec3f slicePoint1 = new SbVec3f(), slicePoint2 = new SbVec3f();
-            float denom =   (normM.getValue()[indexU] * normN.getValue()[indexV]) 
-                          + (normM.getValue()[indexV] * normN.getValue()[indexU]);
+            final SbVec3fSingle slicePoint1 = new SbVec3fSingle(), slicePoint2 = new SbVec3fSingle();
+            float denom =   (normM.getValueRead()[indexU] * normN.getValueRead()[indexV]) 
+                          + (normM.getValueRead()[indexV] * normN.getValueRead()[indexU]);
             slicePoint1.getValue()[indexU] =
-                ((normM.getValue()[indexV] * distJ) - (normN.getValue()[indexV] * distI)) / denom;
+                ((normM.getValueRead()[indexV] * distJ) - (normN.getValueRead()[indexV] * distI)) / denom;
             slicePoint1.getValue()[indexV] =
-                ((normN.getValue()[indexU] * distI) - (normM.getValue()[indexU] * distJ)) / denom;
+                ((normN.getValueRead()[indexU] * distI) - (normM.getValueRead()[indexU] * distJ)) / denom;
             slicePoint1.getValue()[indexW] = 0.0f;
             normL.normalize();
 // END STUFF FROM GRAPHICS GEMS 3, p.235 for intersecting 2 planes:
             // Convert slicePoint1 to viewPlane coords:
-            final SbVec3f vpSlicePoint = new SbVec3f();
+            final SbVec3fSingle vpSlicePoint = new SbVec3fSingle();
             vvProj.multVecMatrix( slicePoint1,   vpSlicePoint );
-            vpSlicePoint.getValue()[0] = ((1.0f + vpSlicePoint.getValue()[0]) * 0.5f) * vvW;
-            vpSlicePoint.getValue()[1] = ((1.0f + vpSlicePoint.getValue()[1]) * 0.5f) * vvH;
+            vpSlicePoint.getValue()[0] = ((1.0f + vpSlicePoint.getValueRead()[0]) * 0.5f) * vvW;
+            vpSlicePoint.getValue()[1] = ((1.0f + vpSlicePoint.getValueRead()[1]) * 0.5f) * vvH;
             vpSlicePoint.getValue()[2] = 0.0f;
             // Now calculate lineToLine, the distance between vpSlicePoint and
             // the horizon:
@@ -499,8 +500,8 @@ final float VANISH_DELTA =.01f;
                 SbVec3f mvDir = new SbVec3f(vec2);
                 mvDir.normalize();
                 SbVec3f vpClampedPt = nearToInPoint.operator_add( mvDir.operator_mul(vanishSafetyDist));
-                nrmScnClampedPt.setValue( vpClampedPt.getValue()[0] / vvW, 
-                                          vpClampedPt.getValue()[1] / vvH );
+                nrmScnClampedPt.setValue( vpClampedPt.getValueRead()[0] / vvW, 
+                                          vpClampedPt.getValueRead()[1] / vvH );
             }
 
         }

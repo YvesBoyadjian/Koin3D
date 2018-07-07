@@ -353,26 +353,26 @@ setUpDefaultCoordSpace(SoAction action)
     final SbVec3f             boxSize = box.getMax().operator_minus(min);
 
     // Look for the largest two dimensions of the box
-    if (boxSize.getValue()[0] > boxSize.getValue()[1] && boxSize.getValue()[0] > boxSize.getValue()[2]) {
+    if (boxSize.getValueRead()[0] > boxSize.getValueRead()[1] && boxSize.getValueRead()[0] > boxSize.getValueRead()[2]) {
         coordS = 0;
-        coordT = boxSize.getValue()[1] > boxSize.getValue()[2] ? 1 : 2;
+        coordT = boxSize.getValueRead()[1] > boxSize.getValueRead()[2] ? 1 : 2;
     }
-    else if (boxSize.getValue()[1] > boxSize.getValue()[2]) {
+    else if (boxSize.getValueRead()[1] > boxSize.getValueRead()[2]) {
         coordS = 1;
-        coordT = boxSize.getValue()[0] > boxSize.getValue()[2] ? 0 : 2;
+        coordT = boxSize.getValueRead()[0] > boxSize.getValueRead()[2] ? 0 : 2;
     }
     else {
         coordS = 2;
-        coordT = boxSize.getValue()[0] > boxSize.getValue()[1] ? 0 : 1;
+        coordT = boxSize.getValueRead()[0] > boxSize.getValueRead()[1] ? 0 : 1;
     }
 
     // Set up vectors for S and T coordinates. The length of the
     // vectors should be the size of the box in that dimension. Since
     // we want the texture to remain square, we use the same length
     // for both dimensions.
-    float tmp = 1.0f / boxSize.getValue()[coordS];
-    sVector.setValue(0.0f, 0.0f, 0.0f, -min.getValue()[coordS] * tmp);
-    tVector.setValue(0.0f, 0.0f, 0.0f, -min.getValue()[coordT] * tmp);
+    float tmp = 1.0f / boxSize.getValueRead()[coordS];
+    sVector.setValue(0.0f, 0.0f, 0.0f, -min.getValueRead()[coordS] * tmp);
+    tVector.setValue(0.0f, 0.0f, 0.0f, -min.getValueRead()[coordT] * tmp);
     sVector.getValue()[coordS] = tVector.getValue()[coordT] = tmp;
 }
 
@@ -416,8 +416,8 @@ generateCoord(Object userData,
     int sDim = tcb.coordS, tDim = tcb.coordT;
 
 
-    result.setValue(point.getValue()[sDim] * tcb.sVector.getValue()[sDim] + tcb.sVector.getValue()[3],
-                    point.getValue()[tDim] * tcb.tVector.getValue()[tDim] + tcb.tVector.getValue()[3],
+    result.setValue(point.getValueRead()[sDim] * tcb.sVector.getValue()[sDim] + tcb.sVector.getValue()[3],
+                    point.getValueRead()[tDim] * tcb.tVector.getValue()[tDim] + tcb.tVector.getValue()[3],
                     0.0f,
                     1.0f);
 

@@ -263,9 +263,9 @@ public void getTrimCurve(SoState state, IntConsumer numPoints, Consumer<float[]>
 
         for (i = 0; i < np; i++) {
             final SbVec3f t = pce.get3(getIndex(i, index, pce.getNum()));
-            p[i*3]   = t.getValue()[0];
-            p[i*3+1] = t.getValue()[1];
-            p[i*3+2] = t.getValue()[2];
+            p[i*3]   = t.getValueRead()[0];
+            p[i*3+1] = t.getValueRead()[1];
+            p[i*3+2] = t.getValueRead()[2];
         }
     }   
     numKnots.accept(0);

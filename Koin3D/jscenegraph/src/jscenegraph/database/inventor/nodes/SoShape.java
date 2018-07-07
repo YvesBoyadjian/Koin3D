@@ -210,7 +210,7 @@ public abstract class SoShape extends SoNode {
     } else {
       // we need to send the single color on the correct vertex attribute...
       SbColor color = SoGLLazyElement.getDiffuse(state, 0);
-      gl2.glVertexAttrib4fv(SoLazyElement.VertexAttribs.ATTRIB_COLOR.getValue(), color.getValue(),0);
+      gl2.glVertexAttrib4fv(SoLazyElement.VertexAttribs.ATTRIB_COLOR.getValue(), color.getValueRead(),0); // FIXME
     }
   } else {
 	  gl2.glVertexPointer(3, GL_FLOAT, 0, vertexOffset);
@@ -1053,7 +1053,7 @@ endShape()
             final SbVec3f t = polyVerts[i].getPoint();
 
             double[] dv = new double[3];  // glu requires double...
-            dv[0] = t.getValue()[0]; dv[1] = t.getValue()[1]; dv[2] = t.getValue()[2];
+            dv[0] = t.getValueRead()[0]; dv[1] = t.getValueRead()[1]; dv[2] = t.getValueRead()[2];
             GLU.gluTessVertex(tobj, dv, 0,(Object)polyVerts[i]);
         }
 //#ifdef GLU_VERSION_1_2
@@ -1107,18 +1107,18 @@ getScreenSize(SoState state, final SbBox3f boundingBox,
 
     boundingBox.getBounds(min, max);
 
-    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], min.getValue()[1], min.getValue()[2]), screenPoint[0]);
-    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], min.getValue()[1], max.getValue()[2]), screenPoint[1]);
-    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], max.getValue()[1], min.getValue()[2]), screenPoint[2]);
-    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], max.getValue()[1], max.getValue()[2]), screenPoint[3]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], min.getValue()[1], min.getValue()[2]), screenPoint[4]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], min.getValue()[1], max.getValue()[2]), screenPoint[5]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], max.getValue()[1], min.getValue()[2]), screenPoint[6]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], max.getValue()[1], max.getValue()[2]), screenPoint[7]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], min.getValueRead()[1], min.getValueRead()[2]), screenPoint[0]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], min.getValueRead()[1], max.getValueRead()[2]), screenPoint[1]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], max.getValueRead()[1], min.getValueRead()[2]), screenPoint[2]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], max.getValueRead()[1], max.getValueRead()[2]), screenPoint[3]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], min.getValueRead()[1], min.getValueRead()[2]), screenPoint[4]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], min.getValueRead()[1], max.getValueRead()[2]), screenPoint[5]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], max.getValueRead()[1], min.getValueRead()[2]), screenPoint[6]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], max.getValueRead()[1], max.getValueRead()[2]), screenPoint[7]);
 
     for (i = 0; i < 8; i++)
-        screenBox.extendBy(new SbVec2f((screenPoint[i].getValue()[0] * winSize.getValue()[0]),
-                                   (screenPoint[i].getValue()[1] * winSize.getValue()[1])));
+        screenBox.extendBy(new SbVec2f((screenPoint[i].getValueRead()[0] * winSize.getValue()[0]),
+                                   (screenPoint[i].getValueRead()[1] * winSize.getValue()[1])));
 
     // Get the size of the resulting box
     final SbVec2f boxSize = new SbVec2f();
@@ -1206,23 +1206,23 @@ rayPickTriangle(SoRayPickAction action,
 
         // Compute normal by interpolating vertex normals using
         // barycentric coordinates
-        norm.copyFrom((v1.getNormal().operator_mul( barycentric.getValue()[0]).operator_add(
-                v2.getNormal().operator_mul( barycentric.getValue()[1]).operator_add(
-                v3.getNormal().operator_mul( barycentric.getValue()[2])))));
+        norm.copyFrom((v1.getNormal().operator_mul( barycentric.getValueRead()[0]).operator_add(
+                v2.getNormal().operator_mul( barycentric.getValueRead()[1]).operator_add(
+                v3.getNormal().operator_mul( barycentric.getValueRead()[2])))));
         norm.normalize();
         pp.setObjectNormal(norm);
 
         // Compute texture coordinates the same way
-        texCoord.copyFrom((v1.getTextureCoords().operator_mul( barycentric.getValue()[0]).operator_add(
-                    v2.getTextureCoords().operator_mul( barycentric.getValue()[1]).operator_add(
-                    v3.getTextureCoords().operator_mul( barycentric.getValue()[2])))));
+        texCoord.copyFrom((v1.getTextureCoords().operator_mul( barycentric.getValueRead()[0]).operator_add(
+                    v2.getTextureCoords().operator_mul( barycentric.getValueRead()[1]).operator_add(
+                    v3.getTextureCoords().operator_mul( barycentric.getValueRead()[2])))));
         pp.setObjectTextureCoords(texCoord);
 
         // Copy material index from closest detail, since it can't
         // be interpolated
-        if (barycentric.getValue()[0] < barycentric.getValue()[1] && barycentric.getValue()[0] < barycentric.getValue()[2])
+        if (barycentric.getValueRead()[0] < barycentric.getValueRead()[1] && barycentric.getValueRead()[0] < barycentric.getValueRead()[2])
             pp.setMaterialIndex(v1.getMaterialIndex());
-        else if (barycentric.getValue()[1] < barycentric.getValue()[2])
+        else if (barycentric.getValueRead()[1] < barycentric.getValueRead()[2])
             pp.setMaterialIndex(v2.getMaterialIndex());
         else
             pp.setMaterialIndex(v3.getMaterialIndex());
@@ -1452,8 +1452,8 @@ private void RENDER_VERTEX(SoPrimitiveVertex pv, GL2 gl2)    {
         gl2.glTexCoord4fv(pv.getTextureCoords().getValue(),0);                     
     matlBundle.send(pv.getMaterialIndex(), true);                           
     if (! matlBundle.isColorOnly())                                          
-        gl2.glNormal3fv(pv.getNormal().getValue(),0);                              
-    gl2.glVertex3fv(pv.getPoint().getValue(),0);
+        gl2.glNormal3fv(pv.getNormal().getValueRead(),0);                              
+    gl2.glVertex3fv(pv.getPoint().getValueRead(),0);
 }
 ////////////////////////////////////////////////////////////////////////
 //

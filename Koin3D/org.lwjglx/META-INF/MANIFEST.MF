@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lwjglx
+Bundle-SymbolicName: org.lwjglx
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.lwjglx.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ lwjgl;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
+Export-Package: org.lwjglx,
+ org.lwjglx.opengl,
+ org.lwjglx.util.glu,
+ org.lwjglx.util.glu.tessellation

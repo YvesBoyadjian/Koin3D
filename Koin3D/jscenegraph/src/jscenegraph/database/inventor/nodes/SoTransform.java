@@ -358,9 +358,9 @@ private void ROTATE(SbRotation rot, SbMatrix matrix, SbMatrix inverse, SbMatrix 
 private void SCALE(SbVec3f vec, SbMatrix matrix, SbMatrix inverse, SbMatrix m) {                                        
     m.setScale(vec);                                                          
     matrix.multLeft(m);                                                       
-    vec.getValue()[0] = 1.0f / vec.getValue()[0];                                                    
-    vec.getValue()[1] = 1.0f / vec.getValue()[1];                                                    
-    vec.getValue()[2] = 1.0f / vec.getValue()[2];                                                    
+    vec.setValue(0, 1.0f / vec.getValueRead()[0]);                                                    
+    vec.setValue(1, 1.0f / vec.getValueRead()[1]);                                                    
+    vec.setValue(2, 1.0f / vec.getValueRead()[2]);                                                    
     m.setScale(vec);                                                          
     inverse.multRight(m);
 }

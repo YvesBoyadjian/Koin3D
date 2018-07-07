@@ -71,7 +71,7 @@ public class Util {
 		int nbBytes = (int)(arrayLength * 3 * (long)Float.SIZE / Byte.SIZE);
 		ByteBuffer retVal = Buffers.newDirectByteBuffer(nbBytes);
 		for(int i=0; i< arrayLength;i++) {
-			float[] value = objArray[i].getValue();
+			float[] value = objArray[i].getValueRead();
 			retVal.putFloat(value[0]);
 			retVal.putFloat(value[1]);
 			retVal.putFloat(value[2]);
@@ -100,7 +100,7 @@ public class Util {
 			int nbBytes = (int)(arrayLength * 3 * (long)Float.SIZE / Byte.SIZE);
 			retVal = Buffers.newDirectByteBuffer(nbBytes);
 			for(int i=0; i< arrayLength;i++) {
-				float[] value = objArray3d.get(i).getValue();
+				float[] value = objArray3d.get(i).getValueRead();
 				retVal.putFloat(value[0]);
 				retVal.putFloat(value[1]);
 				retVal.putFloat(value[2]);

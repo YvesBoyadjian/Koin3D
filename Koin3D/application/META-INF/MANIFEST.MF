@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Application
+Bundle-SymbolicName: application
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: application.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ geotoolsflat;bundle-version="1.0.0",
+ geotiff;bundle-version="1.0.0",
+ loader;bundle-version="1.0.0",
+ org.eclipse.swt,
+ jsceneviewer,
+ jscenegraph;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: application
+Bundle-ActivationPolicy: lazy

@@ -439,14 +439,14 @@ setPackedElt(SoNode node, int numColors,
 public void
 setAmbientElt(  SbColor color)
 {
-    ivState.ambientColor.setValue((float[])color.getValue());
+    ivState.ambientColor.setValue((float[])color.getValueRead());
 
     // For open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= masks.AMBIENT_MASK.getValue();  
 
 
     for(int i=0; i<3; i++){
-        if (ivState.ambientColor.getValue()[i] != glState.GLAmbient[i]){
+        if (ivState.ambientColor.getValueRead()[i] != glState.GLAmbient[i]){
             invalidBits |= masks.AMBIENT_MASK.getValue();
             return;
         }
@@ -465,13 +465,13 @@ setAmbientElt(  SbColor color)
 public void
 setEmissiveElt(  SbColor color)
 {
-    ivState.emissiveColor.setValue((float[])color.getValue());
+    ivState.emissiveColor.setValue((float[])color.getValueRead());
 
     // For open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= masks.EMISSIVE_MASK.getValue(); 
  
     for(int i=0; i<3; i++){
-        if (ivState.emissiveColor.getValue()[i] != glState.GLEmissive[i]){
+        if (ivState.emissiveColor.getValueRead()[i] != glState.GLEmissive[i]){
             invalidBits |= masks.EMISSIVE_MASK.getValue();
             return;
         }
@@ -489,13 +489,13 @@ setEmissiveElt(  SbColor color)
 public void
 setSpecularElt(  SbColor color)
 {
-    ivState.specularColor.setValue((float[])color.getValue());
+    ivState.specularColor.setValue((float[])color.getValueRead());
 
     // For open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= masks.SPECULAR_MASK.getValue(); 
 
     for(int i=0; i<3; i++){
-        if (ivState.specularColor.getValue()[i] != glState.GLSpecular[i]){
+        if (ivState.specularColor.getValueRead()[i] != glState.GLSpecular[i]){
             invalidBits |= masks.SPECULAR_MASK.getValue();
             return;
         }

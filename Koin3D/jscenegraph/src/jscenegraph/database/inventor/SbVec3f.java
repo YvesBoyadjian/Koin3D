@@ -163,8 +163,31 @@ public class SbVec3f implements Cloneable, Mutable {
 				  
 				  }
 	
-	// Returns vector components. 
-    public final float[] getValue() { return vec; }
+	// Returns vector components for reading only. 
+    public final float[] getValueRead() {
+    	float[] vecRead = new float[3];
+    	vecRead[0] = vec[0]; 
+    	vecRead[1] = vec[1]; 
+    	vecRead[2] = vec[2]; 
+    	return vecRead; 
+    }
+    
+    /**
+     * for internal use
+     * @return
+     */
+    protected final float[] getValueRef() {
+    	return vec; 
+    }
+    
+    /**
+     * Java port
+     * @param index
+     * @param value
+     */
+    public final void setValue(int index, float value) {
+    	vec[index] = value;
+    }
     
     /**
      * For JOGL
@@ -399,7 +422,7 @@ private float TEST_AXIS( final SbVec3f axis, final SbVec3f bestAxis, float max) 
 public SbVec3f
 getClosestAxis()
 {
-    final SbVec3f     axis = new SbVec3f(0.0f, 0.0f, 0.0f), bestAxis = new SbVec3f();
+    final SbVec3fSingle     axis = new SbVec3fSingle(0.0f, 0.0f, 0.0f), bestAxis = new SbVec3fSingle();
     float max = -21.234f;
 
     axis.getValue()[0] = 1.0f;      // +x axis
@@ -427,17 +450,17 @@ getClosestAxis()
 
 // java port
 public float x() {
-	return getValue()[0];
+	return getValueRead()[0];
 }
   
 //java port
 public float y() {
-	return getValue()[1];
+	return getValueRead()[1];
 }
   
 //java port
 public float z() {
-	return getValue()[2];
+	return getValueRead()[2];
 }
 
 /**
@@ -522,7 +545,7 @@ public void add(SbVec3f v) {
  * @param other
  */
 public void setValue(SbVec3f other) {
-	setValue(other.getValue());
+	setValue(other.getValueRead());
 }
 
 }

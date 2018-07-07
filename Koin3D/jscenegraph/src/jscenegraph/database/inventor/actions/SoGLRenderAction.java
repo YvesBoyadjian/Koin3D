@@ -1012,8 +1012,8 @@ renderTransparentObjs()
             // Look for bbox with smallest zmax (farthest from camera!)
             zFar = Float.MAX_VALUE;
             for (i = 0; i < numObjs; i++) {
-                if (bboxes[i].getMax().getValue()[2] < zFar) {
-                    zFar = bboxes[i].getMax().getValue()[2];
+                if (bboxes[i].getMax().getValueRead()[2] < zFar) {
+                    zFar = bboxes[i].getMax().getValueRead()[2];
                     farthest = i;
                 }
             }
@@ -1022,7 +1022,7 @@ renderTransparentObjs()
             apply(transpPaths.operator_square_bracket(farthest));
 
             // Mark it as being far
-            bboxes[farthest].getMax().getValue()[2] = Float.MAX_VALUE;
+            bboxes[farthest].getMax().setValue(2, Float.MAX_VALUE);
         }
     }
 

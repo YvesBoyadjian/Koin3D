@@ -35,9 +35,9 @@ public class SbVec3d {
 	public SbVec3d 
 	setValue(final SbVec3f v)
 	{
-	  vec[0] = (v.getValue()[0]);
-	  vec[1] = (v.getValue()[1]);
-	  vec[2] = (v.getValue()[2]);
+	  vec[0] = (v.getValueRead()[0]);
+	  vec[1] = (v.getValueRead()[1]);
+	  vec[2] = (v.getValueRead()[2]);
 	  return this;
 	}
 

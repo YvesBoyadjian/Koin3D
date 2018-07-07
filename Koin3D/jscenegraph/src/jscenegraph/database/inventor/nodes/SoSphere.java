@@ -176,11 +176,11 @@ public class SoSphere extends SoShape {
 	 
 // Computes S and T texture coordinates from point on surface
 private final float COMPUTE_S( SbVec3f point) {                                              
-  float s = (float)Math.atan2(point.getValue()[0], point.getValue()[2]) * .159f + .5f;
+  float s = (float)Math.atan2(point.getValueRead()[0], point.getValueRead()[2]) * .159f + .5f;
 	return s;
 }
 private final float COMPUTE_T( SbVec3f point)  {                                            
-	float t = (float)Math.atan2(point.getValue()[1], Math.sqrt(point.getValue()[0]*point.getValue()[0] + point.getValue()[2]*point.getValue()[2])) * .318f + .5f;
+	float t = (float)Math.atan2(point.getValueRead()[1], Math.sqrt(point.getValueRead()[0]*point.getValueRead()[0] + point.getValueRead()[2]*point.getValueRead()[2])) * .318f + .5f;
 	return t;
 }
 // Adjusts S texture coordinate in unstable areas
@@ -582,14 +582,14 @@ public void GLRenderVertexArray(SoGLRenderAction action, boolean sendNormals, bo
     for (/*int*/ i = 0;i<numVertices;i++) {
       int index = indices.get(i);
       final SbVec3f point = points.get(index);
-      verticesPtr.asterisk( point.getValue()[0]); verticesPtr.plusPlus();
-      verticesPtr.asterisk( point.getValue()[1]); verticesPtr.plusPlus();
-      verticesPtr.asterisk( point.getValue()[2]); verticesPtr.plusPlus();
+      verticesPtr.asterisk( point.getValueRead()[0]); verticesPtr.plusPlus();
+      verticesPtr.asterisk( point.getValueRead()[1]); verticesPtr.plusPlus();
+      verticesPtr.asterisk( point.getValueRead()[2]); verticesPtr.plusPlus();
       if (sendNormals) {
         final SbVec3f normal = normals.get(index);
-        normalsPtr.asterisk( normal.getValue()[0]); normalsPtr.plusPlus();
-        normalsPtr.asterisk( normal.getValue()[1]); normalsPtr.plusPlus();
-        normalsPtr.asterisk( normal.getValue()[2]); normalsPtr.plusPlus();
+        normalsPtr.asterisk( normal.getValueRead()[0]); normalsPtr.plusPlus();
+        normalsPtr.asterisk( normal.getValueRead()[1]); normalsPtr.plusPlus();
+        normalsPtr.asterisk( normal.getValueRead()[2]); normalsPtr.plusPlus();
       }
       if (doTextures) {
         final SbVec2f texCoord = texCoords.get(index);
@@ -858,8 +858,8 @@ GLRenderGeneric(SoGLRenderAction action,
 		    gl2.glTexCoord2f(s, t);
 		}
 		if (sendNormals)
-		    gl2.glNormal3fv(vec.getValue(),0);
-		gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+		    gl2.glNormal3fv(vec.getValueRead(),0);
+		gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 		// Second vertex
 		k = order > 0 ? (depth - i - 1) - j : j;
@@ -873,8 +873,8 @@ GLRenderGeneric(SoGLRenderAction action,
 		    gl2.glTexCoord2f(s, t);
 		}
 		if (sendNormals)
-			gl2.glNormal3fv(vec.getValue(),0);
-		gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+			gl2.glNormal3fv(vec.getValueRead(),0);
+		gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 	    }
 
 	    // Last vertex
@@ -889,8 +889,8 @@ GLRenderGeneric(SoGLRenderAction action,
 		gl2.glTexCoord2f(s, t);
 	    }
 	    if (sendNormals)
-	    	gl2.glNormal3fv(vec.getValue(),0);
-	    gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+	    	gl2.glNormal3fv(vec.getValueRead(),0);
+	    gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	    gl2.glEnd();
 	}
@@ -916,8 +916,8 @@ GLRenderGeneric(SoGLRenderAction action,
 	    gl2.glTexCoord2f(s, t);
 	}
 	if (sendNormals)
-		gl2.glNormal3fv(vec.getValue(),0);
-	gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+		gl2.glNormal3fv(vec.getValueRead(),0);
+	gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	// Second cap vertex
 	if (order > 0)
@@ -933,8 +933,8 @@ GLRenderGeneric(SoGLRenderAction action,
 	    gl2.glTexCoord2f(s, t);
 	}
 	if (sendNormals)
-		gl2.glNormal3fv(vec.getValue(),0);
-	gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+		gl2.glNormal3fv(vec.getValueRead(),0);
+	gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	// Third cap vertex
 	vec.setValue(0.0f, s_y, 0.0f);
@@ -945,8 +945,8 @@ GLRenderGeneric(SoGLRenderAction action,
 	    gl2.glTexCoord2f(s, t);
 	}
 	if (sendNormals)
-		gl2.glNormal3fv(vec.getValue(),0);
-	gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+		gl2.glNormal3fv(vec.getValueRead(),0);
+	gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	gl2.glEnd();
     }
@@ -999,8 +999,8 @@ GLRenderNvertTnone(SoGLRenderAction action)
 		vec.setValue(s_x * tmp, s_y * yBot, s_z * (botWidth - tmp));
 		vec.normalize();
 
-		gl2.glNormal3fv(vec.getValue(),0);
-		gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+		gl2.glNormal3fv(vec.getValueRead(),0);
+		gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 		// Second vertex
 		k = order > 0 ? (depth - i - 1) - j : j;
@@ -1008,8 +1008,8 @@ GLRenderNvertTnone(SoGLRenderAction action)
 		vec.setValue(s_x * tmp, s_y * yTop, s_z * (topWidth - tmp));
 		vec.normalize();
 
-		gl2.glNormal3fv(vec.getValue(),0);
-		gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+		gl2.glNormal3fv(vec.getValueRead(),0);
+		gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 	    }
 
 	    // Last vertex
@@ -1018,8 +1018,8 @@ GLRenderNvertTnone(SoGLRenderAction action)
 	    vec.setValue(s_x * tmp, s_y * yBot, s_z * (botWidth - tmp));
 	    vec.normalize();
 
-	    gl2.glNormal3fv(vec.getValue(),0);
-	    gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+	    gl2.glNormal3fv(vec.getValueRead(),0);
+	    gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	    gl2.glEnd();
 	}
@@ -1038,8 +1038,8 @@ GLRenderNvertTnone(SoGLRenderAction action)
 	    vec.setValue(s_x * botWidth, s_y * yBot, 0.0f);
 	vec.normalize();
 
-	gl2.glNormal3fv(vec.getValue(),0);
-	gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+	gl2.glNormal3fv(vec.getValueRead(),0);
+	gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	// Second cap vertex
 	if (order > 0)
@@ -1048,14 +1048,14 @@ GLRenderNvertTnone(SoGLRenderAction action)
 	    vec.setValue(0.0f, s_y * yBot, s_z * botWidth);
 	vec.normalize();
 
-	gl2.glNormal3fv(vec.getValue(),0);
-	gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+	gl2.glNormal3fv(vec.getValueRead(),0);
+	gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	// Third cap vertex
 	vec.setValue(0.0f, s_y, 0.0f);
 
-	gl2.glNormal3fv(vec.getValue(),0);
-	gl2.glVertex3fv((vec.operator_mul(rad)).getValue(),0);
+	gl2.glNormal3fv(vec.getValueRead(),0);
+	gl2.glVertex3fv((vec.operator_mul(rad)).getValueRead(),0);
 
 	gl2.glEnd();
     }

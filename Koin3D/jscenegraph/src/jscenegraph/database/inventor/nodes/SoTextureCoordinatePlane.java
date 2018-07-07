@@ -254,12 +254,12 @@ public void doTexgen(SoState state, Object me)
     final SbVec4f t = new SbVec4f();
 
     final SbVec3f ds = p.directionS.getValue();
-    t.setValue(ds.getValue()[0], ds.getValue()[1], ds.getValue()[2], 0.0f);
+    t.setValue(ds.getValueRead()[0], ds.getValueRead()[1], ds.getValueRead()[2], 0.0f);
     gl2.glTexGenf(GL2.GL_S, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
     gl2.glTexGenfv(GL2.GL_S, GL2.GL_OBJECT_PLANE, t.getValue(),0);
     
     final SbVec3f dt = p.directionT.getValue();
-    t.setValue(dt.getValue()[0], dt.getValue()[1], dt.getValue()[2], 0.0f);
+    t.setValue(dt.getValueRead()[0], dt.getValueRead()[1], dt.getValueRead()[2], 0.0f);
     gl2.glTexGenf(GL2.GL_T, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
     gl2.glTexGenfv(GL2.GL_T, GL2.GL_OBJECT_PLANE, t.getValue(),0);
 }

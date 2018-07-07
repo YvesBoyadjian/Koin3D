@@ -82,8 +82,8 @@ SbXfBox3f, SbBox2f, SbBox2s, SbVec3f, SbVec2f, SbVec2s, SbMatrix, SoGetBoundingB
  */
 public class SbBox3f implements Mutable {
 
-	private final SbVec3f min = new SbVec3f();
-	private final SbVec3f max = new SbVec3f();
+	private final SbVec3fSingle min = new SbVec3fSingle();
+	private final SbVec3fSingle max = new SbVec3fSingle();
 
 	public SbBox3f() {
 		makeEmpty();
@@ -147,9 +147,9 @@ public class SbBox3f implements Mutable {
 
 	// Returns the center of the box.
 	public SbVec3f getCenter() {
-	     return new SbVec3f(0.5f * (min.getValue()[0] + max.getValue()[0]),
-	    		                       0.5f * (min.getValue()[1] + max.getValue()[1]),
-	    		                       0.5f * (min.getValue()[2] + max.getValue()[2]));
+	     return new SbVec3f(0.5f * (min.getValueRead()[0] + max.getValueRead()[0]),
+	    		                       0.5f * (min.getValueRead()[1] + max.getValueRead()[1]),
+	    		                       0.5f * (min.getValueRead()[2] + max.getValueRead()[2]));
 
 	}
 
@@ -160,49 +160,49 @@ public class SbBox3f implements Mutable {
 public void
 extendBy(final SbVec3f ptV)
 {
-	float[] pt = ptV.getValue();
-	float[] min = this.min.getValue();
-	float[] max = this.max.getValue();
+	float[] pt = ptV.getValueRead();
+	float[] min = this.min.getValueRead();
+	float[] max = this.max.getValueRead();
 
     if (pt[0] < min[0]) {
-        min[0] = pt[0];
+    	this.min.setValue(0, pt[0]);
     }
     if (pt[1] < min[1]) {
-        min[1] = pt[1];
+    	this.min.setValue(1, pt[1]);
     }
     if (pt[2] < min[2]) {
-        min[2] = pt[2];
+    	this.min.setValue(2, pt[2]);
     }
     if (pt[0] > max[0]) {
-        max[0] = pt[0];
+    	this.max.setValue(0, pt[0]);
     }
     if (pt[1] > max[1]) {
-        max[1] = pt[1];
+    	this.max.setValue(1, pt[1]);
     }
     if (pt[2] > max[2]) {
-        max[2] = pt[2];
+    	this.max.setValue(2, pt[2]);
     }
 }
 
 
 	public void SbBox3f_extendBy(SbBox3f bb) {
-	     if (bb.min.getValue()[0] < min.getValue()[0]) {
-            min.getValue()[0] = bb.min.getValue()[0];
+	     if (bb.min.getValueRead()[0] < min.getValueRead()[0]) {
+            min.getValue()[0] = bb.min.getValueRead()[0];
         }
-	          if (bb.min.getValue()[1] < min.getValue()[1]) {
-                min.getValue()[1] = bb.min.getValue()[1];
+	          if (bb.min.getValueRead()[1] < min.getValueRead()[1]) {
+                min.getValue()[1] = bb.min.getValueRead()[1];
             }
-	          if (bb.min.getValue()[2] < min.getValue()[2]) {
-                min.getValue()[2] = bb.min.getValue()[2];
+	          if (bb.min.getValueRead()[2] < min.getValueRead()[2]) {
+                min.getValue()[2] = bb.min.getValueRead()[2];
             }
-	          if (bb.max.getValue()[0] > max.getValue()[0]) {
-                max.getValue()[0] = bb.max.getValue()[0];
+	          if (bb.max.getValueRead()[0] > max.getValueRead()[0]) {
+                max.getValue()[0] = bb.max.getValueRead()[0];
             }
-	         if (bb.max.getValue()[1] > max.getValue()[1]) {
-                max.getValue()[1] = bb.max.getValue()[1];
+	         if (bb.max.getValueRead()[1] > max.getValueRead()[1]) {
+                max.getValue()[1] = bb.max.getValueRead()[1];
             }
-	         if (bb.max.getValue()[2] > max.getValue()[2]) {
-                max.getValue()[2] = bb.max.getValue()[2];
+	         if (bb.max.getValueRead()[2] > max.getValueRead()[2]) {
+                max.getValue()[2] = bb.max.getValueRead()[2];
             }
 	}
 	// Extends Box3f (if necessary) to contain given Box3f.
@@ -219,12 +219,12 @@ extendBy(final SbVec3f ptV)
 public boolean
 intersect(final SbVec3f pt)
 {
-    return ((pt.getValue()[0] >= min.getValue()[0]) &&
-            (pt.getValue()[1] >= min.getValue()[1]) &&
-            (pt.getValue()[2] >= min.getValue()[2]) &&
-            (pt.getValue()[0] <= max.getValue()[0]) &&
-            (pt.getValue()[1] <= max.getValue()[1]) &&
-            (pt.getValue()[2] <= max.getValue()[2]));
+    return ((pt.getValueRead()[0] >= min.getValueRead()[0]) &&
+            (pt.getValueRead()[1] >= min.getValueRead()[1]) &&
+            (pt.getValueRead()[2] >= min.getValueRead()[2]) &&
+            (pt.getValueRead()[0] <= max.getValueRead()[0]) &&
+            (pt.getValueRead()[1] <= max.getValueRead()[1]) &&
+            (pt.getValueRead()[2] <= max.getValueRead()[2]));
 }
 
 //
@@ -234,9 +234,9 @@ intersect(final SbVec3f pt)
 public boolean
 intersect(final SbBox3f bb)
 {
-    return ((bb.max.getValue()[0] >= min.getValue()[0]) && (bb.min.getValue()[0] <= max.getValue()[0]) &&
-            (bb.max.getValue()[1] >= min.getValue()[1]) && (bb.min.getValue()[1] <= max.getValue()[1]) &&
-            (bb.max.getValue()[2] >= min.getValue()[2]) && (bb.min.getValue()[2] <= max.getValue()[2]));
+    return ((bb.max.getValueRead()[0] >= min.getValueRead()[0]) && (bb.min.getValueRead()[0] <= max.getValueRead()[0]) &&
+            (bb.max.getValueRead()[1] >= min.getValueRead()[1]) && (bb.min.getValueRead()[1] <= max.getValueRead()[1]) &&
+            (bb.max.getValueRead()[2] >= min.getValueRead()[2]) && (bb.min.getValueRead()[2] <= max.getValueRead()[2]));
 }
 
 
@@ -272,7 +272,7 @@ intersect(final SbBox3f bb)
 
 	 // Returns true if the box is empty, and FALSE otherwise.
 	 public boolean isEmpty() {
-		 return max.getValue()[0] < min.getValue()[0];
+		 return max.getValueRead()[0] < min.getValueRead()[0];
 	 }
 
 //
@@ -384,9 +384,9 @@ private static float
 minExtreme(final SbVec3f min, final SbVec3f max, final
            SbMatrix MVP, int whichCoord) {
     return
-        (MVP.getValue()[0][whichCoord]>0.0f ? min.getValue()[0] : max.getValue()[0])*MVP.getValue()[0][whichCoord] +
-        (MVP.getValue()[1][whichCoord]>0.0f ? min.getValue()[1] : max.getValue()[1])*MVP.getValue()[1][whichCoord] +
-        (MVP.getValue()[2][whichCoord]>0.0f ? min.getValue()[2] : max.getValue()[2])*MVP.getValue()[2][whichCoord] +
+        (MVP.getValue()[0][whichCoord]>0.0f ? min.getValueRead()[0] : max.getValueRead()[0])*MVP.getValue()[0][whichCoord] +
+        (MVP.getValue()[1][whichCoord]>0.0f ? min.getValueRead()[1] : max.getValueRead()[1])*MVP.getValue()[1][whichCoord] +
+        (MVP.getValue()[2][whichCoord]>0.0f ? min.getValueRead()[2] : max.getValueRead()[2])*MVP.getValue()[2][whichCoord] +
         MVP.getValue()[3][whichCoord];
 }
 
@@ -429,7 +429,7 @@ findQuadrant(float x, float y, float z,
                 return;
             }
 
-		       final SbVec3f     newMin = new SbVec3f(), newMax = new SbVec3f();
+		       final SbVec3fSingle     newMin = new SbVec3fSingle(), newMax = new SbVec3fSingle();
 		       int         i;
 
 		       for (i = 0; i < 3; i++) {
@@ -462,15 +462,15 @@ getVolume()
         return 0.0f;
     }
 
-    return (max.getValue()[0] - min.getValue()[0]) * (max.getValue()[1] - min.getValue()[1]) * (max.getValue()[2] - min.getValue()[2]);
+    return (max.getValueRead()[0] - min.getValueRead()[0]) * (max.getValueRead()[1] - min.getValueRead()[1]) * (max.getValueRead()[2] - min.getValueRead()[2]);
 }
 
 
 
 	  	 // java port
 	  	 public void getBounds(float[] bounds) {
-	  		 float[] mini = min.getValue();
-	  		 float[] maxi = max.getValue();
+	  		 float[] mini = min.getValueRead();
+	  		 float[] maxi = max.getValueRead();
 	  		 bounds[0] = mini[0];
 	  		 bounds[1] = mini[1];
 	  		 bounds[2] = mini[2];
@@ -488,14 +488,20 @@ getVolume()
 
     //! Gets box size.
 	public    void        getSize(final float[] sizeX, final float[] sizeY, final float[] sizeZ)
-        { sizeX[0] = max.getValue()[0] - min.getValue()[0];
-          sizeY[0] = max.getValue()[1] - min.getValue()[1];
-          sizeZ[0] = max.getValue()[2] - min.getValue()[2]; }
+        { sizeX[0] = max.getValueRead()[0] - min.getValueRead()[0];
+          sizeY[0] = max.getValueRead()[1] - min.getValueRead()[1];
+          sizeZ[0] = max.getValueRead()[2] - min.getValueRead()[2]; }
 
 	public void getSize(final float[] xyz) {
-        { xyz[0] = max.getValue()[0] - min.getValue()[0];
-        xyz[1] = max.getValue()[1] - min.getValue()[1];
-        xyz[2] = max.getValue()[2] - min.getValue()[2]; }
+        { xyz[0] = max.getValueRead()[0] - min.getValueRead()[0];
+        xyz[1] = max.getValueRead()[1] - min.getValueRead()[1];
+        xyz[2] = max.getValueRead()[2] - min.getValueRead()[2]; }
+	}
+
+	public void getSize(final SbVec3f xyz) {
+        { xyz.setValue(0, max.getValueRead()[0] - min.getValueRead()[0]);
+        xyz.setValue(1, max.getValueRead()[1] - min.getValueRead()[1]);
+        xyz.setValue(2, max.getValueRead()[2] - min.getValueRead()[2]); }
 	}
 
 	     // java port
@@ -574,8 +580,8 @@ outside(final SbMatrix MVP, final int[] cullBits)
             // at least one of the view boundaries.
 
             // java port
-            final float[] min_ = min.getValue();
-            final float[] max_ = max.getValue();
+            final float[] min_ = min.getValueRead();
+            final float[] max_ = max.getValueRead();
 
             and_bits = or_bits = findQuadrant(min_[0], min_[1], min_[2], i, MVP);
             if (and_bits == 0 && or_bits != 0) {

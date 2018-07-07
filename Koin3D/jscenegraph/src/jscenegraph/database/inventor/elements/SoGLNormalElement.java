@@ -124,6 +124,6 @@ public void send(int index)
 
     GL2 gl2 = SoGLCacheContextElement.get(state);
 
-    gl2.glNormal3fv(normals[index].getValue(),0);
+    gl2.glNormal3fv(normals[index].getValueRead(),0);
 }
 }

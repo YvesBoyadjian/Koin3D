@@ -425,9 +425,9 @@ translateEltBy(final SbVec3f translation)
     // matrix than to multiply two matrices...
 
     for (i = 0; i < 3; i++)
-        modelMatrix.getValue()[3][i] += (modelMatrix.getValue()[0][i] * translation.getValue()[0] +
-                              modelMatrix.getValue()[1][i] * translation.getValue()[1] +
-                              modelMatrix.getValue()[2][i] * translation.getValue()[2]);
+        modelMatrix.getValue()[3][i] += (modelMatrix.getValue()[0][i] * translation.getValueRead()[0] +
+                              modelMatrix.getValue()[1][i] * translation.getValueRead()[1] +
+                              modelMatrix.getValue()[2][i] * translation.getValueRead()[2]);
 
     flags.isModelIdentity  = false;     // Assume the worst
     flags.haveModelCull = false;
@@ -476,9 +476,9 @@ scaleEltBy(final SbVec3f scaleFactor)
     // matrix than to multiply two matrices...
 
     for (i = 0; i < 4; i++) {
-        modelMatrix.getValue()[0][i] *= scaleFactor.getValue()[0];
-        modelMatrix.getValue()[1][i] *= scaleFactor.getValue()[1];
-        modelMatrix.getValue()[2][i] *= scaleFactor.getValue()[2];
+        modelMatrix.getValue()[0][i] *= scaleFactor.getValueRead()[0];
+        modelMatrix.getValue()[1][i] *= scaleFactor.getValueRead()[1];
+        modelMatrix.getValue()[2][i] *= scaleFactor.getValueRead()[2];
     }
 
     flags.isModelIdentity  = false;     // Assume the worst

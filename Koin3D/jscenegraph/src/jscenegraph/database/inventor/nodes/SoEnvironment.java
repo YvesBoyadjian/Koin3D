@@ -234,7 +234,7 @@ public void GLRender(SoGLRenderAction action)
     // RGBA ambient intensity is the product of the color and
     // intensity, with 1.0 alpha
     v3.copyFrom( ambientColor.getValue().operator_mul(ambientIntensity.getValue()));
-    v4.setValue(v3.getValue()[0], v3.getValue()[1], v3.getValue()[2], 1.0f);
+    v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
     glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, v4.getValue());
 
     //////////////////////
@@ -269,7 +269,7 @@ public void GLRender(SoGLRenderAction action)
         }
 
         gl2.glEnable(GL2.GL_FOG);
-        glFogfv(GL2.GL_FOG_COLOR, fogColor.getValue().getValue());
+        glFogfv(GL2.GL_FOG_COLOR, fogColor.getValue().getValueRead()); //FIXME
 
         switch (type) {
 

@@ -773,8 +773,8 @@ public void adjustCameraClippingPlanes()
     SbBox3f bbox = xfbbox.project();
     // take negative value and opposite to what one might think
     // because the camera points down the -Z axis
-    float farDist = - bbox.getMin().getValue()[2];
-    float nearDist = - bbox.getMax().getValue()[2];
+    float farDist = - bbox.getMin().getValueRead()[2];
+    float nearDist = - bbox.getMax().getValueRead()[2];
 
     // scene is behind the camera so don't change the planes
     if (farDist < 0) {

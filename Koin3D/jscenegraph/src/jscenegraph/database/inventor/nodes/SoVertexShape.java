@@ -532,7 +532,7 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
 	    if (useVertexAttributes) {
 	        // we need to send the single color on the correct vertex attribute...
 	        SbColor color = SoGLLazyElement.getDiffuse(state, 0);
-	        gl2.glVertexAttrib4fv(SoLazyElement.VertexAttribs.ATTRIB_COLOR.getValue(), color.getValue(),0);
+	        gl2.glVertexAttrib4fv(SoLazyElement.VertexAttribs.ATTRIB_COLOR.getValue(), color.getValueRead(),0); //FIXME
 	      }
 	    }
   boolean perVertexTexCoords = vpCache.getNumTexCoords()>0;

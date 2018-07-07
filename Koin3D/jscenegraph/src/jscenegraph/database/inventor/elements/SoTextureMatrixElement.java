@@ -316,9 +316,9 @@ translateEltBy(SoState state, final SbVec3f translation)
     // matrix than to multiply two matrices...
 
     for (i = 0; i < 3; i++)
-        textureMatrix.getValue()[3][i] += (textureMatrix.getValue()[0][i] * translation.getValue()[0] +
-                              textureMatrix.getValue()[1][i] * translation.getValue()[1] +
-                              textureMatrix.getValue()[2][i] * translation.getValue()[2]);
+        textureMatrix.getValue()[3][i] += (textureMatrix.getValue()[0][i] * translation.getValueRead()[0] +
+                              textureMatrix.getValue()[1][i] * translation.getValueRead()[1] +
+                              textureMatrix.getValue()[2][i] * translation.getValueRead()[2]);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -357,9 +357,9 @@ scaleEltBy(SoState state, final SbVec3f scaleFactor)
     // matrix than to multiply two matrices...
 
     for (i = 0; i < 4; i++) {
-        textureMatrix.getValue()[0][i] *= scaleFactor.getValue()[0];
-        textureMatrix.getValue()[1][i] *= scaleFactor.getValue()[1];
-        textureMatrix.getValue()[2][i] *= scaleFactor.getValue()[2];
+        textureMatrix.getValue()[0][i] *= scaleFactor.getValueRead()[0];
+        textureMatrix.getValue()[1][i] *= scaleFactor.getValueRead()[1];
+        textureMatrix.getValue()[2][i] *= scaleFactor.getValueRead()[2];
     }
 }
 

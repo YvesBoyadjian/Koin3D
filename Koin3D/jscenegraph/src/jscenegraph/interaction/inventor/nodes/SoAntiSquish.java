@@ -56,6 +56,7 @@ package jscenegraph.interaction.inventor.nodes;
 
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -262,7 +263,7 @@ getUnsquishingMatrix( final SbMatrix squishedMatrix,
     // [SO] = scaleOrientation
     // squishedMatrix = [SO-Inv][S][SO][R][T]
 
-    final SbVec3f  scaleV = new SbVec3f(), translV = new SbVec3f();
+    final SbVec3fSingle  scaleV = new SbVec3fSingle(), translV = new SbVec3fSingle();
     final SbMatrix scaleOrientM = new SbMatrix(), rotM = new SbMatrix(), projM = new SbMatrix(); 
     if (!squishedMatrix.factor(scaleOrientM,scaleV,rotM,translV,projM)) {
         // If the matrix was singular, then we can not unsquish it.
@@ -278,7 +279,7 @@ getUnsquishingMatrix( final SbMatrix squishedMatrix,
 
 final float TINY = .00001f;
     for (int i = 0; i < 2; i++ ) {
-        if (scaleV.getValue()[i] < .00001f)
+        if (scaleV.getValueRead()[i] < .00001f)
             scaleV.getValue()[i] = TINY;
     }
 //#undef TINY
@@ -290,22 +291,22 @@ final float TINY = .00001f;
 
     Sizing whichSizing = Sizing.fromValue( sizing.getValue());
     if ( whichSizing == Sizing.X )
-        scl = scaleV.getValue()[0];
+        scl = scaleV.getValueRead()[0];
     else if ( whichSizing == Sizing.Y )
-        scl = scaleV.getValue()[1];
+        scl = scaleV.getValueRead()[1];
     else if ( whichSizing == Sizing.Z )
-        scl = scaleV.getValue()[2];
+        scl = scaleV.getValueRead()[2];
     else if ( whichSizing == Sizing.AVERAGE_DIMENSION )
-        scl = (scaleV.getValue()[0] + scaleV.getValue()[1] + scaleV.getValue()[2]) / 3.0f ;
+        scl = (scaleV.getValueRead()[0] + scaleV.getValueRead()[1] + scaleV.getValueRead()[2]) / 3.0f ;
     else if ( whichSizing == Sizing.BIGGEST_DIMENSION ) {
-        scl =   (scaleV.getValue()[0] >= scaleV.getValue()[1] && scaleV.getValue()[0] >= scaleV.getValue()[2] ) ? scaleV.getValue()[0]
-              : (scaleV.getValue()[1] >= scaleV.getValue()[2] )                           ? scaleV.getValue()[1] 
-              :  scaleV.getValue()[2];
+        scl =   (scaleV.getValueRead()[0] >= scaleV.getValueRead()[1] && scaleV.getValueRead()[0] >= scaleV.getValueRead()[2] ) ? scaleV.getValueRead()[0]
+              : (scaleV.getValueRead()[1] >= scaleV.getValueRead()[2] )                           ? scaleV.getValueRead()[1] 
+              :  scaleV.getValueRead()[2];
     }
     else if ( whichSizing == Sizing.SMALLEST_DIMENSION ) {
-        scl =   (scaleV.getValue()[0] <= scaleV.getValue()[1] && scaleV.getValue()[0] <= scaleV.getValue()[2] ) ? scaleV.getValue()[0]
-              : (scaleV.getValue()[1] <= scaleV.getValue()[2] )                           ? scaleV.getValue()[1] 
-              :  scaleV.getValue()[2];
+        scl =   (scaleV.getValueRead()[0] <= scaleV.getValueRead()[1] && scaleV.getValueRead()[0] <= scaleV.getValueRead()[2] ) ? scaleV.getValueRead()[0]
+              : (scaleV.getValueRead()[1] <= scaleV.getValueRead()[2] )                           ? scaleV.getValueRead()[1] 
+              :  scaleV.getValueRead()[2];
     }
     else if ( whichSizing == Sizing.LONGEST_DIAGONAL ) {
         // Determine the aggregate scaleOrientation-scale matrix

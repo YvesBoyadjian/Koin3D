@@ -324,17 +324,17 @@ public class SbMatrix implements Mutable {
 
 public void setScale(final SbVec3f s)
 {
-    matrix[0][0] = s.getValue()[0];
+    matrix[0][0] = s.getValueRead()[0];
     matrix[0][1] = 0.0f;
     matrix[0][2] = 0.0f;
     matrix[0][3] = 0.0f;
     matrix[1][0] = 0.0f;
-    matrix[1][1] = s.getValue()[1];
+    matrix[1][1] = s.getValueRead()[1];
     matrix[1][2] = 0.0f;
     matrix[1][3] = 0.0f;
     matrix[2][0] = 0.0f;
     matrix[2][1] = 0.0f;
-    matrix[2][2] = s.getValue()[2];
+    matrix[2][2] = s.getValueRead()[2];
     matrix[2][3] = 0.0f;
     matrix[3][0] = 0.0f;
     matrix[3][1] = 0.0f;
@@ -1271,7 +1271,7 @@ multLeft(final SbMatrix m)
 		
 	     float       x,y,z,w;
 	     
-	     float[] src = src_.getValue();
+	     float[] src = src_.getValueRead();
 	          
 	          x = src[0]*matrix[0][0] + src[1]*matrix[1][0] +
 	              src[2]*matrix[2][0] + matrix[3][0];
@@ -1648,7 +1648,7 @@ factor(final SbMatrix r, final SbVec3f s, final SbMatrix u, final SbVec3f t,
         for (j = 0; j < 3; j++) {
             a.matrix[i][j] *= scratch;
         }
-        t.getValue()[i] = (float)(matrix[3][i] * scratch);
+        t.setValue(i, (float)(matrix[3][i] * scratch));
         a.matrix[3][i] = a.matrix[i][3] = 0.0f;
     }
     a.matrix[3][3] = 1.0f;
@@ -1666,16 +1666,16 @@ factor(final SbMatrix r, final SbVec3f s, final SbMatrix u, final SbVec3f t,
 
     // find min / max eigenvalues and do ratio test to determine singularity
     
-    r.copyFrom( new SbMatrix(evectors[0].getValue()[0], evectors[0].getValue()[1], evectors[0].getValue()[2], 0.0f, 
-                 evectors[1].getValue()[0], evectors[1].getValue()[1], evectors[1].getValue()[2], 0.0f, 
-                 evectors[2].getValue()[0], evectors[2].getValue()[1], evectors[2].getValue()[2], 0.0f, 
+    r.copyFrom( new SbMatrix(evectors[0].getValueRead()[0], evectors[0].getValueRead()[1], evectors[0].getValueRead()[2], 0.0f, 
+                 evectors[1].getValueRead()[0], evectors[1].getValueRead()[1], evectors[1].getValueRead()[2], 0.0f, 
+                 evectors[2].getValueRead()[0], evectors[2].getValueRead()[1], evectors[2].getValueRead()[2], 0.0f, 
                  0.0f, 0.0f, 0.0f, 1.0f));
     
     /* Compute s = sqrt(evalues), with sign. Set si = s-inverse */
     si.makeIdentity();
     for (i = 0; i < 3; i++) {
-        s.getValue()[i] = (float)(det_sign * Math.sqrt(evalues[i]));
-        si.matrix[i][i] = 1.0f / s.getValue()[i];
+        s.setValue(i, (float)(det_sign * Math.sqrt(evalues[i])));
+        si.matrix[i][i] = 1.0f / s.getValueRead()[i];
     }
     
     /* (5) Compute U = R^ S! R A. */
@@ -1714,7 +1714,7 @@ public void jacobi3(final float[] evalues,
         b[i] = evalues[i] = matrix[i][i];
         z[i] = 0.0;
         for (j = 0; j < SB_JACOBI_RANK; j++) {
-            evectors[i].getValue()[j] = (i == j) ? 1.0f : 0.0f;
+            evectors[i].setValue(j, (i == j) ? 1.0f : 0.0f);
             a[i][j] = matrix[i][j];
         }
     }
@@ -1789,10 +1789,10 @@ public void jacobi3(final float[] evalues,
                     }
                     
                     for (j = 0; j < SB_JACOBI_RANK; j++) {
-                        g = evectors[j].getValue()[p];
-                        h = evectors[j].getValue()[q];
-                        evectors[j].getValue()[p] = (float)(g - s * (h + g * tau));
-                        evectors[j].getValue()[q] = (float)(h + s * (g - h * tau));
+                        g = evectors[j].getValueRead()[p];
+                        h = evectors[j].getValueRead()[q];
+                        evectors[j].setValue(p, (float)(g - s * (h + g * tau)));
+                        evectors[j].setValue(q, (float)(h + s * (g - h * tau)));
                     }
                 }
                 rots[0]++;

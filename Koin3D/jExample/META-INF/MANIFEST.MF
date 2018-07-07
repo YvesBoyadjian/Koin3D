@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JExample
+Bundle-SymbolicName: jExample;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: jexample.Activator
+Bundle-Vendor: Yves BOYAdjian
+Require-Bundle: javax.inject;bundle-version="0.0.0",
+ org.eclipse.swt;bundle-version="0.0.0",
+ org.eclipse.e4.ui.model.workbench;bundle-version="0.0.0",
+ org.eclipse.jface;bundle-version="0.0.0",
+ org.eclipse.e4.ui.services;bundle-version="0.0.0",
+ org.eclipse.e4.ui.workbench;bundle-version="0.0.0",
+ org.eclipse.e4.core.di;bundle-version="0.0.0",
+ org.eclipse.e4.ui.di;bundle-version="0.0.0",
+ org.eclipse.e4.core.contexts;bundle-version="0.0.0",
+ org.eclipse.core.runtime;bundle-version="0.0.0",
+ jsceneviewer;bundle-version="1.0.0",
+ jscenegraph;bundle-version="1.0.0",
+ org.lwjglx;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy

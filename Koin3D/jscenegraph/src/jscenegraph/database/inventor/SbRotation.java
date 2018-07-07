@@ -174,7 +174,7 @@ getValue(final SbVec3f axis, final float[] radians)
 ////////////////////////////////////////////////////////////////////////
 {
     float       len;
-    final SbVec3f     q = new SbVec3f();
+    final SbVec3fSingle     q = new SbVec3fSingle();
 
     q.getValue()[0] = quat[0];
     q.getValue()[1] = quat[1];

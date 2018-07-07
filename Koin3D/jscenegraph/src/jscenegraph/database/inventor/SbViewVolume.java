@@ -187,9 +187,9 @@ public class SbViewVolume implements Mutable {
 		final float[][] skewMat = skewMatM.getValue();
 
 		final SbVec3f rightV = lrfO.operator_minus(llfO);
-		final float[] right = rightV.getValue();
+		final float[] right = rightV.getValueRead();
 		final SbVec3f upV = ulfO.operator_minus(llfO);
-		final float[] up = upV.getValue();
+		final float[] up = upV.getValueRead();
 
 		float width = rightV.length();
 		float height = upV.length();
@@ -209,9 +209,9 @@ public class SbViewVolume implements Mutable {
 		skewMat[1][2] = up[2] / height;
 		skewMat[1][3] = 0;
 
-		skewMat[2][0] = -projDir.getValue()[0];
-		skewMat[2][1] = -projDir.getValue()[1];
-		skewMat[2][2] = -projDir.getValue()[2];
+		skewMat[2][0] = -projDir.getValueRead()[0];
+		skewMat[2][1] = -projDir.getValueRead()[1];
+		skewMat[2][2] = -projDir.getValueRead()[2];
 		skewMat[2][3] = 0;
 
 		skewMat[3][0] = 0;
@@ -242,11 +242,11 @@ public class SbViewVolume implements Mutable {
 		projM.copyFrom(SbMatrix.identity());
 
 		// Convenient stuff for building the projection matrices
-		float rightMinusLeft = lrfEye.getValue()[0] - llfEye.getValue()[0];
-		float rightPlusLeft = lrfEye.getValue()[0] + llfEye.getValue()[0];
+		float rightMinusLeft = lrfEye.getValueRead()[0] - llfEye.getValueRead()[0];
+		float rightPlusLeft = lrfEye.getValueRead()[0] + llfEye.getValueRead()[0];
 
-		float topMinusBottom = ulfEye.getValue()[1] - llfEye.getValue()[1];
-		float topPlusBottom = ulfEye.getValue()[1] + llfEye.getValue()[1];
+		float topMinusBottom = ulfEye.getValueRead()[1] - llfEye.getValueRead()[1];
+		float topPlusBottom = ulfEye.getValueRead()[1] + llfEye.getValueRead()[1];
 
 		final float farMinusNear = nearToFar;
 		float far1 = nearDist + nearToFar;
@@ -381,13 +381,13 @@ public class SbViewVolume implements Mutable {
 
 		mat.multVecMatrix(src, dst_);
 
-		float[] dst = dst_.getValue();
+		float[] dst = dst_.getValueRead();
 
 		// dst will now range from -1 to +1 in x, y, and z. Normalize this
 		// to range from 0 to 1.
-		dst[0] = (1.0f + dst[0]) / 2.0f;
-		dst[1] = (1.0f + dst[1]) / 2.0f;
-		dst[2] = (1.0f + dst[2]) / 2.0f;
+		dst_.setValue(0, (1.0f + dst[0]) / 2.0f);
+		dst_.setValue(1, (1.0f + dst[1]) / 2.0f);
+		dst_.setValue(2, (1.0f + dst[2]) / 2.0f);
 
 	}
 
@@ -556,7 +556,7 @@ public class SbViewVolume implements Mutable {
 		// Project worldCenter into normalized coordinates
 		final SbVec3f normCenter3 = new SbVec3f();
 		projectToScreen(worldCenter, normCenter3);
-		final SbVec2f normCenter = new SbVec2f(normCenter3.getValue()[0], normCenter3.getValue()[1]);
+		final SbVec2f normCenter = new SbVec2f(normCenter3.getValueRead()[0], normCenter3.getValueRead()[1]);
 
 		// This method really behaves best if you keep the normalized
 		// points within the (0,0) (1,1) range. So we shift the
@@ -682,8 +682,8 @@ public class SbViewVolume implements Mutable {
 
 		box.getBounds(min, max);
 
-		float[] min_ = min.getValue(); // java port
-		float[] max_ = max.getValue(); // java port
+		float[] min_ = min.getValueRead(); // java port
+		float[] max_ = max.getValueRead(); // java port
 
 		// Project points to (0 <= x,y,z <= 1) screen coordinates
 		projectToScreen(new SbVec3f(min_[0], min_[1], min_[2]), screenPoint[0]);
@@ -1064,9 +1064,9 @@ public class SbViewVolume implements Mutable {
 		final SbViewVolume view = new SbViewVolume();
 		final SbVec3f max = box.getMax(), min = box.getMin();
 
-		view.copyFrom(narrow(min.getValue()[0], min.getValue()[1], max.getValue()[0], max.getValue()[1]));
+		view.copyFrom(narrow(min.getValueRead()[0], min.getValueRead()[1], max.getValueRead()[0], max.getValueRead()[1]));
 
-		return view.zNarrow(max.getValue()[2], min.getValue()[2]);
+		return view.zNarrow(max.getValueRead()[2], min.getValueRead()[2]);
 	}
 
 	/*
@@ -1591,14 +1591,14 @@ public class SbViewVolume implements Mutable {
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
-		final float[] abc = p.getNormal().getValue();
+		final float[] abc = p.getNormal().getValueRead();
 		float sum;
 
 		// Compute the greatest value of Ax+By+Cz-D
 		sum = -p.getDistanceFromOrigin(); // -D
-		sum += abc[0] > 0.0 ? max.getValue()[0] * abc[0] : min.getValue()[0] * abc[0]; // Ax
-		sum += abc[1] > 0.0 ? max.getValue()[1] * abc[1] : min.getValue()[1] * abc[1]; // By
-		sum += abc[2] > 0.0 ? max.getValue()[2] * abc[2] : min.getValue()[2] * abc[2]; // Cz
+		sum += abc[0] > 0.0 ? max.getValueRead()[0] * abc[0] : min.getValueRead()[0] * abc[0]; // Ax
+		sum += abc[1] > 0.0 ? max.getValueRead()[1] * abc[1] : min.getValueRead()[1] * abc[1]; // By
+		sum += abc[2] > 0.0 ? max.getValueRead()[2] * abc[2] : min.getValueRead()[2] * abc[2]; // Cz
 
 		// Box is outside only if largest value is negative
 		return (sum < 0.0 ? true : false);

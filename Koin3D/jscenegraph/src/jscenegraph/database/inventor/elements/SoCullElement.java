@@ -279,9 +279,9 @@ public class SoCullElement extends SoElement {
 
 	  // create the 8 box corner points
 	  for (i = 0; i < 8; i++) {
-	    pts[i].getValue()[0] = (i & 1) !=0 ? min.getValue()[0] : max.getValue()[0];
-	    pts[i].getValue()[1] = (i & 2) !=0 ? min.getValue()[1] : max.getValue()[1];
-	    pts[i].getValue()[2] = (i & 4) !=0 ? min.getValue()[2] : max.getValue()[2];
+	    pts[i].setValue(0, (i & 1) !=0 ? min.getValueRead()[0] : max.getValueRead()[0]);
+	    pts[i].setValue(1, (i & 2) !=0 ? min.getValueRead()[1] : max.getValueRead()[1]);
+	    pts[i].setValue(2, (i & 4) !=0 ? min.getValueRead()[2] : max.getValueRead()[2]);
 	    if (!identity) mm.multVecMatrix(pts[i], pts[i]);
 	  }
 

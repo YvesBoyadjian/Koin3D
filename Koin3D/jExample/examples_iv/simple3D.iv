@@ -1,0 +1,22 @@
+#Inventor V2.0 ascii
+
+Separator {
+	Material {
+		diffuseColor [
+			0.8 0 0,
+			0 0.8 0,
+			0 0 0.8 ]
+	}
+	MaterialBinding {
+		value PER_PART
+	}
+	Font {
+		name "DJB"
+		size 1
+	}
+	Text3 {
+		string "Texte 3D"
+		justification CENTER
+		parts ALL
+	}
+}

@@ -156,7 +156,7 @@ public void translateEltBy(SoState state, final SbVec3f translation)
     GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
-    gl2.glTranslatef(translation.getValue()[0], translation.getValue()[1], translation.getValue()[2]);
+    gl2.glTranslatef(translation.getValueRead()[0], translation.getValueRead()[1], translation.getValueRead()[2]);
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
     super.translateEltBy(state, translation);
@@ -181,7 +181,7 @@ public void rotateEltBy(SoState state, final SbRotation rotation)
     GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
-    glRotatef(angle[0] * (180.0f / (float)Math.PI), axis.getValue()[0], axis.getValue()[1], axis.getValue()[2]);
+    glRotatef(angle[0] * (180.0f / (float)Math.PI), axis.getValueRead()[0], axis.getValueRead()[1], axis.getValueRead()[2]);
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
     super.rotateEltBy(state, rotation);
@@ -201,7 +201,7 @@ public void scaleEltBy(SoState state, final SbVec3f scaleFactor)
     GL2 gl2 = state.getGL2();
 
     gl2.glMatrixMode(GL2.GL_TEXTURE);
-    glScalef(scaleFactor.getValue()[0], scaleFactor.getValue()[1], scaleFactor.getValue()[2]);
+    glScalef(scaleFactor.getValueRead()[0], scaleFactor.getValueRead()[1], scaleFactor.getValueRead()[2]);
     gl2.glMatrixMode(GL2.GL_MODELVIEW);
 
     super.scaleEltBy(state, scaleFactor);

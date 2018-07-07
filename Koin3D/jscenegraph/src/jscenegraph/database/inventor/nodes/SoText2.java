@@ -63,6 +63,7 @@ import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoPickedPoint;
@@ -261,10 +262,10 @@ fromObjectSpace(final SbVec3f vector, final SbMatrix matrix,
     // And do the viewport transformation:
     SbVec2s vpSize = vpr.getViewportSizePixels();
     final SbVec3f result = new SbVec3f();
-    result.getValue()[0] = (ndc.getValue()[0]+1.0f)*vpSize.getValue()[0]/2.0f;
-    result.getValue()[1] = (ndc.getValue()[1]+1.0f)*vpSize.getValue()[1]/2.0f;
+    result.setValue(0, (ndc.getValueRead()[0]+1.0f)*vpSize.getValue()[0]/2.0f);
+    result.setValue(1, (ndc.getValueRead()[1]+1.0f)*vpSize.getValue()[1]/2.0f);
     // Leave the z coordinate alone
-    result.getValue()[2] = ndc.getValue()[2];
+    result.setValue(2, ndc.getValueRead()[2]);
 
     return result;
 }
@@ -287,10 +288,10 @@ toObjectSpace(final SbVec3f pixel, final SbMatrix matrix,
 {
     // Viewport transformation, to normalized device coordinates:
     SbVec2s vpSize = vpr.getViewportSizePixels();
-    final SbVec3f ndc = new SbVec3f();
-    ndc.getValue()[0] = pixel.getValue()[0]*2.0f/vpSize.getValue()[0] - 1.0f;
-    ndc.getValue()[1] = pixel.getValue()[1]*2.0f/vpSize.getValue()[1] - 1.0f;
-    ndc.getValue()[2] = pixel.getValue()[2];
+    final SbVec3fSingle ndc = new SbVec3fSingle();
+    ndc.getValue()[0] = pixel.getValueRead()[0]*2.0f/vpSize.getValue()[0] - 1.0f;
+    ndc.getValue()[1] = pixel.getValueRead()[1]*2.0f/vpSize.getValue()[1] - 1.0f;
+    ndc.getValue()[2] = pixel.getValueRead()[2];
 
     final SbVec3f result = new SbVec3f();
     matrix.multVecMatrix(ndc, result);
@@ -387,7 +388,7 @@ GLRender(SoGLRenderAction action)
             // but oh well).
             SbVec3f lineOrigin = toObjectSpace(charPosition, screenToObj,
                                                vpr);
-            gl2.glRasterPos3fv(lineOrigin.getValue(),0);
+            gl2.glRasterPos3fv(lineOrigin.getValueRead(),0);
             
             myFont.drawString(line,gl2);
         }
@@ -494,13 +495,13 @@ rayPick(SoRayPickAction action)
         SbVec3f max = lineBbox.getMax();
 
         final SbVec3f t = new SbVec3f();
-        t.setValue(min.getValue()[0], min.getValue()[1], screenOrigin.getValue()[2]);
+        t.setValue(min.getValueRead()[0], min.getValueRead()[1], screenOrigin.getValueRead()[2]);
         p0 = toObjectSpace(t, screenToObj, vpr);
-        t.setValue(max.getValue()[0], min.getValue()[1], screenOrigin.getValue()[2]);
+        t.setValue(max.getValueRead()[0], min.getValueRead()[1], screenOrigin.getValueRead()[2]);
         p1 = toObjectSpace(t, screenToObj, vpr);
-        t.setValue(min.getValue()[0], max.getValue()[1], screenOrigin.getValue()[2]);
+        t.setValue(min.getValueRead()[0], max.getValueRead()[1], screenOrigin.getValueRead()[2]);
         p2 = toObjectSpace(t, screenToObj, vpr);
-        t.setValue(max.getValue()[0], max.getValue()[1], screenOrigin.getValue()[2]);
+        t.setValue(max.getValueRead()[0], max.getValueRead()[1], screenOrigin.getValueRead()[2]);
         p3 = toObjectSpace(t, screenToObj, vpr);
 
         // intersect the two triangles:
@@ -529,7 +530,7 @@ rayPick(SoRayPickAction action)
                     charPosition.operator_add_equal( 
                         myFont.getCharOffset((char)str.get(/* 2**/chr)));
                     // Assuming left-to-right drawing of characters:
-                    if (charPosition.getValue()[0] >= screenPoint.getValue()[0]) break;
+                    if (charPosition.getValueRead()[0] >= screenPoint.getValueRead()[0]) break;
                 }
                     
                 detail.setCharacterIndex(chr);
@@ -648,19 +649,19 @@ computeBBox(SoAction action, final SbBox3f box, final SbVec3f center)
         final SbVec3f max = screenBbox.getMax();
         final SbVec3f objectPoint = new SbVec3f(), temp = new SbVec3f();
 
-        temp.setValue(min.getValue()[0], min.getValue()[1], screenOrigin.getValue()[2]);
+        temp.setValue(min.getValueRead()[0], min.getValueRead()[1], screenOrigin.getValueRead()[2]);
         objectPoint.copyFrom( toObjectSpace(temp, screenToObj, vpr));
         box.extendBy(objectPoint);
 
-        temp.setValue(max.getValue()[0], max.getValue()[1], screenOrigin.getValue()[2]);
+        temp.setValue(max.getValueRead()[0], max.getValueRead()[1], screenOrigin.getValueRead()[2]);
         objectPoint.copyFrom( toObjectSpace(temp, screenToObj, vpr));
         box.extendBy(objectPoint);
 
-        temp.setValue(min.getValue()[0], max.getValue()[1], screenOrigin.getValue()[2]);
+        temp.setValue(min.getValueRead()[0], max.getValueRead()[1], screenOrigin.getValueRead()[2]);
         objectPoint.copyFrom( toObjectSpace(temp, screenToObj, vpr));
         box.extendBy(objectPoint);
 
-        temp.setValue(max.getValue()[0], min.getValue()[1], screenOrigin.getValue()[2]);
+        temp.setValue(max.getValueRead()[0], min.getValueRead()[1], screenOrigin.getValueRead()[2]);
         objectPoint.copyFrom( toObjectSpace(temp, screenToObj, vpr));
         box.extendBy(objectPoint);
 
@@ -685,7 +686,7 @@ getPixelStringOffset(int line)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final SbVec3f result = new SbVec3f(0,0,0);
+    final SbVec3fSingle result = new SbVec3fSingle(0,0,0);
 
     if (justification.getValue() == Justification.RIGHT.getValue()) {
         float width = myFont.getWidth(line);

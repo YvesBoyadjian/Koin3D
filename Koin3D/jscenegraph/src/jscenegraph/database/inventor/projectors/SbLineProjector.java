@@ -59,6 +59,7 @@ import jscenegraph.database.inventor.SbLine;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.errors.SoDebugError;
 
@@ -194,8 +195,8 @@ project(final SbVec2f point)
     // to viewPlane space, a screen space that's got view plane's aspect ratio:
         float vvW  = (viewVol.getWidth()  == 0.0) ? 1 : viewVol.getWidth();
         float vvH  = (viewVol.getHeight() == 0.0) ? 1 : viewVol.getHeight();
-        final SbVec3f     vpPt1 = new SbVec3f( nrmScnPt1.getValue()[0] * vvW, nrmScnPt1.getValue()[1] * vvH, 0);
-        final SbVec3f     vpPt2 = new SbVec3f( nrmScnPt2.getValue()[0] * vvW, nrmScnPt2.getValue()[1] * vvH, 0);
+        final SbVec3f     vpPt1 = new SbVec3f( nrmScnPt1.getValueRead()[0] * vvW, nrmScnPt1.getValueRead()[1] * vvH, 0);
+        final SbVec3f     vpPt2 = new SbVec3f( nrmScnPt2.getValueRead()[0] * vvW, nrmScnPt2.getValueRead()[1] * vvH, 0);
         final SbVec3f vpInPoint = new SbVec3f(     point.getValue()[0] * vvW,     point.getValue()[1] * vvH, 0);
 
     // Create the viewPlaneLine -- our line expressed in viewPlane space:
@@ -203,7 +204,7 @@ project(final SbVec2f point)
 
     // In viewplane space, find the closest point on our line to the cursor.
         final SbVec3f vpClosestPt = new SbVec3f(viewPlaneLine.getClosestPoint( vpInPoint ));
-        vpClosestPt.setValue( vpClosestPt.getValue()[0], vpClosestPt.getValue()[1], 0 );
+        vpClosestPt.setValue( vpClosestPt.getValueRead()[0], vpClosestPt.getValueRead()[1], 0 );
 
     // If we've got a perspective view, we may need to clamp the point we
     // choose so that it's not too close to the vanishing point.
@@ -225,7 +226,7 @@ project(final SbVec2f point)
           // then the z component of postAffineDir is 0.
           // In this case, we will not need to clamp our point and moreover,
           // if we try we'll wind up dividing by zero pretty soon.
-          if ( postAffineDir.getValue()[2] != 0.0 ) {
+          if ( postAffineDir.getValueRead()[2] != 0.0 ) {
 
             // If we send a line out from (0,0,0) into the viewVolume towards 
             // postAffineDir, it will vanish at the same point as any other line
@@ -241,12 +242,12 @@ project(final SbVec2f point)
             vvProj.multVecMatrix( postAffineDir, projVanish );
 
             // Convert from [-1,1] range to [0,1] range for normalized coords.
-            final SbVec3f nrmScnVanish = new SbVec3f();
-            nrmScnVanish.getValue()[0] = (1.0f + projVanish.getValue()[0]) * 0.5f;
-            nrmScnVanish.getValue()[1] = (1.0f + projVanish.getValue()[1]) * 0.5f;
+            final SbVec3fSingle nrmScnVanish = new SbVec3fSingle();
+            nrmScnVanish.getValue()[0] = (1.0f + projVanish.getValueRead()[0]) * 0.5f;
+            nrmScnVanish.getValue()[1] = (1.0f + projVanish.getValueRead()[1]) * 0.5f;
 
             // Finally, get the vanishing point in viewPlane coords:
-            SbVec3f vpVanish = new SbVec3f( nrmScnVanish.getValue()[0] * vvW, nrmScnVanish.getValue()[1] * vvH, 0 );
+            SbVec3f vpVanish = new SbVec3f( nrmScnVanish.getValueRead()[0] * vvW, nrmScnVanish.getValueRead()[1] * vvH, 0 );
 
 //#if 0
 //            // Check that the vanishing point is correct:
@@ -274,7 +275,7 @@ final float VANISH_DELTA =.01f;
             // Make pt0, the point from which we measure distances along vpLine.
             // It will be one extra unit away from vpVanish than safetyDist
             final SbVec3f pt0 = new SbVec3f(viewPlaneLine.getPosition());
-            pt0.setValue( pt0.getValue()[0], pt0.getValue()[1], 0 );
+            pt0.setValue( pt0.getValueRead()[0], pt0.getValueRead()[1], 0 );
             SbVec3f pt0ToVanishDir = vpVanish.operator_minus(pt0);
             pt0ToVanishDir.normalize();
             float   pt0ToVanishDist = vanishSafetyDist + 1.0f;
@@ -294,7 +295,7 @@ final float VANISH_DELTA =.01f;
         }
 
     // Convert result back into normalized screen space:
-        SbVec2f nrmScnClampedPt = new SbVec2f( vpClampedPt.getValue()[0] / vvW, vpClampedPt.getValue()[1] / vvH);
+        SbVec2f nrmScnClampedPt = new SbVec2f( vpClampedPt.getValueRead()[0] / vvW, vpClampedPt.getValueRead()[1] / vvH);
 
     // Create a line in working space by projecting our point into the scene:
         final SbVec3f result = new SbVec3f(), whoCares = new SbVec3f();

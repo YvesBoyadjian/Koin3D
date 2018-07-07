@@ -1,0 +1,14 @@
+#Inventor V2.0 ascii
+
+Separator {
+	PerspectiveCamera {
+		position 0 0 4.7
+		nearDistance 2.98
+		farDistance 6.45
+	}
+	
+	DirectionalLight {
+		direction 0 -1 0
+	}
+	Sphere {}
+}

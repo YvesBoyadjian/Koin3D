@@ -203,11 +203,11 @@ public float[] get3Ptr() {
     	float[] vertexArray = new float[length*3];
     	int index = 0;
     	for(int i=0;i<length;i++) {
-    		vertexArray[index] = coords3[i].getValue()[0];
+    		vertexArray[index] = coords3[i].getValueRead()[0];
     		index++;
-    		vertexArray[index] = coords3[i].getValue()[1];
+    		vertexArray[index] = coords3[i].getValueRead()[1];
     		index++;
-    		vertexArray[index] = coords3[i].getValue()[2];
+    		vertexArray[index] = coords3[i].getValueRead()[2];
     		index++;
     	}
         return vertexArray;

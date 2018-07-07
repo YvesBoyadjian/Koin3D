@@ -1,0 +1,8 @@
+#Inventor V2.0 ascii
+Separator {
+	Texture2 {
+		filename "C:\eclipseWorkspaces\5-1-Tanky1\maps\rusty.jpg"
+	}
+	TextureCoordinateEnvironment {}
+	Text3 { string "Bonjour" }
+}

@@ -340,13 +340,13 @@ updateMySurroundParams(SoAction action,
 
             float minLength = .01f * cachedScale.length();
             // Macro defined just before beginning of this method.
-            cachedScale.getValue()[0] = FUDGE(cachedScale.getValue()[0],minLength);
-            cachedScale.getValue()[1] = FUDGE(cachedScale.getValue()[1],minLength);
-            cachedScale.getValue()[2] = FUDGE(cachedScale.getValue()[2],minLength);
+            cachedScale.setValue(0, FUDGE(cachedScale.getValueRead()[0],minLength));
+            cachedScale.setValue(1, FUDGE(cachedScale.getValueRead()[1],minLength));
+            cachedScale.setValue(2, FUDGE(cachedScale.getValueRead()[2],minLength));
 
             // Find the inverse values
             for (int j = 0; j < 3; j++ )
-                cachedInvScale.getValue()[j] = 1.0f / cachedScale.getValue()[j];
+                cachedInvScale.setValue(j, 1.0f / cachedScale.getValueRead()[j]);
         }
 
     // Get the translation for this node to add to the ctm.

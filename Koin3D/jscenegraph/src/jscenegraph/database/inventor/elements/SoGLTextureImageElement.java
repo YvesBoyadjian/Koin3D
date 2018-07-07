@@ -297,7 +297,7 @@ private void sendTexEnv(SoState state)
     gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, model);
     if (model == GL2.GL_BLEND) {
         gl2.glTexEnvfv(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_COLOR,
-                   blendColor.getValue(),0);
+                   blendColor.getValueRead(),0);
     }
 }
 

@@ -119,11 +119,11 @@ public float[] getNormalsFloat() {
 	float[] normalArray = new float[numNormals*3];
 	int index=0;
 	for(int i=0;i<numNormals;i++) {
-		normalArray[index] = normals[i].getValue()[0];
+		normalArray[index] = normals[i].getValueRead()[0];
 		index++;
-		normalArray[index] = normals[i].getValue()[1];
+		normalArray[index] = normals[i].getValueRead()[1];
 		index++;
-		normalArray[index] = normals[i].getValue()[2];
+		normalArray[index] = normals[i].getValueRead()[2];
 		index++;
 	}
 	return normalArray;

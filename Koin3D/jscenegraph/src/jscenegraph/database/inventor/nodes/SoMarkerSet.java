@@ -31,6 +31,7 @@ import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoType;
@@ -1234,7 +1235,7 @@ GLRender(SoGLRenderAction action)
 
     if (mbind == Binding.PER_VERTEX) mb.send(matnr++, true);
 
-    SbVec3f point = new SbVec3f(coords.get3(idx));
+    final SbVec3fSingle point = new SbVec3fSingle(coords.get3(idx));
     idx++;
 
     if (this.markerIndex.operator_square_bracketI(midx) == NONE) { continue; }
@@ -1251,19 +1252,19 @@ GLRender(SoGLRenderAction action)
     if (SoCullElement.cullTest(state, bbox, true)) { continue; }
 
     projmatrix.multVecMatrix(point, point);
-    point.getValue()[0] = (point.getValue()[0] + 1.0f) * 0.5f * vpsize.getValue()[0];
-    point.getValue()[1] = (point.getValue()[1] + 1.0f) * 0.5f * vpsize.getValue()[1];      
+    point.getValue()[0] = (point.getValueRead()[0] + 1.0f) * 0.5f * vpsize.getValue()[0];
+    point.getValue()[1] = (point.getValueRead()[1] + 1.0f) * 0.5f * vpsize.getValue()[1];      
 
     // To have the exact center point of the marker drawn at the
     // projected 3D position.  (FIXME: I haven't actually checked that
     // this is what TGS' implementation of the SoMarkerSet node does
     // when rendering, but it seems likely. 20010823 mortene.)
     so_marker tmp = (markerlist).operator_square_bracket(this.markerIndex.operator_square_bracketI(midx) );
-    point.getValue()[0] = point.getValue()[0] - (tmp.width - 1) / 2;
-    point.getValue()[1] = point.getValue()[1] - (tmp.height - 1) / 2;
+    point.getValue()[0] = point.getValueRead()[0] - (tmp.width - 1) / 2;
+    point.getValue()[1] = point.getValueRead()[1] - (tmp.height - 1) / 2;
 
     gl2.glPixelStorei(GL2.GL_UNPACK_ALIGNMENT, tmp.align);
-    gl2.glRasterPos3f(point.getValue()[0], point.getValue()[1], -point.getValue()[2]);
+    gl2.glRasterPos3f(point.getValueRead()[0], point.getValueRead()[1], -point.getValueRead()[2]);
     gl2.glBitmap(tmp.width, tmp.height, 0, 0, 0, 0, tmp.data, tmp.dataOffset);
   }
 

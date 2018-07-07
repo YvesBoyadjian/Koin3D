@@ -223,7 +223,7 @@ GLRender(SoGLRenderAction action)
     // RGBA intensities of source are the product of the color and
     // intensity, with 1.0 alpha
     v3.copyFrom( color.getValue().operator_mul(intensity.getValue()));
-    v4.setValue(v3.getValue()[0], v3.getValue()[1], v3.getValue()[2], 1.0f);
+    v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
     
     GL2 gl2 = action.getCacheContext();
 
@@ -233,12 +233,12 @@ GLRender(SoGLRenderAction action)
 
     // Set position
     v3.copyFrom( location.getValue());
-    v4.setValue(v3.getValue()[0], v3.getValue()[1], v3.getValue()[2], 1.0f);
+    v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
     gl2.glLightfv( id, GL2.GL_POSITION, v4.getValue(),0);
 
     // Set up spotlight stuff. Note that the GL angle must be specified
     // in degrees, though the field is in radians
-    gl2.glLightfv( id, GL2.GL_SPOT_DIRECTION, direction.getValue().getValue(),0);
+    gl2.glLightfv( id, GL2.GL_SPOT_DIRECTION, direction.getValue().getValueRead(),0);
 //???
 //???  This is a temporary fix, inserted because of a bug in openGL:
 //???  You should be able to set GL_SPOT_EXPONENT to 0 and have it work. (It
@@ -256,9 +256,9 @@ GLRender(SoGLRenderAction action)
 
     // Attenuation is accessed from the state
     final SbVec3f atten = SoLightAttenuationElement.get(action.getState());
-    gl2.glLightf( id, GL2.GL_CONSTANT_ATTENUATION,  atten.getValue()[2]);
-    gl2.glLightf( id, GL2.GL_LINEAR_ATTENUATION,    atten.getValue()[1]);
-    gl2.glLightf( id, GL2.GL_QUADRATIC_ATTENUATION, atten.getValue()[0]);
+    gl2.glLightf( id, GL2.GL_CONSTANT_ATTENUATION,  atten.getValueRead()[2]);
+    gl2.glLightf( id, GL2.GL_LINEAR_ATTENUATION,    atten.getValueRead()[1]);
+    gl2.glLightf( id, GL2.GL_QUADRATIC_ATTENUATION, atten.getValueRead()[0]);
 }
 
     

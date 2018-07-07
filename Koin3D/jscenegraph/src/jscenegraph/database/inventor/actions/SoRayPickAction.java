@@ -923,16 +923,16 @@ rayDistance(final SbVec3f start, final SbVec3f direction,
     float       max, c;
     int         which;
 
-    max = Math.abs(direction.getValue()[0]);
+    max = Math.abs(direction.getValueRead()[0]);
     which = 0;
 
-    c = Math.abs(direction.getValue()[1]);
+    c = Math.abs(direction.getValueRead()[1]);
     if (c > max) {
         max = c;
         which = 1;
     }
 
-    c = Math.abs(direction.getValue()[2]);
+    c = Math.abs(direction.getValueRead()[2]);
     if (c > max) {
         max = c;
         which = 2;
@@ -942,7 +942,7 @@ rayDistance(final SbVec3f start, final SbVec3f direction,
     if (max == 0.0)
         return 0.0f;
 
-    return (point.getValue()[which] - start.getValue()[which]) / direction.getValue()[which];
+    return (point.getValueRead()[which] - start.getValueRead()[which]) / direction.getValueRead()[which];
 
 //#undef ABS
 }

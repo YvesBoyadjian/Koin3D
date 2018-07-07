@@ -481,7 +481,7 @@ drag()
             // The 1-D direction is not defined. Calculate it based on which
             // direction got the maximum locater motion.
             if ( isAdequateConstraintMotion() ) {
-                if ( Math.abs( motion.getValue()[0]) > Math.abs( motion.getValue()[1]))
+                if ( Math.abs( motion.getValueRead()[0]) > Math.abs( motion.getValueRead()[1]))
                     translateDir = 0;
                 else 
                     translateDir = 1;
@@ -496,7 +496,7 @@ drag()
         }
         // get the projection of 'motion' onto the preferred axis.
         final SbVec3f constrainedMotion = new SbVec3f(0,0,0);
-        constrainedMotion.getValue()[translateDir] = motion.getValue()[translateDir];
+        constrainedMotion.setValue(translateDir, motion.getValueRead()[translateDir]);
         motion.copyFrom( constrainedMotion);
     }
 

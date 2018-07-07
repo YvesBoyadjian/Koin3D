@@ -192,9 +192,9 @@ intersect(final SbBox3f box, final SbVec3f enter, final SbVec3f exit)
 
     // set up the eight coords of the corners of the box
     for(i = 0; i < 8; i++)
-        points[i].setValue((i & 01)!=0 ? min.getValue()[0] : max.getValue()[0],
-                           (i & 02)!=0 ? min.getValue()[1] : max.getValue()[1],
-                           (i & 04)!=0 ? min.getValue()[2] : max.getValue()[2]);
+        points[i].setValue((i & 01)!=0 ? min.getValueRead()[0] : max.getValueRead()[0],
+                           (i & 02)!=0 ? min.getValueRead()[1] : max.getValueRead()[1],
+                           (i & 04)!=0 ? min.getValueRead()[2] : max.getValueRead()[2]);
 
     // intersect the 12 triangles.
     for(i = 0; i < 12; i++) {
@@ -288,9 +288,9 @@ final float EPSILON = 1e-10f;
     //     two dimensions are the axes of the aligned plane we will
     //     use to project the triangle.
     //
-    float       xAbs = norm.getValue()[0] < 0.0 ? -norm.getValue()[0] : norm.getValue()[0];
-    float       yAbs = norm.getValue()[1] < 0.0 ? -norm.getValue()[1] : norm.getValue()[1];
-    float       zAbs = norm.getValue()[2] < 0.0 ? -norm.getValue()[2] : norm.getValue()[2];
+    float       xAbs = norm.getValueRead()[0] < 0.0 ? -norm.getValueRead()[0] : norm.getValueRead()[0];
+    float       yAbs = norm.getValueRead()[1] < 0.0 ? -norm.getValueRead()[1] : norm.getValueRead()[1];
+    float       zAbs = norm.getValueRead()[2] < 0.0 ? -norm.getValueRead()[2] : norm.getValueRead()[2];
     int         axis0, axis1;
 
     if (xAbs > yAbs && xAbs > zAbs) {
@@ -312,19 +312,19 @@ final float EPSILON = 1e-10f;
     //     Since we deal with only 2 components, we can avoid the
     //     third computation.
     //
-    float intersection0 = getPosition().getValue()[axis0] + t * getDirection().getValue()[axis0];
-    float intersection1 = getPosition().getValue()[axis1] + t * getDirection().getValue()[axis1];
+    float intersection0 = getPosition().getValueRead()[axis0] + t * getDirection().getValueRead()[axis0];
+    float intersection1 = getPosition().getValueRead()[axis1] + t * getDirection().getValueRead()[axis1];
 
     final SbVec2f     diff0 = new SbVec2f(), diff1 = new SbVec2f(), diff2 = new SbVec2f();
     boolean      isInter = false;
     float       alpha = Float.NaN, beta;
 
-    diff0.getValue()[0] = intersection0 - v0.getValue()[axis0];
-    diff0.getValue()[1] = intersection1 - v0.getValue()[axis1];
-    diff1.getValue()[0] = v1.getValue()[axis0]     - v0.getValue()[axis0];
-    diff1.getValue()[1] = v1.getValue()[axis1]     - v0.getValue()[axis1];
-    diff2.getValue()[0] = v2.getValue()[axis0]     - v0.getValue()[axis0];
-    diff2.getValue()[1] = v2.getValue()[axis1]     - v0.getValue()[axis1];
+    diff0.getValue()[0] = intersection0 - v0.getValueRead()[axis0];
+    diff0.getValue()[1] = intersection1 - v0.getValueRead()[axis1];
+    diff1.getValue()[0] = v1.getValueRead()[axis0]     - v0.getValueRead()[axis0];
+    diff1.getValue()[1] = v1.getValueRead()[axis1]     - v0.getValueRead()[axis1];
+    diff2.getValue()[0] = v2.getValueRead()[axis0]     - v0.getValueRead()[axis0];
+    diff2.getValue()[1] = v2.getValueRead()[axis1]     - v0.getValueRead()[axis1];
 
     // Note: This code was rearranged somewhat from the code in
     // Graphics Gems to provide a little more numeric

@@ -102,6 +102,7 @@ import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbPlane;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoHandleEventAction;
@@ -1225,10 +1226,10 @@ translateDrag()
             // The 1-D direction is not defined.  Calculate it
             // based on which direction got the maximum locater motion.
             if ( isAdequateConstraintMotion() ) {
-                if (    Math.abs( workSpaceMotion.getValue()[0]) > Math.abs( workSpaceMotion.getValue()[1]) 
-                     && Math.abs( workSpaceMotion.getValue()[0]) > Math.abs( workSpaceMotion.getValue()[2]) )
+                if (    Math.abs( workSpaceMotion.getValueRead()[0]) > Math.abs( workSpaceMotion.getValueRead()[1]) 
+                     && Math.abs( workSpaceMotion.getValueRead()[0]) > Math.abs( workSpaceMotion.getValueRead()[2]) )
                     translateDir = 0;
-                else if (Math.abs( workSpaceMotion.getValue()[1]) > Math.abs( workSpaceMotion.getValue()[2]) )
+                else if (Math.abs( workSpaceMotion.getValueRead()[1]) > Math.abs( workSpaceMotion.getValueRead()[2]) )
                     translateDir = 1;
                 else 
                     translateDir = 2;
@@ -1242,7 +1243,7 @@ translateDrag()
         }
         // get the projection of 'workSpaceMotion' onto the preferred axis.
         final SbVec3f constrainedMotion = new SbVec3f(0,0,0);
-        constrainedMotion.getValue()[translateDir] = workSpaceMotion.getValue()[translateDir];
+        constrainedMotion.getValueRead()[translateDir] = workSpaceMotion.getValueRead()[translateDir];
         workSpaceMotion.copyFrom( constrainedMotion);
     }
 
@@ -1298,15 +1299,15 @@ scaleDrag()
 
                 case RIT_X_SCALE:
                 case LFT_X_SCALE:
-                    scaleCenter.setValue(  0,  startHitPt.getValue()[1], startHitPt.getValue()[2]);
+                    scaleCenter.setValue(  0,  startHitPt.getValueRead()[1], startHitPt.getValueRead()[2]);
                     break;
                 case TOP_Y_SCALE:
                 case BOT_Y_SCALE:
-                    scaleCenter.setValue(  startHitPt.getValue()[0],  0, startHitPt.getValue()[2]);
+                    scaleCenter.setValue(  startHitPt.getValueRead()[0],  0, startHitPt.getValueRead()[2]);
                     break;
                 case FNT_Z_SCALE:
                 case BAK_Z_SCALE:
-                    scaleCenter.setValue(  startHitPt.getValue()[0], startHitPt.getValue()[1],  0);
+                    scaleCenter.setValue(  startHitPt.getValueRead()[0], startHitPt.getValueRead()[1],  0);
                     break;
             }
         }
@@ -1340,22 +1341,22 @@ scaleDrag()
                     break;
 
                 case RIT_X_SCALE:
-                    scaleCenter.setValue( -1,  startHitPt.getValue()[1], startHitPt.getValue()[2]);
+                    scaleCenter.setValue( -1,  startHitPt.getValueRead()[1], startHitPt.getValueRead()[2]);
                     break;
                 case LFT_X_SCALE:
-                    scaleCenter.setValue(  1,  startHitPt.getValue()[1], startHitPt.getValue()[2]);
+                    scaleCenter.setValue(  1,  startHitPt.getValueRead()[1], startHitPt.getValueRead()[2]);
                     break;
                 case TOP_Y_SCALE:
-                    scaleCenter.setValue(  startHitPt.getValue()[0], -1, startHitPt.getValue()[2]);
+                    scaleCenter.setValue(  startHitPt.getValueRead()[0], -1, startHitPt.getValueRead()[2]);
                     break;
                 case BOT_Y_SCALE:
-                    scaleCenter.setValue(  startHitPt.getValue()[0],  1, startHitPt.getValue()[2]);
+                    scaleCenter.setValue(  startHitPt.getValueRead()[0],  1, startHitPt.getValueRead()[2]);
                     break;
                 case FNT_Z_SCALE:
-                    scaleCenter.setValue(  startHitPt.getValue()[0], startHitPt.getValue()[1], -1);
+                    scaleCenter.setValue(  startHitPt.getValueRead()[0], startHitPt.getValueRead()[1], -1);
                     break;
                 case BAK_Z_SCALE:
-                    scaleCenter.setValue(  startHitPt.getValue()[0], startHitPt.getValue()[1],  1);
+                    scaleCenter.setValue(  startHitPt.getValueRead()[0], startHitPt.getValueRead()[1],  1);
                     break;
                 case SCALE_GEOM_ONLY:
                     // This mode always scales about origin.
@@ -1388,17 +1389,17 @@ scaleDrag()
     final SbVec3f oldDiff = startHitPt.operator_minus( scaleCenter);
     final SbVec3f newDiff = newHitPt.operator_minus(scaleCenter);
     // If either vector is close to zero, then leave delta at 1.0
-    final SbVec3f delta = new SbVec3f( 1.0f, 1.0f, 1.0f );
+    final SbVec3fSingle delta = new SbVec3fSingle( 1.0f, 1.0f, 1.0f );
     int ind;
     for ( ind = 0; ind < 3; ind++ ) {
-        if ((Math.abs(newDiff.getValue()[ind]) > TINY) && (Math.abs(oldDiff.getValue()[ind]) > TINY))
-            delta.getValue()[ind] = newDiff.getValue()[ind] / oldDiff.getValue()[ind];
+        if ((Math.abs(newDiff.getValueRead()[ind]) > TINY) && (Math.abs(oldDiff.getValueRead()[ind]) > TINY))
+            delta.getValue()[ind] = newDiff.getValueRead()[ind] / oldDiff.getValueRead()[ind];
     }
 //#undef TINY
 
     // Make sure the scale doesn't go below getMinScale()
         for (ind = 0; ind < 3; ind++ )
-            if ( delta.getValue()[ind] < getMinScale() )
+            if ( delta.getValueRead()[ind] < getMinScale() )
                 delta.getValue()[ind] = getMinScale();
 
     // Append this to the startMotionMatrix, which we saved at the beginning

@@ -176,9 +176,9 @@ addToElt(SoState state, final SbPlane plane,
         SbVec3f   norm     = objPlane.getNormal();
         double[]        planeEquation = new double[4];
 
-        planeEquation[0] = norm.getValue()[0];
-        planeEquation[1] = norm.getValue()[1];
-        planeEquation[2] = norm.getValue()[2];
+        planeEquation[0] = norm.getValueRead()[0];
+        planeEquation[1] = norm.getValueRead()[1];
+        planeEquation[2] = norm.getValueRead()[2];
         planeEquation[3] = -objPlane.getDistanceFromOrigin();
 
         GL11.glClipPlane((GL2.GL_CLIP_PLANE0 + planeId), planeEquation);

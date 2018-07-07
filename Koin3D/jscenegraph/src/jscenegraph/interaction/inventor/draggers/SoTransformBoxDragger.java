@@ -90,6 +90,7 @@ package jscenegraph.interaction.inventor.draggers;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFNode;
@@ -409,7 +410,7 @@ public SoTransformBoxDragger()
     for (i = 0; i < 3; i++) {
         // The cylinder dragger works about the y axis by default
         rRots[i] = new SoRotation();
-        final SbVec3f fromAxis = new SbVec3f(0,1,0), toAxis = new SbVec3f(0,0,0);
+        final SbVec3fSingle fromAxis = new SbVec3fSingle(0,1,0), toAxis = new SbVec3fSingle(0,0,0);
         toAxis.getValue()[i] = 1; // make x, y or z axis
         rRots[i].rotation.setValue(new SbRotation(fromAxis, toAxis));
     }
@@ -424,7 +425,7 @@ public SoTransformBoxDragger()
         tRots[i] = new SoRotation();
         
         // The tranlater dragger is perpindicular to z by default
-        final SbVec3f fromAxis = new SbVec3f(0,0,1), toAxis = new SbVec3f(0,0,0);
+        final SbVec3fSingle fromAxis = new SbVec3fSingle(0,0,1), toAxis = new SbVec3fSingle(0,0,0);
         if ( i < 3 )
             toAxis.getValue()[i] = 1;    // make x, y or z axis
         else 

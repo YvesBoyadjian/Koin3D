@@ -1,0 +1,11 @@
+#Inventor V2.0 ascii
+Separator {
+	Material {
+		transparency .5
+		shininess .5
+		diffuseColor 0 1 1
+	}
+	Cylinder {
+		parts SIDES
+	}
+}

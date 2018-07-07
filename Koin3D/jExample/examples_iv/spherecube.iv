@@ -1,0 +1,13 @@
+#Inventor V2.0 ascii
+Separator {
+	Cube {}
+	Material {
+		diffuseColor 1 0 0
+	}
+	Transform {
+		translation 5 0 0
+	}
+	Sphere {
+		radius 3
+	}
+}

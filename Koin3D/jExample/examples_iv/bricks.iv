@@ -1,0 +1,16 @@
+#Inventor V2.0 ascii
+Separator {
+	Coordinate3 {
+		point [ 0 0 0, 1 0 0, 1 1 0, 0 1 0 ]
+	}
+	TextureCoordinate2 {
+		point [ .2 .2, .8 .2, .8 .8, .2 .8 ]
+	}
+	TextureCoordinateBinding {
+		value PER_VERTEX
+	}
+	Texture2 {
+		filename "C:\eclipseWorkspaces\5-1-Tanky1\maps\rusty.jpg"
+	}
+	FaceSet {}
+}

@@ -1524,9 +1524,9 @@ final float TINY = 0.00001f;
                               matYVec.normalize(),
                               matZVec.normalize());
 
-        rotation.copyFrom( new SbMatrix( matXVec.getValue()[0], matXVec.getValue()[1], matXVec.getValue()[2], 0,
-                             matYVec.getValue()[0], matYVec.getValue()[1], matYVec.getValue()[2], 0,
-                             matZVec.getValue()[0], matZVec.getValue()[1], matZVec.getValue()[2], 0,
+        rotation.copyFrom( new SbMatrix( matXVec.getValueRead()[0], matXVec.getValueRead()[1], matXVec.getValueRead()[2], 0,
+                             matYVec.getValueRead()[0], matYVec.getValueRead()[1], matYVec.getValueRead()[2], 0,
+                             matZVec.getValueRead()[0], matZVec.getValueRead()[1], matZVec.getValueRead()[2], 0,
                              0,          0,          0,          1 ));
     }
     else {
@@ -2295,9 +2295,9 @@ appendTranslation( final SbMatrix mtx,
     SbVec3f newTranslate = startTranslate.operator_add(lclMotion);
 
     final SbMatrix answer = new SbMatrix(mtx);
-    answer.getValue()[3][0] = newTranslate.getValue()[0];
-    answer.getValue()[3][1] = newTranslate.getValue()[1];
-    answer.getValue()[3][2] = newTranslate.getValue()[2];
+    answer.getValue()[3][0] = newTranslate.getValueRead()[0];
+    answer.getValue()[3][1] = newTranslate.getValueRead()[1];
+    answer.getValue()[3][2] = newTranslate.getValueRead()[2];
 
     return answer;
 }
@@ -2353,8 +2353,8 @@ appendScale( final SbMatrix mtx,
     // Constrain the scaling to be greater than getMinScale().
         final SbVec3f okayMrgScale = new SbVec3f(mrgScale);
         for (int i = 0; i < 3; i++ ) {
-            if (okayMrgScale.getValue()[i] <= getMinScale() )
-                okayMrgScale.getValue()[i] = getMinScale();
+            if (okayMrgScale.getValueRead()[i] <= getMinScale() )
+                okayMrgScale.setValue(i, getMinScale());
         }
 
     final SbVec3f okayScale = new SbVec3f();
@@ -2383,9 +2383,9 @@ appendScale( final SbMatrix mtx,
             }
 
         // Get the okayScale from its matrix.
-            okayScale.getValue()[0] = okayScaleMtx.getValue()[0][0];
-            okayScale.getValue()[1] = okayScaleMtx.getValue()[1][1];
-            okayScale.getValue()[2] = okayScaleMtx.getValue()[2][2];
+            okayScale.setValue(0, okayScaleMtx.getValue()[0][0]);
+            okayScale.setValue(1, okayScaleMtx.getValue()[1][1]);
+            okayScale.setValue(2, okayScaleMtx.getValue()[2][2]);
     }
 
     // Now we've got a scale (okayScale) and scaleCenter we know we can use.

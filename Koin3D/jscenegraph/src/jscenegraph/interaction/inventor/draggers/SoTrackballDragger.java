@@ -582,9 +582,9 @@ setUpConnections( boolean onOff, boolean doItAlways )
 
             // decide whether or not to display the spinning wheel.
             // only show it if does not line up with a major axis.
-            if (   ( Math.abs(userAxisVec.getValue()[0]) > 0.99 )
-                || ( Math.abs(userAxisVec.getValue()[1]) > 0.99 )
-                || ( Math.abs(userAxisVec.getValue()[2]) > 0.99 ) ) {
+            if (   ( Math.abs(userAxisVec.getValueRead()[0]) > 0.99 )
+                || ( Math.abs(userAxisVec.getValueRead()[1]) > 0.99 )
+                || ( Math.abs(userAxisVec.getValueRead()[2]) > 0.99 ) ) {
                 setSwitchValue( userAxisSwitch.getValue(), SoSwitch.SO_SWITCH_NONE );
                 setSwitchValue( userRotatorSwitch.getValue(), SoSwitch.SO_SWITCH_NONE );
             }
@@ -1145,9 +1145,9 @@ userStripeDrag()
 
     // decide whether or not to display the spinning wheel.
     // only show it if does not line up with a major axis.
-    if (   ( Math.abs(userAxisVec.getValue()[0]) > 0.99 )
-        || ( Math.abs(userAxisVec.getValue()[1]) > 0.99 )
-        || ( Math.abs(userAxisVec.getValue()[2]) > 0.99 ) ) {
+    if (   ( Math.abs(userAxisVec.getValueRead()[0]) > 0.99 )
+        || ( Math.abs(userAxisVec.getValueRead()[1]) > 0.99 )
+        || ( Math.abs(userAxisVec.getValueRead()[2]) > 0.99 ) ) {
         setSwitchValue( userAxisSwitch.getValue(), SoSwitch.SO_SWITCH_NONE );
         setSwitchValue( userRotatorSwitch.getValue(), SoSwitch.SO_SWITCH_NONE );
     }

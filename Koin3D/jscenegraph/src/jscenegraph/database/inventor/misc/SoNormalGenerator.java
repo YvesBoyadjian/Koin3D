@@ -327,15 +327,15 @@ generate(float creaseAngle)
     // for this to be slow: all the points would have to be on the
     // exact wrong diagonal plane through the bounding box for them to
     // hash to the same value.]
-    box.getSize(hashScale.getValue());
-    tolerance = (hashScale.getValue()[0] + hashScale.getValue()[1] + hashScale.getValue()[2]) / 10000;
+    box.getSize(hashScale);
+    tolerance = (hashScale.getValueRead()[0] + hashScale.getValueRead()[1] + hashScale.getValueRead()[2]) / 10000;
     SbVec3f toleranceVec = new SbVec3f(tolerance, tolerance, tolerance);
-    if (hashScale.getValue()[0] != 0.0)
-        hashScale.getValue()[0] = .333f * numPoints / hashScale.getValue()[0];
-    if (hashScale.getValue()[1] != 0.0)
-        hashScale.getValue()[1] = .333f * numPoints / hashScale.getValue()[1];
-    if (hashScale.getValue()[2] != 0.0)
-        hashScale.getValue()[2] = .333f * numPoints / hashScale.getValue()[2];
+    if (hashScale.getValueRead()[0] != 0.0)
+        hashScale.setValue(0, .333f * numPoints / hashScale.getValueRead()[0]);
+    if (hashScale.getValueRead()[1] != 0.0)
+        hashScale.setValue(1, .333f * numPoints / hashScale.getValueRead()[1]);
+    if (hashScale.getValueRead()[2] != 0.0)
+        hashScale.setValue(2, .333f * numPoints / hashScale.getValueRead()[2]);
 
     // Compute the base for the hash function, which is just the
     // minimum point of the bounding box:
@@ -465,15 +465,15 @@ equal(final SbVec3f a, final SbVec3f b, float tolerance)
 {
     float       diff;
 
-    diff = a.getValue()[0] - b.getValue()[0];
+    diff = a.getValueRead()[0] - b.getValueRead()[0];
     if ((diff < 0.0 ? -diff : diff) > tolerance)
         return false;
 
-    diff = a.getValue()[1] - b.getValue()[1];
+    diff = a.getValueRead()[1] - b.getValueRead()[1];
     if ((diff < 0.0 ? -diff : diff) > tolerance)
         return false;
 
-    diff = a.getValue()[2] - b.getValue()[2];
+    diff = a.getValueRead()[2] - b.getValueRead()[2];
     if ((diff < 0.0 ? -diff : diff) > tolerance)
         return false;
 

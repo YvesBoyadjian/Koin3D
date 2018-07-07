@@ -225,11 +225,11 @@ unitCylinderIntersect(final SbLine l,
     final SbVec3f       pos = l.getPosition(), dir = l.getDirection();
     boolean                doesIntersect = true;
 
-    A = dir.getValue()[0] * dir.getValue()[0] + dir.getValue()[2] * dir.getValue()[2];
+    A = dir.getValueRead()[0] * dir.getValueRead()[0] + dir.getValueRead()[2] * dir.getValueRead()[2];
 
-    B = 2.0f * (pos.getValue()[0] * dir.getValue()[0] + pos.getValue()[2] * dir.getValue()[2]);
+    B = 2.0f * (pos.getValueRead()[0] * dir.getValueRead()[0] + pos.getValueRead()[2] * dir.getValueRead()[2]);
 
-    C = pos.getValue()[0] * pos.getValue()[0] + pos.getValue()[2] * pos.getValue()[2] - 1;
+    C = pos.getValueRead()[0] * pos.getValueRead()[0] + pos.getValueRead()[2] * pos.getValueRead()[2] - 1;
 
     // discriminant = B^2 - 4AC
     discr = B*B - 4.0f*A*C;

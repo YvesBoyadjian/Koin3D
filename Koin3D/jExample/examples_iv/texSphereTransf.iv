@@ -1,0 +1,11 @@
+#Inventor V2.0 ascii
+Separator {
+	Texture2Transform {
+		scaleFactor 4.0 4.0
+		rotation 0.785
+	}
+	Texture2 {
+		filename "C:\eclipseWorkspaces\5-1-Tanky1\maps\Brkrun.jpg"
+	}
+	Sphere {}
+}

@@ -1206,7 +1206,7 @@ public void
 setAmbientElt( SbColor color )
 
 {
-    ivState.ambientColor.setValue((float[])color.getValue());
+    ivState.ambientColor.setValue((float[])color.getValueRead());
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1222,7 +1222,7 @@ public void
 setEmissiveElt( SbColor color )
 
 {
-    ivState.emissiveColor.setValue((float[])color.getValue());
+    ivState.emissiveColor.setValue((float[])color.getValueRead());
 }
 
 
@@ -1239,7 +1239,7 @@ public void
 setSpecularElt( SbColor color )
 //
 {
-    ivState.specularColor.setValue((float[])color.getValue());
+    ivState.specularColor.setValue((float[])color.getValueRead());
 }
 
 ////////////////////////////////////////////////////////////////////////

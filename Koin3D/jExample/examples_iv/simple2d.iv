@@ -1,0 +1,11 @@
+#Inventor V2.0 ascii
+Separator {
+	Font {
+		name "Times-Roman"
+		size 48.0
+	}
+	Text2 {
+		string "Open Inventor Text 2D"
+		justification CENTER
+	}
+}

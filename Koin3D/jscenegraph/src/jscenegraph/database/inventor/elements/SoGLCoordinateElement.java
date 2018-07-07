@@ -99,7 +99,7 @@ send(int index, GL2 gl2)
 //#endif /* DEBUG */
 
     if (coordsAre3D)
-        gl2.glVertex3fv(coords3[index].getValue(),0);
+        gl2.glVertex3fv(coords3[index].getValueRead(),0);
     else
         gl2.glVertex4fv(coords4[index].getValue(),0);
 }

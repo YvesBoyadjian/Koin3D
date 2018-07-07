@@ -1,0 +1,25 @@
+#Inventor V2.0 ascii
+
+Separator {
+	Font {
+		name "Courier-Bold"
+		size 48
+	}
+	ProfileCoordinate2
+	{
+		point [
+			0 0, 0.52 1.53,
+			0.98 0.53, 1.54 1.06,
+			2.05 0.02, 3.13 -0.54,
+			4.15 0.5, 5.2 0 ]
+	}
+	LinearProfile {
+		index [ 0, 1, 2, 3, 4, 5, 6, 7 ]
+	}
+	Text3 {
+		string "A"
+		spacing 1
+		justification LEFT
+		parts ALL
+	}
+}
