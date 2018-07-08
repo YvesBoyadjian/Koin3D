@@ -58,7 +58,7 @@ public class SoTexture extends SoNode {
 public static void
 initClass()
 {
-  SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(SoTexture.class, "Node", SoNode.class);
+  SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(SoTexture.class, "Texture", SoNode.class);
 }
 
 public void

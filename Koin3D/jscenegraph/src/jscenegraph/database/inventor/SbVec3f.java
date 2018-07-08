@@ -73,6 +73,7 @@ package jscenegraph.database.inventor;
 import java.nio.FloatBuffer;
 import java.util.function.DoubleConsumer;
 
+import jscenegraph.port.FloatArray;
 import jscenegraph.port.Mutable;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,9 +142,15 @@ public class SbVec3f implements Cloneable, Mutable {
 	public SbVec3f(float x, float y, float z)
 	{ 
 		vec = new float[3]; 		
+		indice = 0;
 		vec[0] = x; vec[1] = y; vec[2] = z; 
 	}
 	
+	public SbVec3f(FloatArray vpCoords, int i) {
+		vec = vpCoords.getValues();
+		indice = vpCoords.getStart()+3*i;
+	}
+
 	public static int sizeof() {
 		return 4*3;
 	}

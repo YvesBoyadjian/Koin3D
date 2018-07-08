@@ -59,6 +59,8 @@ import java.util.function.DoubleConsumer;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Array;
+import jscenegraph.port.FloatArray;
+import jscenegraph.port.Mutable;
 import jscenegraph.port.Util;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,6 +91,8 @@ example:
  *
  */
 public class SoMFVec3f extends SoMField<SbVec3f> {
+	
+	private float[] valuesArray;
 
 	/**
 	 * Sets the field to contain the given value and only the given value (if
@@ -111,9 +115,9 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	public SbVec3f[] getValues(int start) {
 		evaluate();
 
-		SbVec3f[] shiftedValues = new SbVec3f[values.length - start];
-		for (int i = start; i < values.length; i++) {
-			shiftedValues[i - start] = (SbVec3f) values[i];
+		SbVec3f[] shiftedValues = new SbVec3f[valuesArray.length/3 - start];
+		for (int i = start; i < valuesArray.length/3; i++) {
+			shiftedValues[i - start] = new SbVec3f(valuesArray,i*3);
 		}
 		return shiftedValues;
 	}
@@ -123,15 +127,15 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	 * Faster method
 	 * 
 	 * */
-	public Array<SbVec3f> getValuesArray(int start) {
+	public FloatArray getValuesArray(int start) {
 		evaluate();
 				
-		Array<SbVec3f> shiftedValues = new Array<SbVec3f>(SbVec3f.class, start, values);
+		FloatArray shiftedValues = new FloatArray( start*3, valuesArray);
 		return shiftedValues;
 	}
 
 	public ByteBuffer getValuesBytes(int start) {
-		Array<SbVec3f> values = getValuesArray(start);
+		FloatArray values = getValuesArray(start);
 		return Util.toByteBuffer(values);
 	}
 
@@ -139,17 +143,27 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	public float[] getValuesFloat(int start) {
 		evaluate();
 
-		float[] shiftedValues = new float[(values.length - start) * 3];
+		float[] shiftedValues = new float[(valuesArray.length/3 - start) * 3];
 		int index = 0;
-		for (int i = start; i < values.length; i++) {
-			shiftedValues[index] = ((SbVec3f) values[i]).getValueRead()[0];
+		for (int i = start; i < valuesArray.length/3; i++) {
+			shiftedValues[index] = valuesArray[i*3];
 			index++;
-			shiftedValues[index] = ((SbVec3f) values[i]).getValueRead()[1];
+			shiftedValues[index] = valuesArray[i*3+1];
 			index++;
-			shiftedValues[index] = ((SbVec3f) values[i]).getValueRead()[2];
+			shiftedValues[index] = valuesArray[i*3+2];
 			index++;
 		}
 		return shiftedValues;
+	}
+	
+	/**
+	 * Java port
+	 * @return
+	 */
+	public float[] getValuesRef() {
+		evaluate();
+		
+		return valuesArray;
 	}
 
 	// Set values from array of arrays of 3 floats.
@@ -173,9 +187,11 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		if (newNum > getNum())
 			makeRoom(newNum);
 
-		for (i = 0; i < num; i++)
-			((SbVec3f) values[start + i]).setValue(xyz[i]);
-
+		for (i = 0; i < num; i++) {
+			valuesArray[(start + i)*3] = xyz[i][0];
+			valuesArray[(start + i)*3+1] = xyz[i][1];
+			valuesArray[(start + i)*3+2] = xyz[i][2];
+		}
 		valueChanged();
 	}
 
@@ -192,12 +208,24 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		if (newNum > getNum())
 			makeRoom(newNum);
 
-		for (i = 0; i < num; i++)
-			((SbVec3f) values[start + i]).setValue(xyz[3*i],xyz[3*i+1],xyz[3*i+2]);
-
+		for (i = 0; i < num; i++) {
+			valuesArray[(start + i)*3] = xyz[3*i];
+			valuesArray[(start + i)*3+1] = xyz[3*i+1];
+			valuesArray[(start + i)*3+2] = xyz[3*i+2];
+		}
 		valueChanged();
 	}
 
+	public void setValuesPointer(float[] userdata) {
+		makeRoom(0);
+		  if (userdata != null) { 
+			    valuesArray = userdata;
+			    // userDataIsUsed = true; COIN3D 
+			    num = maxNum = userdata.length/3; 
+			    valueChanged(); 
+		} 
+		
+	}
 	
 	////////////////////////////////////////////////////////////////////////
 	//
@@ -220,9 +248,11 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		if (newNum > getNum())
 			makeRoom(newNum);
 
-		for (i = 0; i < num; i++)
-			((SbVec3f) values[start + i]).setValue(xyz[i]);
-
+		for (i = 0; i < num; i++) {
+			valuesArray[(start + i)*3] = xyz[i][0];
+			valuesArray[(start + i)*3+1] = xyz[i][1];
+			valuesArray[(start + i)*3+2] = xyz[i][2];
+		}
 		valueChanged();
 	}
 
@@ -265,6 +295,10 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	protected SbVec3f[] arrayConstructor(int length) {
 		return new SbVec3f[length];
 	}
+	
+	private float[] arrayConstructorInternal(int length) {
+		return new float[length*3];
+	}
 
 	////////////////////////////////////////////////////////////////////////
 	//
@@ -293,5 +327,59 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	    set1Value(index, new SbVec3f(x, y, z));		
 	}
 
+	protected void allocValues(int newNum) {
+		if (valuesArray == null) {
+			if (newNum > 0) {
+				valuesArray = arrayConstructorInternal(newNum);
+			}
+		} else {
+			float[] oldValues = valuesArray;
+			int i;
+
+			if (newNum > 0) {
+				valuesArray = arrayConstructorInternal(newNum);
+				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
+					valuesArray[3*i] = oldValues[3*i];
+					valuesArray[3*i+1] = oldValues[3*i+1];
+					valuesArray[3*i+2] = oldValues[3*i+2];
+				}
+			} else
+				valuesArray = null;
+			// delete [] oldValues; java port
+		}
+
+		num = maxNum = newNum;
+	}
+
+	/* Set field to have one value */
+	public void setValue(SbVec3f newValue) {
+		makeRoom(1);
+		Mutable dest = new SbVec3f(valuesArray,0);
+		Mutable src = (Mutable) newValue;
+		dest.copyFrom(src);
+		valueChanged();
+	}
+
+    /* Get non-const pointer into array of values for batch edits */          
+    public SbVec3f[] startEditing()                                
+        { 
+    	evaluate(); 
+    	return getValues(0); 
+    	}                                        
+                                                                              
+	/* Set 1 value at given index */
+	public void set1Value(int index, SbVec3f newValue) {
+		if (index >= getNum())
+			makeRoom(index + 1);
+		valuesArray[index*3] = newValue.getX();
+		valuesArray[index*3+1] = newValue.getY();
+		valuesArray[index*3+2] = newValue.getZ();
+		valueChanged();
+	}
+
+	public SbVec3f operator_square_bracket(int i) {
+		evaluate();
+		return new SbVec3f(valuesArray,i*3);
+	}
 	
 }

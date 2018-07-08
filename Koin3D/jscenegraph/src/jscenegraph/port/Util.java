@@ -123,6 +123,21 @@ public class Util {
 		return retVal;
 	}
 
+	public static ByteBuffer toByteBuffer(FloatArray objArray) {
+		int arrayLength = objArray.size();
+		
+		ByteBuffer retVal = null;
+		
+			int nbBytes = (int)(arrayLength * (long)Float.SIZE / Byte.SIZE);
+			retVal = Buffers.newDirectByteBuffer(nbBytes);
+			for(int i=0; i< arrayLength;i++) {
+				retVal.putFloat(objArray.get(i));
+			}
+		
+		retVal.rewind();
+		return retVal;
+	}
+
 	public static ByteBuffer toByteBuffer(SbVec2f[] objArray) {
 		int arrayLength = objArray.length;
 		int nbBytes = (int)(arrayLength * 2 * (long)Float.SIZE / Byte.SIZE);

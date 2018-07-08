@@ -565,7 +565,7 @@ void GLRenderVertexArray(SoGLRenderAction action,
 {
   SoState state = action.getState();
   final SbVec3f scale = new SbVec3f();
-  getSize(scale.getValueRead());
+  getSize(scale);
 
   boolean              materialPerFace;
   final SbVec3f             pt = new SbVec3f(), norm = new SbVec3f();

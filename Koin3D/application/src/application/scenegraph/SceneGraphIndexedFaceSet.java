@@ -10,6 +10,7 @@ import java.util.Random;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
+import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
@@ -38,7 +39,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private static final int I_START = 2500;
 	
-	private static final int MAX_I = /*3000*/12000;//9000;
+	private static final int MAX_I = /*3000;*/20000;//9000;
 	
 	private static final int MAX_J = 9000;
 	
@@ -47,6 +48,10 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	private static final float SUN_DISTANCE = 150e9f;
 	
 	private static final float SUN_RADIUS = 7e8f;
+	
+	private static final SbColor SUN_COLOR = new SbColor(1f, 0.9f, 0.5f);
+	
+	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
 	private static final Color STONE = new Color(139,141,122); //http://www.colourlovers.com/color/8B8D7A/stone_gray
 	
@@ -217,9 +222,9 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    
 	    SoVertexProperty vertexProperty = new SoVertexProperty();
 	    
-	    vertexProperty.vertex.setValues(0, vertices);
+	    vertexProperty.vertex.setValuesPointer(/*0,*/ vertices);
 	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValues(0, normals);
+	    vertexProperty.normal.setValuesPointer(/*0,*/ normals);
 	    vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
 	    vertexProperty.orderedRGBA.setValues(0, colors);
 	    
@@ -250,7 +255,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    sunView.radius.setValue(SUN_RADIUS/SUN_DISTANCE*1e6f);
 	    
 	    SoMaterial sunMat = new SoMaterial();
-	    sunMat.emissiveColor.setValue(1,0.95f,.5f);
+	    sunMat.emissiveColor.setValue(SUN_COLOR);
 	    
 	    sunSep.addChild(sunMat);
 	    sunSep.addChild(sunTransl);
@@ -258,24 +263,24 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    sep.addChild(sunSep);
 	    
 	    sun = new SoDirectionalLight();
-	    sun.color.setValue(1f, 0.95f, 0.5f);
+	    sun.color.setValue(SUN_COLOR);
 	    sep.addChild(sun);
 	    
 	    sky = new SoDirectionalLight[4];
 	    sky[0] = new SoDirectionalLight();
-	    sky[0].color.setValue(0.35f, 0.35f, 0.4f);
+	    sky[0].color.setValue(SKY_COLOR);
 	    sky[0].intensity.setValue(0.1f);
 	    sky[0].direction.setValue(0, 1, -1);
 	    sky[1] = new SoDirectionalLight();
-	    sky[1].color.setValue(0.35f, 0.35f, 0.4f);
+	    sky[1].color.setValue(SKY_COLOR);
 	    sky[1].intensity.setValue(0.1f);
 	    sky[1].direction.setValue(0, -1, -1);
 	    sky[2] = new SoDirectionalLight();
-	    sky[2].color.setValue(0.35f, 0.35f, 0.4f);
+	    sky[2].color.setValue(SKY_COLOR);
 	    sky[2].intensity.setValue(0.1f);
 	    sky[0].direction.setValue(1, 0, -1);
 	    sky[3] = new SoDirectionalLight();
-	    sky[3].color.setValue(0.35f, 0.35f, 0.4f);
+	    sky[3].color.setValue(SKY_COLOR);
 	    sky[3].intensity.setValue(0.1f);
 	    sky[3].direction.setValue(-1, 0, -1);
 	    

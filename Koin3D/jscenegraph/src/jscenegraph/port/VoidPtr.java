@@ -67,6 +67,9 @@ public class VoidPtr implements Destroyable {
 		if(object instanceof Array<?>) {
 			buffer = Util.toByteBuffer((Array<?>)object);
 		}
+		if(object instanceof FloatArray) {
+			buffer = Util.toByteBuffer((FloatArray)object);
+		}
 		if(object instanceof ByteBuffer) {
 			buffer = (ByteBuffer)object;
 		}

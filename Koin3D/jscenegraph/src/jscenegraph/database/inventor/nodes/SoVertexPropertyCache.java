@@ -180,7 +180,7 @@ public class SoVertexPropertyCache {
 			}
         };
         vertexStride = SbVec3f.sizeof();
-        vertexPtr = (float[])vp.vertex.getValuesFloat(0);
+        vertexPtr = (float[])vp.vertex./*getValuesFloat(0)*/getValuesRef();
         needFromState &= ~BitMask.COORD_FROM_STATE_BIT.getValue();
     } else {
         SoCoordinateElement ce =

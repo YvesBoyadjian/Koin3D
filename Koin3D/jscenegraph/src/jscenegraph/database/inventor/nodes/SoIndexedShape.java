@@ -69,6 +69,7 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.FloatArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -259,7 +260,7 @@ notify(SoNotList list)
     int                     i, numIndices, numUsed;
     int[]                       indices;
     SoCoordinateElement   ce = null;
-    Array<SbVec3f>               vpCoords = null;
+    FloatArray               vpCoords = null;
 
     SoVertexProperty vp = (SoVertexProperty )vertexProperty.getValue();
     if (vp != null && vp.vertex.getNum() > 0) {
@@ -281,7 +282,7 @@ notify(SoNotList list)
         // Look only at non-negative index values
         if (indices[i] >= 0) {
             SbVec3f v = (ce != null ? ce.get3((int) indices[i]) :
-                                vpCoords.get(indices[i]));
+                                new SbVec3f(vpCoords,indices[i]));
             box.extendBy(v);
             center.operator_add_equal(v);
             numUsed++;

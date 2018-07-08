@@ -435,7 +435,7 @@ private void GLRenderVertexArray(SoGLRenderAction action,
 {
   SoState state = action.getState();
   final SbVec3fSingle scale = new SbVec3fSingle(), tmp = new SbVec3fSingle();
-  getSize(scale.getValueRead());
+  getSize(scale);
   scale.getValue()[2] = scale.getValueRead()[0];
 
   int                 curParts, side, section;
