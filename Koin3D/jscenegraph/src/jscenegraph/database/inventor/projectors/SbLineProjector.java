@@ -197,7 +197,7 @@ project(final SbVec2f point)
         float vvH  = (viewVol.getHeight() == 0.0) ? 1 : viewVol.getHeight();
         final SbVec3f     vpPt1 = new SbVec3f( nrmScnPt1.getValueRead()[0] * vvW, nrmScnPt1.getValueRead()[1] * vvH, 0);
         final SbVec3f     vpPt2 = new SbVec3f( nrmScnPt2.getValueRead()[0] * vvW, nrmScnPt2.getValueRead()[1] * vvH, 0);
-        final SbVec3f vpInPoint = new SbVec3f(     point.getValue()[0] * vvW,     point.getValue()[1] * vvH, 0);
+        final SbVec3f vpInPoint = new SbVec3f(     point.getValueRead()[0] * vvW,     point.getValueRead()[1] * vvH, 0);
 
     // Create the viewPlaneLine -- our line expressed in viewPlane space:
         final SbLine  viewPlaneLine = new SbLine( vpPt1, vpPt2 );

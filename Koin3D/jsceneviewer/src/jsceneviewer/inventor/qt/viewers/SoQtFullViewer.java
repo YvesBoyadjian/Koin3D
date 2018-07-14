@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoOrthographicCamera;
@@ -123,7 +124,7 @@ public class SoQtFullViewer extends SoQtViewer {
 	    // viewer button container
 	    protected ToolBar       viewerButtonBar;
 
-	    private final SbVec2f         zoomSldRange = new SbVec2f();
+	    private final SbVec2fSingle         zoomSldRange = new SbVec2fSingle();
 	    
 	    // zoom pref sheet
 	    private Composite      zoomPrefSheet;

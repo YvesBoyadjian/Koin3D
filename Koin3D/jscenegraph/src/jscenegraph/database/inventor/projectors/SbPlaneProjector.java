@@ -490,7 +490,7 @@ project(final SbVec2f point)
 final float VANISH_DELTA =.01f;
             float vanishSafetyDist = VANISH_DELTA * lineToLine;
 //#undef VANISH_DELTA
-            SbVec3f vpInPoint = new SbVec3f(     point.getValue()[0] * vvW,     point.getValue()[1] * vvH, 0);
+            SbVec3f vpInPoint = new SbVec3f(     point.getValueRead()[0] * vvW,     point.getValueRead()[1] * vvH, 0);
             SbVec3f nearToInPoint = new SbVec3f(horizon.getClosestPoint( vpInPoint ));
             SbVec3f nearToPlnPnt  = new SbVec3f(horizon.getClosestPoint( vpPlnPnt ));
             SbVec3f vec1 = vpInPoint.operator_minus( nearToInPoint);

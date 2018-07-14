@@ -111,7 +111,7 @@ public class SoPrimitiveVertex {
     public void                setPoint(final SbVec3f pt)       { point.copyFrom(pt); }
     public void                setNormal(final SbVec3f norm)    { normal.copyFrom(norm); }
     public void                setTextureCoords(final SbVec4f t){ texCoords.copyFrom(t); }
-    public void setTextureCoords(final SbVec2f tex) { /*textureCoords*/texCoords.setValue(tex.getValue()[0], tex.getValue()[1], 0.0f, 1.0f); } // COIN3D
+    public void setTextureCoords(final SbVec2f tex) { /*textureCoords*/texCoords.setValue(tex.getValueRead()[0], tex.getValueRead()[1], 0.0f, 1.0f); } // COIN3D
 
     //! Sets the material index. The index is set to 0 during construction.
     public void                setMaterialIndex(int index)  { materialIndex = index; }

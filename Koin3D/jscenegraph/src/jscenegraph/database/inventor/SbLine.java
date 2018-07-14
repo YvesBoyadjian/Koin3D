@@ -315,7 +315,7 @@ final float EPSILON = 1e-10f;
     float intersection0 = getPosition().getValueRead()[axis0] + t * getDirection().getValueRead()[axis0];
     float intersection1 = getPosition().getValueRead()[axis1] + t * getDirection().getValueRead()[axis1];
 
-    final SbVec2f     diff0 = new SbVec2f(), diff1 = new SbVec2f(), diff2 = new SbVec2f();
+    final SbVec2fSingle     diff0 = new SbVec2fSingle(), diff1 = new SbVec2fSingle(), diff2 = new SbVec2fSingle();
     boolean      isInter = false;
     float       alpha = Float.NaN, beta;
 

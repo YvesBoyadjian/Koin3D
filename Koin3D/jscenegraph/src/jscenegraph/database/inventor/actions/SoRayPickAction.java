@@ -60,6 +60,7 @@ import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
@@ -143,7 +144,7 @@ public class SoRayPickAction extends SoPickAction {
 	private boolean              rayWasComputed; 
     private boolean              pickAll;        
     private final SbVec2s             VPPoint = new SbVec2s();
-    private final SbVec2f             normVPPoint = new SbVec2f();    //!< Point in normalized vp coordinates
+    private final SbVec2fSingle             normVPPoint = new SbVec2fSingle();    //!< Point in normalized vp coordinates
     private boolean              normPointSet;   
     private float               VPRadius;   
     private final SbMatrix            objToWorld = new SbMatrix();     

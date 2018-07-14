@@ -26,6 +26,7 @@ package jscenegraph.coin3d.inventor.elements;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.misc.SoState;
 
@@ -57,7 +58,7 @@ public class SoDepthBufferElement extends SoElement {
 	protected boolean test;
 	protected boolean write;
 	protected DepthWriteFunction function;
-	protected final SbVec2f range = new SbVec2f();
+	protected final SbVec2fSingle range = new SbVec2fSingle();
 
 	/**
 	 *

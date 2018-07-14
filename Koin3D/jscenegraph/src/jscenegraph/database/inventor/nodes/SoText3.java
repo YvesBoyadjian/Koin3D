@@ -73,6 +73,7 @@ import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
@@ -875,8 +876,8 @@ public void getProfileBounds(final float[] firstZ, final float[] lastZ)
 ////////////////////////////////////////////////////////////////////////
 {
     if (hasProfile()) {
-        firstZ[0] = -profileVerts[0].getValue()[0];
-        lastZ[0] = -profileVerts[nProfileVerts-1].getValue()[0];
+        firstZ[0] = -profileVerts[0].getValueRead()[0];
+        lastZ[0] = -profileVerts[nProfileVerts-1].getValueRead()[0];
     } else {
         firstZ[0] = lastZ[0] = 0;
     }
@@ -947,7 +948,7 @@ public void setupToRenderSide(SoState state, boolean willTexture)
     
     for (int i = 0; i < getNumUCSChars(line); i++) {
         SoFontOutline outline = getOutline((char)chars.get(i));
-        total += outline.getCharAdvance().getValue()[0];
+        total += outline.getCharAdvance().getValueRead()[0];
     }
 
     return total;
@@ -1069,7 +1070,7 @@ public void renderSide(GL2 gl2, int line, SideCB callbackFunc)
             gl2.glEnd();
 
             final SbVec2f t = getOutline((char)str.get(i)).getCharAdvance();
-            gl2.glTranslatef(t.getValue()[0], t.getValue()[1], 0.0f);
+            gl2.glTranslatef(t.getValueRead()[0], t.getValueRead()[1], 0.0f);
         }
     }
 }
@@ -1100,7 +1101,7 @@ void renderFront(GL2 gl2, int line,
         else {
             generateFrontChar(gl2, (char)str.get(i), tobj);
             SbVec2f t = getOutline((char)str.get(i)).getCharAdvance();
-            gl2.glTranslatef(t.getValue()[0], t.getValue()[1], 0.0f);
+            gl2.glTranslatef(t.getValueRead()[0], t.getValueRead()[1], 0.0f);
         }
     }
 }
@@ -1170,7 +1171,7 @@ public boolean hasFrontDisplayList(GL2 gl2, char c,
     gl2.glNewList(frontList.getFirstIndex()+key, GL2.GL_COMPILE);
     generateFrontChar(gl2,c, tobj);
     SbVec2f t = getOutline(c).getCharAdvance();
-    gl2.glTranslatef(t.getValue()[0], t.getValue()[1], 0.0f);
+    gl2.glTranslatef(t.getValueRead()[0], t.getValueRead()[1], 0.0f);
     gl2.glEndList();
     
     frontDict.enter(key, value);
@@ -1207,7 +1208,7 @@ boolean hasSideDisplayList(GL2 gl2, char c,
     gl2.glEnd();
 
     SbVec2f t = getOutline(c).getCharAdvance();
-    gl2.glTranslatef(t.getValue()[0], t.getValue()[1], 0.0f);
+    gl2.glTranslatef(t.getValueRead()[0], t.getValueRead()[1], 0.0f);
     gl2.glEndList();
     sideDict.enter(key, value);
 
@@ -1357,15 +1358,15 @@ void figureSegmentNorms(final SbVec2f[] norms, int nPoints,
     // segments:
     int i;
     for (i = 0; i < nSegments; i++) {
-        final SbVec2f n = new SbVec2f();
+        final SbVec2fSingle n = new SbVec2fSingle();
         // This is 2D perpendicular, assuming profile is increasing in
         // X (which becomes 'decreasing in Z' when we actually use
         // it...) (note: if a profile isn't increasing in X, the
         // character will be inside-out, with the front face drawn
         // behind the back face, etc).
         SbVec2f v = points[(i+1)%nPoints].operator_minus(points[i]);
-        n.getValue()[0] = v.getValue()[1];
-        n.getValue()[1] = -v.getValue()[0];
+        n.getValue()[0] = v.getValueRead()[1];
+        n.getValue()[1] = -v.getValueRead()[0];
         n.normalize();
         
         norms[i*2].copyFrom(n);
@@ -1462,9 +1463,9 @@ void fillBevel(final SbVec3f[] result, int nPoints,
         // Because of the geometry, cos(angle) is n[1] and sin(angle)
         // is -n[0], and x' is zero (the bevel always goes straight
         // back).
-        result[i].setValue(0, points[i].getValue()[1] * n.getValue()[0] + translation.getValue()[0]);
-        result[i].setValue(1, points[i].getValue()[1] * n.getValue()[1] + translation.getValue()[1]);
-        result[i].setValue(2, -points[i].getValue()[0]);
+        result[i].setValue(0, points[i].getValueRead()[1] * n.getValueRead()[0] + translation.getValueRead()[0]);
+        result[i].setValue(1, points[i].getValueRead()[1] * n.getValueRead()[1] + translation.getValueRead()[1]);
+        result[i].setValue(2, -points[i].getValueRead()[0]);
     }
 } 
 
@@ -1491,9 +1492,9 @@ void fillBevelN(final SbVec3f[] result, int nNorms,
         // Because of the geometry, cos(angle) is n[1] and sin(angle)
         // is -n[0], and x' is zero (the bevel always goes straight
         // back).
-        result[i].setValue(0, norms[i].getValue()[1] * n.getValue()[0]);
-        result[i].setValue(1, norms[i].getValue()[1] * n.getValue()[1]);
-        result[i].setValue(2, -norms[i].getValue()[0]);
+        result[i].setValue(0, norms[i].getValueRead()[1] * n.getValueRead()[0]);
+        result[i].setValue(1, norms[i].getValueRead()[1] * n.getValueRead()[1]);
+        result[i].setValue(2, -norms[i].getValueRead()[0]);
     }
 } 
 
@@ -1541,8 +1542,8 @@ public void generateFrontChar(GL2 gl2, char c,
 
         for (int j = 0; j < outline.getNumVerts(i); j++) {
             SbVec2f t = outline.getVertex(i,j);
-            v[0] = t.getValue()[0];
-            v[1] = t.getValue()[1];
+            v[0] = t.getValueRead()[0];
+            v[1] = t.getValueRead()[1];
             v[2] = 0.0;
 
             // Note: The third argument MUST NOT BE a local variable,
@@ -1567,8 +1568,8 @@ public void generateFrontChar(GL2 gl2, char c,
             final SbVec2f[] boxVerts = new SbVec2f[4];
             for(int ii=0;ii<4;ii++)boxVerts[ii] = new SbVec2f();
             charBBox.getBounds(boxVerts[0], boxVerts[2]);
-            boxVerts[1].setValue(boxVerts[2].getValue()[0], boxVerts[0].getValue()[1]);
-            boxVerts[3].setValue(boxVerts[0].getValue()[0], boxVerts[2].getValue()[1]);
+            boxVerts[1].setValue(boxVerts[2].getValueRead()[0], boxVerts[0].getValueRead()[1]);
+            boxVerts[3].setValue(boxVerts[0].getValueRead()[0], boxVerts[2].getValueRead()[1]);
 
 //#ifdef GLU_VERSION_1_2
             GLU.gluTessBeginPolygon(tobj, null);
@@ -1577,8 +1578,8 @@ public void generateFrontChar(GL2 gl2, char c,
 //            gluBeginPolygon(tobj);
 //#endif
             for (i = 0; i < 4; i++) {
-                v[0] = boxVerts[i].getValue()[0];
-                v[1] = boxVerts[i].getValue()[1];
+                v[0] = boxVerts[i].getValueRead()[0];
+                v[1] = boxVerts[i].getValueRead()[1];
                 v[2] = 0.0;
                 GLU.gluTessVertex(tobj, v, 0, boxVerts[i]);
             }
@@ -1784,7 +1785,7 @@ public void GLRender(SoGLRenderAction action)
 				}
 				else if(object instanceof SbVec2f) {
 					SbVec2f vec = (SbVec2f)object;
-					gl2.glVertex2fv(vec.getValue(), 0);
+					gl2.glVertex2fv(vec.getValueRead(), 0);
 				}
 				else {
 					gl2.glVertex2fv((float[])object, 0);
@@ -1808,8 +1809,8 @@ public void GLRender(SoGLRenderAction action)
         for (int line = 0; line < string.getNum(); line++) {
             gl2.glPushMatrix();
             SbVec2f p = getStringOffset(line);
-            if (p.getValue()[0] != 0.0 || p.getValue()[1] != 0.0)
-                gl2.glTranslatef(p.getValue()[0], p.getValue()[1], 0.0f);
+            if (p.getValueRead()[0] != 0.0 || p.getValueRead()[1] != 0.0)
+                gl2.glTranslatef(p.getValueRead()[0], p.getValueRead()[1], 0.0f);
             renderSide(action, line);
             gl2.glPopMatrix();
         }
@@ -1846,8 +1847,8 @@ public void GLRender(SoGLRenderAction action)
             
             gl2.glPushMatrix();
             final SbVec2f p = new SbVec2f(getStringOffset(line));
-            if (p.getValue()[0] != 0.0 || p.getValue()[1] != 0.0)
-                gl2.glTranslatef(p.getValue()[0], p.getValue()[1], 0.0f);
+            if (p.getValueRead()[0] != 0.0 || p.getValueRead()[1] != 0.0)
+                gl2.glTranslatef(p.getValueRead()[0], p.getValueRead()[1], 0.0f);
             renderFront(action, line, tobj);
             gl2.glPopMatrix();
         }
@@ -1891,8 +1892,8 @@ public void GLRender(SoGLRenderAction action)
         for (int line = 0; line < string.getNum(); line++) {
         	gl2.glPushMatrix();
             SbVec2f p = new SbVec2f(getStringOffset(line));
-            if (p.getValue()[0] != 0.0 || p.getValue()[1] != 0.0)
-                gl2.glTranslatef(p.getValue()[0], p.getValue()[1], 0.0f);
+            if (p.getValueRead()[0] != 0.0 || p.getValueRead()[1] != 0.0)
+                gl2.glTranslatef(p.getValueRead()[0], p.getValueRead()[1], 0.0f);
             renderFront(action, line, tobj);
             gl2.glPopMatrix();
         }
@@ -2061,7 +2062,7 @@ public SbVec2f getStringOffset(int line)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final SbVec2f result = new SbVec2f(0,0);
+    final SbVec2fSingle result = new SbVec2fSingle(0,0);
     
     if (justification.getValue() == Justification.RIGHT.getValue()) {
         float width = myFont.getWidth(line);
@@ -2158,14 +2159,14 @@ private boolean setupFontCache(SoState state, boolean forRender)
 
     // Front and back are straightforward:
     if ((prts & Part.FRONT.getValue())!= 0) {
-        SbVec3f min = new SbVec3f(boxMin.getValue()[0], boxMin.getValue()[1], firstZ[0]);
-        SbVec3f max = new SbVec3f(boxMax.getValue()[0], boxMax.getValue()[1], firstZ[0]);
+        SbVec3f min = new SbVec3f(boxMin.getValueRead()[0], boxMin.getValueRead()[1], firstZ[0]);
+        SbVec3f max = new SbVec3f(boxMax.getValueRead()[0], boxMax.getValueRead()[1], firstZ[0]);
         box.extendBy(min);
         box.extendBy(max);
     }
     if ((prts & Part.BACK.getValue())!=0) {
-        SbVec3f min = new SbVec3f(boxMin.getValue()[0], boxMin.getValue()[1], lastZ[0]);
-        SbVec3f max = new SbVec3f(boxMax.getValue()[0], boxMax.getValue()[1], lastZ[0]);
+        SbVec3f min = new SbVec3f(boxMin.getValueRead()[0], boxMin.getValueRead()[1], lastZ[0]);
+        SbVec3f max = new SbVec3f(boxMax.getValueRead()[0], boxMax.getValueRead()[1], lastZ[0]);
         box.extendBy(min);
         box.extendBy(max);
     }
@@ -2198,8 +2199,8 @@ private boolean setupFontCache(SoState state, boolean forRender)
         // profile extends forwards/backwards:
         //
         final SbVec3f min = new SbVec3f(), max = new SbVec3f();
-        min.setValue(boxMin.getValue()[0], boxMin.getValue()[1], pBoxMin.getValue()[0]);
-        max.setValue(boxMax.getValue()[0], boxMax.getValue()[1], pBoxMax.getValue()[0]);
+        min.setValue(boxMin.getValueRead()[0], boxMin.getValueRead()[1], pBoxMin.getValueRead()[0]);
+        max.setValue(boxMax.getValueRead()[0], boxMax.getValueRead()[1], pBoxMax.getValueRead()[0]);
         box.extendBy(min);
         box.extendBy(max);
 
@@ -2209,11 +2210,11 @@ private boolean setupFontCache(SoState state, boolean forRender)
         //
 //# define max(a,b)               (a<b ? b : a)
 //# define abs(x)                 (x>=0 ? x : -(x))
-        float maxOffset = Math.max(Math.abs(pBoxMin.getValue()[1]), Math.abs(pBoxMax.getValue()[1]));
+        float maxOffset = Math.max(Math.abs(pBoxMin.getValueRead()[1]), Math.abs(pBoxMax.getValueRead()[1]));
 //#undef max
 //#undef abs
-        min.setValue(boxMin.getValue()[0]-maxOffset, boxMin.getValue()[1]-maxOffset, firstZ[0]);
-        max.setValue(boxMax.getValue()[0]+maxOffset, boxMax.getValue()[1]+maxOffset, lastZ[0]);
+        min.setValue(boxMin.getValueRead()[0]-maxOffset, boxMin.getValueRead()[1]-maxOffset, firstZ[0]);
+        max.setValue(boxMax.getValueRead()[0]+maxOffset, boxMax.getValueRead()[1]+maxOffset, lastZ[0]);
         box.extendBy(min);
         box.extendBy(max);
     }
@@ -2333,7 +2334,7 @@ private void getFrontBBox(final SbBox2f result)
             detail.setStringIndex(line);
 
             SbVec2f p = getStringOffset(line);
-            genTranslate.setValue(p.getValue()[0], p.getValue()[1], lastZ[0]);
+            genTranslate.setValue(p.getValueRead()[0], p.getValueRead()[1], lastZ[0]);
             generateSide(line);
         }
     }
@@ -2354,7 +2355,7 @@ private void getFrontBBox(final SbBox2f result)
             detail.setStringIndex(line);
 
             SbVec2f p = getStringOffset(line);
-            genTranslate.setValue(p.getValue()[0], p.getValue()[1], lastZ[0]);
+            genTranslate.setValue(p.getValueRead()[0], p.getValueRead()[1], lastZ[0]);
             generateFront(gl2, line);
         }
         genBack = false;
@@ -2375,7 +2376,7 @@ private void getFrontBBox(final SbBox2f result)
             detail.setStringIndex(line);
 
             SbVec2f p = getStringOffset(line);
-            genTranslate.setValue(p.getValue()[0], p.getValue()[1], firstZ[0]);
+            genTranslate.setValue(p.getValueRead()[0], p.getValueRead()[1], firstZ[0]);
             generateFront(gl2, line);
         }
     }
@@ -2417,8 +2418,8 @@ void generateSide(int line)
         });
 
         SbVec2f p = myFont.getCharOffset((char)chars.get(i));
-        genTranslate.getValue()[0] += p.getValue()[0];
-        genTranslate.getValue()[1] += p.getValue()[1];
+        genTranslate.getValue()[0] += p.getValueRead()[0];
+        genTranslate.getValue()[1] += p.getValueRead()[1];
     }
 }
 
@@ -2478,8 +2479,8 @@ void generateFront(GL2 gl2, int line)
         myFont.generateFrontChar(gl2, (char)chars.get(i), tobjgenerateFront);
 
         SbVec2f p = myFont.getCharOffset((char)chars.get(i));
-        genTranslate.setValue(0, genTranslate.getValueRead()[0] + p.getValue()[0]);
-        genTranslate.setValue(1, genTranslate.getValueRead()[1] + p.getValue()[1]);
+        genTranslate.setValue(0, genTranslate.getValueRead()[0] + p.getValueRead()[0]);
+        genTranslate.setValue(1, genTranslate.getValueRead()[1] + p.getValueRead()[1]);
     }
 }
 
@@ -2528,8 +2529,8 @@ void vtxCB(Object v)
 {
     SbVec2f vv = (SbVec2f)v;
     final float[] vertex = new float[3];
-    vertex[0] = vv.getValue()[0] + genTranslate.getValueRead()[0];
-    vertex[1] = vv.getValue()[1] + genTranslate.getValueRead()[1];
+    vertex[0] = vv.getValueRead()[0] + genTranslate.getValueRead()[0];
+    vertex[1] = vv.getValueRead()[1] + genTranslate.getValueRead()[1];
     vertex[2] = genTranslate.getValueRead()[2];
 
     SoText3 t3 = currentGeneratingNode;

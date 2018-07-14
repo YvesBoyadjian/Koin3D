@@ -252,8 +252,8 @@ public void getTrimCurve(SoState state, IntConsumer numPoints, Consumer<float[]>
 
         for (i = 0; i < np; i++) {
             final SbVec2f t = pce.get2(getIndex(i, index, pce.getNum()));
-            p[i*2]   = t.getValue()[0];
-            p[i*2+1] = t.getValue()[1];
+            p[i*2]   = t.getValueRead()[0];
+            p[i*2+1] = t.getValueRead()[1];
         }
     }
     else {

@@ -195,9 +195,9 @@ public class SoTextureCoordinateElement extends SoReplacedElement {
 	    	 float[] textureCoordArray = new float[numCoords*2];
 	    	 int index = 0;
 	    	 for (int i=0; i< numCoords;i++) {
-	    		 textureCoordArray[index] = coords2[i].getValue()[0];
+	    		 textureCoordArray[index] = coords2[i].getValueRead()[0];
 	    		 index++;
-	    		 textureCoordArray[index] = coords2[i].getValue()[1];
+	    		 textureCoordArray[index] = coords2[i].getValueRead()[1];
 	    		 index++;
 	    	 }
 	    	           return textureCoordArray;
@@ -342,8 +342,8 @@ get4(int index)
         SoTextureCoordinateElement elt = (SoTextureCoordinateElement ) this;
         final SbVec2f              c2  = coords2[index];
 
-        elt.convert4.getValue()[0] = c2.getValue()[0];
-        elt.convert4.getValue()[1] = c2.getValue()[1];
+        elt.convert4.getValue()[0] = c2.getValueRead()[0];
+        elt.convert4.getValue()[1] = c2.getValueRead()[1];
         elt.convert4.getValue()[2] = 0.0f;
         elt.convert4.getValue()[3] = 1.0f;
 

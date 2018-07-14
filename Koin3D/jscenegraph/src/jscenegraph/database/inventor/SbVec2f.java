@@ -72,6 +72,7 @@ package jscenegraph.database.inventor;
 
 import java.util.function.DoubleConsumer;
 
+import jscenegraph.port.FloatArray;
 import jscenegraph.port.Mutable;
 
 
@@ -95,26 +96,49 @@ SbVec3f, SbVec4f, SbVec2s, SbRotation
  *
  */
 public class SbVec2f implements Mutable {
-	protected final float[] vec = new float[2];
+	protected final float[] vec;
+	protected int indice;
 
 	// Default constructor.
 	public SbVec2f() {
-
+		vec = new float[2];
+		indice = 0;
 	}
 
 	// Constructor given vector components.
 	public SbVec2f(float[] v) {
+		vec = new float[2];
+		indice = 0;
 		 setValue(v);
 	}
 
 	// Constructor given vector components.
 	public SbVec2f(float x, float y) {
+		vec = new float[2]; 		
+		indice = 0;
 		 setValue(x, y);
 	}
 
 	// java port
 	public SbVec2f(final SbVec2f other) {
+		vec = new float[2];
+		indice = 0;
 		setValue(other.vec);
+	}
+	
+	/**
+	 * Internal contructor
+	 * @param array
+	 * @param indice
+	 */
+	public SbVec2f(float[] array, int indice) {
+		vec = array;
+		this.indice = indice;
+	}
+	
+	public SbVec2f(FloatArray vpCoords, int i) {
+		vec = vpCoords.getValues();
+		indice = vpCoords.getStart()+2*i;
 	}
 
 	// Sets the vector components.
@@ -135,10 +159,39 @@ public class SbVec2f implements Mutable {
 	}
 
     //! Returns vector components.
-    public float[] getValue() {
-    	return vec;
+    public float[] getValueRead() {
+    	float[] vecRead = new float[2];
+    	vecRead[0] = g(0); 
+    	vecRead[1] = g(1); 
+    	return vecRead; 
     }
 
+	/**
+	 * Internal method
+	 * @param i
+	 * @return
+	 */
+	protected float g(int i) {
+		return vec[indice+i];
+	}
+	
+	/**
+	 * Internal method
+	 * @param i
+	 * @param v
+	 */
+	protected void s(int i, float v) {
+		vec[indice+i] = v;
+	}
+	    
+    /**
+     * for internal use
+     * @return
+     */
+    protected final float[] getValueRef() {
+    	return vec; 
+    }
+    
 	public float operator_square_bracket(int i) {
 		return vec[i];
 	}

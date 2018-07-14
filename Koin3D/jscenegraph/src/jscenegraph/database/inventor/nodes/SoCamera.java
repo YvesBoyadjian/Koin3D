@@ -66,6 +66,7 @@ import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
@@ -554,7 +555,7 @@ GLRender(SoGLRenderAction action)
     final SbViewportRegion    croppedReg = new SbViewportRegion();
     final SbViewVolume        viewVol = new SbViewVolume();
     final SbMatrix            viewMat = new SbMatrix(), projMat = new SbMatrix();
-    final SbVec2f             uaOrigin = new SbVec2f(), uaSize = new SbVec2f();
+    final SbVec2fSingle             uaOrigin = new SbVec2fSingle(), uaSize = new SbVec2fSingle();
     final SbVec3f             jitterAmount = new SbVec3f();
     final boolean[]              changeRegion = new boolean[1];
     final SoState             state = action.getState();
@@ -610,7 +611,7 @@ jitter(int numPasses, int curPass,
 ////////////////////////////////////////////////////////////////////////
 {
     // Get the current sample point within the pixel
-    final SbVec2f samplePoint = new SbVec2f();
+    final SbVec2fSingle samplePoint = new SbVec2fSingle();
     getJitterSample(numPasses, curPass, samplePoint);
 
     // Compute the jitter amount for the projection matrix. This

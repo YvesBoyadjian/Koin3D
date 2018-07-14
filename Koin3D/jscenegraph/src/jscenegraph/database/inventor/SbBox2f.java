@@ -82,7 +82,7 @@ SbBox3f, SbXfBox3f, SbBox2s, SbVec3f, SbVec2f, SbVec2s, SbMatrix
 public class SbBox2f implements Mutable {
 	
 	   private
-		   final      SbVec2f     min = new SbVec2f(), max = new SbVec2f();
+		   final      SbVec2fSingle     min = new SbVec2fSingle(), max = new SbVec2fSingle();
 
     //! Constructs an empty box.
     public SbBox2f()                                   { makeEmpty(); };
@@ -105,7 +105,7 @@ public class SbBox2f implements Mutable {
 	// Extends Box2f (if necessary) to contain given 2D point. 
 	public void extendBy(final SbVec2f pt) {
 		
-		float[] pt_ = pt.getValue(); // java port
+		float[] pt_ = pt.getValueRead(); // java port
 		float[] min_ = min.getValue();
 		float[] max_ = max.getValue();
 		

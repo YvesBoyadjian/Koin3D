@@ -75,6 +75,7 @@ import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -1121,7 +1122,7 @@ getScreenSize(SoState state, final SbBox3f boundingBox,
                                    (screenPoint[i].getValueRead()[1] * winSize.getValue()[1])));
 
     // Get the size of the resulting box
-    final SbVec2f boxSize = new SbVec2f();
+    final SbVec2fSingle boxSize = new SbVec2fSingle();
     screenBox.getSize(boxSize.getValue());
 
     // Screen space size is actually half of this size. Test for

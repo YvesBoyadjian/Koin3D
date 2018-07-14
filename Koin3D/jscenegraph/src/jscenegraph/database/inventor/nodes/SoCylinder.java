@@ -502,8 +502,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
         winding = false;
 
         for (side = 0; side < numSides[0]; side++) {
-          pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-          pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+          pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+          pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
           // Deal with normal
           norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -535,8 +535,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
         // Join end of strip back to beginning
         side = 0;
         s = 0.0f;
-        pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-        pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+        pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+        pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
         // Deal with normal
         norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -599,8 +599,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
           // Send all vertices around ring. Go in reverse order
           // so that vertex ordering is correct
           for (side = numSides[0] - 1; side >= 0; side--) {
-            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
             if (doTextures)
               texCoords.add(new SbVec2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2])));
             if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -610,8 +610,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
             }
           }
           // Send first vertex again
-          pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[0];
-          pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[1];
+          pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[0];
+          pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[1];
           if (doTextures)
             texCoords.add(new SbVec2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2])));
           if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -625,8 +625,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
 
           for (side = 0; side < numSides[0]; side++) {
             // Send points on outer and inner rings
-            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
             if (doTextures)
               texCoords.add(new SbVec2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2])));
             if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -635,8 +635,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
               winding=ADD_TRIANGLE(points,indices,winding);
             }
 
-            pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-            pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+            pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+            pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
             if (doTextures)
               texCoords.add(new SbVec2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2])));
             if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -647,15 +647,15 @@ private void GLRenderVertexArray(SoGLRenderAction action,
           }
 
           // Join end of strip back to beginning
-          pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-          pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+          pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+          pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
           if (doTextures)
             texCoords.add(new SbVec2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2])));
           if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
           points.add(new SbVec3f(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead())));
           winding=ADD_TRIANGLE(points,indices,winding);
-          pt.getValue()[0] = innerRadius * ringCoords[0][0].getValue()[0];
-          pt.getValue()[2] = innerRadius * ringCoords[0][0].getValue()[1];
+          pt.getValue()[0] = innerRadius * ringCoords[0][0].getValueRead()[0];
+          pt.getValue()[2] = innerRadius * ringCoords[0][0].getValueRead()[1];
           if (doTextures)
             texCoords.add(new SbVec2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2])));
           if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -699,8 +699,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
 
           // Send all vertices around ring
           for (side = 0; side < numSides[0]; side++) {
-            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
             if (doTextures)
               texCoords.add(new SbVec2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2])));
             if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -710,8 +710,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
             }
           }
           // Send first vertex again
-          pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-          pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+          pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+          pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
           if (doTextures)
             texCoords.add(new SbVec2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2])));
           if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -726,8 +726,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
           // Go in reverse order so that vertex ordering is correct
           for (side = numSides[0] - 1; side >= 0; side--) {
             // Send points on outer and inner rings
-            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+            pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+            pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
             if (doTextures)
               texCoords.add(new SbVec2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2])));
             if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -735,8 +735,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
             if (side < numSides[0]-1) {
               winding=ADD_TRIANGLE(points,indices,winding);
             }
-            pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-            pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+            pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+            pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
             if (doTextures)
               texCoords.add(new SbVec2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2])));
             if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -748,15 +748,15 @@ private void GLRenderVertexArray(SoGLRenderAction action,
 
           // Join end of strip back to beginning
           side = numSides[0] - 1;
-          pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-          pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+          pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+          pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
           if (doTextures)
             texCoords.add(new SbVec2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2])));
           if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
           points.add(new SbVec3f(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead())));
           winding=ADD_TRIANGLE(points,indices,winding);
-          pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-          pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+          pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+          pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
           if (doTextures)
             texCoords.add(new SbVec2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2])));
           if (sendNormals) { normals.add(new SbVec3f(currentNormal)); }
@@ -793,8 +793,8 @@ private void GLRenderVertexArray(SoGLRenderAction action,
       }
       if (doTextures) {
         final SbVec2f texCoord = texCoords.get(index);
-        texCoordsPtr.asterisk(texCoord.getValue()[0]); texCoordsPtr.plusPlus();
-        texCoordsPtr.asterisk(texCoord.getValue()[1]); texCoordsPtr.plusPlus();
+        texCoordsPtr.asterisk(texCoord.getValueRead()[0]); texCoordsPtr.plusPlus();
+        texCoordsPtr.asterisk(texCoord.getValueRead()[1]); texCoordsPtr.plusPlus();
       }
     }
 
@@ -906,8 +906,8 @@ generatePrimitives(SoAction action)
 	    beginShape(action, SoShape.TriangleShape.TRIANGLE_STRIP);
 
 	    for (side = 0; side < numSides[0]; side++) {
-		pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
 		// Deal with normal
 		norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -947,8 +947,8 @@ generatePrimitives(SoAction action)
 	    // Join end of strip back to beginning
 	    side = 0;
 	    s = 0.0f;
-	    pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-	    pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+	    pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+	    pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
 	    // Deal with normal
 	    norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -1031,8 +1031,8 @@ generatePrimitives(SoAction action)
 		// Send all vertices around ring. Go in reverse order
 		// so that vertex ordering is correct
 		for (side = numSides[0] - 1; side >= 0; side--) {
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    pt.getValue()[0] *= radius[0];
 		    pt.getValue()[2] *= radius[0];
 		    if (genTexCoords) {
@@ -1046,8 +1046,8 @@ generatePrimitives(SoAction action)
 		    shapeVertex(pv);
 		}
 		// Send first vertex again
-		pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[1];
 		pt.getValue()[0] *= radius[0];
 		pt.getValue()[2] *= radius[0];
 		if (genTexCoords) {
@@ -1069,8 +1069,8 @@ generatePrimitives(SoAction action)
 
 		for (side = 0; side < numSides[0]; side++) {
 		    // Send points on outer and inner rings
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    pt.getValue()[0] *= radius[0];
 		    pt.getValue()[2] *= radius[0];
 		    if (genTexCoords) {
@@ -1082,8 +1082,8 @@ generatePrimitives(SoAction action)
 		    pv.setPoint(pt);
 		    pv.setTextureCoords(tex);
 		    shapeVertex(pv);
-		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		    pt.getValue()[0] *= radius[0];
 		    pt.getValue()[2] *= radius[0];
 		    if (genTexCoords) {
@@ -1098,8 +1098,8 @@ generatePrimitives(SoAction action)
 		}
 
 		// Join end of strip back to beginning
-		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
 		pt.getValue()[0] *= radius[0];
 		pt.getValue()[2] *= radius[0];
 		if (genTexCoords) {
@@ -1111,8 +1111,8 @@ generatePrimitives(SoAction action)
 		pv.setPoint(pt);
 		pv.setTextureCoords(tex);
 		shapeVertex(pv);
-		pt.getValue()[0] = innerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = innerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = innerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = innerRadius * ringCoords[0][0].getValueRead()[1];
 		pt.getValue()[0] *= radius[0];
 		pt.getValue()[2] *= radius[0];
 		if (genTexCoords) {
@@ -1169,8 +1169,8 @@ generatePrimitives(SoAction action)
 
 		// Send all vertices around ring
 		for (side = 0; side < numSides[0]; side++) {
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    pt.getValue()[0] *= radius[0];
 		    pt.getValue()[2] *= radius[0];
 		    if (genTexCoords) {
@@ -1184,8 +1184,8 @@ generatePrimitives(SoAction action)
 		    shapeVertex(pv);
 		}
 		// Send first vertex again
-		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
 		pt.getValue()[0] *= radius[0];
 		pt.getValue()[2] *= radius[0];
 		if (genTexCoords) {
@@ -1208,8 +1208,8 @@ generatePrimitives(SoAction action)
 		// Go in reverse order so that vertex ordering is correct
 		for (side = numSides[0] - 1; side >= 0; side--) {
 		    // Send points on outer and inner rings
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    pt.getValue()[0] *= radius[0];
 		    pt.getValue()[2] *= radius[0];
 		    if (genTexCoords) {
@@ -1221,8 +1221,8 @@ generatePrimitives(SoAction action)
 		    pv.setPoint(pt);
 		    pv.setTextureCoords(tex);
 		    shapeVertex(pv);
-		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		    pt.getValue()[0] *= radius[0];
 		    pt.getValue()[2] *= radius[0];
 		    if (genTexCoords) {
@@ -1238,8 +1238,8 @@ generatePrimitives(SoAction action)
 
 		// Join end of strip back to beginning
 		side = numSides[0] - 1;
-		pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		pt.getValue()[0] *= radius[0];
 		pt.getValue()[2] *= radius[0];
 		if (genTexCoords) {
@@ -1251,8 +1251,8 @@ generatePrimitives(SoAction action)
 		pv.setPoint(pt);
 		pv.setTextureCoords(tex);
 		shapeVertex(pv);
-		pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		pt.getValue()[0] *= radius[0];
 		pt.getValue()[2] *= radius[0];
 		if (genTexCoords) {
@@ -1351,8 +1351,8 @@ GLRenderGeneric(SoGLRenderAction action,
 	    gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
 
 	    for (side = 0; side < numSides[0]; side++) {
-		pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
 		// Deal with normal
 		norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -1376,8 +1376,8 @@ GLRenderGeneric(SoGLRenderAction action,
 	    // Join end of strip back to beginning
 	    side = 0;
 	    s = 0.0f;
-	    pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-	    pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+	    pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+	    pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
 	    // Deal with normal
 	    norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -1440,15 +1440,15 @@ GLRenderGeneric(SoGLRenderAction action,
 		// Send all vertices around ring. Go in reverse order
 		// so that vertex ordering is correct
 		for (side = numSides[0] - 1; side >= 0; side--) {
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    if (doTextures)
 			gl2.glTexCoord2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2]));
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 		}
 		// Send first vertex again
-		pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[1];
 		if (doTextures)
 		    gl2.glTexCoord2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2]));
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
@@ -1462,26 +1462,26 @@ GLRenderGeneric(SoGLRenderAction action,
 
 		for (side = 0; side < numSides[0]; side++) {
 		    // Send points on outer and inner rings
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    if (doTextures)
 			gl2.glTexCoord2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2]));
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		    if (doTextures)
 			gl2.glTexCoord2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2]));
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 		}
 
 		// Join end of strip back to beginning
-		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
 		if (doTextures)
 		    gl2.glTexCoord2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2]));
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		pt.getValue()[0] = innerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = innerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = innerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = innerRadius * ringCoords[0][0].getValueRead()[1];
 		if (doTextures)
 		    gl2.glTexCoord2f(TOP_TEX_S(pt.getValueRead()[0]), TOP_TEX_T(pt.getValueRead()[2]));
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
@@ -1526,15 +1526,15 @@ GLRenderGeneric(SoGLRenderAction action,
 
 		// Send all vertices around ring
 		for (side = 0; side < numSides[0]; side++) {
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    if (doTextures)
 			gl2.glTexCoord2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2]));
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 		}
 		// Send first vertex again
-		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
 		if (doTextures)
 		    gl2.glTexCoord2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2]));
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
@@ -1549,13 +1549,13 @@ GLRenderGeneric(SoGLRenderAction action,
 		// Go in reverse order so that vertex ordering is correct
 		for (side = numSides[0] - 1; side >= 0; side--) {
 		    // Send points on outer and inner rings
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    if (doTextures)
 			gl2.glTexCoord2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2]));
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		    if (doTextures)
 			gl2.glTexCoord2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2]));
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
@@ -1563,13 +1563,13 @@ GLRenderGeneric(SoGLRenderAction action,
 
 		// Join end of strip back to beginning
 		side = numSides[0] - 1;
-		pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		if (doTextures)
 		    gl2.glTexCoord2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2]));
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		if (doTextures)
 		    gl2.glTexCoord2f(BOT_TEX_S(pt.getValueRead()[0]), BOT_TEX_T(pt.getValueRead()[2]));
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
@@ -1641,8 +1641,8 @@ GLRenderNvertTnone(SoGLRenderAction action)
 	    gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
 
 	    for (side = 0; side < numSides[0]; side++) {
-		pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
 		// Deal with normal
 		norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -1659,8 +1659,8 @@ GLRenderNvertTnone(SoGLRenderAction action)
 
 	    // Join end of strip back to beginning
 	    side = 0;
-	    pt.getValue()[0] = ringCoords[0][side].getValue()[0];
-	    pt.getValue()[2] = ringCoords[0][side].getValue()[1];
+	    pt.getValue()[0] = ringCoords[0][side].getValueRead()[0];
+	    pt.getValue()[2] = ringCoords[0][side].getValueRead()[1];
 
 	    // Deal with normal
 	    norm.setValue(pt.getValueRead()[0], 0.0f, pt.getValueRead()[2]);
@@ -1713,13 +1713,13 @@ GLRenderNvertTnone(SoGLRenderAction action)
 		// Send all vertices around ring. Go in reverse order
 		// so that vertex ordering is correct
 		for (side = numSides[0] - 1; side >= 0; side--) {
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 		}
 		// Send first vertex again
-		pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][numSides[0] - 1].getValueRead()[1];
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 
 		gl2.glEnd();
@@ -1731,20 +1731,20 @@ GLRenderNvertTnone(SoGLRenderAction action)
 
 		for (side = 0; side < numSides[0]; side++) {
 		    // Send points on outer and inner rings
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 		}
 
 		// Join end of strip back to beginning
-		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		pt.getValue()[0] = innerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = innerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = innerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = innerRadius * ringCoords[0][0].getValueRead()[1];
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 
 		gl2.glEnd();
@@ -1784,13 +1784,13 @@ GLRenderNvertTnone(SoGLRenderAction action)
 
 		// Send all vertices around ring
 		for (side = 0; side < numSides[0]; side++) {
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 		}
 		// Send first vertex again
-		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][0].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][0].getValueRead()[1];
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 
 		gl2.glEnd();
@@ -1803,21 +1803,21 @@ GLRenderNvertTnone(SoGLRenderAction action)
 		// Go in reverse order so that vertex ordering is correct
 		for (side = numSides[0] - 1; side >= 0; side--) {
 		    // Send points on outer and inner rings
-		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		    pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		    pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		    gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 		}
 
 		// Join end of strip back to beginning
 		side = numSides[0] - 1;
-		pt.getValue()[0] = outerRadius * ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = outerRadius * ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = outerRadius * ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = outerRadius * ringCoords[0][side].getValueRead()[1];
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
-		pt.getValue()[0] = innerRadius * ringCoords[0][side].getValue()[0];
-		pt.getValue()[2] = innerRadius * ringCoords[0][side].getValue()[1];
+		pt.getValue()[0] = innerRadius * ringCoords[0][side].getValueRead()[0];
+		pt.getValue()[2] = innerRadius * ringCoords[0][side].getValueRead()[1];
 		gl2.glVertex3fv(SCALE(pt.getValueRead(),tmp.getValueRead(),scale.getValueRead()),0);
 
 		gl2.glEnd();

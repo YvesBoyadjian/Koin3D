@@ -617,7 +617,7 @@ void GLRenderVertexArray(SoGLRenderAction action,
       SoMachine.DGL_HTON_INT32(swappedColor, color);
       colorsPtr.asterisk(swappedColor[0]); colorsPtr.plusPlus();
       if (doTextures) {
-        float[] tmp = texCoords[vert].getValue();
+        float[] tmp = texCoords[vert].getValueRead();
         texCoordsPtr.asterisk(tmp[0]); texCoordsPtr.plusPlus(); 
         texCoordsPtr.asterisk(tmp[1]); texCoordsPtr.plusPlus(); 
       }
@@ -715,8 +715,8 @@ generatePrimitives(SoAction action)
 			(verts[face][vert]).getValueRead()[1] * h[0],
 			(verts[face][vert]).getValueRead()[2] * d[0]);
 	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValue()[0];
-		tex.getValue()[1] = texCoords[vert].getValue()[1];
+		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
 	    }
 	    else
 		tex.copyFrom( tce.get(pt, normals[face]));
@@ -728,8 +728,8 @@ generatePrimitives(SoAction action)
 			(verts[face][vert]).getValueRead()[1] * h[0],
 			(verts[face][vert]).getValueRead()[2] * d[0]);
 	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValue()[0];
-		tex.getValue()[1] = texCoords[vert].getValue()[1];
+		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
 	    }
 	    else
 		tex.copyFrom( tce.get(pt, normals[face]));
@@ -741,8 +741,8 @@ generatePrimitives(SoAction action)
 			(verts[face][vert]).getValueRead()[1] * h[0],
 			(verts[face][vert]).getValueRead()[2] * d[0]);
 	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValue()[0];
-		tex.getValue()[1] = texCoords[vert].getValue()[1];
+		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
 	    }
 	    else
 		tex.copyFrom( tce.get(pt, normals[face]));
@@ -754,8 +754,8 @@ generatePrimitives(SoAction action)
 			(verts[face][vert]).getValueRead()[1] * h[0],
 			(verts[face][vert]).getValueRead()[2] * d[0]);
 	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValue()[0];
-		tex.getValue()[1] = texCoords[vert].getValue()[1];
+		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
 	    }
 	    else
 		tex.copyFrom( tce.get(pt, normals[face]));
@@ -996,7 +996,7 @@ GLRenderGeneric(SoGLRenderAction action,
 	if (numDivisions == 1) {
 	    for (vert = 0; vert < 4; vert++) {
 		if (doTextures)
-		    gl2.glTexCoord2fv(texCoords[vert].getValue(),0);
+		    gl2.glTexCoord2fv(texCoords[vert].getValueRead(),0);
 		gl2.glVertex3fv(SCALE(verts[face][vert],tmp,scale).getValueRead(),0);
 	    }
 	}

@@ -109,9 +109,9 @@ public class SoMFVec2f extends SoMField<SbVec2f> {
         	 float[] shiftedValues = new float[(values.length-start)*2];
         	 int index = 0;
         	 for(int i=start;i<values.length;i++) {
-        		 shiftedValues[index] = ((SbVec2f)values[i]).getValue()[0];
+        		 shiftedValues[index] = ((SbVec2f)values[i]).getValueRead()[0];
         		 index++;
-        		 shiftedValues[index] = ((SbVec2f)values[i]).getValue()[1];
+        		 shiftedValues[index] = ((SbVec2f)values[i]).getValueRead()[1];
         		 index++;
         	 }        	 
              return shiftedValues; 

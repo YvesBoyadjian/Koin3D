@@ -570,7 +570,7 @@ public void recomputeTree( int index,
 
 public final void GL_SEND_VERTEX(GL2 gl2, int index) { int vertex_index = index; 
   if (is_texture) 
-    gl2.glTexCoord2fv(texture_coords[vertex_index].getValue(),0); 
+    gl2.glTexCoord2fv(texture_coords[vertex_index].getValueRead(),0); 
   if (is_normals) 
     gl2.glNormal3fv(normals[vertex_index].getValueRead(),0); 
   gl2.glVertex3fv(coords[vertex_index].getValueRead(),0);

@@ -659,7 +659,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
     }
 
     gl2.glVertex3fv(first_vertex.getValueRead(),0);
@@ -678,7 +678,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -697,7 +697,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -716,7 +716,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
     }
 
     gl2.glVertex3fv(first_vertex.getValueRead(),0);
@@ -753,7 +753,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
     }
 
     if ((X % 2)!=0)
@@ -782,7 +782,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -811,7 +811,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -842,7 +842,7 @@ private void renderSkirt(SoGLRenderAction action,
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValue(),0);
+      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
     }
 
     if ((Y % 2)!=0)
@@ -887,7 +887,7 @@ private void renderTile(SoGLRenderAction action,
       // Render bottom vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[bottom_index].getValue(),0);
+        gl2.glTexCoord2fv(this.texture_coords[bottom_index].getValueRead(),0);
       }
       if (this.is_normals)
       {
@@ -898,7 +898,7 @@ private void renderTile(SoGLRenderAction action,
       // Render current vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[top_index].getValue(),0);
+        gl2.glTexCoord2fv(this.texture_coords[top_index].getValueRead(),0);
       }
       if (this.is_normals)
       {
@@ -938,7 +938,7 @@ private void renderTile(SoGLRenderAction action,
       // Render bottom vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[bottom_index].getValue(),0);
+        gl2.glTexCoord2fv(this.texture_coords[bottom_index].getValueRead(),0);
       }
       if (this.is_normals)
       {
@@ -983,7 +983,7 @@ private void renderTile(SoGLRenderAction action,
       // Render current vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[top_index].getValue(),0);
+        gl2.glTexCoord2fv(this.texture_coords[top_index].getValueRead(),0);
       }
       if (this.is_normals)
       {

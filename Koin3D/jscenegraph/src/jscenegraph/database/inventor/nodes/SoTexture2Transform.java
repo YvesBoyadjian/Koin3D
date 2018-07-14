@@ -202,13 +202,13 @@ SoTexture2Transform_doAction(SoAction action)
     // Do these in GL (right-to-left) order
     if (! translation.isIgnored() && ! translation.isDefault()) {
         t2.copyFrom(translation.getValue());
-        t3.setValue(t2.getValue()[0], t2.getValue()[1], 0.0f);
+        t3.setValue(t2.getValueRead()[0], t2.getValueRead()[1], 0.0f);
         SoTextureMatrixElement.translateBy(state, this, t3);
     }
     
     if (doCenter) {
         t2.copyFrom(center.getValue());
-        t3.setValue(t2.getValue()[0], t2.getValue()[1], 0.0f);
+        t3.setValue(t2.getValueRead()[0], t2.getValueRead()[1], 0.0f);
         SoTextureMatrixElement.translateBy(state, this, t3);
     }
 
@@ -219,12 +219,12 @@ SoTexture2Transform_doAction(SoAction action)
 
     if (! scaleFactor.isIgnored() && ! scaleFactor.isDefault()) {
         t2.copyFrom(scaleFactor.getValue());
-        t3.setValue(t2.getValue()[0], t2.getValue()[1], 1.0f);
+        t3.setValue(t2.getValueRead()[0], t2.getValueRead()[1], 1.0f);
         SoTextureMatrixElement.scaleBy(state, this, t3);
     }
     if (doCenter) {
         t2.copyFrom(center.getValue().operator_minus());
-        t3.setValue(t2.getValue()[0], t2.getValue()[1], 0.0f);
+        t3.setValue(t2.getValueRead()[0], t2.getValueRead()[1], 0.0f);
         SoTextureMatrixElement.translateBy(state, this, t3);
     }
 }
@@ -272,7 +272,7 @@ private void TRANSLATE(
 		final SbMatrix ctm,
 		final SbMatrix inv
 		) {                                                           
-	t3.setValue(t2.getValue()[0], t2.getValue()[1], 0.0f);                                           
+	t3.setValue(t2.getValueRead()[0], t2.getValueRead()[1], 0.0f);                                           
 	m.setTranslate(t3);                                                       
 	ctm.multLeft(m);                                                          
 	m.setTranslate(t3.operator_minus());                                                      
@@ -315,10 +315,10 @@ public void getMatrix(SoGetMatrixAction action)
 
     if (! scaleFactor.isIgnored() && ! scaleFactor.isDefault()) {
         t2.copyFrom(scaleFactor.getValue());
-        t3.setValue(t2.getValue()[0], t2.getValue()[1], 1.0f);
+        t3.setValue(t2.getValueRead()[0], t2.getValueRead()[1], 1.0f);
         m.setScale(t3);
         ctm.multLeft(m);
-        t3.setValue(1.0f / t2.getValue()[0], 1.0f / t2.getValue()[1], 1.0f);
+        t3.setValue(1.0f / t2.getValueRead()[0], 1.0f / t2.getValueRead()[1], 1.0f);
         m.setScale(t3);
         inv.multRight(m);
     }

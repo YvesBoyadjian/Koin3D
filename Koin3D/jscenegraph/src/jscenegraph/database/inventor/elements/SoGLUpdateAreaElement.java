@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.elements;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.misc.SoState;
@@ -92,7 +93,7 @@ import static org.lwjgl.opengl.GL30.*;
 public class SoGLUpdateAreaElement extends SoElement {
 
 	   protected final
-		        SbVec2f             origin = new SbVec2f(), size = new SbVec2f();
+		        SbVec2fSingle             origin = new SbVec2fSingle(), size = new SbVec2fSingle();
 		    	
   private
     //! This flag lets us know if the element is set to its initial

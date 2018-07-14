@@ -556,7 +556,7 @@ public class SbViewVolume implements Mutable {
 		// Project worldCenter into normalized coordinates
 		final SbVec3f normCenter3 = new SbVec3f();
 		projectToScreen(worldCenter, normCenter3);
-		final SbVec2f normCenter = new SbVec2f(normCenter3.getValueRead()[0], normCenter3.getValueRead()[1]);
+		final SbVec2fSingle normCenter = new SbVec2fSingle(normCenter3.getValueRead()[0], normCenter3.getValueRead()[1]);
 
 		// This method really behaves best if you keep the normalized
 		// points within the (0,0) (1,1) range. So we shift the
@@ -597,7 +597,7 @@ public class SbViewVolume implements Mutable {
 
 		// Pick a point that is normRadius away from normCenter in the
 		// desired direction.,
-		final SbVec2f offsetPoint = new SbVec2f(normCenter);
+		final SbVec2fSingle offsetPoint = new SbVec2fSingle(normCenter);
 		if (goVertical) {
 			if (offsetPoint.getValue()[1] < 0.5)
 				offsetPoint.getValue()[1] += normRadius;
@@ -702,7 +702,7 @@ public class SbViewVolume implements Mutable {
 					new SbVec2f(screenPoint[i].operator_square_bracket(0), screenPoint[i].operator_square_bracket(1)));
 
 		// Return size of box
-		final SbVec2f size = new SbVec2f();
+		final SbVec2fSingle size = new SbVec2fSingle();
 		fBox.getSize(size.getValue());
 		return size;
 	}

@@ -593,8 +593,8 @@ public void GLRenderVertexArray(SoGLRenderAction action, boolean sendNormals, bo
       }
       if (doTextures) {
         final SbVec2f texCoord = texCoords.get(index);
-        texCoordsPtr.asterisk( texCoord.getValue()[0]); texCoordsPtr.plusPlus();
-        texCoordsPtr.asterisk( texCoord.getValue()[1]); texCoordsPtr.plusPlus();
+        texCoordsPtr.asterisk( texCoord.getValueRead()[0]); texCoordsPtr.plusPlus();
+        texCoordsPtr.asterisk( texCoord.getValueRead()[1]); texCoordsPtr.plusPlus();
       }
     }
 

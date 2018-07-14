@@ -185,7 +185,7 @@ public void destructor()
     //! Returns indexed texture coordinate during primitive generation
     //! or rendering
     public SbVec4f             get(int index) 
-        { if (tCoords != null) return(new SbVec4f(tCoords[index].getValue()[0],tCoords[index].getValue()[1],
+        { if (tCoords != null) return(new SbVec4f(tCoords[index].getValueRead()[0],tCoords[index].getValueRead()[1],
                         0.0f, 1.0f)); 
                 else return texCoordElt.get4(index); }
 

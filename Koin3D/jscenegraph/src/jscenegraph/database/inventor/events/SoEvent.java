@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.events;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbTime;
 import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoType;
@@ -94,7 +95,7 @@ public class SoEvent {
 	
     private final SbVec2s position = new SbVec2s();   //!< locator position when event occurred
     private final SbVec2s             viewportPos = new SbVec2s();    //!< position relative to viewport
-    private final SbVec2f             normalizedPos = new SbVec2f();  //!< normalized position
+    private final SbVec2fSingle             normalizedPos = new SbVec2fSingle();  //!< normalized position
     
     private static SoType       classTypeId;
     
@@ -211,7 +212,7 @@ public final SbVec2f  getNormalizedPosition(final SbViewportRegion vpRgn) {
 	SoEvent             ev = (SoEvent )this;
     final SbVec2s       pixSize = vpRgn.getViewportSizePixels();
 
-    final SbVec2f vpSize = new SbVec2f((float) pixSize.getValue()[0], (float) pixSize.getValue()[1]);
+    final SbVec2fSingle vpSize = new SbVec2fSingle((float) pixSize.getValue()[0], (float) pixSize.getValue()[1]);
 
     final SbVec2s vpPos = new SbVec2s(getPosition( vpRgn ));
 
