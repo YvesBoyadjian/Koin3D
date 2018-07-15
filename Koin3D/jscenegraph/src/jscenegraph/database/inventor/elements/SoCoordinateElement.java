@@ -55,11 +55,13 @@
 package jscenegraph.database.inventor.elements;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
+import jscenegraph.port.SbVec3fArray;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -85,14 +87,14 @@ public class SoCoordinateElement extends SoReplacedElement {
 
 	   protected
 		        int             numCoords;
-	   protected        SbVec3f[]       coords3;
+	   protected        SbVec3fArray       coords3;
 	   protected        SbVec4f[]       coords4;
 	   protected        boolean              coordsAre3D;
 		    	
 	   private
 		    //! This stores a pointer to the default coordinates so that we can
 		    //! set "coords3" to point to them if no other values have been set.
-		    static SbVec3f      defaultCoord3;
+		    static SbVec3fSingle      defaultCoord3;
 
 	   
 	   
@@ -121,13 +123,13 @@ init(SoState state)
 
     // Initialize default coordinate storage if not already done
     if (defaultCoord3 == null) {
-        defaultCoord3  = new SbVec3f();
+        defaultCoord3  = new SbVec3fSingle();
         defaultCoord3.copyFrom(getDefault3());
     }
 
     // Assume 3D until told otherwise
     coordsAre3D = true;
-    coords3     = new SbVec3f[1]; coords3[0] = defaultCoord3;
+    coords3     = new SbVec3fArray(/*)[1]; coords3[0] = */defaultCoord3);
     numCoords   = 1;
 }
 
@@ -167,7 +169,7 @@ get3(int index)
 //#endif /* DEBUG */
 
     if (coordsAre3D)
-        return coords3[index];
+        return coords3.get(index);
 
     // Convert from 4-D if necessary
     else {
@@ -203,11 +205,11 @@ public float[] get3Ptr() {
     	float[] vertexArray = new float[length*3];
     	int index = 0;
     	for(int i=0;i<length;i++) {
-    		vertexArray[index] = coords3[i].getValueRead()[0];
+    		vertexArray[index] = coords3.get(i).getValueRead()[0];
     		index++;
-    		vertexArray[index] = coords3[i].getValueRead()[1];
+    		vertexArray[index] = coords3.get(i).getValueRead()[1];
     		index++;
-    		vertexArray[index] = coords3[i].getValueRead()[2];
+    		vertexArray[index] = coords3.get(i).getValueRead()[2];
     		index++;
     	}
         return vertexArray;
@@ -240,7 +242,7 @@ get4(int index)
     if (coordsAre3D) {
         // Cast the const away...
         SoCoordinateElement     elt = (SoCoordinateElement ) this;
-        SbVec3f           c3  = coords3[index];
+        SbVec3f           c3  = coords3.get(index);
 
         elt.convert4.operator_square_bracket(0, c3.operator_square_bracket(0));
         elt.convert4.operator_square_bracket(1, c3.operator_square_bracket(1));
@@ -291,7 +293,7 @@ public float[] get4Ptr() {
 
 public static void
 set3(SoState state, SoNode node,
-                          int numCoords, final SbVec3f[] coords)
+                          int numCoords, final SbVec3fArray coords)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -350,7 +352,7 @@ set4(SoState state, SoNode node,
 
   \since Coin 1.0
 */
-public SbVec3f[]
+public SbVec3fArray
 getArrayPtr3()
 {
 //#if COIN_DEBUG

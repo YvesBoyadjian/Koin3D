@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.misc;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec3fArray;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,7 +109,7 @@ public class SoNormalGenerator implements Destroyable {
     //! number of items in the arrays, and the allocated sizes of the
     //! arrays. Since the points and faceNormals arrays are always the
     //! same size, no need for extra variables.
-    SbVec3f[]             points, faceNormals, vertNormals;
+    SbVec3fArray             points, faceNormals, vertNormals;
   private  int             numPoints, numVertNormals;
   private  int             maxPoints, maxVertNormals;
 
@@ -137,8 +138,8 @@ public SoNormalGenerator(boolean _isCCW, int approxNumVertices)
 
     numPoints = numVertNormals = 0;
 
-    points      = new SbVec3f[maxPoints]; for( int i=0;i<maxPoints;i++) points[i] = new SbVec3f();
-    faceNormals = new SbVec3f[maxPoints]; for( int i=0;i<maxPoints;i++) faceNormals[i] = new SbVec3f();
+    points      = SbVec3fArray.allocate(maxPoints);//new SbVec3f[maxPoints]; for( int i=0;i<maxPoints;i++) points[i] = new SbVec3f();
+    faceNormals = SbVec3fArray.allocate(maxPoints);//new SbVec3f[maxPoints]; for( int i=0;i<maxPoints;i++) faceNormals[i] = new SbVec3f();
     vertNormals = null;
 
     isCCW = _isCCW;
@@ -195,20 +196,20 @@ polygonVertex(final SbVec3f point)
 {
     // Make sure there's enough room for a new vertex point and face normal
     if (numPoints == maxPoints) {
-        SbVec3f[] newArray;
+        SbVec3fArray newArray;
 
-        newArray = new SbVec3f [2 * maxPoints]; for(int i=0; i<2*maxPoints;i++) {newArray[i] = new SbVec3f();}
+        newArray = SbVec3fArray.allocate(2*maxPoints);//new SbVec3f [2 * maxPoints]; for(int i=0; i<2*maxPoints;i++) {newArray[i] = new SbVec3f();}
         //memcpy(newArray, points, (int) (maxPoints * SbVec3f.sizeof()));
         for(int i = 0; i< maxPoints; i++) {
-        	newArray[i].copyFrom(points[i]);
+        	newArray.get(i).copyFrom(points.get(i));
         }
         //delete [] points; java port
         points = newArray;
 
-        newArray = new SbVec3f [maxPoints * 2]; for(int i=0; i<2*maxPoints;i++) {newArray[i] = new SbVec3f();}
+        newArray = SbVec3fArray.allocate(maxPoints * 2);//new SbVec3f [maxPoints * 2]; for(int i=0; i<2*maxPoints;i++) {newArray[i] = new SbVec3f();}
         //memcpy(newArray, faceNormals, (int) (maxPoints * SbVec3f.sizeof()));
         for(int i = 0; i< maxPoints; i++) {
-        	newArray[i].copyFrom(faceNormals[i]);
+        	newArray.get(i).copyFrom(faceNormals.get(i));
         }
         //delete [] faceNormals; java port
         faceNormals = newArray;
@@ -217,7 +218,7 @@ polygonVertex(final SbVec3f point)
     }
 
     // Add the new point
-    points[numPoints++] = point;
+    points.get(numPoints++).copyFrom(point);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -243,14 +244,14 @@ endPolygon()
     // origin-- floating point errors can get really big.  So we'll
     // translate the first vertex of the polygon to the origin and
     // pull all the other vertices along with it:
-    final SbVec3f firstPoint = points[beginPolygonIndex];
+    final SbVec3f firstPoint = points.get(beginPolygonIndex);
     for (i = 0; i < numVertices; i++) {
         j = i + 1;
         if (j == numVertices)
             j = 0;
         sum.operator_add_equal(
-            (points[beginPolygonIndex + i].operator_minus(firstPoint)).cross(
-             points[beginPolygonIndex + j].operator_minus(firstPoint)));
+            (points.get(beginPolygonIndex + i).operator_minus(firstPoint)).cross(
+             points.get(beginPolygonIndex + j).operator_minus(firstPoint)));
     }
 
     // Store the face normal for all of these points
@@ -262,7 +263,7 @@ endPolygon()
     }
 
     for (i = 0; i < numVertices; i++)
-        faceNormals[beginPolygonIndex + i] = sum;
+        faceNormals.get(beginPolygonIndex + i).copyFrom(sum);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -316,7 +317,7 @@ generate(float creaseAngle)
 
     // Compute the bounding box of all vertices
     for (i = 0; i < numPoints; i++)
-        box.extendBy(points[i]);
+        box.extendBy(points.get(i));
 
     // We will use a hash function to determine which vertices are
     // coincident within some tolerance. The tolerance is a function
@@ -359,7 +360,7 @@ generate(float creaseAngle)
     // Insert all points into the hash table.  Find common vertices.
     for (i = 0; i < numPoints; i++) {
         // Compute hash key
-        hashValue = hash(points[i], hashScale, base, numPoints);
+        hashValue = hash(points.get(i), hashScale, base, numPoints);
 
         // Set up "next" link
         hashNext[i] = hashTable[hashValue];
@@ -369,14 +370,14 @@ generate(float creaseAngle)
 
         // Find all other vertices that are within tolerance
         found = false;
-        lowHashValue  = hash(points[i].operator_minus(toleranceVec), hashScale,
+        lowHashValue  = hash(points.get(i).operator_minus(toleranceVec), hashScale,
                              base, numPoints);
-        highHashValue  = hash(points[i].operator_minus(toleranceVec), hashScale,
+        highHashValue  = hash(points.get(i).operator_minus(toleranceVec), hashScale,
                               base, numPoints);
 
         for (hv = lowHashValue; hv <= highHashValue; hv++) {
             for (j = hashTable[hv]; found == false && j >= 0; j = hashNext[j]){
-                if (i != j && equal(points[j], points[i], tolerance)) {
+                if (i != j && equal(points.get(j), points.get(i), tolerance)) {
                     // Splice into the circularly linked list
                     indirect[i] = indirect[j];
                     indirect[j] = i;
@@ -400,7 +401,7 @@ generate(float creaseAngle)
     // Calculate normals for all polygons
     final SbVec3f zeroVec = new SbVec3f(0,0,0);
     for(i = 0; i < numPoints; i++) {
-        sum.copyFrom(faceNormals[i]);
+        sum.copyFrom(faceNormals.get(i));
 
         // This vertex is part of a degenerate face if its normal is
         // (mostly) the same as the zero vector.
@@ -414,11 +415,11 @@ generate(float creaseAngle)
             // If this vertex is part of a degenerate face, we always
             // want to smooth to get the normal:
             if (isDegenerate ||
-                faceNormals[i].dot(faceNormals[j]) > cosCreaseAngle) 
-                sum.operator_add_equal(faceNormals[j]);
+                faceNormals.get(i).dot(faceNormals.get(j)) > cosCreaseAngle) 
+                sum.operator_add_equal(faceNormals.get(j));
         }
         sum.normalize();
-        vertNormals[i] = sum;
+        vertNormals.get(i).copyFrom(sum);
     }
 
 //    delete [] hashTable; java port
@@ -485,10 +486,10 @@ equal(final SbVec3f a, final SbVec3f b, float tolerance)
 	public    int                 getNumNormals() { return numVertNormals; }
 
     //! Returns a pointer to the array of normals
-    public SbVec3f[]      getNormals()       { return vertNormals; }
+    public SbVec3fArray      getNormals()       { return vertNormals; }
 
     //! Returns the i'th normal in the array
-    public SbVec3f      getNormal(int i) { return vertNormals[i]; }
+    public SbVec3f      getNormal(int i) { return vertNormals.get(i); }
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -528,9 +529,9 @@ setNormal(int index, final SbVec3f newNormal)
         while (index >= newNumVertNormals)
             newNumVertNormals *= 2;
 
-        final SbVec3f[] newVertNormals = new SbVec3f [newNumVertNormals]; for(int i=0; i<newNumVertNormals;i++) {newVertNormals[i] = new SbVec3f();}
+        final SbVec3fArray newVertNormals = SbVec3fArray.allocate(newNumVertNormals);//new SbVec3f [newNumVertNormals]; for(int i=0; i<newNumVertNormals;i++) {newVertNormals[i] = new SbVec3f();}
         //memcpy(newVertNormals, vertNormals, (int) (numVertNormals * sizeof(SbVec3f)));
-        for(int i=0; i<numVertNormals;i++) {newVertNormals[i].copyFrom(vertNormals[i]);}
+        for(int i=0; i<numVertNormals;i++) {newVertNormals.get(i).copyFrom(vertNormals.get(i));}
         if (vertNormals != faceNormals) {
             //delete [] vertNormals; java port
         }
@@ -539,7 +540,7 @@ setNormal(int index, final SbVec3f newNormal)
     }
 
     // Store new normal
-    vertNormals[index] = newNormal;
+    vertNormals.get(index).copyFrom(newNormal);
 }
 
 

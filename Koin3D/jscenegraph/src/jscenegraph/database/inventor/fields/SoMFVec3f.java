@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Array;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.Mutable;
+import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.Util;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -382,4 +383,16 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		return new SbVec3f(valuesArray,i*3);
 	}
 	
+    public SbVec3fArray startEditingFast()                                
+    { 
+	evaluate(); 
+	return new SbVec3fArray(valuesArray); 
+	}                                        
+
+    public SbVec3fArray getValuesSbVec3fArray() {
+		evaluate();
+
+		return new SbVec3fArray(valuesArray); 		
+    }
 }
+

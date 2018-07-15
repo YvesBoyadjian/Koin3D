@@ -195,7 +195,7 @@ public void SoTextureCoordinate2_doAction(SoAction action)
 
     if (! point.isIgnored() && point.getNum() > 0) {
         SoTextureCoordinateElement.set2(state, this,
-                                         point.getNum(), point.getValues(0));
+                                         point.getNum(), point.getValuesSbVec2fArray(/*0*/));
         if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
           SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.TEXCOORD_VBO, _vbo,
             point.getNum()*SbVec2f.sizeof(), VoidPtr.create(point.getValuesArray(0)), getNodeId());
@@ -233,7 +233,7 @@ public void GLRender(SoGLRenderAction action)
     if (! point.isIgnored() && point.getNum() > 0){
         SoGLTextureCoordinateElement.setTexGen(state, this, null);
         SoTextureCoordinateElement.set2(state, this,
-                                         point.getNum(), point.getValues(0));
+                                         point.getNum(), point.getValuesSbVec2fArray(/*0*/));
     }
 }
 

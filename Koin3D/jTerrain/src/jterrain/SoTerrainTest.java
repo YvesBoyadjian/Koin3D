@@ -67,6 +67,8 @@ import jscenegraph.database.inventor.sensors.SoTimerSensor;
 import jscenegraph.interaction.inventor.SoSceneManager;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec2fArray;
+import jscenegraph.port.SbVec3fArray;
 import jsceneviewer.inventor.qt.SoQt;
 import jsceneviewer.inventor.qt.SoQtRenderArea;
 import jterrain.chunkedlod.SoSimpleChunkedLoDTerrain;
@@ -564,9 +566,9 @@ public class SoTerrainTest {
 	  normal_binding.value.setValue(SoNormalBinding.Binding.PER_VERTEX_INDEXED);
 
 	  /* Create heightmap. */
-	  SbVec3f[] points = coords.point.startEditing();
-	  SbVec2f[] texture_points = texture_coords.point.startEditing();
-	  SbVec3f[] normal_points = normals.vector.startEditing();
+	  SbVec3fArray points = coords.point.startEditingFast();
+	  SbVec2fArray texture_points = texture_coords.point.startEditingFast();
+	  SbVec3fArray normal_points = normals.vector.startEditingFast();
 	  for (int I = 0; I < width[0] * height[0]; ++I)
 	  {
 	    float x = (float)(I % width[0]) / (float)(width[0]);
@@ -579,8 +581,8 @@ public class SoTerrainTest {
 	    int index = i + j*width[0]; 
 	    
 	    int hm = heightmap[/*I*/index]; if(hm<0)hm+=(256*256);
-	    points[I].copyFrom( new SbVec3f(x, y, /*heightmap[I]*/hm * 0.0002f));
-	    texture_points[I].copyFrom( new SbVec2f(x, y));
+	    points.get(I).copyFrom( new SbVec3f(x, y, /*heightmap[I]*/hm * 0.0002f));
+	    texture_points.get(I).copyFrom( new SbVec2f(x, y));
 	  }
 
 	  /* Compute inner normals. */
@@ -591,14 +593,14 @@ public class SoTerrainTest {
 	      int index = Y * width[0] + X;
 	      final SbVec3f normal = new SbVec3f(0.0f, 0.0f, 0.0f);
 
-	      normal.operator_add_equal((points[index - 1].operator_minus(points[index])).cross(points[index - width[0]].operator_minus(points[index])));
-	      normal.operator_add_equal((points[index - width[0]].operator_minus(points[index])).cross(points[index - width[0] + 1].operator_minus(points[index])));
-	      normal.operator_add_equal((points[index - width[0] + 1].operator_minus(points[index])).cross(points[index + 1].operator_minus( points[index])));
-	      normal.operator_add_equal((points[index + 1].operator_minus(points[index])).cross(points[index + width[0]].operator_minus( points[index])));
-	      normal.operator_add_equal((points[index + width[0]].operator_minus(points[index])).cross(points[index + width[0] - 1].operator_minus( points[index])));
-	      normal.operator_add_equal((points[index + width[0] - 1].operator_minus(points[index])).cross(points[index - 1].operator_minus( points[index])));
+	      normal.operator_add_equal((points.get(index - 1).operator_minus(points.get(index))).cross(points.get(index - width[0]).operator_minus(points.get(index))));
+	      normal.operator_add_equal((points.get(index - width[0]).operator_minus(points.get(index))).cross(points.get(index - width[0] + 1).operator_minus(points.get(index))));
+	      normal.operator_add_equal((points.get(index - width[0] + 1).operator_minus(points.get(index))).cross(points.get(index + 1).operator_minus( points.get(index))));
+	      normal.operator_add_equal((points.get(index + 1).operator_minus(points.get(index))).cross(points.get(index + width[0]).operator_minus( points.get(index))));
+	      normal.operator_add_equal((points.get(index + width[0]).operator_minus(points.get(index))).cross(points.get(index + width[0] - 1).operator_minus( points.get(index))));
+	      normal.operator_add_equal((points.get(index + width[0] - 1).operator_minus(points.get(index))).cross(points.get(index - 1).operator_minus( points.get(index))));
 	      normal.normalize();
-	      normal_points[index].copyFrom(normal);
+	      normal_points.get(index).copyFrom(normal);
 	    }
 	  }
 
@@ -611,19 +613,19 @@ public class SoTerrainTest {
 	    final SbVec3f normal_2 = new SbVec3f(0.0f, 0.0f, 0.0f);
 
 	    /* Top border. */
-	    normal_1 .operator_add_equal( (points[index_1 + 1].operator_minus(points[index_1])).cross(points[index_1 + width[0]].operator_minus( points[index_1])));
-	    normal_1 .operator_add_equal( (points[index_1 + width[0]].operator_minus( points[index_1])).cross(points[index_1 + width[0] - 1].operator_minus( points[index_1])));
-	    normal_1 .operator_add_equal( (points[index_1 + width[0] - 1].operator_minus( points[index_1])).cross(points[index_1 - 1].operator_minus( points[index_1])));
+	    normal_1 .operator_add_equal( (points.get(index_1 + 1).operator_minus(points.get(index_1))).cross(points.get(index_1 + width[0]).operator_minus( points.get(index_1))));
+	    normal_1 .operator_add_equal( (points.get(index_1 + width[0]).operator_minus( points.get(index_1))).cross(points.get(index_1 + width[0] - 1).operator_minus( points.get(index_1))));
+	    normal_1 .operator_add_equal( (points.get(index_1 + width[0] - 1).operator_minus( points.get(index_1))).cross(points.get(index_1 - 1).operator_minus( points.get(index_1))));
 
 	    /* Bottom border. */
-	    normal_2 .operator_add_equal( (points[index_2 - 1] .operator_minus(points[index_2])).cross(points[index_2 - width[0]] .operator_minus(points[index_2])));
-	    normal_2 .operator_add_equal( (points[index_2 - width[0]] .operator_minus(points[index_2])).cross(points[index_2 - width[0] + 1] .operator_minus(points[index_2])));
-	    normal_2 .operator_add_equal( (points[index_2 - width[0] + 1].operator_minus( points[index_2])).cross(points[index_2 + 1].operator_minus( points[index_2])));
+	    normal_2 .operator_add_equal( (points.get(index_2 - 1) .operator_minus(points.get(index_2))).cross(points.get(index_2 - width[0]) .operator_minus(points.get(index_2))));
+	    normal_2 .operator_add_equal( (points.get(index_2 - width[0]) .operator_minus(points.get(index_2))).cross(points.get(index_2 - width[0] + 1) .operator_minus(points.get(index_2))));
+	    normal_2 .operator_add_equal( (points.get(index_2 - width[0] + 1).operator_minus( points.get(index_2))).cross(points.get(index_2 + 1).operator_minus( points.get(index_2))));
 
 	    normal_1.normalize();
 	    normal_2.normalize();
-	    normal_points[index_1].copyFrom( normal_1);
-	    normal_points[index_2].copyFrom( normal_2);
+	    normal_points.get(index_1).copyFrom( normal_1);
+	    normal_points.get(index_2).copyFrom( normal_2);
 	  }
 
 	  /* Compute normals at left and right border. */
@@ -635,19 +637,19 @@ public class SoTerrainTest {
 	    final SbVec3f normal_2 = new SbVec3f(0.0f, 0.0f, 0.0f);
 
 	    /* Left border. */
-	    normal_1 .operator_add_equal( (points[index_1 - width[0]].operator_minus(points[index_1])).cross(points[index_1 - width[0] + 1].operator_minus( points[index_1])));
-	    normal_1 .operator_add_equal( (points[index_1 - width[0] + 1].operator_minus( points[index_1])).cross(points[index_1 + 1].operator_minus( points[index_1])));
-	    normal_1 .operator_add_equal( (points[index_1 + 1].operator_minus( points[index_1])).cross(points[index_1 + width[0]].operator_minus( points[index_1])));
+	    normal_1 .operator_add_equal( (points.get(index_1 - width[0]).operator_minus(points.get(index_1))).cross(points.get(index_1 - width[0] + 1).operator_minus( points.get(index_1))));
+	    normal_1 .operator_add_equal( (points.get(index_1 - width[0] + 1).operator_minus( points.get(index_1))).cross(points.get(index_1 + 1).operator_minus( points.get(index_1))));
+	    normal_1 .operator_add_equal( (points.get(index_1 + 1).operator_minus( points.get(index_1))).cross(points.get(index_1 + width[0]).operator_minus( points.get(index_1))));
 
 	    /* Right border. */
-	    normal_2 .operator_add_equal( (points[index_2 - 1].operator_minus( points[index_2])).cross(points[index_2 - width[0]].operator_minus( points[index_2])));
-	    normal_2 .operator_add_equal( (points[index_2 + width[0]].operator_minus( points[index_2])).cross(points[index_2 + width[0] - 1].operator_minus( points[index_2])));
-	    normal_2 .operator_add_equal( (points[index_2 + width[0] - 1].operator_minus( points[index_2])).cross(points[index_2 - 1].operator_minus( points[index_2])));
+	    normal_2 .operator_add_equal( (points.get(index_2 - 1).operator_minus( points.get(index_2))).cross(points.get(index_2 - width[0]).operator_minus( points.get(index_2))));
+	    normal_2 .operator_add_equal( (points.get(index_2 + width[0]).operator_minus( points.get(index_2))).cross(points.get(index_2 + width[0] - 1).operator_minus( points.get(index_2))));
+	    normal_2 .operator_add_equal( (points.get(index_2 + width[0] - 1).operator_minus( points.get(index_2))).cross(points.get(index_2 - 1).operator_minus( points.get(index_2))));
 
 	    normal_1.normalize();
 	    normal_2.normalize();
-	    normal_points[index_1].copyFrom(normal_1);
-	    normal_points[index_2].copyFrom(normal_2);
+	    normal_points.get(index_1).copyFrom(normal_1);
+	    normal_points.get(index_2).copyFrom(normal_2);
 	  }
 
 	  /* Compute normals in corners. */
@@ -655,26 +657,26 @@ public class SoTerrainTest {
 	  final SbVec3f normal = new SbVec3f();
 
 	  index = 0;
-	  normal.copyFrom( (points[index + 1].operator_minus( points[index])).cross(points[index + width[0]].operator_minus( points[index])));
+	  normal.copyFrom( (points.get(index + 1).operator_minus( points.get(index))).cross(points.get(index + width[0]).operator_minus( points.get(index))));
 	  normal.normalize();
-	  normal_points[index].copyFrom(normal);
+	  normal_points.get(index).copyFrom(normal);
 
 	  index = (height[0] * width[0]) - 1;
-	  normal.copyFrom((points[index - 1].operator_minus( points[index])).cross(points[index - width[0]].operator_minus( points[index])));
+	  normal.copyFrom((points.get(index - 1).operator_minus( points.get(index))).cross(points.get(index - width[0]).operator_minus( points.get(index))));
 	  normal.normalize();
-	  normal_points[index].copyFrom(normal);
+	  normal_points.get(index).copyFrom(normal);
 
 	  index = (height[0] - 1) * width[0];
-	  normal.copyFrom((points[index - width[0]].operator_minus( points[index])).cross(points[index - width[0] + 1].operator_minus( points[index])));
-	  normal .operator_add_equal( (points[index - width[0] + 1].operator_minus( points[index])).cross(points[index + 1].operator_minus( points[index])));
+	  normal.copyFrom((points.get(index - width[0]).operator_minus( points.get(index))).cross(points.get(index - width[0] + 1).operator_minus( points.get(index))));
+	  normal .operator_add_equal( (points.get(index - width[0] + 1).operator_minus( points.get(index))).cross(points.get(index + 1).operator_minus( points.get(index))));
 	  normal.normalize();
-	  normal_points[index].copyFrom(normal);
+	  normal_points.get(index).copyFrom(normal);
 
 	  index = width[0] - 1;
-	  normal .operator_add_equal( (points[index + width[0]].operator_minus( points[index])).cross(points[index + width[0] - 1].operator_minus( points[index])));
-	  normal .operator_add_equal( (points[index + width[0] - 1].operator_minus( points[index])).cross(points[index - 1].operator_minus( points[index])));
+	  normal .operator_add_equal( (points.get(index + width[0]).operator_minus( points.get(index))).cross(points.get(index + width[0] - 1).operator_minus( points.get(index))));
+	  normal .operator_add_equal( (points.get(index + width[0] - 1).operator_minus( points.get(index))).cross(points.get(index - 1).operator_minus( points.get(index))));
 	  normal.normalize();
-	  normal_points[index].copyFrom(normal);
+	  normal_points.get(index).copyFrom(normal);
 
 	  coords.point.finishEditing();
 	  texture_coords.point.finishEditing();

@@ -678,7 +678,7 @@ public void GLRender(SoGLRenderAction action)
       detail.setFaceIndex(vert);
 
       if (normCache != null)
-        pvs[thisVert].setNormal(normCache.getNormals()[curNormal]);
+        pvs[thisVert].setNormal(normCache.getNormals().get(curNormal));
       else
         pvs[thisVert].setNormal(ne.get(curNormal));
 

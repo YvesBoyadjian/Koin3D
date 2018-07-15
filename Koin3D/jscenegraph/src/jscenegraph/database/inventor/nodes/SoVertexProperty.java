@@ -415,11 +415,11 @@ SoVertexProperty_doAction(SoAction action)
     //  Note, we are not supporting isIgnored flags:
     if (vertex.getNum() > 0)
         SoCoordinateElement.set3(state, this,
-                                  vertex.getNum(), vertex.getValues(0));
+                                  vertex.getNum(), vertex.getValuesSbVec3fArray(/*0*/));
 
     if (normal.getNum() > 0){
         SoNormalElement.set(state, this,
-                             normal.getNum(), normal.getValues(0));
+                             normal.getNum(), normal.getValuesSbVec3fArray(/*0*/));
     }
     SoNormalBindingElement.set(state, 
         SoNormalBindingElement.Binding.fromValue(normalBinding.getValue()));
@@ -443,7 +443,7 @@ SoVertexProperty_doAction(SoAction action)
     }
     else if ( texCoord.getNum() > 0) {
         SoTextureCoordinateElement.set2(state, this,
-                         texCoord.getNum(), texCoord.getValues(0));
+                         texCoord.getNum(), texCoord.getValuesSbVec2fArray(/*0*/));
     }
 }
 
@@ -484,7 +484,7 @@ getBoundingBox(SoGetBoundingBoxAction action)
     // Note that Bounding box only needs to look at coordinates:
     if (vertex.getNum() > 0)
         SoCoordinateElement.set3(action.getState(), this,
-                                  vertex.getNum(), vertex.getValues(0));
+                                  vertex.getNum(), vertex.getValuesSbVec3fArray(/*0*/));
 }
 
 ////////////////////////////////////////////////////////////////////////

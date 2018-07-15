@@ -59,6 +59,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
+import jscenegraph.port.SbVec3fArray;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ public class SoNormalElement extends SoReplacedElement {
 
 	   protected
 		        int             numNormals;
-	   protected SbVec3f[]       normals;
+	   protected SbVec3fArray       normals;
 		    
 
 ////////////////////////////////////////////////////////////////////////
@@ -121,7 +122,7 @@ init(SoState state)
          SoDebugError.post("SoNormalElement::get",
                             "Index ("+index+") is out of range 0 - "+(numNormals - 1));
 // #endif /* DEBUG */
-             return normals[index];
+             return normals.get(index);
          }
    
   // java port
@@ -129,11 +130,11 @@ init(SoState state)
 	  float[] normalArray = new float[numNormals*3];
 	  int index=0;
 	  for(int i = 0; i< numNormals;i++) {
-		  normalArray[index] = normals[i].getValueRead()[0];
+		  normalArray[index] = normals.get(i).getValueRead()[0];
 		  index++;
-		  normalArray[index] = normals[i].getValueRead()[1];
+		  normalArray[index] = normals.get(i).getValueRead()[1];
 		  index++;
-		  normalArray[index] = normals[i].getValueRead()[2];
+		  normalArray[index] = normals.get(i).getValueRead()[2];
 		  index++;
 	  }
 	  return normalArray;
@@ -149,7 +150,7 @@ init(SoState state)
 
 public static void
 set(SoState state, SoNode node,
-                     int numNormals, final SbVec3f[] normals)
+                     int numNormals, final SbVec3fArray normals)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -167,7 +168,7 @@ set(SoState state, SoNode node,
   /*!
   Returns a pointer to the normal array. This method is not part of the OIV API.
 */
-public SbVec3f[]
+public SbVec3fArray
 getArrayPtr()
 {
   return this.normals;

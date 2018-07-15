@@ -104,6 +104,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
+import jscenegraph.port.SbVec2fArray;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -161,7 +162,7 @@ public class SoTextureCoordinateElement extends SoReplacedElement {
 	
     //! Storage for EXPLICIT:
     public  int             numCoords;
-    public SbVec2f[]       coords2;
+    public SbVec2fArray       coords2;
     public SbVec3f[] 		coords3; // COIN 3D
     public SbVec4f[]       coords4;
     public  boolean              coordsAre2D;
@@ -195,9 +196,9 @@ public class SoTextureCoordinateElement extends SoReplacedElement {
 	    	 float[] textureCoordArray = new float[numCoords*2];
 	    	 int index = 0;
 	    	 for (int i=0; i< numCoords;i++) {
-	    		 textureCoordArray[index] = coords2[i].getValueRead()[0];
+	    		 textureCoordArray[index] = coords2.get(i).getValueRead()[0];
 	    		 index++;
-	    		 textureCoordArray[index] = coords2[i].getValueRead()[1];
+	    		 textureCoordArray[index] = coords2.get(i).getValueRead()[1];
 	    		 index++;
 	    	 }
 	    	           return textureCoordArray;
@@ -340,7 +341,7 @@ get4(int index)
     if (coordsAre2D) {
         // Cast the const away...
         SoTextureCoordinateElement elt = (SoTextureCoordinateElement ) this;
-        final SbVec2f              c2  = coords2[index];
+        final SbVec2f              c2  = coords2.get(index);
 
         elt.convert4.getValue()[0] = c2.getValueRead()[0];
         elt.convert4.getValue()[1] = c2.getValueRead()[1];
@@ -364,7 +365,7 @@ get4(int index)
 
 public static void
 set2(SoState state, SoNode node,
-                                 int numCoords, final SbVec2f[] coords)
+                                 int numCoords, final SbVec2fArray coords)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -489,7 +490,7 @@ getDimension()
   Returns a pointer to the 2D texture coordinate array. This method is not
   part of the OIV API.
 */
-public SbVec2f[] getArrayPtr2()
+public SbVec2fArray getArrayPtr2()
 {
   return this.coords2;
 }

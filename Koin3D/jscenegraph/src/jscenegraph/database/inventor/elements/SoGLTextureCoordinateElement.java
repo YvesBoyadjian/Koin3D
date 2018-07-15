@@ -236,7 +236,7 @@ send(int index, GL2 gl2)
 //#endif /* DEBUG */
 
     if (coordsAre2D)
-        gl2.glTexCoord2fv(coords2[index].getValueRead(),0);
+        gl2.glTexCoord2fv(coords2.get(index).getValueRead(),0);
     else
         gl2.glTexCoord4fv(coords4[index].getValue(),0);
 }

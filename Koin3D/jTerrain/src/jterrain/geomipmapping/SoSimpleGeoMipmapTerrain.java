@@ -66,6 +66,8 @@ import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec2fArray;
+import jscenegraph.port.SbVec3fArray;
 import jterrain.profiler.PrProfiler;
 import roam.SoSimpleROAMTerrain;
 
@@ -108,11 +110,11 @@ public class SoSimpleGeoMipmapTerrain extends SoShape {
     
     /* Zkratky elementu. */
     /// Body vykov�mapy.
-    SbVec3f[] coords;
+    SbVec3fArray coords;
     /// Texturov�souadnice pro body vkov�mapy.
-    SbVec2f[] texture_coords;
+    SbVec2fArray texture_coords;
     /// Norm�y.
-    SbVec3f[] normals;
+    SbVec3fArray normals;
     /// Pohledov�t�eso.
     SbViewVolume view_volume; //ptr
     /// Vykreslovac�okno.
@@ -296,9 +298,9 @@ public void GLRender(SoGLRenderAction action)
 }
 
 public final void SEND_VERTEX(final SoPrimitiveVertex vertex, int ind) { int index = (ind); 
-   vertex.setPoint(coords[index]); 
-   vertex.setTextureCoords(texture_coords[index]); 
-   vertex.setNormal(normals[index]); 
+   vertex.setPoint(coords.get(index)); 
+   vertex.setTextureCoords(texture_coords.get(index)); 
+   vertex.setNormal(normals.get(index)); 
    shapeVertex(vertex);
 }
 public void generatePrimitives(SoAction action)
@@ -445,7 +447,7 @@ public void initTile(final SbGeoMipmapTile tile,
     for (int X = min.getValue()[0]; X <= max.getValue()[0]; ++X, ++index)
     {
       int coord_index = Y * map_size + X;
-      final SbVec3f vertex = coords[coord_index];
+      final SbVec3f vertex = coords.get(coord_index);
 
       /* Vypocet ohraniceni dlazdice a zapis indexu vrcholu do dlazdice. */
       tile.bounds.extendBy(vertex);
@@ -484,27 +486,27 @@ public void initLevel(final SbGeoMipmapTileLevel level,
         if ((Y == 0) || (Y == (parent_size - 1)))
         {
           int index = (Y * parent_size) + X;
-          float tmp_error = SbBasic.SbAbs(coords[parent.vertices[index]].getValueRead()[2] -
-            ((coords[parent.vertices[index - 1]].getValueRead()[2] +
-            coords[parent.vertices[index + 1]].getValueRead()[2]) * 0.5f));
+          float tmp_error = SbBasic.SbAbs(coords.get(parent.vertices[index]).getValueRead()[2] -
+            ((coords.get(parent.vertices[index - 1]).getValueRead()[2] +
+            coords.get(parent.vertices[index + 1]).getValueRead()[2]) * 0.5f));
           max_error = SbBasic.SbMax(max_error, tmp_error);
         }
         /* Chyba v levem a pravem sloupci se spocita vertikalne. */
         else if ((X == 0) || (X == (parent_size - 1)))
         {
           int index = (Y * parent_size) + X;
-          float tmp_error = SbBasic.SbAbs(coords[parent.vertices[index]].getValueRead()[2] -
-            ((coords[parent.vertices[index - parent_size]].getValueRead()[2] +
-            coords[parent.vertices[index + parent_size]].getValueRead()[2]) * 0.5f));
+          float tmp_error = SbBasic.SbAbs(coords.get(parent.vertices[index]).getValueRead()[2] -
+            ((coords.get(parent.vertices[index - parent_size]).getValueRead()[2] +
+            coords.get(parent.vertices[index + parent_size]).getValueRead()[2]) * 0.5f));
           max_error = SbBasic.SbMax(max_error, tmp_error);
         }
         /* Uprostred dlazdice se chyba spocita podle prave diagonaly. */
         else
         {
           int index = (Y * parent_size) + X;
-          float tmp_error = SbBasic.SbAbs(coords[parent.vertices[index]].getValueRead()[2] -
-            ((coords[parent.vertices[index - parent_size + 1]].getValueRead()[2] +
-            coords[parent.vertices[index + parent_size - 1]].getValueRead()[2]) * 0.5f));
+          float tmp_error = SbBasic.SbAbs(coords.get(parent.vertices[index]).getValueRead()[2] -
+            ((coords.get(parent.vertices[index - parent_size + 1]).getValueRead()[2] +
+            coords.get(parent.vertices[index + parent_size - 1]).getValueRead()[2]) * 0.5f));
           max_error = SbBasic.SbMax(max_error, tmp_error);
         }
       }
@@ -570,10 +572,10 @@ public void recomputeTree( int index,
 
 public final void GL_SEND_VERTEX(GL2 gl2, int index) { int vertex_index = index; 
   if (is_texture) 
-    gl2.glTexCoord2fv(texture_coords[vertex_index].getValueRead(),0); 
+    gl2.glTexCoord2fv(texture_coords.get(vertex_index).getValueRead(),0); 
   if (is_normals) 
-    gl2.glNormal3fv(normals[vertex_index].getValueRead(),0); 
-  gl2.glVertex3fv(coords[vertex_index].getValueRead(),0);
+    gl2.glNormal3fv(normals.get(vertex_index).getValueRead(),0); 
+  gl2.glVertex3fv(coords.get(vertex_index).getValueRead(),0);
 }
 public void renderTree(SoAction action,  int index)
 {

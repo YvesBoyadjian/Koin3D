@@ -184,7 +184,7 @@ SoCoordinate3_doAction(SoAction action)
     if (! point.isIgnored() && point.getNum() > 0) {
       SoState state = action.getState();
       SoCoordinateElement.set3(state, this,
-        point.getNum(), point.getValues(0));
+        point.getNum(), point.getValuesSbVec3fArray(/*0*/));
       if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
         SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.VERTEX_VBO, _vbo,
           point.getNum()*(SbVec3f.sizeof()), VoidPtr.create(point.getValuesArray(0)), getNodeId());

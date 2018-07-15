@@ -58,6 +58,7 @@ package jscenegraph.database.inventor.caches;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec3fArray;
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -76,7 +77,7 @@ public class SoNormalCache extends SoCache implements Destroyable {
 
   private
     int                 numNormals;             //!< Number of normals
-    private SbVec3f[]       normals;               //!< Array of normals
+    private SbVec3fArray       normals;               //!< Array of normals
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -112,18 +113,18 @@ public void destructor()
 
     //! Returns the number of normals and list of normals
 public     int                 getNum()           { return numNormals; }
-public  SbVec3f[]      getNormals()       { return normals;    }
+public  SbVec3fArray      getNormals()       { return normals;    }
 
 // java port
 public float[] getNormalsFloat() {
 	float[] normalArray = new float[numNormals*3];
 	int index=0;
 	for(int i=0;i<numNormals;i++) {
-		normalArray[index] = normals[i].getValueRead()[0];
+		normalArray[index] = normals.get(i).getValueRead()[0];
 		index++;
-		normalArray[index] = normals[i].getValueRead()[1];
+		normalArray[index] = normals.get(i).getValueRead()[1];
 		index++;
-		normalArray[index] = normals[i].getValueRead()[2];
+		normalArray[index] = normals.get(i).getValueRead()[2];
 		index++;
 	}
 	return normalArray;
@@ -137,7 +138,7 @@ public float[] getNormalsFloat() {
 // Use: public
 
 public void
-set(int _numNormals, final SbVec3f[] _normals)
+set(int _numNormals, final SbVec3fArray _normals)
 //
 ////////////////////////////////////////////////////////////////////////
 {

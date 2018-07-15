@@ -92,6 +92,7 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
+import jscenegraph.port.SbVec3fArray;
 
 /**
  * @author Yves Boyadjian
@@ -540,7 +541,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
 
     int     c, r, t, r0, r1, c0, c1;
     final SbVec3f     dr = new SbVec3f(), dc = new SbVec3f(), norm = new SbVec3f();
-    SbVec3f[] normals;
+    SbVec3fArray normals;
     SoCoordinateElement   ce = null;
     SbVec3f[]               vpCoords = null;
 
@@ -569,7 +570,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
     t = startIndex.getValue();
 
     int numNeeded = startInd + (numPerCol*numPerRow);
-    normals = new SbVec3f[numNeeded]; for(int i=0; i<numNeeded;i++) normals[i] = new SbVec3f();
+    normals = SbVec3fArray.allocate(numNeeded);//new SbVec3f[numNeeded]; for(int i=0; i<numNeeded;i++) normals[i] = new SbVec3f();
 
     // r is row number, it goes from 0 to numPerCol
     // c is col number, it goes from 0 to numPerRow
@@ -653,7 +654,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
 	    norm.copyFrom(dr.cross(dc));
 	    norm.normalize();
 	    if (!ccw) norm.negate();
-	    normals[startInd + r * numPerRow + c].copyFrom(norm);
+	    normals.get(startInd + r * numPerRow + c).copyFrom(norm);
 	}       
     }
 

@@ -64,6 +64,8 @@ import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec2fArray;
+import jscenegraph.port.SbVec3fArray;
 import jterrain.profiler.PrProfiler;
 
 /**
@@ -201,10 +203,10 @@ private void GL_SEND_VERTEX(GL2 gl2, int index) {
 	int vertex_index = index; 
 
   if (is_texture) 
-    gl2.glTexCoord2fv(texture_coords[vertex_index].getValueRead(),0); 
+    gl2.glTexCoord2fv(texture_coords.get(vertex_index).getValueRead(),0); 
   if (is_normals) 
-    gl2.glNormal3fv(normals[vertex_index].getValueRead(),0); 
-  gl2.glVertex3fv(coords[vertex_index].getValueRead(),0);
+    gl2.glNormal3fv(normals.get(vertex_index).getValueRead(),0); 
+  gl2.glVertex3fv(coords.get(vertex_index).getValueRead(),0);
 }
 static boolean first_run = true;
 
@@ -416,9 +418,9 @@ static boolean first_run = true;
     \param action Objekt nesouc�informace o grafu sc�y. */
 
 private void SEND_VERTEX(int ind,final SoPrimitiveVertex vertex) { int index = (ind); 
-   vertex.setPoint(coords[index]); 
-   vertex.setTextureCoords(texture_coords[index]); 
-   vertex.setNormal(normals[index]); 
+   vertex.setPoint(coords.get(index)); 
+   vertex.setTextureCoords(texture_coords.get(index)); 
+   vertex.setNormal(normals.get(index)); 
    shapeVertex(vertex);
 }
   
@@ -501,9 +503,9 @@ private void SEND_VERTEX(int ind,final SoPrimitiveVertex vertex) { int index = (
     final SbROAMTriangle parent = triangle_tree.get(index); //ref
 
     /* Vrcholy rodicovskeho trojuhelniku. */
-    final SbVec3f  first = coords[parent.first]; //ref
-    final SbVec3f  second = coords[parent.second]; //ref
-    final SbVec3f  apex = coords[parent.apex]; //ref
+    final SbVec3f  first = coords.get(parent.first); //ref
+    final SbVec3f  second = coords.get(parent.second); //ref
+    final SbVec3f  apex = coords.get(parent.apex); //ref
 
     /* Dokud neni spodni patro stromu, inicializace potomku. */
     if (parent.level < level)
@@ -536,8 +538,8 @@ private void SEND_VERTEX(int ind,final SoPrimitiveVertex vertex) { int index = (
         Math.abs(apex.getValueRead()[2] - (first.getValueRead()[2] + second.getValueRead()[2]) * 0.5f);
 
       /* Vypocet polomeru kuloplochy ohranicujici trojuhelnik. */
-      final SbVec3f left_apex = coords[left_child.apex]; //ref
-      final SbVec3f right_apex = coords[right_child.apex]; //ref
+      final SbVec3f left_apex = coords.get(left_child.apex); //ref
+      final SbVec3f right_apex = coords.get(right_child.apex); //ref
       float left_radius = (apex.operator_minus(left_apex)).length() + left_child.radius;
       float right_radius = (apex.operator_minus(right_apex)).length() + right_child.radius;
       parent.radius = Math.max(left_radius, right_radius);
@@ -614,9 +616,9 @@ private void SEND_VERTEX(int ind,final SoPrimitiveVertex vertex) { int index = (
   protected float computePriority( SbROAMTriangle triangle) {
 		  /* Ziskani vrcholu trojuhelniku a pozice kamery. */
 		  SbVec3f camera_position = view_volume.getProjectionPoint();
-		  final SbVec3f first = coords[triangle.first]; //ref
-		  final SbVec3f second = coords[triangle.second]; //ref
-		  final SbVec3f apex = coords[triangle.apex]; //ref
+		  final SbVec3f first = coords.get(triangle.first); //ref
+		  final SbVec3f second = coords.get(triangle.second); //ref
+		  final SbVec3f apex = coords.get(triangle.apex); //ref
 
 		  /* Vzdalenost kamery od spolecneho vrcholu obou trojuhelniku. */
 		  float distance = (camera_position.operator_minus(apex)).length();
@@ -1063,11 +1065,11 @@ private void SEND_VERTEX(int ind,final SoPrimitiveVertex vertex) { int index = (
 
     /* Zkratky elementu. */
     /// Body vykov�mapy.
-  protected SbVec3f[] coords;
+  protected SbVec3fArray coords;
     /// Texturov�souadnice pro body vkov�mapy.
-  protected SbVec2f[] texture_coords;
+  protected SbVec2fArray texture_coords;
     /// Norm�y.
-  protected SbVec3f[] normals;
+  protected SbVec3fArray normals;
     /// Pohledov�t�eso.
   protected SbViewVolume view_volume; //ptr
     /// Vykreslovac�okno.

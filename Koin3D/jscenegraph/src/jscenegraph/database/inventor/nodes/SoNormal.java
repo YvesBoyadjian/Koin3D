@@ -189,7 +189,7 @@ public void SoNormal_doAction(SoAction action)
   if (! vector.isIgnored()) {
     SoState state = action.getState();
     SoNormalElement.set(action.getState(), this,
-      vector.getNum(), vector.getValues(0));
+      vector.getNum(), vector.getValuesSbVec3fArray(/*0*/));
     if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
       SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.NORMAL_VBO, _vbo,
         vector.getNum()*(SbVec3f.sizeof()), VoidPtr.create(vector.getValuesArray(0)), getNodeId());

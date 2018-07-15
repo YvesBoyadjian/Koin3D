@@ -63,6 +63,7 @@ import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.misc.SoNormalGenerator;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec3fArray;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -163,7 +164,7 @@ public void destructor()
 // Use: public
 
 public void
-set(int numNormals, final SbVec3f[] normals)
+set(int numNormals, final SbVec3fArray normals)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -297,7 +298,7 @@ generate(int startIndex, boolean addToState)
 }
 
     //! Returns the generated normals.
-    public SbVec3f[]      getGeneratedNormals()
+    public SbVec3fArray      getGeneratedNormals()
         { return generator.getNormals(); }
     public int                 getNumGeneratedNormals()
         { return generator.getNumNormals(); }

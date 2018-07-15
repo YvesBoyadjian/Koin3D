@@ -69,6 +69,8 @@ import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec2fArray;
+import jscenegraph.port.SbVec3fArray;
 import jterrain.profiler.PrProfiler;
 
 /**
@@ -116,11 +118,11 @@ public class SoSimpleChunkedLoDTerrain extends SoShape {
 	
     /* Elements shortcuts. */
     /// Coordinates of input heightmap.
-    protected SbVec3f[] coords;
+    protected SbVec3fArray coords;
     /// Coordinates of heightmap texture.
-    protected SbVec2f[] texture_coords;
+    protected SbVec2fArray texture_coords;
     /// Normals of input heightmap.
-    protected SbVec3f[] normals;
+    protected SbVec3fArray normals;
     /// Current view volume. 
     protected final SbViewVolume view_volume = new SbViewVolume();
     /// Current viewport region.
@@ -322,16 +324,16 @@ protected void generatePrimitives(SoAction action)
 
       // First vertex of strip.
       index = ((Y + 1) * this.map_size) + X;
-      vertex.setPoint(this.coords[index]);
-      vertex.setTextureCoords(this.texture_coords[index]);
-      vertex.setNormal(this.normals[index]);
+      vertex.setPoint(this.coords.get(index));
+      vertex.setTextureCoords(this.texture_coords.get(index));
+      vertex.setNormal(this.normals.get(index));
       shapeVertex(vertex);
 
       // Second vertex of strip.
       index = index - this.map_size;
-      vertex.setPoint(this.coords[index]);
-      vertex.setTextureCoords(this.texture_coords[index]);
-      vertex.setNormal(this.normals[index]);
+      vertex.setPoint(this.coords.get(index));
+      vertex.setTextureCoords(this.texture_coords.get(index));
+      vertex.setNormal(this.normals.get(index));
       shapeVertex(vertex);
       vertex.destructor();
     }
@@ -529,7 +531,7 @@ private void initTile(final SbChunkedLoDTile tile,
       for (int X = min_x; X <= max_x; ++X, ++vertex_index)
       {
         int coord_index = Y * this.map_size + X;
-        final SbVec3f vertex = this.coords[coord_index];
+        final SbVec3f vertex = this.coords.get(coord_index);
 
         tile.bounds.extendBy(vertex);
         tile.vertices.operator_square_bracket(vertex_index, coord_index);
@@ -551,33 +553,33 @@ private void initTile(final SbChunkedLoDTile tile,
       for (int X = min_x; X <= max_x; X+= inc_x, ++vertex_index)
       {
         int this_index = Y * this.map_size + X;
-        final SbVec3f this_vertex = this.coords[this_index];
+        final SbVec3f this_vertex = this.coords.get(this_index);
 
         // Don't compute error on borders.
         if ((Y < max_y) && (X < max_x))
         {
           // Horizontal direction.
-          final SbVec3f next_h_vertex = this.coords[this_index + inc_x];
-          final SbVec3f half_h_vertex = this.coords[this_index +
-            half_inc_x];
+          final SbVec3f next_h_vertex = this.coords.get(this_index + inc_x);
+          final SbVec3f half_h_vertex = this.coords.get(this_index +
+            half_inc_x);
           float tmp_error = SbBasic.SbAbs(half_h_vertex.getValueRead()[2] - ((this_vertex.getValueRead()[2] +
             next_h_vertex.getValueRead()[2]) * 0.5f));
           max_error = SbBasic.SbMax(max_error, tmp_error);
 
           // Vertical direction.
-          final SbVec3f next_v_vertex = this.coords[this_index + (inc_y *
-            this.map_size)];
-          final SbVec3f half_v_vertex = this.coords[this_index + (half_inc_y
-            * this.map_size)];
+          final SbVec3f next_v_vertex = this.coords.get(this_index + (inc_y *
+            this.map_size));
+          final SbVec3f half_v_vertex = this.coords.get(this_index + (half_inc_y
+            * this.map_size));
           tmp_error = SbBasic.SbAbs(half_v_vertex.getValueRead()[2] - ((this_vertex.getValueRead()[2] + next_v_vertex.getValueRead()[2])
             * 0.5f));
           max_error = SbBasic.SbMax(max_error, tmp_error);
 
           // Diagonal direction.
-          final SbVec3f next_d_vertex = this.coords[this_index + (inc_y *
-            this.map_size) + inc_x];
-          final SbVec3f half_d_vertex = this.coords[this_index + (half_inc_y *
-            this.map_size) + half_inc_x];
+          final SbVec3f next_d_vertex = this.coords.get(this_index + (inc_y *
+            this.map_size) + inc_x);
+          final SbVec3f half_d_vertex = this.coords.get(this_index + (half_inc_y *
+            this.map_size) + half_inc_x);
           tmp_error = SbBasic.SbAbs(half_d_vertex.getValueRead()[2] - ((this_vertex.getValueRead()[2] + next_d_vertex.getValueRead()[2])
             * 0.5f));
           max_error = SbBasic.SbMax(max_error, tmp_error);
@@ -613,7 +615,7 @@ with morphing factor otherwise.
 \param center_index Index of center vertex.
 \param first_index Index of first vertex to theirs average morph.
 \param second_index Index of second vertex to theirs average morp. */
-private void morphVertex(GL2 gl2, final SbVec3f[] coords,
+private void morphVertex(GL2 gl2, final SbVec3fArray coords,
   float morph, int center_index, int first_index, int second_index)
 {
 	if(second_index == -1) {
@@ -625,9 +627,9 @@ private void morphVertex(GL2 gl2, final SbVec3f[] coords,
 	}
 	
   // Morph between center vertex and average of first and second vertices.
-  final SbVec3f tmp_vertex = new SbVec3f(coords[center_index].getValueRead());
-  final SbVec3f first_vertex = new SbVec3f(coords[first_index].getValueRead());
-  final SbVec3f second_vertex = new SbVec3f(coords[second_index].getValueRead());
+  final SbVec3f tmp_vertex = new SbVec3f(coords.get(center_index).getValueRead());
+  final SbVec3f first_vertex = new SbVec3f(coords.get(first_index).getValueRead());
+  final SbVec3f second_vertex = new SbVec3f(coords.get(second_index).getValueRead());
   tmp_vertex.setValue(2, (tmp_vertex.getValueRead()[2] * morph) + ((first_vertex.getValueRead()[2] +
     second_vertex.getValueRead()[2]) * 0.5f * (1.0f - morph)));
   gl2.glVertex3fv(tmp_vertex.getValueRead(),0);
@@ -653,13 +655,13 @@ private void renderSkirt(SoGLRenderAction action,
   for (int X = 0; X < max_x; ++X)
   {
     int index = vertices[X];
-    final SbVec3f first_vertex = this.coords[index];
+    final SbVec3f first_vertex = this.coords.get(index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(index).getValueRead(),0);
     }
 
     gl2.glVertex3fv(first_vertex.getValueRead(),0);
@@ -672,13 +674,13 @@ private void renderSkirt(SoGLRenderAction action,
   for (int X = 0; X < max_x; ++X)
   {
     int index = vertices[(max_y - 1) * max_x + X];
-    final SbVec3f first_vertex = this.coords[index];
+    final SbVec3f first_vertex = this.coords.get(index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(index).getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -691,13 +693,13 @@ private void renderSkirt(SoGLRenderAction action,
   for (int Y = 0; Y < max_y; ++Y)
   {
     int index = vertices[Y * max_x];
-    final SbVec3f first_vertex = this.coords[index];
+    final SbVec3f first_vertex = this.coords.get(index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(index).getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -710,13 +712,13 @@ private void renderSkirt(SoGLRenderAction action,
   for (int Y = 0; Y < max_y; ++Y)
   {
     int index = vertices[Y * max_x + (max_x - 1)];
-    final SbVec3f first_vertex = this.coords[index];
+    final SbVec3f first_vertex = this.coords.get(index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(index).getValueRead(),0);
     }
 
     gl2.glVertex3fv(first_vertex.getValueRead(),0);
@@ -747,13 +749,13 @@ private void renderSkirt(SoGLRenderAction action,
   {
     int index = X;
     int vertex_index = vertices[index];
-    final SbVec3f first_vertex = this.coords[vertex_index];
+    final SbVec3f first_vertex = this.coords.get(vertex_index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(vertex_index).getValueRead(),0);
     }
 
     if ((X % 2)!=0)
@@ -776,13 +778,13 @@ private void renderSkirt(SoGLRenderAction action,
   {
     int index = (max_y - 1) * max_x + X;
     int vertex_index = vertices[index];
-    final SbVec3f first_vertex = this.coords[vertex_index];
+    final SbVec3f first_vertex = this.coords.get(vertex_index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(vertex_index).getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -805,13 +807,13 @@ private void renderSkirt(SoGLRenderAction action,
   {
     int index = Y * max_x;
     int vertex_index = vertices[index];
-    final SbVec3f first_vertex = this.coords[vertex_index];
+    final SbVec3f first_vertex = this.coords.get(vertex_index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(vertex_index).getValueRead(),0);
     }
 
     gl2.glVertex3fv(second_vertex.getValueRead(),0);
@@ -836,13 +838,13 @@ private void renderSkirt(SoGLRenderAction action,
   {
     int index = Y * max_x + (max_x - 1);
     int vertex_index = vertices[index];
-    final SbVec3f first_vertex = this.coords[vertex_index];
+    final SbVec3f first_vertex = this.coords.get(vertex_index);
     SbVec3f second_vertex = new SbVec3f(first_vertex);
     second_vertex.getValueRead()[2]-= skirt_height;
 
     if (this.is_texture)
     {
-      gl2.glTexCoord2fv(this.texture_coords[vertex_index].getValueRead(),0);
+      gl2.glTexCoord2fv(this.texture_coords.get(vertex_index).getValueRead(),0);
     }
 
     if ((Y % 2)!=0)
@@ -887,24 +889,24 @@ private void renderTile(SoGLRenderAction action,
       // Render bottom vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[bottom_index].getValueRead(),0);
+        gl2.glTexCoord2fv(this.texture_coords.get(bottom_index).getValueRead(),0);
       }
       if (this.is_normals)
       {
-        gl2.glNormal3fv(this.normals[bottom_index].getValueRead(),0);
+        gl2.glNormal3fv(this.normals.get(bottom_index).getValueRead(),0);
       }
-      gl2.glVertex3fv(this.coords[bottom_index].getValueRead(),0);
+      gl2.glVertex3fv(this.coords.get(bottom_index).getValueRead(),0);
 
       // Render current vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[top_index].getValueRead(),0);
+        gl2.glTexCoord2fv(this.texture_coords.get(top_index).getValueRead(),0);
       }
       if (this.is_normals)
       {
-        gl2.glNormal3fv(this.normals[top_index].getValueRead(),0);
+        gl2.glNormal3fv(this.normals.get(top_index).getValueRead(),0);
       }
-      gl2.glVertex3fv(this.coords[top_index].getValueRead(),0);
+      gl2.glVertex3fv(this.coords.get(top_index).getValueRead(),0);
     }
     gl2.glEnd();
   }
@@ -938,11 +940,11 @@ private void renderTile(SoGLRenderAction action,
       // Render bottom vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[bottom_index].getValueRead(),0);
+        gl2.glTexCoord2fv(this.texture_coords.get(bottom_index).getValueRead(),0);
       }
       if (this.is_normals)
       {
-        gl2.glNormal3fv(this.normals[bottom_index].getValueRead(),0);
+        gl2.glNormal3fv(this.normals.get(bottom_index).getValueRead(),0);
       }
 
       // Lichy radek?
@@ -958,7 +960,7 @@ private void renderTile(SoGLRenderAction action,
         // Sudy slopec licheho radku.
         else
         {
-          gl2.glVertex3fv(this.coords[bottom_index].getValueRead(),0);
+          gl2.glVertex3fv(this.coords.get(bottom_index).getValueRead(),0);
         }
       }
       // Sudy radek.
@@ -983,11 +985,11 @@ private void renderTile(SoGLRenderAction action,
       // Render current vertices of strip.
       if (this.is_texture)
       {
-        gl2.glTexCoord2fv(this.texture_coords[top_index].getValueRead(),0);
+        gl2.glTexCoord2fv(this.texture_coords.get(top_index).getValueRead(),0);
       }
       if (this.is_normals)
       {
-        gl2.glNormal3fv(this.normals[top_index].getValueRead(),0);
+        gl2.glNormal3fv(this.normals.get(top_index).getValueRead(),0);
       }
 
       // Lichy radek?
@@ -1021,7 +1023,7 @@ private void renderTile(SoGLRenderAction action,
         // Sudy slopec sudeho radku.
         else
         {
-          gl2.glVertex3fv(this.coords[top_index].getValueRead(),0);
+          gl2.glVertex3fv(this.coords.get(top_index).getValueRead(),0);
         }
       }
     }
