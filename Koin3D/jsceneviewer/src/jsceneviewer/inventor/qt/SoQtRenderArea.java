@@ -129,6 +129,7 @@ public class SoQtRenderArea extends SoQtGLWidget {
 //	    QGLFormat glf (QGL::Rgba | QGL::DoubleBuffer | QGL::DepthBuffer | QGL::DirectRendering);
 	    GLData glf = new GLData(/*GLProfile.getDefault()*/);
 	    glf.depthSize = 24;
+	    glf.doubleBuffer = true;
 	    // Call setFormat from parent class to avoid early construction of decoration which will fail
 	    super.setFormat(glf, style);
 

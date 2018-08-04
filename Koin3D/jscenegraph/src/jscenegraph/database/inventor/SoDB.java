@@ -58,6 +58,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
+import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
@@ -643,6 +644,9 @@ init()
         SoGLBigImage.initClass();        
 
         SoShader.init(); // COIN 3D        
+
+        // FIXME: probably temporary. Add FXViz::init() or something? pederb, 2007-03-09
+        SoShadowGroup.init(); // COIN 3D
         
         SoUpgrader.initClasses();
         

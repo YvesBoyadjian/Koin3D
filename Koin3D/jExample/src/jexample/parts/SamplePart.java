@@ -73,7 +73,7 @@ public class SamplePart {
 		
 		viewer = new SoQtExaminerViewer(BuildFlag.BUILD_ALL,Type.BROWSER,parent,style);
 	    //viewer.setColorBitDepth (10);
-		viewer.setAntialiasing(true, 16);
+		//viewer.setAntialiasing(true, 16);
 		viewer.setHeadlight(true);
 		viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_ADD);
 		
@@ -94,7 +94,7 @@ public class SamplePart {
 	    }	    
 	    
 	    viewer.setSceneGraph(
-	    		SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
+	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
 	    		//createDemoScenePerformance()
@@ -111,7 +111,7 @@ public class SamplePart {
 	    		//Selection.createSceneSelection()
 	    		//Manips.createScene()
 	    		//new PickTrackball().createScene()
-	    		//FrolickingWords.createRoot()
+	    		FrolickingWords.createRoot()
 	    		//Balance.createScene(viewer)
 	    		//Obelisque.makeObeliskFaceSet()
 	    		//Drapeau.makePennant()
@@ -1266,11 +1266,13 @@ SoSeparator createPlanet2(float radius, float distance,
 		
 		SoQtExaminerViewer viewer = new SoQtExaminerViewer(BuildFlag.BUILD_ALL,Type.BROWSER,shell,style);
 	    //viewer.setColorBitDepth (10);
-		viewer.setAntialiasing(true,4);
+		//viewer.setAntialiasing(true,4);
+		
+		viewer.setHeadlight(false);
 		
 	    viewer.buildWidget(style);
 	    
-	    viewer.setSceneGraph(/*createDemoScene()*/Orbits.main());
+	    viewer.setSceneGraph(/*createDemoScene()*//*Orbits*/Shadows.main());
 	    
 	    shell.pack();
 		shell.setSize(700, 700);

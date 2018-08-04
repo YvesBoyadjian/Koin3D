@@ -58,6 +58,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
+import jscenegraph.coin3d.inventor.nodes.SoShuttle;
 import jscenegraph.coin3d.inventor.nodes.SoTexture;
 import jscenegraph.coin3d.inventor.nodes.SoTexture3;
 import jscenegraph.database.inventor.SbName;
@@ -546,7 +547,7 @@ getByName( SbName name, SoNodeList list)
 //		       SoBlinker.initClass();
 //		       SoPendulum.initClass();
 //		       SoRotor.initClass();
-//		       SoShuttle.initClass();
+		       SoShuttle.initClass();
 
 		SoDepthBuffer.initClass(); // COIN 3D
 	}

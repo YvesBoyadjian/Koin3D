@@ -127,8 +127,16 @@ public class SoSubEngine {
 ///
 /// Macro to be called within each constructor
 ///
+	
+	public void alternate_init(		
+			final SoFieldData[] inputData, 
+		final SoEngineOutputData[] outputData
+) {
+		this.inputData = inputData;
+		this.outputData = outputData;		
+	}
 
-protected boolean SO_ENGINE_CONSTRUCTOR(Class<? extends SoEngine> className, 
+public boolean SO_ENGINE_CONSTRUCTOR(Class<? extends SoEngine> className, 
 		final SoFieldData[] inputData, 
 		final SoEngineOutputData[] outputData,
 		final SoFieldData[] parentInputData,

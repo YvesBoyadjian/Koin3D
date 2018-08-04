@@ -59,11 +59,10 @@ package jscenegraph.database.inventor.engines;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
-import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMFExpression;
 import jscenegraph.database.inventor.fields.SoMFFloat;
-import jscenegraph.database.inventor.fields.SoMFString;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
 import jscenegraph.database.inventor.fields.SoMField;
 
@@ -240,6 +239,10 @@ public class SoCalculator extends SoEngine {
 
 	 // SO_ENGINE_ABSTRACT_HEADER
 	
+	  public interface Expression {
+		  public void run(float[] abcdefgh, SbVec3f[] ABCDEFGH, float[][] oaobocod, SbVec3f[] oAoBoCoD);
+	  }
+	  
 	  public static SoCalculator createInstance() {
 		  return new SoCalculator();
 	  }
@@ -249,7 +252,7 @@ public class SoCalculator extends SoEngine {
 	
 	public final SoMFVec3f A = new SoMFVec3f(),B = new SoMFVec3f(),C = new SoMFVec3f(),D = new SoMFVec3f(),E = new SoMFVec3f(),F = new SoMFVec3f(),G = new SoMFVec3f(),H = new SoMFVec3f();
 
-	public final SoMFString expression = new SoMFString();
+	public final SoMFExpression expression = new SoMFExpression();
 	
 	public final SoEngineOutput oa = new SoEngineOutput(),ob = new SoEngineOutput(),oc = new SoEngineOutput(),od = new SoEngineOutput();
 	public final SoEngineOutput oA = new SoEngineOutput(),oB = new SoEngineOutput(),oC = new SoEngineOutput(),oD = new SoEngineOutput();
@@ -292,7 +295,15 @@ public class SoCalculator extends SoEngine {
 		engineHeader.SO_ENGINE_ADD_MINPUT(F,"F",        (new SbVec3f(0,0,0)));
 		engineHeader.SO_ENGINE_ADD_MINPUT(G,"G",        (new SbVec3f(0,0,0)));
 		engineHeader.SO_ENGINE_ADD_MINPUT(H,"H",        (new SbVec3f(0,0,0)));
-		engineHeader.SO_ENGINE_ADD_MINPUT(expression,"expression",       (""));
+		engineHeader.SO_ENGINE_ADD_MINPUT(expression,"expression",       new Expression() {
+
+			@Override
+			public void run(float[] abcdefgh, SbVec3f[] ABCDEFGH, float[][] oaobocod, SbVec3f[] oAoBoCoD2) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		engineHeader.SO_ENGINE_ADD_MOUTPUT(oa,"oa", SoMFFloat.class);
 		engineHeader.SO_ENGINE_ADD_MOUTPUT(ob,"ob", SoMFFloat.class);
 		engineHeader.SO_ENGINE_ADD_MOUTPUT(oc,"oc", SoMFFloat.class);
@@ -334,27 +345,27 @@ inputChanged(SoField which)
 	 */
 	@Override
 	protected void evaluate() {
+		/*
     if (reparse) {
         parser.clear();
         boolean OK = true;
         int i;
         for (i=0; i<expression.getNum(); i++) {
-            if (!parser.parse(expression.operator_square_bracket(i)/*.getString()*/)) {
+            if (!parser.parse(expression.operator_square_bracket(i))) {
                 OK = false;
                 break;
             }
         }
         if (! OK) {
-//#ifdef DEBUG
             SoDebugError.post("SoCalculator::evaluate",
-                               "Invalid expression '"+expression.operator_square_bracket(i)/*.getString()*/+"'");
-//#endif /* DEBUG */
+                               "Invalid expression '"+expression.operator_square_bracket(i)+"'");
 
             expression.setValue("");
             parser.clear();
         }
         reparse = false;
     }
+*/
 
     int max = 0;
     int na = a.getNum(); if (na > max) max = na;
@@ -411,7 +422,16 @@ inputChanged(SoField which)
         ovC.copyFrom( new SbVec3f(0,0,0));
         ovD.copyFrom( new SbVec3f(0,0,0));
 
-        parser.eval();
+        //parser.eval();
+        int nbExpression = expression.getNum();
+        for(int index=0;index<nbExpression;index++) {
+        	Expression expr = expression.getValueAt(index);
+        	float[] abcdefgh = {va[0],vb[0],vc[0],vd[0],ve[0],vf[0],vg[0],vh[0]};
+        	SbVec3f[] ABCDEFGH = {vA,vB,vC,vD,vE,vF,vG,vH};
+        	float[][] oaobocod = {ova,ovb,ovc,ovd};
+        	SbVec3f[] oAoBoCoD = {ovA,ovB,ovC,ovD};
+        	expr.run(abcdefgh, ABCDEFGH, oaobocod, oAoBoCoD);
+        }
         
         final int ii = i;
 

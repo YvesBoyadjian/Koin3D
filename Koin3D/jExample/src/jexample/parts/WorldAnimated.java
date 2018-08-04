@@ -3,7 +3,9 @@
  */
 package jexample.parts;
 
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.engines.SoCalculator;
+import jscenegraph.database.inventor.engines.SoCalculator.Expression;
 import jscenegraph.database.inventor.engines.SoTimeCounter;
 import jscenegraph.database.inventor.nodes.SoRotationXYZ;
 import jscenegraph.database.inventor.nodes.SoSeparator;
@@ -76,8 +78,17 @@ public static final SoSeparator main()
   // using the input 'a' and the output 'oa'
   SoCalculator converterDegRad = new SoCalculator();
   converterDegRad.a.connectFrom( counterEngine.output ); // connect 'output' of the counter engine to 'a'
-  converterDegRad.expression.set1Value(0,"oa=a/(2*M_PI)"); // set the (Deg->Rad) conversion formula
-  
+  //converterDegRad.expression.set1Value(0,"oa=a/(2*M_PI)"); // set the (Deg->Rad) conversion formula
+  converterDegRad.expression.set1Value(0,new Expression() {
+
+	@Override
+	public void run(float[] abcdefgh, SbVec3f[] ABCDEFGH, float[][] oaobocod, SbVec3f[] oAoBoCoD2) {
+		float a = abcdefgh[0];
+		float[] oa = oaobocod[0];
+		oa[0] = a/2.0f/(float)Math.PI;
+	}
+	  
+  });
   // Connect the converter output 'oa'
   // to the 'angle' attribute Earth rotation node
   earthRotation.angle.connectFrom( converterDegRad.oa );

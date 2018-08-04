@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.util.Arrays;
+
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec3f;
@@ -238,7 +240,7 @@ GLRender(SoGLRenderAction action)
 
     // Set up spotlight stuff. Note that the GL angle must be specified
     // in degrees, though the field is in radians
-    gl2.glLightfv( id, GL2.GL_SPOT_DIRECTION, direction.getValue().getValueRead(),0);
+    gl2.glLightfv( id, GL2.GL_SPOT_DIRECTION, Arrays.copyOf(direction.getValue().getValueRead(),4),0);
 //???
 //???  This is a temporary fix, inserted because of a bug in openGL:
 //???  You should be able to set GL_SPOT_EXPONENT to 0 and have it work. (It

@@ -988,6 +988,16 @@ public void putBack(char c)
 //
 // Use: internal
 
+public void putBack(char[] str, int pos) {
+	int index = pos;
+	StringBuffer buf = new StringBuffer();
+	while(str[index]!= 0) {
+		buf.append(str[index]);
+		index++;
+	}
+	putBack(buf.toString());
+}
+
 public void putBack(String string)
 //
 ////////////////////////////////////////////////////////////////////////
@@ -1818,7 +1828,7 @@ public boolean readHex(final int[] l)
                         if (fromBuffer())
                             curFile.curBuf = save;
                         else
-                            putBack(str[save]); // java port
+                            putBack(str,save); // java port
                         ret = false;
                     }
                     else
@@ -1828,7 +1838,7 @@ public boolean readHex(final int[] l)
                     if (fromBuffer())
                         curFile.curBuf = save;
                     else
-                        putBack(str[save]); // java port
+                        putBack(str,save); // java port
                     ret = false;
                 }
                   
@@ -1970,7 +1980,7 @@ private boolean readInteger(final int[] l)
                     if (fromBuffer())
                         s = curFile.curBuf = save;
                     else
-                        putBack(str[save]);
+                        putBack(str,save);
                     ret = false;
                 }
             }
@@ -1988,7 +1998,7 @@ private boolean readInteger(final int[] l)
                     if (fromBuffer())
                         s = curFile.curBuf = save;
                     else
-                        putBack(str[save]);
+                        putBack(str,save);
                     ret = false;
                 }
             }
@@ -2014,7 +2024,7 @@ private boolean readInteger(final int[] l)
                 if (fromBuffer())
                     s = curFile.curBuf = save;
                 else
-                    putBack(str[save]);
+                    putBack(str,save);
                 ret = false;
             }
         }
@@ -2157,7 +2167,7 @@ private boolean readLong(final long[] l)
                     if (fromBuffer())
                         s = curFile.curBuf = save;
                     else
-                        putBack(str[save]);
+                        putBack(str,save);
                     ret = false;
                 }
             }
@@ -2175,7 +2185,7 @@ private boolean readLong(final long[] l)
                     if (fromBuffer())
                         s = curFile.curBuf = save;
                     else
-                        putBack(str[save]);
+                        putBack(str,save);
                     ret = false;
                 }
             }
@@ -2201,7 +2211,7 @@ private boolean readLong(final long[] l)
                 if (fromBuffer())
                     s = curFile.curBuf = save;
                 else
-                    putBack(str[save]);
+                    putBack(str,save);
                 ret = false;
             }
         }

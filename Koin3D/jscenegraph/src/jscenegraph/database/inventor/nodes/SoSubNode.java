@@ -101,6 +101,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.SoType.CreateMethod;
@@ -537,5 +538,9 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
 
 public boolean SO_NODE_IS_FIRST_INSTANCE()                                           {
     return (firstInstance());
+}
+
+public void SO_NODE_INTERNAL_CONSTRUCTOR(Class<? extends SoNode> class1) {
+	SO_NODE_INTERNAL_CONSTRUCTOR(); //TODO
 }
 }
