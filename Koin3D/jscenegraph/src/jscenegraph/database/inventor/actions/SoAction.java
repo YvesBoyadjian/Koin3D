@@ -124,6 +124,7 @@ public abstract class SoAction implements Destroyable {
     	  
       };
   
+      private SoActionP pimpl = new SoActionP();
           
       protected       SoState             state;         
     	   
@@ -175,6 +176,10 @@ public abstract class SoAction implements Destroyable {
       private    	       int                 index;
 
       private SoSceneManager sceneManager;
+      
+      private final SoTempPath currentpath = new SoTempPath(8);
+      private PathCode currentpathcode = PathCode.NO_PATH;
+
       
       public static SoType getClassTypeId() {
     	  return new SoType(classTypeId);
@@ -1011,4 +1016,31 @@ public void setSceneManager(SoSceneManager sceneManager) {
 }
 	   
 	     
+/*!
+  Store our state, traverse the subgraph rooted at the given \a node,
+  restore our state and continue traversal.
+ */
+public void
+switchToNodeTraversal(SoNode node)
+{
+  // Store current state.
+  SoActionP.AppliedData storeddata = new SoActionP.AppliedData(this.pimpl.applieddata);
+  AppliedCode storedcode = this.pimpl.appliedcode;
+  PathCode storedpathcode = this.currentpathcode;
+  SoTempPath storedpath = new SoTempPath(this.currentpath);
+
+  this.pimpl.appliedcode = SoAction.AppliedCode.NODE;
+  this.pimpl.applieddata.node = node;
+  this.currentpathcode = SoAction.PathCode.NO_PATH;
+  this.currentpath.truncate(0);
+
+  this.traverse(node);
+
+  // Restore previous state.
+  this.currentpath.copyFrom(storedpath);
+  this.currentpathcode = storedpathcode;
+  this.pimpl.applieddata.copyFrom(storeddata);
+  this.pimpl.appliedcode = storedcode;
+}
+
 	   }

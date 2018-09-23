@@ -95,32 +95,77 @@ SbVec2f, SbVec3f, SbVec2s, SbRotation
  */
 public class SbVec4f implements Mutable {
 	
-	   protected
-		        final float[]       vec = new float[4];         //!< Storage for vector components
+	   protected float[] vec4;         //!< Storage for vector components
+	   protected int indice;
 		   	
 		public static int sizeof() {
 			return 4*4;
 		}
 		
     //! Default constructor.
-		public SbVec4f()                                           { }
+		public SbVec4f()                                           {
+			vec4 = new float[4];
+			indice = 0;			
+		}
+
+		/**
+		 * Internal contructor
+		 * @param array
+		 * @param indice
+		 */
+		public SbVec4f(float[] array, int indice) {
+			vec4 = array;
+			this.indice = indice;
+		}
+		
+    //! Constructor given vector components.
+    public SbVec4f(	final float[] v)                           {
+		vec4 = new float[4];
+		indice = 0;			
+    	setValue(v); 
+    	}
 
     //! Constructor given vector components.
-    public SbVec4f(	final float[] v)                           { setValue(v); }
-
-    //! Constructor given vector components.
-    public SbVec4f(float x, float y, float z, float w)       { setValue(x, y, z, w); }
+    public SbVec4f(float x, float y, float z, float w)       {
+		vec4 = new float[4];
+		indice = 0;			
+    	setValue(x, y, z, w); 
+    	}
 
 		
 		
 
-    //! Accesses indexed component of vector
+    public SbVec4f(SbVec4f value) {
+		vec4 = new float[4];
+		indice = 0;			
+		copyFrom(value);
+	}
+
+	/**
+	 * Internal method
+	 * @param i
+	 * @return
+	 */
+	protected float g(int i) {
+		return vec4[indice+i];
+	}
+	
+	/**
+	 * Internal method
+	 * @param i
+	 * @param v
+	 */
+	protected void s(int i, float v) {
+		vec4[indice+i] = v;
+	}
+	
+	//! Accesses indexed component of vector
 	public float operator_square_bracket(int i)            { 
-		return (vec[i]); 
+		return g(i);
 	}
 
 	public void operator_square_bracket(int i, float value) {
-		vec[i] = value;		
+		s(i, value);
 	}
 
 //
@@ -131,7 +176,7 @@ public class SbVec4f implements Mutable {
 	operator_mul( float d)
 {
 	 SbVec4f v = this;
-    return new SbVec4f(v.vec[0] * d, v.vec[1] * d, v.vec[2] * d, v.vec[3] * d);
+    return new SbVec4f(v.g(0) * d, v.g(1) * d, v.g(2) * d, v.g(3) * d);
 }
 
 //
@@ -142,24 +187,34 @@ public SbVec4f
 operator_add(SbVec4f v2)
 {
 	SbVec4f v1 = this;
-    return new SbVec4f(v1.vec[0] + v2.vec[0],
-                   v1.vec[1] + v2.vec[1],
-                   v1.vec[2] + v2.vec[2],
-                   v1.vec[3] + v2.vec[3]);
+    return new SbVec4f(v1.g(0) + v2.g(0),
+                   v1.g(1) + v2.g(1),
+                   v1.g(2) + v2.g(2),
+                   v1.g(3) + v2.g(3));
 }
 
 	
 
 	public void copyFrom(SbVec4f t) {
-		vec[0] = t.vec[0];
-		vec[1] = t.vec[1];
-		vec[2] = t.vec[2];
-		vec[3] = t.vec[3];
+		s(0, t.g(0));
+		s(1, t.g(1));
+		s(2, t.g(2));
+		s(3, t.g(3));
 	}
 
+	// Returns vector components for reading only. 
+    public final float[] getValueRead() {
+    	float[] vecRead = new float[4];
+    	vecRead[0] = g(0); 
+    	vecRead[1] = g(1); 
+    	vecRead[2] = g(2); 
+    	vecRead[3] = g(3); 
+    	return vecRead; 
+    }
+    
 
-	public float[] getValue() {
-		return vec;
+	protected final float[] getValueRef() {
+		return vec4;
 	}
 	
 	
@@ -170,10 +225,10 @@ operator_add(SbVec4f v2)
 public SbVec4f 
 setValue(final float[] v)     
 {
-    vec[0] = v[0];
-    vec[1] = v[1];
-    vec[2] = v[2];
-    vec[3] = v[3];
+    s(0, v[0]);
+    s(1, v[1]);
+    s(2, v[2]);
+    s(3, v[3]);
 
     return (this);
 }
@@ -185,10 +240,10 @@ setValue(final float[] v)
 public SbVec4f 
 setValue(float x, float y, float z, float w)   
 {
-    vec[0] = x;
-    vec[1] = y;
-    vec[2] = z;
-    vec[3] = w;
+    s(0, x);
+    s(1, y);
+    s(2, z);
+    s(3, w);
 
     return (this);
 }
@@ -202,10 +257,10 @@ public SbVec4f
 operator_minus(final SbVec4f v2)
 {
 	final SbVec4f v1 = this;
-    return new SbVec4f(v1.vec[0] - v2.vec[0],
-                   v1.vec[1] - v2.vec[1],
-                   v1.vec[2] - v2.vec[2],
-                   v1.vec[3] - v2.vec[3]);
+    return new SbVec4f(v1.g(0) - v2.g(0),
+                   v1.g(1) - v2.g(1),
+                   v1.g(2) - v2.g(2),
+                   v1.g(3) - v2.g(3));
 }
 
 
@@ -229,8 +284,8 @@ equals(final SbVec4f v, float tolerance)
 public float
 dot(final SbVec4f v)
 {
-    return vec[0] * v.vec[0] + vec[1] * v.vec[1] + 
-           vec[2] * v.vec[2] + vec[3] * v.vec[3] ;
+    return g(0) * v.g(0) + g(1) * v.g(1) + 
+           g(2) * v.g(2) + g(3) * v.g(3) ;
 }
 
 @Override
@@ -244,12 +299,24 @@ public void copyFrom(Object other) {
  */
 	public DoubleConsumer[] getRef() {
 		DoubleConsumer[] ref = new DoubleConsumer[4];
-		ref[0] = value -> vec[0] = (float)value;
-		ref[1] = value -> vec[1] = (float)value;
-		ref[2] = value -> vec[2] = (float)value;
-		ref[3] = value -> vec[3] = (float)value;
+		ref[0] = value -> s(0, (float)value);
+		ref[1] = value -> s(1, (float)value);
+		ref[2] = value -> s(2, (float)value);
+		ref[3] = value -> s(3, (float)value);
 		return ref;
 	}
+
+	/*!
+	  Returns the vector as a Cartesian 3D vector in \a v. This means that
+	  the 3 first components x, y and z will be divided by the fourth, w.
+	*/
+public void getReal(SbVec3f v) {
+	  v.setValue(g(0)/g(3), g(1)/g(3), g(2)/g(3));
+}
+
+public void setValue(int i, float f) {
+	s(i,f);
+}
 
 
  }

@@ -101,6 +101,6 @@ send(int index, GL2 gl2)
     if (coordsAre3D)
         gl2.glVertex3fv(coords3.get(index).getValueRead(),0);
     else
-        gl2.glVertex4fv(coords4[index].getValue(),0);
+        gl2.glVertex4fv(coords4[index].getValueRead(),0);
 }
 }

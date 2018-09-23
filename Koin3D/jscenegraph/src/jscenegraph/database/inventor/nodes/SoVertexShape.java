@@ -68,6 +68,7 @@ import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
@@ -94,6 +95,7 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.SbVec3fArray;
 
 
@@ -409,7 +411,7 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
   boolean vboBound = false;
   { // Vertices:
     FloatBuffer dataPtr;// = (FloatBuffer)vpCache.getVertices(0); java port
-    SoVBO vbo = vboElement.getVBO(SoGLVBOElement.VBOType.VERTEX_VBO);
+    SoVBO vbo = vboElement.getVertexVBO()/*getVBO(SoGLVBOElement.VBOType.VERTEX_VBO)*/;
     if (vbo != null && shouldUseVBO) {
       if (vbo.bind(state)) {
         // if the VBO could be bound, we use it
@@ -442,7 +444,7 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
   boolean perVertexNormals = vpCache.getNumNormals()>0 && (vpCache.getNormalBinding() == SoNormalBindingElement.Binding.PER_VERTEX_INDEXED || vpCache.getNormalBinding() == SoNormalBindingElement.Binding.PER_VERTEX);
   if (perVertexNormals) {
     FloatBuffer dataPtr;//java port = (FloatBuffer)vpCache.getNormals(0);
-    SoVBO vbo = vboElement.getVBO(SoGLVBOElement.VBOType.NORMAL_VBO);
+    SoVBO vbo = vboElement.getNormalVBO()/*getVBO(SoGLVBOElement.VBOType.NORMAL_VBO)*/;
     if (vbo != null && shouldUseVBO) {
       if (vbo.bind(state)) {
         // if the VBO could be bound, we use it
@@ -478,7 +480,7 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
   boolean perVertexColors = vpCache.getNumColors()>0 && (vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED || vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.PER_VERTEX);
   if (perVertexColors) {
     IntBuffer dataPtr = null;
-    SoVBO vbo = vboElement.getVBO(SoGLVBOElement.VBOType.COLOR_VBO);
+    SoVBO vbo = vboElement.getColorVBO()/*getVBO(SoGLVBOElement.VBOType.COLOR_VBO)*/;
     if (vbo != null) {
       // fill vbo with data even if no VBO rendering is desired, since we want
       // to use/cache the flipped colors on little endian machines
@@ -539,7 +541,7 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
   boolean perVertexTexCoords = vpCache.getNumTexCoords()>0;
   if (perVertexTexCoords) {
     FloatBuffer dataPtr = (FloatBuffer)vpCache.getTexCoords(0);
-    SoVBO vbo = vboElement.getVBO(SoGLVBOElement.VBOType.TEXCOORD_VBO);
+    SoVBO vbo = vboElement.getTexCoordVBO(0)/*getVBO(SoGLVBOElement.VBOType.TEXCOORD_VBO)*/; //YB TODO
     if (vbo != null && shouldUseVBO) {
       if (vbo.bind(state)) {
         // if the VBO could be bound, we use it
@@ -580,7 +582,7 @@ protected boolean beginVertexArrayRendering( SoGLRenderAction action )
 
 protected void endVertexArrayRendering( SoGLRenderAction action, boolean vboWasUsed )
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
   if (vboWasUsed) {
     gl2.glBindBuffer/*ARB*/(GL_ARRAY_BUFFER, 0); // java port

@@ -70,6 +70,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.misc.SoVBO;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
 
@@ -1862,7 +1863,7 @@ sendStipple( SoState state, int patIndex )
             }
 
             // Determine the current cache context
-            GL2 currentContext = SoGLCacheContextElement.get((SoState)state);
+            GL2 currentContext = Ctx.get(SoGLCacheContextElement.get((SoState)state));
             
             GL2 gl2 = currentContext;
 

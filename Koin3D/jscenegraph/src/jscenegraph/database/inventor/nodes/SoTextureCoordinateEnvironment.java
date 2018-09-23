@@ -57,6 +57,8 @@ package jscenegraph.database.inventor.nodes;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
@@ -66,9 +68,7 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.elements.SoViewingMatrixElement;
@@ -233,7 +233,7 @@ public void GLRender(SoGLRenderAction action)
 
     // Let the state know that the GL is generating texture
     // coordinates.
-    SoGLTextureCoordinateElement.setTexGen(state, this,
+    SoGLMultiTextureCoordinateElement.setTexGen(state, this,
                                             (obj)-> doTexgen(state,obj), this,
                                             (userdata, point, normal)->valueCallback(userdata,point,normal), action);
 }
@@ -298,7 +298,7 @@ SoTextureCoordinateEnvironment_doAction(SoAction action)
 {
     SoState state = action.getState();
 
-    SoTextureCoordinateElement.setFunction(state, this,
+    SoMultiTextureCoordinateElement.setFunction(state, this,
     		(userdata, point, normal)->valueCallback(userdata,point,normal), action);
 }
 

@@ -24,18 +24,25 @@
 
 package jscenegraph.coin3d.inventor;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import jscenegraph.database.inventor.SbStringList;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3s;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.Destroyable;
+import jscenegraph.port.FILE;
 import jscenegraph.port.Util;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SbImage {
+public class SbImage implements Destroyable {
 	
 	  private byte[]  bytes;
 	  //DataType datatype;
@@ -124,6 +131,20 @@ setValue(final SbVec3s size, int bytesperpixel,
 private void freeData() {
 	bytes = null;
 }
+
+/*!
+  Returns the 2D image data.
+*/
+public byte[]
+getValue(SbVec2s size, final int[] bytesperpixel)
+{
+  final SbVec3s tmpsize = new SbVec3s();
+  byte[] bytes = this.getValue(tmpsize, bytesperpixel);
+  size.setValue(tmpsize.getValue()[0], tmpsize.getValue()[1]);
+  return bytes;
+}
+
+
 
 /*!
   Returns the 3D image data.
@@ -248,20 +269,25 @@ readFile(final String  filename,
 //  byte[] simagedata =
 //    simage_wrapper().simage_read_image(finalname, 
 //                                        w, h, nc);
-//  if (simagedata != null) {
-//    //FIXME: Add 3'rd dimension (kintel 20011110)
-//    this.setValuePtr(
-//                    new SbVec3s((short)(w[0]),
-//                           (short)(h[0]),
-//                           (short)(0)
-//                           ),
-//                    nc, simagedata);
+  final int[] w = new int[1], h = new int[1], nc = new int[1];
+  final byte[][] simagedata = new byte[1][];
+  readImage(finalname, w, h, nc, 
+		  simagedata);
+  if (simagedata[0] != null) {
+    //FIXME: Add 3'rd dimension (kintel 20011110)
+    this.setValuePtr(
+                    new SbVec3s((short)(w[0]),
+                           (short)(h[0]),
+                           (short)(0)
+                           ),
+                    nc[0], simagedata[0]);
 //    // NB, this is a trick. We use setValuePtr() to set the size
 //    // and data pointer, and then we change the data type to simage
 //    // peder, 2002-03-22
 //    this.datatype = SbImageP::SIMAGE_DATA;
-//    return true;
-//  }
+    return true;
+  }
+
 //#if COIN_DEBUG
 //  else {
 //    SoDebugError::post("SbImage::readFile", "(%s) %s",
@@ -385,6 +411,105 @@ public SbVec3s
 getSize() 
 {
   return new SbVec3s(this.size);
+}
+
+@Override
+public void destructor() {
+	bytes = null;
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    read passed image file
+//
+// Use: static, protected
+
+public static boolean readImage(final String fname, final int[] w, final int[] h, final int[] nc, 
+                      final byte[][] bytes)
+//
+////////////////////////////////////////////////////////////////////////
+{
+    w[0] = h[0] = nc[0] = 0;
+    bytes[0] = null;
+    
+    // Empty file means an empty image...
+    if (fname.isEmpty()) // java port
+        return true;
+
+    final SoInput in = new SoInput();
+    try {
+    if (!in.openFile(fname, true)) {
+        return false;
+    }
+
+//#ifdef DEBUG
+    SoDebugError.postInfo("SoTexture2::readImage",
+                           "Reading texture image "+ fname);
+//#endif
+
+/* Florian Link: Disabled RGB image loading, because the libimage uses close
+   on the fileno of the fopen stream, which crashes in fclose of SoInput
+
+    if (ReadSGIImage(in, w, h, nc, bytes))
+        return TRUE;
+
+    // fiopen() closes the file even if it can't read the data, so 
+    // reopen it
+    in.closeFile();
+    if (!in.openFile(fname.getString(), TRUE))
+        return FALSE;
+*/
+    if (ReadImage(in, w, h, nc, bytes))
+        return true;
+
+    //java port
+//    if (ReadJPEGImage(in.getCurFile(), w, h, nc, bytes)!=0)
+//        return true;
+
+    return false;
+    } finally {
+    	in.destructor();
+    }
+}
+
+private static boolean ReadImage(final SoInput in, final int[] w, final int[] h, final int[] nc,  
+        byte[][] bytes) {
+
+    FILE fp = in.getCurFile();
+    
+    if (fp == null) return false;
+    
+    try {
+		BufferedImage image = ImageIO.read(fp.getInputStream());
+		
+		if(image == null) {
+			return false;
+		}
+		w[0] = image.getWidth();
+		h[0] = image.getHeight();
+	    
+	    nc[0] = 3;
+	    
+	    int nbPixels = w[0]*h[0];
+	    
+	    byte[] bytesRGB = new byte[nbPixels*3];
+	    int j=0;
+	    for(int i=0; i< nbPixels;i++) {
+	    	int x = i%w[0];
+	    	int y = h[0] - i/w[0] -1;
+	    	int rgb = image.getRGB(x, y);
+	    	bytesRGB[j] = (byte)((rgb & 0x00FF0000) >>> 16) ; j++;
+	    	bytesRGB[j] = (byte)((rgb & 0x0000FF00) >>> 8); j++;
+	    	bytesRGB[j] = (byte)((rgb & 0x000000FF) >>> 0); j++;	    	
+	    }
+	    bytes[0] = bytesRGB;
+	    
+	    return true;
+	} catch (IOException e) {
+		return false;
+	}
 }
 
 

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.misc.SoContextHandler;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
@@ -50,12 +51,11 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
-import jscenegraph.database.inventor.elements.SoGLTextureImageElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
-import jscenegraph.database.inventor.elements.SoTextureImageElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMFNode;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFString;
@@ -198,7 +198,7 @@ public class SoShaderObject extends SoNode {
   private SoNodeSensor sensor;
 
   private final SbStringList searchdirectories = new SbStringList();
-  final HashMap <GL2, SoGLShaderObject> glshaderobjects = new HashMap<>();  //java port
+  final HashMap <Integer, SoGLShaderObject> glshaderobjects = new HashMap<>();  //java port
 
   public static void initClass()
   //
@@ -270,7 +270,7 @@ GLRender(SoGLRenderAction action)
 	    return;
 	  }
 
-	  final /*int*/GL2 cachecontext = SoGLCacheContextElement.get(state);
+	  final int cachecontext = SoGLCacheContextElement.get(state);
 	  final cc_glglue glue = SoGL.cc_glglue_instance(cachecontext);
 
 	  SoGLShaderObject shaderobject = this.getGLShaderObject(cachecontext);
@@ -411,9 +411,9 @@ public String getSourceProgram()
 public void
 updateParameters(SoState state)
 {
-  GL2 cachecontext = SoGLCacheContextElement.get(state);
+  int cachecontext = SoGLCacheContextElement.get(state);
   /*PRIVATE(this).*/updateAllParameters(cachecontext);
-  /*PRIVATE(this).*/updateStateMatrixParameters(cachecontext);
+  /*PRIVATE(this).*/updateStateMatrixParameters(cachecontext, state);
   /*PRIVATE(this).*/updateCoinParameters(cachecontext, state);
 }
 
@@ -571,7 +571,7 @@ isSupported(SoShaderObject.SourceType sourceType, cc_glglue glue)
 }
 
 private void
-updateParameters(final GL2 cachecontext, int start, int num)
+updateParameters(final int cachecontext, int start, int num)
 {
 
   if (!this.owner.isActive.getValue()) return;
@@ -595,8 +595,52 @@ updateParameters(final GL2 cachecontext, int start, int num)
 //#include <Inventor/elements/SoGLMultiTextureImageElement.h>
 //#include <Inventor/elements/SoLazyElement.h>
 
+//private void
+//updateCoinParameters(final GL2 cachecontext, SoState state)
+//{
+//  int i, cnt = this.owner.parameter.getNum();
+//
+//  SoGLShaderObject shaderobject = this.getGLShaderObject(cachecontext);
+//
+//  for (i = 0; i < cnt; i++) {
+//    SoUniformShaderParameter param =
+//      (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i)[0];
+//    SbName name = new SbName(param.name.getValue());
+//
+//    if (Util.strncmp(name.getString(), "coin_", 5) == 0) {
+//      if (name.operator_equal_equal("coin_texunit0_model")) {
+//        final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
+//        final SbColor[] dummy = new SbColor[1];
+//        boolean tex = SoGLTextureImageElement.get(state, model, dummy) != null;
+//        shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
+//      }
+//      else if (name.operator_equal_equal("coin_texunit1_model")) {
+//    	  final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
+//    	  final SbColor[] dummy = new SbColor[1];
+//        boolean tex = SoGLMultiTextureImageElement.get(state, 1, model, dummy) != null;
+//        shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
+//      }
+//      else if (name.operator_equal_equal("coin_texunit2_model")) {
+//    	  final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
+//    	  final SbColor[] dummy = new SbColor[1];
+//        boolean tex = SoGLMultiTextureImageElement.get(state, 2, model, dummy) != null;
+//        shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
+//      }
+//      else if (name.operator_equal_equal("coin_texunit3_model")) {
+//    	  final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
+//    	  final SbColor[] dummy = new SbColor[1];
+//        boolean tex = SoGLMultiTextureImageElement.get(state, 3, model, dummy) != null;
+//        shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
+//      }
+//      else if (name.operator_equal_equal("coin_light_model")) {
+//        shaderobject.updateCoinParameter(state, name, null, SoLazyElement.getLightModel(state));
+//      }
+//    }
+//  }
+//}
+
 private void
-updateCoinParameters(final GL2 cachecontext, SoState state)
+updateCoinParameters(final int cachecontext, SoState state)
 {
   int i, cnt = this.owner.parameter.getNum();
 
@@ -606,42 +650,46 @@ updateCoinParameters(final GL2 cachecontext, SoState state)
     SoUniformShaderParameter param =
       (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i)[0];
     SbName name = new SbName(param.name.getValue());
-
+    
     if (Util.strncmp(name.getString(), "coin_", 5) == 0) {
       if (name.operator_equal_equal("coin_texunit0_model")) {
-        final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
-        final SbColor[] dummy = new SbColor[1];
-        boolean tex = SoGLTextureImageElement.get(state, model, dummy) != null;
+        final SoMultiTextureImageElement.Model[] model = new SoMultiTextureImageElement.Model[1];
+        final SbColor dummy = new SbColor();
+        boolean tex = SoGLMultiTextureImageElement.get(state, model, dummy) != null;
         shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
       }
       else if (name.operator_equal_equal("coin_texunit1_model")) {
-    	  final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
-    	  final SbColor[] dummy = new SbColor[1];
+        final SoMultiTextureImageElement.Model[] model = new SoMultiTextureImageElement.Model[1];
+        final SbColor dummy = new SbColor();
         boolean tex = SoGLMultiTextureImageElement.get(state, 1, model, dummy) != null;
         shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
       }
       else if (name.operator_equal_equal("coin_texunit2_model")) {
-    	  final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
-    	  final SbColor[] dummy = new SbColor[1];
+        final SoMultiTextureImageElement.Model[] model = new SoMultiTextureImageElement.Model[1];
+        final SbColor dummy = new SbColor();
         boolean tex = SoGLMultiTextureImageElement.get(state, 2, model, dummy) != null;
         shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
       }
       else if (name.operator_equal_equal("coin_texunit3_model")) {
-    	  final SoTextureImageElement.Model[] model = new SoTextureImageElement.Model[1];
-    	  final SbColor[] dummy = new SbColor[1];
+        final SoMultiTextureImageElement.Model[] model = new SoMultiTextureImageElement.Model[1];
+        final SbColor dummy = new SbColor();
         boolean tex = SoGLMultiTextureImageElement.get(state, 3, model, dummy) != null;
         shaderobject.updateCoinParameter(state, name, null, tex ? model[0].getValue() : 0);
       }
       else if (name.operator_equal_equal("coin_light_model")) {
         shaderobject.updateCoinParameter(state, name, null, SoLazyElement.getLightModel(state));
       }
+      else if (name.operator_equal_equal("coin_two_sided_lighting")) {
+        shaderobject.updateCoinParameter(state, name, null, SoLazyElement.getTwoSidedLighting(state)?1:0); //java port
+      }
     }
   }
 }
 
 
+
 private void
-updateAllParameters(final GL2 cachecontext)
+updateAllParameters(final int cachecontext)
 {
   if (!this.owner.isActive.getValue()) return;
 
@@ -660,7 +708,7 @@ updateAllParameters(final GL2 cachecontext)
 
 // Update state matrix paramaters
 private void
-updateStateMatrixParameters(final GL2 cachecontext)
+updateStateMatrixParameters(final int cachecontext, SoState state)
 {
 //#define STATE_PARAM SoShaderStateMatrixParameter
   if (!this.owner.isActive.getValue()) return;
@@ -670,9 +718,11 @@ updateStateMatrixParameters(final GL2 cachecontext)
 
   int i, cnt = this.owner.parameter.getNum();
   for (i= 0; i <cnt; i++) {
-	  SoShaderStateMatrixParameter param = (SoShaderStateMatrixParameter)this.owner.parameter.operator_square_bracket(i)[0];
-    if (param.isOfType(SoShaderStateMatrixParameter.getClassTypeId()))
-      param.updateParameter(shaderobject);
+	  SoUniformShaderParameter param = (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i)[0];
+    if (param.isOfType(SoShaderStateMatrixParameter.getClassTypeId())) {
+    	((SoShaderStateMatrixParameter)param).updateValue(state);
+      ((SoShaderStateMatrixParameter)param).updateParameter(shaderobject);
+    }
   }
 //#undef STATE_PARAM
 }
@@ -739,13 +789,13 @@ setSearchDirectories(final SbStringList list)
 
 //#undef PRIVATE
 
-private   SoGLShaderObject getGLShaderObject(final GL2 cachecontext) {
+private   SoGLShaderObject getGLShaderObject(final int cachecontext) {
     SoGLShaderObject obj = null;
     if ((obj = this.glshaderobjects.get(cachecontext))!=null) return obj;
     return null;
   }
 
-private void setGLShaderObject(SoGLShaderObject obj, final GL2 cachecontext) {
+private void setGLShaderObject(SoGLShaderObject obj, final int cachecontext) {
     SoGLShaderObject oldshader;
     if ((oldshader = this.glshaderobjects.get(cachecontext))!=null) {
       SoGLCacheContextElement.scheduleDeleteCallback(oldshader.getCacheContext(),
@@ -755,8 +805,8 @@ private void setGLShaderObject(SoGLShaderObject obj, final GL2 cachecontext) {
   }
 
 private void deleteGLShaderObjects() {
-    final Collection <GL2> keylist = this.glshaderobjects.keySet();
-    for (GL2 key : keylist) {
+    final Collection <Integer> keylist = this.glshaderobjects.keySet();
+    for (int key : keylist) {
       SoGLShaderObject glshader = this.glshaderobjects.get(key);
       SoGLCacheContextElement.scheduleDeleteCallback(glshader.getCacheContext(),
                                                       SoShaderObject::really_delete_object, glshader);
@@ -766,14 +816,14 @@ private void deleteGLShaderObjects() {
   //
   // Callback from SoGLCacheContextElement
   //
-private static void really_delete_object(Object closure, GL2 contextid) {
+private static void really_delete_object(Object closure, int contextid) {
     SoGLShaderObject obj = (SoGLShaderObject) closure;
     obj.destructor();
   }
   //
   // callback from SoContextHandler
   //
-private static void context_destruction_cb(GL2 cachecontext, Object userdata) {
+private static void context_destruction_cb(int cachecontext, Object userdata) {
     SoShaderObject thisp = (SoShaderObject) userdata;
 
     SoGLShaderObject oldshader;
@@ -785,8 +835,8 @@ private static void context_destruction_cb(GL2 cachecontext, Object userdata) {
   }
 
   private void invalidateParameters() {
-    final Collection <GL2> keylist = this.glshaderobjects.keySet();
-    for (GL2 key : keylist) {
+    final Collection <Integer> keylist = this.glshaderobjects.keySet();
+    for (int key : keylist) {
       SoGLShaderObject glshader = null;
       glshader = this.glshaderobjects.get(key);
       glshader.setParametersDirty(true);

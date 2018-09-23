@@ -82,4 +82,13 @@ public class SoTempPath extends SoFullPath {
 	     auditPath(false);           // Don't want overhead of auditors
 	     impl.nodes.addReferences(false); // Don't bother ref/unref nodes	     		
 	}
+
+	public SoTempPath(SoTempPath other) {
+		this(other.getLength());
+		impl.copyFrom(other.impl);
+	}
+
+	public void copyFrom(SoTempPath other) {
+		impl.copyFrom(other.impl);
+	}
 }

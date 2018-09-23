@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBool;
+import jscenegraph.port.Ctx;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -195,7 +196,7 @@ GLRenderBelowPath(SoGLRenderAction action)
 
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     // If the action is currently rendering the delayed paths, turn
     // off depth buffer comparisons and render like a separator
@@ -229,7 +230,7 @@ GLRenderInPath(SoGLRenderAction action)
 
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     // If the action is currently rendering the delayed paths, turn
     // off depth buffer comparisons and render like a separator

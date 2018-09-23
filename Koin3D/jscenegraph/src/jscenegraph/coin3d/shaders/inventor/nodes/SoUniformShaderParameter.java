@@ -37,7 +37,7 @@ public abstract class SoUniformShaderParameter extends SoShaderParameter {
         { return SoSubNode.getFieldDataPtr(SoUniformShaderParameter.class); }              
 	
   // FIXME: add a cache context destruction callback, pederb 2005-11-30
-  private final Map <GL2,SoGLShaderParameter> glparams = new HashMap<>();
+  private final Map <Integer,SoGLShaderParameter> glparams = new HashMap<>();
 
 public SoUniformShaderParameter()
 {
@@ -50,7 +50,7 @@ public void destructor()
 {
     //SbList <uint32_t> keylist;
     //this->glparams.makeKeyList(keylist);
-    for (/*int i = 0; i < keylist.getLength(); i++*/Map.Entry<GL2,SoGLShaderParameter> entry : glparams.entrySet()) {
+    for (/*int i = 0; i < keylist.getLength(); i++*/Map.Entry<Integer,SoGLShaderParameter> entry : glparams.entrySet()) {
       SoGLShaderParameter param;
       param = entry.getValue();//(void) this->glparams.get(keylist[i], param);
       deleteGLParameter(param);
@@ -67,7 +67,7 @@ public void
 ensureParameter(SoGLShaderObject shader)
 {
   assert(shader != null);
-  GL2 context = shader.getCacheContext();
+  int context = shader.getCacheContext();
   SoGLShaderParameter  param;
   if ((param = this.glparams.get(context))==null) {
     param = shader.getNewParameter();
@@ -81,7 +81,7 @@ ensureParameter(SoGLShaderObject shader)
 }
 
 public SoGLShaderParameter 
-getGLShaderParameter(GL2 cachecontext)
+getGLShaderParameter(int cachecontext)
 {
   SoGLShaderParameter glparam;
   if ((glparam = this.glparams.get(cachecontext))!= null) return glparam;

@@ -64,6 +64,7 @@ import jscenegraph.database.inventor.elements.SoGLLightIdElement;
 import jscenegraph.database.inventor.elements.SoLightAttenuationElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 
 
@@ -195,16 +196,16 @@ GLRender(SoGLRenderAction action)
     v3.copyFrom( color.getValue().operator_mul(intensity.getValue()));
     v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
     
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
 
-    gl2.glLightfv( id, GL2.GL_AMBIENT, new SbVec4f(0.0f, 0.0f, 0.0f, 1.0f).getValue(),0);
-    gl2.glLightfv( id, GL2.GL_DIFFUSE,  v4.getValue(),0);
-    gl2.glLightfv( id, GL2.GL_SPECULAR, v4.getValue(),0);
+    gl2.glLightfv( id, GL2.GL_AMBIENT, new SbVec4f(0.0f, 0.0f, 0.0f, 1.0f).getValueRead(),0);
+    gl2.glLightfv( id, GL2.GL_DIFFUSE,  v4.getValueRead(),0);
+    gl2.glLightfv( id, GL2.GL_SPECULAR, v4.getValueRead(),0);
 
     // Set position
     v3.copyFrom( location.getValue());
     v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
-    gl2.glLightfv( id, GL2.GL_POSITION, v4.getValue(),0);
+    gl2.glLightfv( id, GL2.GL_POSITION, v4.getValueRead(),0);
 
     // Make sure no spotlight stuff is on
     gl2.glLightf( id, GL2.GL_SPOT_EXPONENT, 0.0f);

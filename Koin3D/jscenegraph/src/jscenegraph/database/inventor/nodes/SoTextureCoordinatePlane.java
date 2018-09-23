@@ -59,15 +59,16 @@ package jscenegraph.database.inventor.nodes;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -151,6 +152,7 @@ public class SoTextureCoordinatePlane extends SoTextureCoordinateFunction {
 		    //! T coordinates projection direction
 	  public	final	    SoSFVec3f           directionT = new SoSFVec3f(); 
 
+	  public final SoSFVec3f directionR = new SoSFVec3f();
 	  
 
 ////////////////////////////////////////////////////////////////////////
@@ -167,6 +169,7 @@ public SoTextureCoordinatePlane()
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoTextureCoordinatePlane.class*/);
     nodeHeader.SO_NODE_ADD_FIELD(directionS,"directionS",   (new SbVec3f(1, 0, 0)));
     nodeHeader.SO_NODE_ADD_FIELD(directionT,"directionT",   (new SbVec3f(0, 1, 0)));
+    nodeHeader.SO_NODE_ADD_FIELD(directionR,"directionR", new SbVec3f(0.0f, 0.0f, 1.0f));
     isBuiltIn = true;
 }
 
@@ -191,7 +194,7 @@ public void destructor()
 //
 // Use: public
 
-private static final SbVec4f result = new SbVec4f();
+private static final SbVec4fSingle result = new SbVec4fSingle();
 
 public SbVec4f  valueCallback( Object instance,
     final SbVec3f position,
@@ -206,7 +209,8 @@ public SbVec4f  valueCallback( Object instance,
     result.getValue()[0] = ds.dot(position);
     final SbVec3f dt = tc.directionT.getValue();
     result.getValue()[1] = dt.dot(position);
-    result.getValue()[2] = 0.0f;
+    final SbVec3f dr = tc.directionR.getValue();
+    result.getValue()[2] = dr.dot(position);
     result.getValue()[3] = 1.0f;
 
     return result;
@@ -229,7 +233,7 @@ public void GLRender(SoGLRenderAction action)
     if (SoTextureOverrideElement.getQualityOverride(state) &&
         SoTextureQualityElement.get(state) == 0.0) return;
 
-    SoGLTextureCoordinateElement.setTexGen(state, this, 
+    SoGLMultiTextureCoordinateElement.setTexGen(state, this, 
                                             (me)->doTexgen(state,me), this,
                                             (instance, position, normal)->valueCallback( instance, position, normal), this);
 }
@@ -251,7 +255,7 @@ public void doTexgen(SoState state, Object me)
     
     GL2 gl2 = state.getGL2();
 
-    final SbVec4f t = new SbVec4f();
+    final SbVec4fSingle t = new SbVec4fSingle();
 
     final SbVec3f ds = p.directionS.getValue();
     t.setValue(ds.getValueRead()[0], ds.getValueRead()[1], ds.getValueRead()[2], 0.0f);
@@ -262,6 +266,15 @@ public void doTexgen(SoState state, Object me)
     t.setValue(dt.getValueRead()[0], dt.getValueRead()[1], dt.getValueRead()[2], 0.0f);
     gl2.glTexGenf(GL2.GL_T, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
     gl2.glTexGenfv(GL2.GL_T, GL2.GL_OBJECT_PLANE, t.getValue(),0);
+    
+    final SbVec3f dr = p.directionR.getValue();
+    t.setValue(dr.getValueRead()[0], dr.getValueRead()[1], dr.getValueRead()[2], 0.0f);
+    gl2.glTexGenf(GL2.GL_R, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
+    gl2.glTexGenfv(GL2.GL_R, GL2.GL_OBJECT_PLANE, t.getValue(),0);
+    
+    t.setValue(0,0,0,1);
+    gl2.glTexGeni(GL2.GL_Q, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
+    gl2.glTexGenfv(GL2.GL_Q, GL2.GL_OBJECT_PLANE, t.getValue(),0);    
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -306,7 +319,7 @@ SoTextureCoordinatePlane_doAction(SoAction action)
 {
     SoState state = action.getState();
 
-    SoTextureCoordinateElement.setFunction(state, this,
+    SoMultiTextureCoordinateElement.setFunction(state, this,
                                             (instance,position,normal)-> valueCallback(instance,position,normal), this);
 }
 	  

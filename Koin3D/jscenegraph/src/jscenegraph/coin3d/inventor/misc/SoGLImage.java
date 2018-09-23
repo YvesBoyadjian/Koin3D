@@ -40,12 +40,16 @@ import com.jogamp.opengl.GL2;
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.glue.Gl;
 import jscenegraph.coin3d.inventor.SbImage;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.coin3d.inventor.threads.SbStorage;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SbVec2s;
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3s;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
@@ -349,7 +353,32 @@ private static class soglimage_buffer {
 	 * 
 	 */
 	public SoGLImage() {
-		// TODO Auto-generated constructor stub
+		  assert(this.isregistered == false);
+		  this.image = null;
+		  this.pbuffer = null;
+		  this.glsize.setValue((short)0,(short)0,(short)0);
+		  this.glcomp = 0;
+		  this.wraps = SoGLImage.Wrap.CLAMP;
+		  this.wrapt = SoGLImage.Wrap.CLAMP;
+		  this.wrapr = SoGLImage.Wrap.CLAMP;
+		  this.border = 0;
+		  this.flags = SoGLImage.Flags.USE_QUALITY_VALUE.getValue();
+		  this.needtransparencytest = true;
+		  this.hastransparency = false;
+		  this.usealphatest = false;
+		  this.quality = 0.4f;
+		  this.imageage = 0;
+		  this.endframecb = null;
+		  this.glimageid = 0; // glimageid 0 is an empty image
+
+	      COIN_TEX2_LINEAR_LIMIT = DEFAULT_LINEAR_LIMIT;
+	      COIN_TEX2_MIPMAP_LIMIT = DEFAULT_MIPMAP_LIMIT;
+	      COIN_TEX2_LINEAR_MIPMAP_LIMIT = DEFAULT_LINEAR_MIPMAP_LIMIT;
+	      COIN_TEX2_SCALEUP_LIMIT = DEFAULT_SCALEUP_LIMIT;
+	      COIN_TEX2_USE_GLTEXSUBIMAGE = 0;
+	      COIN_TEX2_USE_SGIS_GENERATE_MIPMAP = 0;
+	      COIN_ENABLE_CONFORMANT_GL_CLAMP = 0;
+	      COIN_TEX2_ANISOTROPIC_LIMIT = DEFAULT_ANISOTROPIC_LIMIT;
 	}
 
 /*!
@@ -419,7 +448,7 @@ Sets the pbuffer for this texture. Experimental code, use with care.
 private void setPBuffer(SoState state, Object context) {
 	setPBuffer(state, context, Wrap.REPEAT, Wrap.REPEAT, 0.5f);
 }
-  private void setPBuffer(SoState state,
+  public void setPBuffer(SoState state,
                   Object  context,
                   Wrap wraps,
                   Wrap wrapt,
@@ -453,6 +482,24 @@ private void setPBuffer(SoState state, Object context) {
   }
 	  
   }
+  
+  /*!
+  Convenience 2D wrapper function around the 3D setData().
+*/
+public void
+setData( SbImage image,
+                   Wrap wraps,
+                   Wrap wrapt,
+                   float quality,
+                   int border,
+                   SoState createinstate)
+
+{
+  this.setData(image, wraps, wrapt, (Wrap)this/*.pimpl*/.wrapr,
+                quality, border, createinstate);
+}
+
+  
   
 /*!
   Sets flags to control how the texture is handled/initialized.
@@ -643,12 +690,12 @@ shouldCreateMipmap()
 private SoGLDisplayList 
 findDL(SoState state)
 {
-  GL2 currcontext = SoGLCacheContextElement.get(state);
+  int currcontext = SoGLCacheContextElement.get(state);
   int i, n = this.dlists.getLength();
   SoGLDisplayList dl;
   for (i = 0; i < n; i++) {
     dl = this.dlists.operator_square_bracket(i).dlist;
-    if (Objects.equals(dl.getContext(), currcontext)) return dl;
+    if (dl.getContext() == currcontext) return dl;
   }
   return null;
 }
@@ -664,66 +711,132 @@ findDL(SoState state)
 private SoGLDisplayList 
 createGLDisplayList(SoState state)
 {
-//  SbVec3s size;
-//  int numcomponents;
-//  unsigned char *bytes =
-//    this.image ? this.image->getValue(size, numcomponents) : null;
-//
-//  if (!this.pbuffer && !bytes) return null;
-//
-//  uint32_t xsize = size[0];
-//  uint32_t ysize = size[1];
-//  uint32_t zsize = size[2];
-//  SbBool is3D = (size[2]==0)?false:true;
-//
-//  // these might change if image is resized
-//  unsigned char *imageptr = (unsigned char *) bytes;
-//
-//  const cc_glglue * glw = sogl_glue_instance(state);
-//  SbBool mipmap = this.shouldCreateMipmap();
-//  
-//  if (imageptr) {
-//    if (is3D ||
-//        (!SoGLDriverDatabase::isSupported(glw, SO_GL_NON_POWER_OF_TWO_TEXTURES) ||
-//         (mipmap && (!SoGLDriverDatabase::isSupported(glw, SO_GL_GENERATE_MIPMAP) &&
-//                     !SoGLDriverDatabase::isSupported(glw, "GL_SGIS_generate_mipmap"))))) {
-//      this.resizeImage(state, imageptr, xsize, ysize, zsize);
-//    }
-//  }
-//  
-//  SoGLDisplayList *dl = new SoGLDisplayList(state,
-//                                            SoGLDisplayList::TEXTURE_OBJECT,
-//                                            1, mipmap);
-//  dl->ref();
-//
-//  if (bytes) {
-//    SbBool is3D = (size[2]==0)?false:true;
-//    if (is3D) {
-//      dl->setTextureTarget((int) GL_TEXTURE_3D);
-//    }
-//    else {
-//      dl->setTextureTarget((int) ((this.flags & SoGLImage::RECTANGLE) ?
-//                                  GL_TEXTURE_RECTANGLE_EXT : GL_TEXTURE_2D));
-//    }
-//  }
-//
-//  dl->open(state);
-//
-//  if (this.pbuffer) {
-//    this.reallyBindPBuffer(state);
-//  }
-//  else {
-//    this.reallyCreateTexture(state, imageptr, numcomponents,
-//                              xsize, ysize, zsize,
-//                              dl->getType() == SoGLDisplayList::DISPLAY_LIST,
-//                              mipmap,
-//                              this.border);
-//  }
-//  dl->close(state);
-//  return dl;
-	return null; //TODO
+  final SbVec3s size = new SbVec3s();
+  final int[] numcomponents = new int[1];
+  byte[] bytes =
+    this.image != null ? this.image.getValue(size, numcomponents) : null;
+
+  if (this.pbuffer == null && bytes == null) return null;
+
+  int xsize = size.getValue()[0];
+  int ysize = size.getValue()[1];
+  int zsize = size.getValue()[2];
+  boolean is3D = (size.getValue()[2]==0)?false:true;
+
+  // these might change if image is resized
+  byte[] imageptr = bytes;
+
+  cc_glglue glw = SoGL.sogl_glue_instance(state);
+  boolean mipmap = this.shouldCreateMipmap();
+  
+  if (imageptr != null) {
+    if (is3D ||
+        (!SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_NON_POWER_OF_TWO_TEXTURES) ||
+         (mipmap && (!SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_GENERATE_MIPMAP) &&
+                     !SoGLDriverDatabase.isSupported(glw, "GL_SGIS_generate_mipmap"))))) {
+      //this.resizeImage(state, imageptr, xsize, ysize, zsize);
+    }
+  }
+  SoCacheElement.setInvalid(true);
+  if (state.isCacheOpen()) {
+    SoCacheElement.invalidate(state);
+  }
+  
+  SoGLDisplayList dl = new SoGLDisplayList(state,
+                                            SoGLDisplayList.Type.TEXTURE_OBJECT,
+                                            1, mipmap);
+  dl.ref();
+
+  if (bytes != null) {
+    boolean is3D1 = (size.getValue()[2]==0)?false:true;
+    if (is3D1) {
+      dl.setTextureTarget((int) GL2.GL_TEXTURE_3D);
+    }
+    else {
+      dl.setTextureTarget((int) ((this.flags & SoGLImage.Flags.RECTANGLE.getValue())!=0 ?
+                                  GL2.GL_TEXTURE_RECTANGLE/*_EXT*/ : GL2.GL_TEXTURE_2D));
+    }
+  }
+
+  dl.open(state);
+
+  if (this.pbuffer != null) {
+    // this.reallyBindPBuffer(state); //TODO YB
+  }
+  else {
+    this.reallyCreateTexture(state, imageptr, numcomponents[0],
+                              xsize, ysize, zsize,
+                              dl.getType() == SoGLDisplayList.Type.DISPLAY_LIST,
+                              mipmap,
+                              this.border);
+  }
+  dl.close(state);
+  return dl;
 }
 
+
+//
+//Actually apply the texture filters using OpenGL calls.
+//
+public void
+/*SoGLImageP::*/applyFilter( boolean ismipmap, GL2 gl2)
+{
+int target;
+
+// Casting away const
+final SbVec3s size = this.image !=null ? new SbVec3s(this.image.getSize()) : new SbVec3s(this.glsize);
+
+if (size.getValue()[2] >= 1) target = GL2.GL_TEXTURE_3D;
+else {
+ target = (this.flags & SoGLImage.Flags.RECTANGLE.getValue())!=0 ?
+   GL2.GL_TEXTURE_RECTANGLE/*_EXT*/ : GL2.GL_TEXTURE_2D;
+}
+if ((this.flags & SoGLImage.Flags.USE_QUALITY_VALUE.getValue())!=0) {
+ if (this.quality < COIN_TEX2_LINEAR_LIMIT) {
+   gl2.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_NEAREST);
+   gl2.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST);
+ }
+ else if ((this.quality < COIN_TEX2_MIPMAP_LIMIT) || !ismipmap) {
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR);
+ }
+ else if (this.quality < COIN_TEX2_LINEAR_MIPMAP_LIMIT) {
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_NEAREST_MIPMAP_LINEAR);
+ }
+ else { // max quality
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER, GL2.GL_LINEAR);
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER, GL2.GL_LINEAR_MIPMAP_LINEAR);
+ }
+}
+else {
+ if ((this.flags & SoGLImage.Flags.NO_MIPMAP.getValue())!=0 || !ismipmap) {
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER,
+                   (this.flags & SoGLImage.Flags.LINEAR_MAG_FILTER.getValue())!=0 ?
+                   GL2.GL_LINEAR : GL2.GL_NEAREST);
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER,
+                   (this.flags & SoGLImage.Flags.LINEAR_MIN_FILTER.getValue())!=0 ?
+                   GL2.GL_LINEAR : GL2.GL_NEAREST);
+ }
+ else {
+	 gl2.glTexParameteri(target, GL2.GL_TEXTURE_MAG_FILTER,
+                   (this.flags & SoGLImage.Flags.LINEAR_MAG_FILTER.getValue())!=0 ?
+                   GL2.GL_LINEAR : GL2.GL_NEAREST);
+   int minfilter = GL2.GL_NEAREST_MIPMAP_NEAREST;
+   if ((this.flags & SoGLImage.Flags.LINEAR_MIPMAP_FILTER.getValue())!=0) {
+     if ((this.flags & SoGLImage.Flags.LINEAR_MIN_FILTER.getValue())!=0)
+       minfilter = GL2.GL_LINEAR_MIPMAP_LINEAR;
+     else
+       minfilter = GL2.GL_LINEAR_MIPMAP_NEAREST;
+   }
+   else if ((this.flags & SoGLImage.Flags.LINEAR_MIN_FILTER.getValue())!=0)
+     minfilter = GL2.GL_NEAREST_MIPMAP_LINEAR;
+
+   gl2.glTexParameteri(target, GL2.GL_TEXTURE_MIN_FILTER,
+                   minfilter);
+ }
+}
+}
 
   
 
@@ -733,6 +846,159 @@ getNextGLImageId()
 {
  return current_glimageid++;
 }
+
+public static int
+translate_wrap(SoState state, SoGLImage.Wrap wrap)
+{
+  if (wrap == SoGLImage.Wrap.REPEAT) return GL2.GL_REPEAT;
+  if (wrap == SoGLImage.Wrap.CLAMP_TO_BORDER) return GL2.GL_CLAMP_TO_BORDER;
+  if (COIN_ENABLE_CONFORMANT_GL_CLAMP != 0) {
+    if (wrap == SoGLImage.Wrap.CLAMP_TO_EDGE) {
+      cc_glglue glw = SoGL.sogl_glue_instance(state);
+      if (SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_TEXTURE_EDGE_CLAMP)) return GL2.GL_CLAMP_TO_EDGE;
+    }
+    return GL2.GL_CLAMP;
+  }
+  cc_glglue glw = SoGL.sogl_glue_instance(state);
+  if (SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_TEXTURE_EDGE_CLAMP)) return GL2.GL_CLAMP_TO_EDGE;
+  return GL2.GL_CLAMP;
+}
+
+
+public void
+/*SoGLImageP::*/reallyCreateTexture(SoState state,
+                                byte[] texture,
+                                int numComponents,
+                                int w, int h, int d,
+                                boolean dlist, //FIXME: Not in use (kintel 20011129)
+                                boolean mipmap,
+                                int border)
+{
+  cc_glglue glw = SoGL.sogl_glue_instance(state);
+  this.glsize.copyFrom(new SbVec3s((short) w, (short) h, (short) d));
+  this.glcomp = numComponents;
+
+  boolean compress =
+    (this.flags & SoGLImage.Flags.COMPRESSED.getValue())!=0 &&
+    SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_TEXTURE_COMPRESSION);
+  int internalFormat =
+    Gl.coin_glglue_get_internal_texture_format(glw, numComponents, compress);
+  int dataFormat = Gl.coin_glglue_get_texture_format(glw, numComponents);
+
+  GL2 gl2 = state.getGL2();
+  
+  gl2.glPixelStorei(GL2.GL_UNPACK_ALIGNMENT, 1);
+
+  //FIXME: Check cc_glglue capability as well? (kintel 20011129)
+  if (SoMultiTextureEnabledElement.getMode(state) == 
+      SoMultiTextureEnabledElement.Mode.TEXTURE3D) { // 3D textures
+    gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_S,
+                    translate_wrap(state, this.wraps));
+    gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_T,
+                    translate_wrap(state, this.wrapt));
+    gl2.glTexParameteri(GL2.GL_TEXTURE_3D, GL2.GL_TEXTURE_WRAP_R,
+                    translate_wrap(state, this.wrapr));
+
+
+    this.applyFilter(mipmap,gl2);
+
+    if (!mipmap) {
+      if (SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_3D_TEXTURES)) {
+        Gl.cc_glglue_glTexImage3D(glw, GL2.GL_TEXTURE_3D, 0, internalFormat, w, h, d,
+                               border, dataFormat, GL2.GL_UNSIGNED_BYTE, texture);
+      }
+    }
+    else { // mipmaps
+      // We used to default to calling GLU's gluBuild3DMipmaps() here,
+      // but that was axed, because the gluBuild[2|3]DMipmaps()
+      // functions implicitly uses glGenTextures() and other OpenGL
+      // 1.1+ functions -- which again can cause trouble when doing
+      // remote rendering. (At least we've had lots of problems with
+      // NVidia's GLX implementation for non-1.0 OpenGL stuff.)
+      //
+      //   (void)GLUWrapper().gluBuild3DMipmaps(GL_TEXTURE_3D, internalFormat,
+      //                                         w, h, d, dataFormat,
+      //                                         GL_UNSIGNED_BYTE, texture);
+
+      fast_mipmap(state, w, h, d, numComponents, texture, false, compress);
+    }
+  }
+  else { // 2D textures
+    boolean mipmapimage = mipmap;
+    boolean mipmapfilter = mipmap;
+    boolean generatemipmap = false;
+
+    int target = (this.flags & SoGLImage.Flags.RECTANGLE.getValue())!=0 ?
+      GL2.GL_TEXTURE_RECTANGLE/*_EXT*/ : GL2.GL_TEXTURE_2D;
+
+    gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_S,
+                    translate_wrap(state, this.wraps));
+    gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_T,
+                    translate_wrap(state, this.wrapt));
+
+    if (mipmap && (this.flags & SoGLImage.Flags.RECTANGLE.getValue())!=0) {
+      mipmapimage = false;
+      if (SoGLDriverDatabase.isSupported(glw, "GL_SGIS_generate_mipmap")) {
+        gl2.glTexParameteri(target, GL2.GL_GENERATE_MIPMAP_SGIS, GL2.GL_TRUE);
+      }
+      else mipmapfilter = false;
+    }
+    // prefer GL_SGIS_generate_mipmap to glGenerateMipmap. It seems to
+    // be better supported in drivers.
+    else if (mipmap && SoGLDriverDatabase.isSupported(glw, "GL_SGIS_generate_mipmap")) {
+      gl2.glTexParameteri(target, GL2.GL_GENERATE_MIPMAP_SGIS, GL2.GL_TRUE);
+      mipmapimage = false;
+    }
+    // using glGenerateMipmap() while creating a display list is not
+    // supported (even if the display list is never used). This is
+    // probably because the OpenGL driver creates each mipmap level by
+    // rendering it using normal OpenGL calls.
+    else if (mipmap && SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_GENERATE_MIPMAP) && !state.isCacheOpen()) {
+      mipmapimage = false;
+      generatemipmap = true; // delay until after the texture image is set up
+    }
+    if ((this.quality > COIN_TEX2_ANISOTROPIC_LIMIT) &&
+        SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_ANISOTROPIC_FILTERING)) {
+      gl2.glTexParameterf(target, GL2.GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                      SoGL.cc_glglue_get_max_anisotropy(glw));
+    }
+    if (!mipmapimage) {
+      // Create only level 0 texture. Mimpamps might be created by glGenerateMipmap
+      gl2.glTexImage2D(target, 0, internalFormat, w, h,
+                   border, dataFormat, GL2.GL_UNSIGNED_BYTE, Buffers.newDirectByteBuffer(texture));
+
+      if (generatemipmap) {
+        boolean wasenabled = true;
+        // Woraround for ATi driver bug. GL_TEXTURE_2D needs to be
+        // enabled when using glGenerateMipmap(), according to
+        // dicussions on the opengl.org forums.
+        if (glw.vendor_is_ati) {
+          if (!gl2.glIsEnabled(GL2.GL_TEXTURE_2D)) {
+            wasenabled = false;
+            gl2.glEnable(GL2.GL_TEXTURE_2D);
+          }
+        }
+        SoGL.cc_glglue_glGenerateMipmap(glw, target);
+        if (!wasenabled) gl2.glDisable(GL2.GL_TEXTURE_2D);
+      }
+    }
+    else { // mipmaps
+      // The GLU function invocation has been disabled, for the
+      // reasons stated in the code comments ~20 lines above on the
+      // construction of 3D mipmap textures.
+      //
+      //   (void)GLUWrapper().gluBuild2DMipmaps(GL_TEXTURE_2D, internalFormat,
+      //                                         w, h, dataFormat,
+      //                                         GL_UNSIGNED_BYTE, texture);
+      fast_mipmap(state, w, h, numComponents, texture, false, compress);
+    }
+    // apply the texture filters
+    this.applyFilter(mipmapfilter,gl2);
+  }
+  gl2.glPixelStorei(GL2.GL_UNPACK_ALIGNMENT, 4);
+}
+
+
 
 //
 // unref all dlists stored in image
@@ -751,11 +1017,11 @@ unrefDLists(SoState state)
 // Callback from SoContextHandler
 //
 private static void
-contextCleanup(GL2 context, Object closure)
+contextCleanup(int context, Object closure)
 {
   SoGLImage thisp = (SoGLImage) closure;
 //#ifdef COIN_THREADSAFE
-//  SoGLImageP::mutex->lock();
+//  SoGLImageP::mutex.lock();
 //#endif // COIN_THREADSAFE
 
   int n = thisp.dlists.getLength();
@@ -770,7 +1036,7 @@ contextCleanup(GL2 context, Object closure)
     else i++;
   }
 //#ifdef COIN_THREADSAFE
-//  SoGLImageP::mutex->unlock();
+//  SoGLImageP::mutex.unlock();
 //#endif // COIN_THREADSAFE
 }
 
@@ -964,6 +1230,39 @@ setData(final SbImage image,
     SoGLImage.registerImage(this);
   }
 }
+
+/*!
+2D setData() wrapper. Supplies raw data, size and numcomponents instead of
+an SbImage. Creates a temporary image, then calls the read setData().
+\overload
+*/
+
+public void setData(byte[] bytes,
+        final SbVec2s size,
+        final int numcomponents,
+        final Wrap wraps,
+        final Wrap wrapt,
+        final float quality) {
+	setData(bytes,size,numcomponents,wraps,wrapt,quality,0,null);
+}
+
+public void
+setData(byte[] bytes,
+                 final SbVec2s size,
+                 final int numcomponents,
+                 final Wrap wraps,
+                 final Wrap wrapt,
+                 final float quality,
+                 final int border,
+                 final SoState createinstate)
+{
+	this/*.pimpl*/.dummyimage.setValuePtr(size, numcomponents, bytes);
+	this.setData(this/*.pimpl*/.dummyimage,
+              wraps, wrapt, quality,
+              border, createinstate);
+}
+
+
 
 /*!
   Returns a pointer to the image data.
@@ -1328,7 +1627,7 @@ glimage_get_buffer( int buffersize, boolean mipmap)
       // FIXME: this is an extremely lame workaround for a Purify UMR
       // reported by Tore Kristiansen of HitecO.
       //
-      // An UMR is reported from buf->buffer (when disabling the
+      // An UMR is reported from buf.buffer (when disabling the
       // memset() workaround below) from somewhere within the
       // fast_mipmap() method. Purify doesn't go far enough down the
       // call-stack (probably because fast_mipmap() is a local static
@@ -1343,10 +1642,87 @@ glimage_get_buffer( int buffersize, boolean mipmap)
       // attempting to fix it.
       //
       // 20030514 mortene.
-      //(void)memset(buf->buffer, 0x55, buf->buffersize); java port
+      //(void)memset(buf.buffer, 0x55, buf.buffersize); java port
     }
     return buf.buffer;
   }
+}
+
+/*!
+Should be called when a texture image is used. In Coin this is
+handled by SoGLTextureImageElement, but if you use an SoGLImage on
+your own, you should call this method to avoid that the display list
+is deleted too soon. \a state should be your SoGLRenderAction state,
+\a image the image you are about to use/have used.
+*/
+public static void
+tagImage(SoState state, SoGLImage image)
+{
+assert(image != null);
+if (image != null) {
+  //LOCK_GLIMAGE;
+  image.resetAge();
+  image/*.pimpl*/.tagDL(state);
+  //UNLOCK_GLIMAGE;
+}
+}
+
+public void
+resetAge() 
+{
+  this/*.pimpl*/.imageage = 0;
+}
+
+public void
+tagDL(SoState state)
+{
+  int currcontext = SoGLCacheContextElement.get(state);
+  int i, n = this.dlists.getLength();
+  SoGLDisplayList dl;
+  for (i = 0; i < n; i++) {
+    dl = this.dlists.operator_square_bracket(i).dlist;
+    if (dl.getContext() == currcontext) {
+      this.dlists.operator_square_bracket(i).age = 0;
+      break;
+    }
+  }
+}
+
+public void setGLDisplayList(SoGLDisplayList dl,
+        SoState state) {
+	setGLDisplayList(dl, state, Wrap.REPEAT, Wrap.REPEAT, 0.5f);
+}
+
+public void setGLDisplayList(SoGLDisplayList dl,
+        SoState state,
+        Wrap wraps,
+        Wrap wrapt
+        ) {
+	setGLDisplayList(dl, state, wraps, wrapt, 0.5f);
+}
+
+public void
+setGLDisplayList(SoGLDisplayList dl,
+                            SoState state,
+                            Wrap wraps,
+                            Wrap wrapt,
+                            float quality)
+{
+  if (this/*.pimpl*/.isregistered) SoGLImage.unregisterImage(this);
+  this/*.pimpl*/.unrefDLists(state);
+  dl.ref();
+  this/*.pimpl*/.dlists.append(new /*SoGLImageP.*/dldata(dl));
+  this/*.pimpl*/.image = null; // we have no data. Texture is organized outside this image
+  this/*.pimpl*/.wraps = wraps;
+  this/*.pimpl*/.wrapt = wrapt;
+  this/*.pimpl*/.glimageid = /*SoGLImageP.*/getNextGLImageId(); // assign an unique id to this image
+  this/*.pimpl*/.needtransparencytest = false;
+  this/*.pimpl*/.hastransparency = false;
+  this/*.pimpl*/.usealphatest = false;
+  this/*.pimpl*/.quality = quality;
+
+  // don't register this image. There's no way we can reload it if we
+  // delete it because of old age.
 }
 
 

@@ -48,7 +48,7 @@ public class SoGLSLShaderProgram {
 protected
   final SbList <Integer> programParameters = new SbList<>();
   protected final SbList <SoGLSLShaderObject > shaderObjects = new SbList<>();
-  protected final Map </*COIN_GLhandle*/GL2, Integer> programHandles;
+  protected final Map </*COIN_GLhandle*/Integer, Integer> programHandles;
 
   protected boolean isExecutable;
   protected boolean neededlinking;
@@ -86,7 +86,7 @@ deletePrograms()
 {
   //final SbList <Integer> keylist = new SbList<>();
   //this.programHandles.makeKeyList(keylist);
-  for (/*int i = 0; i < keylist.getLength(); i++*/Map.Entry<GL2,Integer> entry : this.programHandles.entrySet()) {
+  for (/*int i = 0; i < keylist.getLength(); i++*/Map.Entry<Integer,Integer> entry : this.programHandles.entrySet()) {
     /*COIN_GLhandle*/Integer glhandle;
      glhandle = entry.getValue();//this.programHandles.get(keylist.operator_square_bracket(i));
     long tmp = (long) glhandle;
@@ -240,7 +240,7 @@ neededLinking()
 }
 
 public static void
-context_destruction_cb(GL2 cachecontext, Object userdata)
+context_destruction_cb(int cachecontext, Object userdata)
 {
   SoGLSLShaderProgram thisp = (SoGLSLShaderProgram) userdata;
 
@@ -254,7 +254,7 @@ context_destruction_cb(GL2 cachecontext, Object userdata)
 }
 
 public static void
-really_delete_object(Object closure, GL2 contextid)
+really_delete_object(Object closure, int contextid)
 {
   /*uintptr_t*/int tmp = (/*uintptr_t*/int) closure;
 

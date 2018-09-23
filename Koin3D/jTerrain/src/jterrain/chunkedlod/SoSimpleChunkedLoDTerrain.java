@@ -37,7 +37,8 @@ package jterrain.chunkedlod;
 
 import com.jogamp.opengl.GL2;
 
-import jscenegraph.coin3d.inventor.elements.SoTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.database.inventor.SbBasic;
 import jscenegraph.database.inventor.SbBox2s;
 import jscenegraph.database.inventor.SbBox3f;
@@ -57,7 +58,6 @@ import jscenegraph.database.inventor.elements.SoLightModelElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -68,6 +68,7 @@ import jscenegraph.database.inventor.nodes.SoShape;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.SbVec2fArray;
 import jscenegraph.port.SbVec3fArray;
@@ -173,8 +174,8 @@ public class SoSimpleChunkedLoDTerrain extends SoShape {
   SoSubNode.SO_NODE_INIT_CLASS(SoSimpleChunkedLoDTerrain.class, SoShape.class, "Shape");
   SO_ENABLE(SoGLRenderAction.class, SoMaterialBindingElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoCoordinateElement.class);
-  SO_ENABLE(SoGLRenderAction.class, SoTextureCoordinateElement.class);
-  SO_ENABLE(SoGLRenderAction.class, SoTextureEnabledElement.class);
+  SO_ENABLE(SoGLRenderAction.class, SoMultiTextureCoordinateElement.class);
+  SO_ENABLE(SoGLRenderAction.class, SoMultiTextureEnabledElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoLightModelElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoNormalElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoNormalBindingElement.class);
@@ -244,15 +245,15 @@ public void GLRender(SoGLRenderAction action)
 
     // Only 3D geometic coordinates and 2D texture coordinates are supported.
     assert(SoCoordinateElement.getInstance(state).is3D() &&
-      (SoTextureCoordinateElement.getInstance(state).getDimension() == 2));
+      (SoMultiTextureCoordinateElement.getInstance(state).getDimension(0) == 2));
 
     // Check map and tile size values.
     assert(((this.map_size - 1) % (this.tile_size - 1)) == 0);
 
     // Get texture and geomety coordinates and normals.
     this.coords = SoCoordinateElement.getInstance(state).getArrayPtr3();
-    this.texture_coords = SoTextureCoordinateElement.getInstance(state).
-      getArrayPtr2();
+    this.texture_coords = SoMultiTextureCoordinateElement.getInstance(state).
+      getArrayPtr2(0);
     this.normals = SoNormalElement.getInstance(state).getArrayPtr();
 
     // Count tile tree size.
@@ -272,9 +273,9 @@ public void GLRender(SoGLRenderAction action)
     PrProfiler.PR_STOP_PROFILE("preprocess");
 
     // Init rendering.
-    this.is_texture = (SoTextureEnabledElement.get(state) &&
-      SoTextureCoordinateElement.getType(state) !=
-      SoTextureCoordinateElement.CoordType.NONE);
+    this.is_texture = (SoMultiTextureEnabledElement.get(state,0) &&
+      SoMultiTextureCoordinateElement.getType(state,0) !=
+      SoMultiTextureCoordinateElement.CoordType.NONE_TEXGEN);
     this.is_normals = (this.normals != null && SoLightModelElement.get(state) !=
       SoLightModelElement.Model.BASE_COLOR);
   }
@@ -309,8 +310,8 @@ protected void generatePrimitives(SoAction action)
 {
   SoState state = action.getState();
   this.coords = SoCoordinateElement.getInstance(state).getArrayPtr3();
-  this.texture_coords = SoTextureCoordinateElement.getInstance(state).
-    getArrayPtr2();
+  this.texture_coords = SoMultiTextureCoordinateElement.getInstance(state).
+    getArrayPtr2(0);
   this.normals = SoNormalElement.getInstance(state).getArrayPtr();
 
   // Brutal-force generation of height map triangles.
@@ -643,7 +644,7 @@ on different level of detail.
 private void renderSkirt(SoGLRenderAction action,
   final SbChunkedLoDTile tile)
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
   int[] vertices = tile.vertices.getArrayPtr();
   int max_x = this.tile_size;
@@ -736,7 +737,7 @@ gaps between neightbouring tiles on different level of detail.
 private void renderSkirt(SoGLRenderAction action,
   final SbChunkedLoDTile tile, float morph)
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
   final int[] vertices = tile.vertices.getArrayPtr();
   int max_x = this.tile_size;
@@ -871,7 +872,7 @@ Renders \e tile tile geometry.
 private void renderTile(SoGLRenderAction action,
   final SbChunkedLoDTile tile)
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
   final int[] vertices = tile.vertices.getArrayPtr();
   int max_x = this.tile_size;
@@ -920,7 +921,7 @@ Renders \e tile tile geometry with morphing factor \e morph.
 private void renderTile(SoGLRenderAction action,
   final SbChunkedLoDTile tile, float morph)
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
   int[] vertices = tile.vertices.getArrayPtr();
   int max_x = this.tile_size;

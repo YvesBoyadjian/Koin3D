@@ -98,6 +98,7 @@ import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.fields.SoSFRotation;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Ctx;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1020,7 +1021,7 @@ final int GREY1_INDEX    = 0;
     final SbVec2s      cropLL = croppedReg.getViewportOriginPixels();
     final SbVec2s      cropUR = croppedReg.getViewportSizePixels().operator_add(cropLL);
     
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
 
     // Save stuff we're going to change explicitly
     gl2.glPushAttrib(GL2.GL_ENABLE_BIT | GL2.GL_CURRENT_BIT |

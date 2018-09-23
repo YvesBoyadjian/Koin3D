@@ -54,14 +54,14 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFVec2f;
 import jscenegraph.database.inventor.misc.SoState;
@@ -194,7 +194,7 @@ public void SoTextureCoordinate2_doAction(SoAction action)
     SoState state = action.getState();
 
     if (! point.isIgnored() && point.getNum() > 0) {
-        SoTextureCoordinateElement.set2(state, this,
+        SoMultiTextureCoordinateElement.set2(state, this,
                                          point.getNum(), point.getValuesSbVec2fArray(/*0*/));
         if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
           SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.TEXCOORD_VBO, _vbo,
@@ -231,8 +231,8 @@ public void GLRender(SoGLRenderAction action)
     SoState state = action.getState();
     
     if (! point.isIgnored() && point.getNum() > 0){
-        SoGLTextureCoordinateElement.setTexGen(state, this, null);
-        SoTextureCoordinateElement.set2(state, this,
+        SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
+        SoMultiTextureCoordinateElement.set2(state, this,
                                          point.getNum(), point.getValuesSbVec2fArray(/*0*/));
     }
 }
@@ -266,10 +266,10 @@ public static void initClass()
 {
     SO__NODE_INIT_CLASS(SoTextureCoordinate2.class, "TextureCoordinate2", SoNode.class);
 
-    SO_ENABLE(SoCallbackAction.class, SoTextureCoordinateElement.class);
-    SO_ENABLE(SoGLRenderAction.class, SoGLTextureCoordinateElement.class);
+    SO_ENABLE(SoCallbackAction.class, SoMultiTextureCoordinateElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoGLMultiTextureCoordinateElement.class);
     SO_ENABLE(SoGLRenderAction.class, SoGLVBOElement.class);
-    SO_ENABLE(SoPickAction.class,     SoTextureCoordinateElement.class);
+    SO_ENABLE(SoPickAction.class,     SoMultiTextureCoordinateElement.class);
 }
 
 }

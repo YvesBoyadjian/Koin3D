@@ -77,8 +77,6 @@ import jscenegraph.database.inventor.nodes.SoNode;
  */
 public class SoFullPath extends SoPath {
 	
-	SoPath castedPath;
-	
 	  protected SoFullPath(int approxLength) {
 		  super(approxLength);		  
 	  }

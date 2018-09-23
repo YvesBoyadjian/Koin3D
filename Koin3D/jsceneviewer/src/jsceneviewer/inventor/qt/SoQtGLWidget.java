@@ -70,6 +70,7 @@ import org.lwjgl.opengl.GLCapabilities;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec2s;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jsceneviewer.BorderLayout;
 
@@ -102,7 +103,7 @@ public class SoQtGLWidget extends Composite implements Destroyable {
     protected boolean        autoFocus;        //! widget gets focus on mouse enter
 
 	private int shareGroup;
-	protected GL2 shareID;
+	protected int shareID;
 	    
 	private static final SoContextShareManager contextShareManager = new SoContextShareManager();
 
@@ -230,7 +231,7 @@ public GLData format()
     //! return sharing id of used context - same id that isn't -1 means
     //! contexts share display lists
     public GL2 getShareID() {
-    	return shareID;
+    	return Ctx.get(shareID);
 //        if (mainWidget != null) {
 //            return ((RealQGLWidget)mainWidget).getShareID();
 //        } else {

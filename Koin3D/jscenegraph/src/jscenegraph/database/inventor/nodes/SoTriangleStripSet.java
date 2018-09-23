@@ -60,6 +60,8 @@ import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -77,7 +79,6 @@ import jscenegraph.database.inventor.details.SoPointDetail;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
@@ -91,6 +92,7 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
+import jscenegraph.port.Ctx;
 
 /**
  * @author Yves Boyadjian
@@ -365,7 +367,7 @@ public void GLRender(SoGLRenderAction action)
     else if (shapeStyle.isTextureFunction() && vpCache.haveTexCoordsInVP()){
       state.push();
       useTexCoordsAnyway = SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
-      SoGLTextureCoordinateElement.setTexGen(state, this, null);
+      SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
     }           
 
 
@@ -885,7 +887,7 @@ private void GLRenderInternal( SoGLRenderAction action, int useTexCoordsAnyway, 
 
 private void OmOn(SoGLRenderAction action ) {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 
     // Send one normal, if there are any normals in vpCache:
     if (vpCache.getNumNormals() > 0)
@@ -922,7 +924,7 @@ private void OmOn(SoGLRenderAction action ) {
 
 private void OmOnT (SoGLRenderAction action ) {
 
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 
     // Send one normal, if there are any normals in vpCache:
     if (vpCache.getNumNormals() > 0)
@@ -967,7 +969,7 @@ private void OmOnT (SoGLRenderAction action ) {
 
 public void OmFn (SoGLRenderAction action) {
 
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 
     Buffer vertexPtr = vpCache.getVertices(startIndex.getValue());
     final int vertexStride = vpCache.getVertexStride();
@@ -1020,7 +1022,7 @@ public void
 OmVn
     (SoGLRenderAction action ) {
 	
-	GL2 gl2 = action.getCacheContext();	
+	GL2 gl2 = Ctx.get(action.getCacheContext());	
 
     Buffer vertexPtr = vpCache.getVertices(startIndex.getValue());
     final int vertexStride = vpCache.getVertexStride();

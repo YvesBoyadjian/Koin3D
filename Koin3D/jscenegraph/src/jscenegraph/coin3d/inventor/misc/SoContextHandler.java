@@ -33,7 +33,7 @@ import com.jogamp.opengl.GL2;
 public class SoContextHandler {
 	
 	public interface ContextDestructionCB {
-		void run(GL2 contextid, Object userData);
+		void run(int contextid, Object userData);
 	}
 
 	/**

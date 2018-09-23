@@ -60,6 +60,8 @@ import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
@@ -78,7 +80,6 @@ import jscenegraph.database.inventor.details.SoPointDetail;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
@@ -96,6 +97,7 @@ import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 
 /**
@@ -402,7 +404,7 @@ public void GLRender(SoGLRenderAction action)
     else if (shapeStyle.isTextureFunction() && vpCache.haveTexCoordsInVP()){
       state.push();
       useTexCoordsAnyway = SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
-      SoGLTextureCoordinateElement.setTexGen(state, this, null);
+      SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
     }
 
     // Now that normals have been generated, can set up pointers
@@ -1022,7 +1024,7 @@ public void GLRenderInternal( SoGLRenderAction action , int useTexCoordsAnyway, 
       (vpCache.getNumNormals()==0 || (vpCache.getNormalBinding() == SoNormalBindingElement.Binding.PER_VERTEX_INDEXED)) &&
       (vpCache.getNumColors()==0 || (vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED || vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.OVERALL)) &&
       // VA rendering is only possible if there is a color VBO, since it manages the packed color swapping
-      ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getVBO(SoGLVBOElement.VBOType.COLOR_VBO) != null) &&
+      ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getColorVBO()/*getVBO(SoGLVBOElement.VBOType.COLOR_VBO)*/ != null) &&
       (vpCache.getNumTexCoords()==0 || (vpCache.getTexCoordBinding() == SoTextureCoordinateBindingElement.Binding.PER_VERTEX_INDEXED)) &&
       (materialIndex.getNum()==1 && materialIndex.getValuesI(0)[0]==-1) && 
       (normalIndex.getNum()==1 && normalIndex.getValuesI(0)[0]==-1) && 
@@ -1114,7 +1116,7 @@ public static void initClass()
 
 public void TriOmVn (SoGLRenderAction action) {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1147,7 +1149,7 @@ public void
 QuadOmVn
     (SoGLRenderAction action ) {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1193,7 +1195,7 @@ QuadOmVn
 
 public void TriFmVn (SoGLRenderAction action) {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1232,7 +1234,7 @@ public void
 QuadFmVn
     (SoGLRenderAction action) {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1283,7 +1285,7 @@ QuadFmVn
 
 public void TriVmVn (SoGLRenderAction action ) {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1322,7 +1324,7 @@ public void TriVmVn (SoGLRenderAction action ) {
 public void GenOmVn(SoGLRenderAction action)
 {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     final int numVI = coordIndex.getNum();
@@ -1354,7 +1356,7 @@ GenVmOn
     (SoGLRenderAction action )
 {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     final int numVI = coordIndex.getNum();
@@ -1391,7 +1393,7 @@ GenFmVn
     (SoGLRenderAction action)
 {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     final int numVI = coordIndex.getNum();
@@ -1433,7 +1435,7 @@ GenOmFn
     (SoGLRenderAction action)
 {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     final int[] vertexIndex = coordIndex.getValuesI(0);
     final int numVI = coordIndex.getNum();

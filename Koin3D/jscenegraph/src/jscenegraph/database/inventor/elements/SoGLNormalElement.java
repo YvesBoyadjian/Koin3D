@@ -58,6 +58,7 @@ import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Ctx;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -122,7 +123,7 @@ public void send(int index)
                            "Index ("+index+") is out of range 0 - "+( numNormals - 1));
 //#endif /* DEBUG */
 
-    GL2 gl2 = SoGLCacheContextElement.get(state);
+    GL2 gl2 = Ctx.get(SoGLCacheContextElement.get(state));
 
     gl2.glNormal3fv(normals.get(index).getValueRead(),0);
 }

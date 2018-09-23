@@ -61,6 +61,8 @@ import java.nio.IntBuffer;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
@@ -79,7 +81,6 @@ import jscenegraph.database.inventor.details.SoPointDetail;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
@@ -97,6 +98,7 @@ import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
+import jscenegraph.port.Ctx;
 
 /**
  * @author Yves Boyadjian
@@ -334,7 +336,7 @@ GLRender(SoGLRenderAction action)
     else if (shapeStyle.isTextureFunction() && vpCache.haveTexCoordsInVP()){
       state.push();
       useTexCoordsAnyway = SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
-      SoGLTextureCoordinateElement.setTexGen(state, this, null);
+      SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
     }
 
     // Now that normals have been generated, can set up pointers
@@ -922,7 +924,7 @@ private void GLRenderInternal( final SoGLRenderAction action , int useTexCoordsA
     (vpCache.getNumNormals()==0 || (vpCache.getNormalBinding() == SoNormalBindingElement.Binding.PER_VERTEX_INDEXED)) &&
     (vpCache.getNumColors()==0 || (vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED || vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.OVERALL)) &&
     // VA rendering is only possible if there is a color VBO, since it manages the packed color swapping
-    ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getVBO(SoGLVBOElement.VBOType.COLOR_VBO) != null) &&
+    ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getColorVBO()/*getVBO(SoGLVBOElement.VBOType.COLOR_VBO)*/ != null) &&
     (vpCache.getNumTexCoords()==0 || (vpCache.getTexCoordBinding() == SoTextureCoordinateBindingElement.Binding.PER_VERTEX_INDEXED)) &&
     (materialIndex.getNum()==1 && materialIndex.getValuesI(0)[0]==-1) && 
     (normalIndex.getNum()==1 && normalIndex.getValuesI(0)[0]==-1) && 
@@ -973,7 +975,7 @@ private void GLRenderInternal( final SoGLRenderAction action , int useTexCoordsA
 void
 
 TriOmOn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     // Send one normal, if there are any normals in vpCache:
@@ -1001,7 +1003,7 @@ TriOmOn
 void
 
 TriOmOnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     // Send one normal, if there are any normals in vpCache:
@@ -1036,7 +1038,7 @@ TriOmOnT
 void
 
 TriOmFn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1066,7 +1068,7 @@ TriOmFn
 void
 
 TriOmFnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1103,7 +1105,7 @@ TriOmFnT
 void
 
 TriOmVn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1135,7 +1137,7 @@ TriOmVn
 void
 
 TriOmVnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1174,7 +1176,7 @@ TriOmVnT
 void
 
 TriFmOn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     // Send one normal, if there are any normals in vpCache:
@@ -1207,7 +1209,7 @@ TriFmOn
 void
 
 TriFmOnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     // Send one normal, if there are any normals in vpCache:
@@ -1247,7 +1249,7 @@ TriFmOnT
 void
 
 TriFmFn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1282,7 +1284,7 @@ TriFmFn
 void
 
 TriFmFnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1324,7 +1326,7 @@ TriFmFnT
 void
 
 TriFmVn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1361,7 +1363,7 @@ TriFmVn
 void
 
 TriFmVnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1405,7 +1407,7 @@ TriFmVnT
 void
 
 TriVmOn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     // Send one normal, if there are any normals in vpCache:
@@ -1440,7 +1442,7 @@ TriVmOn
 void
 
 TriVmOnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     // Send one normal, if there are any normals in vpCache:
@@ -1482,7 +1484,7 @@ TriVmOnT
 void
 
 TriVmFn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1519,7 +1521,7 @@ TriVmFn
 void
 
 TriVmFnT
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1563,7 +1565,7 @@ TriVmFnT
 void
 
 TriVmVn
-    (SoGLRenderAction action) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);
@@ -1602,7 +1604,7 @@ TriVmVn
 private void
 
 TriVmVnT
-    (SoGLRenderAction action ) { GL2 gl2 = action.getCacheContext();
+    (SoGLRenderAction action ) { GL2 gl2 = Ctx.get(action.getCacheContext());
     final int[] vertexIndex = coordIndex.getValuesI(0);
     boolean sendAdj = sendAdjacency.getValue();
     Buffer vertexPtr = vpCache.getVertices(0);

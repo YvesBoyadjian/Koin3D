@@ -3,6 +3,7 @@
  */
 package jexample.parts;
 
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.engines.SoCalculator;
 import jscenegraph.database.inventor.engines.SoCalculator.Expression;
@@ -10,7 +11,6 @@ import jscenegraph.database.inventor.engines.SoTimeCounter;
 import jscenegraph.database.inventor.nodes.SoRotationXYZ;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSphere;
-import jscenegraph.database.inventor.nodes.SoTexture2;
 
 /**
  * @author Yves Boyadjian

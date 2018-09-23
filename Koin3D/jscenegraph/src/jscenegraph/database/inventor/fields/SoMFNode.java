@@ -86,6 +86,13 @@ example:
  *
  */
 public class SoMFNode extends SoMField<SoNode[]> {
+	
+	public static Object[] SOMFNODE_NULL;
+	
+	static {
+		SOMFNODE_NULL = new Object[1];
+		SOMFNODE_NULL[0] = new SoNode[1];
+	}
 
 	@Override
 	public boolean read1Value(SoInput in, int index) {

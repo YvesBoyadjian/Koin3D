@@ -58,15 +58,20 @@ import java.util.Arrays;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoLightElement;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoGLLightIdElement;
 import jscenegraph.database.inventor.elements.SoLightAttenuationElement;
+import jscenegraph.database.inventor.elements.SoModelMatrixElement;
+import jscenegraph.database.inventor.elements.SoViewingMatrixElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
+import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Ctx;
 
 /**
  * @author Yves Boyadjian
@@ -205,12 +210,16 @@ GLRender(SoGLRenderAction action)
         return;
 
     // Get a new light id to use for this light
-    id = SoGLLightIdElement.increment(action.getState());
+    SoState state = action.getState();
+    id = SoGLLightIdElement.increment(state);
 
     // Element is being overridden or we have too many sources for GL
     // to handle? Skip the whole deal.
     if (id < 0)
         return;
+
+    SoLightElement.add(state, this, SoModelMatrixElement.get(state).operator_mul(
+            SoViewingMatrixElement.get(state)));
 
     //
     // Create a new source and send it to GL. The SoGLLightIdElement
@@ -227,16 +236,16 @@ GLRender(SoGLRenderAction action)
     v3.copyFrom( color.getValue().operator_mul(intensity.getValue()));
     v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
     
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
 
-    gl2.glLightfv( id, GL2.GL_AMBIENT, new SbVec4f(0.0f, 0.0f, 0.0f, 1.0f).getValue(),0);
-    gl2.glLightfv( id, GL2.GL_DIFFUSE,  v4.getValue(),0);
-    gl2.glLightfv( id, GL2.GL_SPECULAR, v4.getValue(),0);
+    gl2.glLightfv( id, GL2.GL_AMBIENT, new SbVec4f(0.0f, 0.0f, 0.0f, 1.0f).getValueRead(),0);
+    gl2.glLightfv( id, GL2.GL_DIFFUSE,  v4.getValueRead(),0);
+    gl2.glLightfv( id, GL2.GL_SPECULAR, v4.getValueRead(),0);
 
     // Set position
     v3.copyFrom( location.getValue());
     v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
-    gl2.glLightfv( id, GL2.GL_POSITION, v4.getValue(),0);
+    gl2.glLightfv( id, GL2.GL_POSITION, v4.getValueRead(),0);
 
     // Set up spotlight stuff. Note that the GL angle must be specified
     // in degrees, though the field is in radians

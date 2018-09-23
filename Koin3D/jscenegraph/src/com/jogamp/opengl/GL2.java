@@ -8,6 +8,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.lwjgl.opengl.ARBVertexBufferObject;
 
@@ -18,7 +20,7 @@ import com.jogamp.common.nio.Buffers;
  *
  */
 public interface GL2 extends GL2ES1, GL2GL3 {
-
+	
 
 	  /** <code>GL_VERSION_1_5</code>, <code>GL_ARB_vertex_buffer_object</code><br>Alias for: <code>GL_FOG_COORDINATE_ARRAY_BUFFER_BINDING_ARB</code> - CType: int */
 	  public static final int GL_FOG_COORDINATE_ARRAY_BUFFER_BINDING = 0x889d;
@@ -2820,6 +2822,9 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	  public static final int GL_INTENSITY8I = 0x8d91;
 	  /** <code>GL_NV_texture_shader</code> - CType: int */
 	  public static final int GL_OFFSET_TEXTURE_2D_SCALE_NV = 0x86e2;
+	  
+	public static final int GL_GENERATE_MIPMAP_SGIS = 0x8191;
+	public static final int GL_GENERATE_MIPMAP_HINT_SGIS     = 0x8192;
 	  	  	  
 	default void glBegin(int arg) {
 		org.lwjgl.opengl.GL11.glBegin(arg);
@@ -3202,10 +3207,9 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glVertex4fv(v/*, v_offset*/);
 	}
 
-	default void glClearColor(float operator_square_bracket, float operator_square_bracket2, float operator_square_bracket3,
-			int i) {
-		org.lwjgl.opengl.GL11.glClearColor( operator_square_bracket, operator_square_bracket2, operator_square_bracket3,
-				i);
+	default void glClearColor(float arg0, float arg1, float arg2,
+			float arg3) {
+		org.lwjgl.opengl.GL11.glClearColor( arg0, arg1, arg2, arg3);
 	}
 
 	default void glClearIndex(int arg) {
@@ -3256,6 +3260,105 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 
 	default void glDrawArrays(int arg1, int arg2, int arg3) {
 		org.lwjgl.opengl.GL11.glDrawArrays(arg1,arg2,arg3);
+	}
+
+	default void glActiveTexture(int texture) {
+		org.lwjgl.opengl.GL13.glActiveTexture(texture);
+	}
+
+	default void glGetTexLevelParameteriv(int target, int level, int pname, int[] params) {
+		org.lwjgl.opengl.GL11.glGetTexLevelParameteriv(target,level,pname,params);
+	}
+
+	default void glTexImage3D(int target, int level, int internalformat, int width, int height, int depth, int border,
+			int format, int type, ByteBuffer pixels) {
+		org.lwjgl.opengl.GL12.glTexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+	}
+
+	default void glDeleteFramebuffers(int n, int[] framebuffers) {
+		org.lwjgl.opengl.GL30.glDeleteFramebuffers(framebuffers);
+	}
+
+	default void glDeleteFramebuffers(int n, int frameBuffer) {
+		org.lwjgl.opengl.GL30.glDeleteFramebuffers(frameBuffer);
+	}
+
+	default void glDeleteRenderbuffers(int n, int renderbuffers) {
+		org.lwjgl.opengl.GL30.glDeleteRenderbuffers(renderbuffers);
+	}
+
+	default void glMultiTexCoord2fv(int target, float[] v) {
+		org.lwjgl.opengl.GL13.glMultiTexCoord2fv(target, v);
+	}
+
+	default void glMultiTexCoord3fv(int target, float[] v) {
+		org.lwjgl.opengl.GL13.glMultiTexCoord3fv(target, v);
+	}
+
+	default void glMultiTexCoord4fv(int target, float[] v) {
+		org.lwjgl.opengl.GL13.glMultiTexCoord4fv(target, v);
+	}
+
+	default void glTexEnvf(int glTextureEnv, int glAlphaScale, float alphascale) {
+		org.lwjgl.opengl.GL11.glTexEnvf(glTextureEnv, glAlphaScale, alphascale);
+	}
+
+	default int glCheckFramebufferStatus(int target) {
+		return org.lwjgl.opengl.GL30.glCheckFramebufferStatus(target);
+	}
+
+	default void glGetFloatv(int pname, float[] params) {
+		org.lwjgl.opengl.GL11.glGetFloatv(pname, params);
+	}
+
+	default void glBindFrameBuffer(int target, int framebuffer) {
+		org.lwjgl.opengl.GL30.glBindFramebuffer(target, framebuffer);
+	}
+
+	default void glCopyTexSubImage2D(int arg0, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7) {
+		org.lwjgl.opengl.GL11.glCopyTexSubImage2D(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	}
+
+	default void glGenerateMipmap(int target) {
+		org.lwjgl.opengl.GL30.glGenerateMipmap(target);
+	}
+
+	default void glFramebufferRenderbuffer(int target, int attachment, int renderbuffertarget, int renderbuffer) {
+		org.lwjgl.opengl.GL30.glFramebufferRenderbuffer( target, attachment, renderbuffertarget, renderbuffer);
+	}
+
+	default void glRenderbufferStorage(int target, int internalformat, short width, short height) {
+		org.lwjgl.opengl.GL30.glRenderbufferStorage(target, internalformat, width, height);
+	}
+
+	default void glBindRenderbuffer(int target, int renderbuffer) {
+		org.lwjgl.opengl.GL30.glBindRenderbuffer( target, renderbuffer);
+	}
+
+	default void glFramebufferTexture2D(int target, int attachment, int textarget, int texture, int level) {
+		org.lwjgl.opengl.GL30.glFramebufferTexture2D(target, attachment, textarget, texture, level);
+	}
+
+	default void glTexParameterf(int glTexture2d, int glTextureMaxAnisotropyExt, float cc_glglue_get_max_anisotropy) {
+		org.lwjgl.opengl.GL11.glTexParameterf(glTexture2d, glTextureMaxAnisotropyExt, cc_glglue_get_max_anisotropy);
+	}
+
+	default void glGenFramebuffers(int n, int[] framebuffers) {
+		assert(n == framebuffers.length);
+		org.lwjgl.opengl.GL30.glGenFramebuffers( framebuffers);
+	}
+
+	default void glGenRenderbuffers(int n, int[] renderbuffers) {
+		assert(n == renderbuffers.length);
+		org.lwjgl.opengl.GL30.glGenRenderbuffers( renderbuffers);		
+	}
+
+	default void glReadPixels(int x, int y, short width, short height, int format, int type, byte[] offscreenbuffer) {
+		org.lwjgl.opengl.GL11.glReadPixels(x,y,width,height,format,type, ByteBuffer.wrap(offscreenbuffer));
+	}
+
+	default boolean glIsEnabled(int function) {
+		return org.lwjgl.opengl.GL11.glIsEnabled(function);
 	}
 
 }

@@ -56,6 +56,7 @@
 
 package jscenegraph.nodekits.inventor.nodekits;
 
+import jscenegraph.coin3d.inventor.nodes.SoTexture2Transform;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -65,7 +66,6 @@ import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPickStyle;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSubNode;
-import jscenegraph.database.inventor.nodes.SoTexture2Transform;
 import jscenegraph.database.inventor.nodes.SoTransform;
 import jscenegraph.database.inventor.nodes.SoUnits;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;

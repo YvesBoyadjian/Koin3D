@@ -124,9 +124,14 @@ getElement(SoState state, int stackIndex, SoNode node)
 
     elt = (SoReplacedElement ) SoElement.getElement(state, stackIndex);
 
-    if (elt != null)
-        elt.nodeId = node.getNodeId();
-
+    if (elt != null) {
+    	if( node != null) {
+    		elt.nodeId = node.getNodeId();
+    	}
+    	else {
+    		elt.nodeId = 0;
+    	}
+    }
     return elt;
 }
 

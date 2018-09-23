@@ -70,4 +70,13 @@ public class SoBasic {
 		Class<? extends SoField> klass = (Class<? extends SoField>)Class.forName(className);
 		return klass;
 	}
+
+	/* *********************************************************************** */
+
+	/* Ye good olde min/max macros. No library would be complete without them. */
+
+	public static int cc_min(int x, int y) { return (((x) < (y)) ? (x) : (y)); }
+	public static int cc_max(int x, int y) { return (((x) > (y)) ? (x) : (y)); }
+
+	/* *********************************************************************** */
 }

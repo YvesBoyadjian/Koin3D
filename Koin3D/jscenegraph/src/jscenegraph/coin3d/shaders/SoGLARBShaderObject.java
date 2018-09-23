@@ -13,7 +13,7 @@ import jscenegraph.coin3d.shaders.SoShader.Type;
  */
 public class SoGLARBShaderObject extends SoGLShaderObject {
 
-	public SoGLARBShaderObject(GL2 cachecontext) {
+	public SoGLARBShaderObject(int cachecontext) {
 		super(cachecontext);
 		// TODO Auto-generated constructor stub
 	}

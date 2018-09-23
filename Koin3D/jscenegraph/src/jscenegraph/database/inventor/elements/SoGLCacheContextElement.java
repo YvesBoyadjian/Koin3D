@@ -60,6 +60,7 @@ import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Ctx;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -117,7 +118,7 @@ private class extInfo {
 };
 
 	private static class so_scheduledeletecb_info {
-	  public GL2 contextid;
+	  public int contextid;
 	  public SoScheduleDeleteCB cb;
 	  public Object closure;
 	} ;
@@ -125,7 +126,7 @@ private class extInfo {
 
 
 	public interface SoScheduleDeleteCB {		
-		void invoke(Object closure, GL2 contextid);
+		void invoke(Object closure, int contextid);
 	}
 	
 	
@@ -159,7 +160,7 @@ private class extInfo {
     };
 	
 
-	   protected		        GL2                 context;
+	   protected		        int                 context;
 	   protected	        boolean              is2PassTransp;
 	   protected		        boolean              isRemoteRendering;
 	   protected		        int                 autoCacheBits;
@@ -179,7 +180,7 @@ init(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    context = null;
+    context = 0;
     is2PassTransp = false;
     autoCacheBits = 0;
 }
@@ -213,7 +214,7 @@ public    static int          resetAutoCacheBits(SoState state)
 //
 // Use: public, static
 
-public static GL2
+public static int
 get(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
@@ -356,14 +357,14 @@ extSupported(SoState state, int ext)
     }
 //#endif
     extInfo e = (extInfo )(extensionList).operator_square_bracket(ext);
-    GL2 ctx = get(state);
+    int ctx = get(state);
 
     // The support list is a list of context,flag pairs (flag is TRUE
     // if the render context supports the extension).  This linear
     // search assumes that there will be a small number of render
     // contexts.
     for (int i = 0; i < e.support.getLength(); i+=2) {
-        if (e.support.operator_square_bracket(i) == ctx) return (Boolean)(e.support.operator_square_bracket(i+1));
+        if ((int)(e.support.operator_square_bracket(i)) == ctx) return (Boolean)(e.support.operator_square_bracket(i+1));
     }
     String glExtensions = glGetString(GL2.GL_EXTENSIONS);
     // Ask GL if supported:
@@ -389,6 +390,7 @@ initClass(final Class<? extends SoElement> javaClass)
     SoElement.initClass(javaClass);//SO_ELEMENT_INIT_CLASS(SoGLCacheContextElement, SoElement);
     waitingToBeFreed = new SbPList();
     extensionList = new SbPList();
+    scheduledeletecblist = new SbList <so_scheduledeletecb_info>();
 }
 
     //! Called by nodes to say that they should/shouldn't be
@@ -410,7 +412,7 @@ initClass(final Class<? extends SoElement> javaClass)
 // Use: public, static
 
 public static void
-set(SoState state, GL2 ctx,
+set(SoState state, int ctx,
                              boolean is2PassTransparency,
                              boolean remoteRender)
 //
@@ -464,7 +466,7 @@ public static boolean       getIsRemoteRendering(SoState state)
   \since Coin 2.3
 */
 public static void
-scheduleDeleteCallback( GL2 contextid,
+scheduleDeleteCallback( int contextid,
                                                 SoScheduleDeleteCB cb,
                                                 Object closure)
 {
@@ -478,5 +480,27 @@ scheduleDeleteCallback( GL2 contextid,
   //CC_MUTEX_UNLOCK(glcache_mutex);
 }
 
+static int biggest_cache_context_id = 0;
+
+
+/*!
+  Returns an unique cache context id, in the range [1, ->.
+
+  If you render the same scene graph into two or different cache
+  contexts, and you've not using display list and texture object
+  sharing among contexts, the cache context id need to be unique for
+  rendering to work.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \sa SoGLRenderAction::setCacheContext()
+*/
+public static int getUniqueCacheContext()
+{
+  //CC_MUTEX_LOCK(glcache_mutex);
+  int id = ++biggest_cache_context_id;
+  //CC_MUTEX_UNLOCK(glcache_mutex);
+  return id;
+}
 
 	   }

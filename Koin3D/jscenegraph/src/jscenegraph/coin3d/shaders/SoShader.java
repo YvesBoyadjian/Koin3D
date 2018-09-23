@@ -35,9 +35,24 @@ import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1f;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1i;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter2f;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter4f;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameterArray1f;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameterArray2f;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameterMatrix;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderStateMatrixParameter;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoUniformShaderParameter;
+import jscenegraph.coin3d.shaders.lights.DirSpotLight;
+import jscenegraph.coin3d.shaders.lights.DirectionalLight;
+import jscenegraph.coin3d.shaders.lights.PointLight;
+import jscenegraph.coin3d.shaders.lights.SpotLight;
+import jscenegraph.coin3d.shaders.vsm.VsmLookup;
+import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.FILE;
+import jscenegraph.port.Util;
 
 /**
  * @author Yves Boyadjian
@@ -66,74 +81,74 @@ init()
   //cc_cgglue_available();
 
   // --- initialization of elements (must be done first) ---------------
-  if (SoGLShaderProgramElement.getClassTypeId(SoGLShaderProgramElement.class) == SoType.badType())
+  if (SoGLShaderProgramElement.getClassTypeId(SoGLShaderProgramElement.class).operator_equal_equal(SoType.badType()))
     SoGLShaderProgramElement.initClass(SoGLShaderProgramElement.class);
 
   // --- initialization of shader nodes --------------------------------
-  if (SoShaderProgram.getClassTypeId() == SoType.badType())
+  if (SoShaderProgram.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoShaderProgram.initClass();
-  if (SoShaderObject.getClassTypeId() == SoType.badType())
+  if (SoShaderObject.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoShaderObject.initClass();
-  if (SoFragmentShader.getClassTypeId() == SoType.badType())
+  if (SoFragmentShader.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoFragmentShader.initClass();
-  if (SoVertexShader.getClassTypeId() == SoType.badType())
+  if (SoVertexShader.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoVertexShader.initClass();
-  if (SoGeometryShader.getClassTypeId() == SoType.badType())
+  if (SoGeometryShader.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoGeometryShader.initClass();
 
   // --- initialization of parameter nodes -----------------------------
-  if (SoShaderParameter.getClassTypeId() == SoType.badType())
+  if (SoShaderParameter.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoShaderParameter.initClass();
-  if (SoUniformShaderParameter.getClassTypeId() == SoType.badType())
+  if (SoUniformShaderParameter.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoUniformShaderParameter.initClass();
 
   // float vector parameter nodes
-  if (SoShaderParameter1f.getClassTypeId() == SoType.badType())
+  if (SoShaderParameter1f.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoShaderParameter1f.initClass();
-//  if (SoShaderParameter2f.getClassTypeId() == SoType.badType())
-//    SoShaderParameter2f.initClass();
-//  if (SoShaderParameter3f.getClassTypeId() == SoType.badType())
+  if (SoShaderParameter2f.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderParameter2f.initClass();
+//  if (SoShaderParameter3f.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameter3f.initClass();
-//  if (SoShaderParameter4f.getClassTypeId() == SoType.badType())
-//    SoShaderParameter4f.initClass();
+  if (SoShaderParameter4f.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderParameter4f.initClass();
 
   // float vector array parameter nodes
-//  if (SoShaderParameterArray1f.getClassTypeId() == SoType.badType()) TODO
-//    SoShaderParameterArray1f.initClass();
-//  if (SoShaderParameterArray2f.getClassTypeId() == SoType.badType())
-//    SoShaderParameterArray2f.initClass();
-//  if (SoShaderParameterArray3f.getClassTypeId() == SoType.badType())
+  if (SoShaderParameterArray1f.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderParameterArray1f.initClass();
+  if (SoShaderParameterArray2f.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderParameterArray2f.initClass();
+//  if (SoShaderParameterArray3f.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray3f.initClass();
-//  if (SoShaderParameterArray4f.getClassTypeId() == SoType.badType())
+//  if (SoShaderParameterArray4f.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray4f.initClass();
 
   // matrix parameter nodes
-//  if (SoShaderStateMatrixParameter.getClassTypeId() == SoType.badType()) TODO
-//    SoShaderStateMatrixParameter.initClass();
-//  if (SoShaderParameterMatrix.getClassTypeId() == SoType.badType())
-//    SoShaderParameterMatrix.initClass();
-//  if (SoShaderParameterMatrixArray.getClassTypeId() == SoType.badType())
+  if (SoShaderStateMatrixParameter.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderStateMatrixParameter.initClass();
+  if (SoShaderParameterMatrix.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderParameterMatrix.initClass();
+//  if (SoShaderParameterMatrixArray.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterMatrixArray.initClass();
 
   // int32 support
-  if (SoShaderParameter1i.getClassTypeId() == SoType.badType())
+  if (SoShaderParameter1i.getClassTypeId().operator_equal_equal(SoType.badType()))
     SoShaderParameter1i.initClass();
 
   // FIXME: Do we need int32 support (like in TGS)? 20040924 martin
 //#if 1
-//  if (SoShaderParameter2i.getClassTypeId() == SoType.badType()) TODO
+//  if (SoShaderParameter2i.getClassTypeId().operator_equal_equal(SoType.badType())) TODO
 //    SoShaderParameter2i.initClass();
-//  if (SoShaderParameter3i.getClassTypeId() == SoType.badType())
+//  if (SoShaderParameter3i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameter3i.initClass();
-//  if (SoShaderParameter4i.getClassTypeId() == SoType.badType())
+//  if (SoShaderParameter4i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameter4i.initClass();
-//  if (SoShaderParameterArray1i.getClassTypeId() == SoType.badType())
+//  if (SoShaderParameterArray1i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray1i.initClass();
-//  if (SoShaderParameterArray2i.getClassTypeId() == SoType.badType())
+//  if (SoShaderParameterArray2i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray2i.initClass();
-//  if (SoShaderParameterArray3i.getClassTypeId() == SoType.badType())
+//  if (SoShaderParameterArray3i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray3i.initClass();
-//  if (SoShaderParameterArray4i.getClassTypeId() == SoType.badType())
+//  if (SoShaderParameterArray4i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray4i.initClass();
 //#endif
 
@@ -145,13 +160,85 @@ init()
   //coin_atexit((coin_atexit_f*) soshader_cleanup, CC_ATEXIT_NORMAL);
 }
 
+
+public static String
+getNamedScript( SbName name, Type type)
+{
+  String shader = null;
+
+  if (SO_SHADER_DIR != null) {
+    String filename = SO_SHADER_DIR;
+    filename += "/";
+    filename += name.getString();
+
+    switch (type) {
+    case ARB_SHADER:
+      filename += ".arb";
+      break;
+    case CG_SHADER:
+      filename += ".cg";
+      break;
+    case GLSL_SHADER:
+      filename += ".glsl";
+      break;
+    default:
+      assert(false);// && "unknown shader type");
+      break;
+    }
+
+    SbName shadername = new SbName(filename/*.getString()*/);
+
+    if ((shader= shader_dict.get(shadername.getString()/*, shader*/))==null) {
+      FILE fp = FILE.fopen(filename/*.getString()*/, "rb");
+      if (fp != null) {
+        FILE.fseek(fp, 0, FILE.SEEK_END);
+        int size = (int) FILE.ftell(fp);
+        FILE.fseek(fp, 0, FILE.SEEK_SET);
+
+        char[] shaderBuf = new char[size+1];
+        shaderBuf[size] = 0;
+        //shader_dict.put(shadername.getString(), shader);
+
+        if (!(FILE.fread(shaderBuf, size, 1, fp) == 1)) {
+          SoDebugError.postWarning("SoShader::getNamedScript",
+                                    "Unable to read shader: "+
+                                    filename/*.getString()*/);
+        }
+        else { // java port
+        	shader = Util.toString(shaderBuf); 
+            shader_dict.put(shadername.getString(), shader);
+        }
+        FILE.fclose(fp);
+      }
+      else {
+        shader_dict.put(shadername.getString(), null);
+        SoDebugError.postWarning("SoShader::getNamedScript",
+                                  "Unable to find shader: "+
+                                  filename/*.getString()*/);
+      }
+    }
+  }
+  if (shader == null) {
+    // try builtin shaders
+    if ((shader = shader_builtin_dict.get(name.getString()/*, shader*/))==null) {
+      SoDebugError.postWarning("SoShader::getNamedScript",
+                                "Unable to find builtin shader: "+
+                                name.getString());
+    }
+  }
+
+  return shader;
+}
+
+
+
 public static void
 setupBuiltinShaders()
-{ //TODO
-//  shader_builtin_dict.put("lights/PointLight", POINTLIGHT_shadersource);
-//  shader_builtin_dict.put("lights/SpotLight", SPOTLIGHT_shadersource);
-//  shader_builtin_dict.put("lights/DirectionalLight", DIRECTIONALLIGHT_shadersource);
-//  shader_builtin_dict.put("lights/DirSpotLight", DIRSPOTLIGHT_shadersource);
-//  shader_builtin_dict.put("vsm/VsmLookup", VSMLOOKUP_shadersource);
+{
+  shader_builtin_dict.put("lights/PointLight", PointLight.POINTLIGHT_shadersource);
+  shader_builtin_dict.put("lights/SpotLight", SpotLight.SPOTLIGHT_shadersource);
+  shader_builtin_dict.put("lights/DirectionalLight", DirectionalLight.DIRECTIONALLIGHT_shadersource);
+  shader_builtin_dict.put("lights/DirSpotLight", DirSpotLight.DIRSPOTLIGHT_shadersource);
+  shader_builtin_dict.put("vsm/VsmLookup", VsmLookup.VSMLOOKUP_shadersource);
 }
 }

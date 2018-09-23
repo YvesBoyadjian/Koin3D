@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.nodes;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -83,6 +84,7 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
+import jscenegraph.port.Ctx;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -290,7 +292,7 @@ GLRender(SoGLRenderAction action)
       }
 //#endif
       
-      GL2 gl2 = action.getCacheContext();
+      GL2 gl2 = Ctx.get(action.getCacheContext());
       
       gl2.glBegin(GL2.GL_POINTS);
 
@@ -301,7 +303,7 @@ GLRender(SoGLRenderAction action)
         if (normalPerPoint)
           ne.send(curCoord);
         if (tcb.needCoordinates())
-          tcb.send(curCoord,gl2);
+          tcb.send(curCoord);
 
         // Send coordinate
         ce.send(curCoord,gl2);

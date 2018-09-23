@@ -54,8 +54,10 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.inventor.elements.SoLightElement;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoGLLightIdElement;
 import jscenegraph.database.inventor.elements.SoLightAttenuationElement;
@@ -139,10 +141,12 @@ public class SoLight extends SoNode {
 	       SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(SoLight.class, "Light", SoNode.class);
 	   
 	       // Enable elements used by light source classes:
-	       //SO_ENABLE(SoGLRenderAction, SoGLLightIdElement);
-	       SoGLRenderAction.enableElement(SoGLLightIdElement.class);
-	       //SO_ENABLE(SoGLRenderAction, SoLightAttenuationElement);
-	       SoGLRenderAction.enableElement(SoLightAttenuationElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoLightAttenuationElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLLightIdElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoLightElement.class);
+
+	       SO_ENABLE(SoCallbackAction.class, SoLightAttenuationElement.class);
+	       SO_ENABLE(SoCallbackAction.class, SoLightElement.class);
 	   }
 	  
 ////////////////////////////////////////////////////////////////////////

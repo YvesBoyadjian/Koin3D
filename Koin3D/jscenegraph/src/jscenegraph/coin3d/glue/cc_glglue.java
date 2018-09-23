@@ -3,6 +3,8 @@
  */
 package jscenegraph.coin3d.glue;
 
+import java.nio.ByteBuffer;
+
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.EXTGeometryShader4;
 
@@ -10,18 +12,50 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
+import jscenegraph.port.Ctx;
+
 /**
  * @author Yves Boyadjian
  *
  */
 public class cc_glglue {
 	
-	public GL2 contextid;
+	public int contextid;
 	GL2 gl2;
+	public boolean vendor_is_intel;
+	
+	public static class Version {
+		public int major = 4;
+		public int minor = 0;
+		public int release = 0;
+	}
+	
+	public Version version = new Version();
+	public int max_texture_size;
+	public int maxtextureunits;
+	public boolean vendor_is_nvidia = false;
+	public boolean has_fbo = true;
+	  public float max_anisotropy = 16.0f; //TODO
+	public boolean vendor_is_ati = true;
 
-	public cc_glglue(GL2 gl2) {
-		this.gl2 = gl2;
-		this.contextid = gl2;
+	public cc_glglue(int ctx) {
+		this.gl2 = Ctx.get(ctx);
+		this.contextid = ctx;
+
+		final int[] gltmp = new int[1];
+	    gl2.glGetIntegerv(GL2.GL_MAX_TEXTURE_SIZE, gltmp,0);
+	    max_texture_size = gltmp[0];
+
+	    maxtextureunits = 1; /* when multitexturing is not available */
+	    //if (w->glActiveTexture) {
+	      final int[] tmp = new int[1];
+	      gl2.glGetIntegerv(GL2.GL_MAX_TEXTURE_COORDS_ARB, tmp,0);
+	      maxtextureunits = (int) tmp[0];
+	    //}
+
+	      float[] dummy = new float[1];
+	      gl2.glGetFloatv(GL2.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, /*&gi->max_anisotropy*/dummy);
+	      max_anisotropy = dummy[0];
 	}
 
 	public GL2 getGL2() {
@@ -106,7 +140,9 @@ public class cc_glglue {
 
 	public void glGetActiveUniformARB(int pHandle, int index, int[] length, int[] tmpSize, int[] tmpType,
 			byte[] myName) {
-		ARBShaderObjects.glGetActiveUniformARB(pHandle,index,length,tmpSize,tmpType,Buffers.newDirectByteBuffer(myName));
+		ByteBuffer bb = Buffers.newDirectByteBuffer(myName);
+		ARBShaderObjects.glGetActiveUniformARB(pHandle,index,length,tmpSize,tmpType,bb);
+		bb.get(myName);
 	}
 
 	  static final String INVALID_VALUE = "GL_INVALID_VALUE";
@@ -186,6 +222,70 @@ public void glProgramParameteriEXT(long programHandle, int operator_square_brack
 
 public int glCreateProgramObjectARB() {
 	return ARBShaderObjects.glCreateProgramObjectARB();
+}
+
+public void glDeleteFramebuffers(int n, int[] framebuffers) {
+	gl2.glDeleteFramebuffers(n,framebuffers);
+}
+
+public void glDeleteFramebuffers(int n, int frameBuffer) {
+	gl2.glDeleteFramebuffers(n,frameBuffer);	
+}
+
+public void glDeleteRenderbuffers(int n, int renderbuffers) {
+	gl2.glDeleteRenderbuffers( n, renderbuffers);
+}
+
+public void glMultiTexCoord2fv(int target, float[] v) {
+	gl2.glMultiTexCoord2fv(target, v);
+}
+
+public void glMultiTexCoord3fv(int target, float[] v) {
+	gl2.glMultiTexCoord3fv(target, v);
+}
+
+public void glMultiTexCoord4fv(int target, float[] v) {
+	gl2.glMultiTexCoord4fv(target, v);
+}
+
+public int glCheckFramebufferStatus(int target) {
+	return gl2.glCheckFramebufferStatus( target);
+}
+
+public void glBindFramebuffer(int target, int framebuffer) {
+	gl2.glBindFrameBuffer(target, framebuffer);
+}
+
+public void glBindTexture(int target, int texture) {
+	gl2.glBindTexture(target, texture);
+}
+
+public void glGenerateMipmap(int target) {
+	gl2.glGenerateMipmap(target);
+}
+
+public void glFramebufferRenderbuffer(int target, int attachment, int renderbuffertarget, int renderbuffer) {
+	gl2.glFramebufferRenderbuffer( target, attachment, renderbuffertarget, renderbuffer);
+}
+
+public void glRenderbufferStorage(int target, int internalformat, short width, short height) {
+	gl2.glRenderbufferStorage(target, internalformat,width,height);
+}
+
+public void glBindRenderbuffer(int target, int renderbuffer) {
+	gl2.glBindRenderbuffer( target, renderbuffer);
+}
+
+public void glFramebufferTexture2D(int target, int attachment, int textarget, int texture, int level) {
+	gl2.glFramebufferTexture2D( target, attachment, textarget, texture, level);
+}
+
+public void glGenFramebuffers(int n, int[] framebuffers) {
+	gl2.glGenFramebuffers( n, framebuffers);
+}
+
+public void glGenRenderbuffers(int n, int[] renderbuffers) {
+	gl2.glGenRenderbuffers( n, renderbuffers);
 }
 
 }

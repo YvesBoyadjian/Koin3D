@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;

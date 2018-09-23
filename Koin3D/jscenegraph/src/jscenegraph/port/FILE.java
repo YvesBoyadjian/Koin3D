@@ -60,6 +60,7 @@ public class FILE {
 	    OpenOption option = null;
 	    switch(options) {
 	    case "r":
+	    case "rb":
 	    	option = StandardOpenOption.READ;
 	    	break;
 	    }

@@ -1855,4 +1855,21 @@ public void jacobi3(final float[] evalues,
 		}
 		return valueLinear;
 	}
+
+	public boolean operator_not_equal(SbMatrix value) {
+		return !operator_equal(value);
+	}
+
+	private boolean operator_equal(SbMatrix value) {
+		
+		final SbMatrix m1 = this;
+		final SbMatrix m2 = value;
+		  for (int i=0; i < 4; i++) {
+			    for (int j=0; j < 4; j++) {
+			      if (m1.matrix[i][j] != m2.matrix[i][j]) return false;
+			    }
+			  }
+
+			  return true;
+	}
 }

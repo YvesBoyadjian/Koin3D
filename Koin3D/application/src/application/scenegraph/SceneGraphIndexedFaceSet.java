@@ -9,13 +9,13 @@ import java.util.Random;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoCallback;
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
 import jscenegraph.database.inventor.nodes.SoDirectionalLight;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoLight;
@@ -25,7 +25,7 @@ import jscenegraph.database.inventor.nodes.SoQuadMesh;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSphere;
 import jscenegraph.database.inventor.nodes.SoTranslation;
-import jscenegraph.database.inventor.nodes.SoVertexProperty;
+import jscenegraph.port.Ctx;
 
 /**
  * @author Yves Boyadjian
@@ -39,7 +39,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private static final int I_START = 2500;
 	
-	private static final int MAX_I = /*3000;*/20000;//9000;
+	private static final int MAX_I = 20000;//9000;
 	
 	private static final int MAX_J = 9000;
 	
@@ -54,6 +54,8 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
 	private static final Color STONE = new Color(139,141,122); //http://www.colourlovers.com/color/8B8D7A/stone_gray
+	
+	private static final float GRASS_LUMINOSITY = 0.6f;
 	
 	private SoSeparator sep = new SoSeparator();
 	
@@ -118,7 +120,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		int nbCoordIndices = (w-1)*(h-1)*5;
 		int[] coordIndices = new int[nbCoordIndices];
 		
-		Color snow = new Color(1.0f,1.0f,1.0f);
+		Color snow = new Color(0.95f,1.0f,1.0f);
 		
 		float delta = 0;
 		int nb = 0;
@@ -159,7 +161,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 				Color color = snow;
 				
 				if(z < ALPINE_HEIGHT + 400 * (random.nextDouble()-0.3)) {
-					color = new Color((float)random.nextDouble(), 1.0f, (float)random.nextDouble()*0.75f);
+					color = new Color((float)random.nextDouble()*GRASS_LUMINOSITY, 1.0f*GRASS_LUMINOSITY, (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
 				}
 				int red = color.getRed()*color.getRed()/255;
 				int blue = color.getBlue()*color.getBlue()/255;
@@ -244,7 +246,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    callback.setCallback(action -> {
 	    	if(action instanceof SoGLRenderAction) {
 	    		SoGLRenderAction glRenderAction = (SoGLRenderAction)action;
-	    		GL2 gl2 = glRenderAction.getCacheContext();
+	    		GL2 gl2 = Ctx.get(glRenderAction.getCacheContext());
 	    		gl2.glEnable(GL2.GL_FRAMEBUFFER_SRGB);
 	    	}
 	    });

@@ -99,7 +99,7 @@ removeShaderObjects()
 public void
 enable(SoState  state)
 {
-    GL2 cachecontext = SoGLCacheContextElement.get(state);
+    int cachecontext = SoGLCacheContextElement.get(state);
     cc_glglue glctx = SoGL.cc_glglue_instance(cachecontext);
 
   //this.arbShaderProgram.enable();
@@ -115,7 +115,7 @@ enable(SoState  state)
 public void
 disable(SoState state)
 {
-    GL2 cachecontext = SoGLCacheContextElement.get(state);
+    int cachecontext = SoGLCacheContextElement.get(state);
     cc_glglue glctx = SoGL.cc_glglue_instance(cachecontext);
 
   //this.arbShaderProgram.disable();
@@ -170,7 +170,7 @@ getShaderObjectIds(final SbList <Integer> ids)
 public long 
 getGLSLShaderProgramHandle(SoState state)  
 {
-    GL2 cachecontext = SoGLCacheContextElement.get(state);
+    int cachecontext = SoGLCacheContextElement.get(state);
     cc_glglue glctx = SoGL.cc_glglue_instance(cachecontext);
  
   return this.glslShaderProgram.getProgramHandle(glctx);

@@ -3,7 +3,7 @@
  */
 package jexample.parts;
 
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.database.inventor.nodes.SoIndexedTriangleStripSet;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;

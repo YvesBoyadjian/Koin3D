@@ -206,7 +206,8 @@ SoBaseColor_doAction(SoAction action)
 
         if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
           // update the VBO, no data is passed since that is done by SoColorPacker later on
-          SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.COLOR_VBO, _vbo);
+          //SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.COLOR_VBO, _vbo);
+          SoGLVBOElement.setColorVBO(state, this/*.pimpl*/._vbo[0]);
         }
     }
 }

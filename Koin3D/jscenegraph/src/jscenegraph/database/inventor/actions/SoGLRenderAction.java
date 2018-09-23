@@ -67,6 +67,8 @@ import static com.jogamp.opengl.GL2ES1.GL_POINT_SMOOTH;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.nodes.SoTransparencyType;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec2f;
@@ -83,11 +85,12 @@ import jscenegraph.database.inventor.elements.SoGLRenderPassElement;
 import jscenegraph.database.inventor.elements.SoGLUpdateAreaElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
-import jscenegraph.database.inventor.elements.SoTextureImageElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.elements.SoWindowElement;
+import jscenegraph.database.inventor.misc.SoCallbackListCB;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.system.SbOpenGL;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IGLCallback;
 
@@ -144,11 +147,16 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            SORTED_OBJECT_ADD,      //!< Use additive blending, sort objects by bbox
            BLEND,                  //!< Use GL alpha blending
            DELAYED_BLEND,          //!< Use GL alpha blending, do transp objs last
-          SORTED_OBJECT_BLEND;     //!< Use GL alpha blending, sort objects by bbox
+          SORTED_OBJECT_BLEND,     //!< Use GL alpha blending, sort objects by bbox
+          NONE; // COIN 3D
 
            public int getValue() {
         	   return ordinal();
            }
+
+		public static TransparencyType fromValue(int value) {
+			return values()[value];
+		}
       };
 
     //! Possible return codes from a render abort callback
@@ -157,7 +165,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
           ABORT,                  //!< Stop traversing the rest of the graph
           PRUNE,                  //!< Do not traverse this node or its children
           DELAY                   //!< Delay rendering of this node
-      };
+      };      
 
     //! Callback functions used between rendering passes should be of this type.
       public interface SoGLRenderPassCB extends IGLCallback {
@@ -172,6 +180,13 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
         	   AbortCode abort(Object userData);
 
            }
+           
+           public interface SoGLPreRenderCB {
+        	   void apply(Object userdata, SoGLRenderAction action);
+           }
+           
+           
+           private SoGLRenderActionP pimpl = new SoGLRenderActionP();
 
 	     private final	       SbViewportRegion    vpRegion = new SbViewportRegion();       //!< Current viewport region
 	     private final	       SbVec2f             updateOrigin = new SbVec2f();   //!< Origin of update area
@@ -201,7 +216,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 	     private	       SbBox3f[]             bboxes;        //!< Bounding boxes of objects
 	     private	       int                 numBBoxes;      //!< Number of bboxes allocated
 
-	     private	       GL2            cacheContext;   //!< GL cache context
+	     private	       /*GL2*/int            cacheContext;   //!< GL cache context
 	     private	       boolean              remoteRendering;//!< Remote rendering?
 
 	       //! Stuff needed to implement rendering of delayed paths
@@ -266,7 +281,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
          sortObjs            = false;
          ba                  = null;
         bboxes              = null;
-        cacheContext        = null;
+        cacheContext        = /*null*/0;
         remoteRendering     = false;
 
         renderingDelPaths   = false;
@@ -340,6 +355,66 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            origin.copyFrom(updateOrigin);
            size.copyFrom(updateSize);
        }
+       
+       /*!
+       Sets the abort callback.  The abort callback is called by the action
+       for each node during traversal to check for abort conditions.
+
+       The callback method should return one of the
+       SoGLRenderAction::AbortCode enum values to indicate how the action
+       should proceed further.
+
+       Since the client SoGLRenderAbortCB callback function only has a
+       single void* argument for the userdata, one has to do some
+       additional work to find out which node the callback was made
+       for. One can do this by for instance passing along the action
+       pointer as userdata, and then call the
+       SoGLRenderAction::getCurPath() method. The tail of the path will
+       then be the last traversed node. Like this:
+
+       \code
+       // set up so we can abort or otherwise intervene with the render
+       // traversal:
+       myRenderAction->setAbortCallback(MyRenderCallback, myRenderAction);
+
+       // [...]
+
+       SoGLRenderAction::AbortCode
+       MyRenderCallback(void * userdata)
+       {
+         SoGLRenderAction * action = (SoGLRenderAction *)userdata;
+         SoNode * lastnode = action->getCurPath()->getTail();
+
+         // [...]
+         return SoGLRenderAction::CONTINUE;
+       }
+       \endcode
+
+       \sa SoGLRenderAction::AbortCode
+     */
+     public void
+     setAbortCallback(SoGLRenderAbortCB func,
+                                        Object userdata)
+     {
+       this.pimpl.abortcallback = func;
+       this.pimpl.abortcallbackdata = userdata;
+     }
+
+     /*!
+       Returns the abort callback settings.
+
+       \sa setAbortCallback
+       \since Coin 3.0
+     */
+     public void
+     getAbortCallback(SoGLRenderAbortCB[] func_out,
+                                        Object[] userdata_out)
+     {
+       func_out[0] = this.pimpl.abortcallback;
+       userdata_out[0] = this.pimpl.abortcallbackdata;
+     }
+
+       
 
       ////////////////////////////////////////////////////////////////////////
        //
@@ -369,7 +444,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        // Use: public
 
       public void
-       setCacheContext( GL2 context)
+       setCacheContext( int context)
        //
        ////////////////////////////////////////////////////////////////////////
        {
@@ -509,7 +584,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        // Use: public
 
-      public GL2
+      public int
        getCacheContext()
        //
        ////////////////////////////////////////////////////////////////////////
@@ -643,7 +718,7 @@ handleTransparency(boolean isTransparent)
     // values (which contain alpha).
     if (isTransparent ||
         (SoLazyElement.getInstance(getState()).isTransparent()) ||
-        (SoTextureImageElement.containsTransparency(getState()))) {
+        (SoMultiTextureImageElement.containsTransparency(getState()))) {
 
         // If transparency is delayed, add a path to this object to
         // the list of transparent objects, and tell the shape not to
@@ -782,7 +857,7 @@ renderAllPasses(SoNode node)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = cacheContext;
+	GL2 gl2 = Ctx.get(getCacheContext());
 
     // If anything has changed since the last time this action was
     // applied, make sure it is set up correctly in GL.
@@ -957,7 +1032,7 @@ renderTransparentObjs()
 {
     int i, numObjs = transpPaths.getLength(), numToDo;
 
-    GL2 gl2 = cacheContext;
+    GL2 gl2 = Ctx.get(getCacheContext());
 
     // Indicate that we are doing transparent objects so we know not
     // to render all passes
@@ -1055,6 +1130,55 @@ renderTransparentObjs()
 	public boolean isRenderingTranspPaths() {
 		return this.transparencyrender;
 	}
+
+
+/*!
+  Adds a callback which is invoked right before the scene graph traversal
+  starts. All necessary GL initialization is then done (e.g. the viewport
+  is correctly set), and this callback can be useful to, for instance,
+  clear the viewport before rendering, or draw a bitmap in the background
+  before rendering etc.
+
+  The callback is only invoked once (before the first rendering pass)
+  when multi pass rendering is enabled.
+
+  Please note that SoSceneManager usually adds a callback to clear the
+  GL buffers in SoSceneManager::render(). So, if you plan to for
+  instance draw an image in the color buffer using this callback, you
+  should make sure that the scene manager doesn't clear the buffer.
+  This can be done either by calling SoSceneManager::render() with
+  both arguments FALSE, or, if you're using one of our GUI toolkits
+  (SoXt/SoQt/SoGtk/SoWin), call setClearBeforeRender() on the viewer.
+
+  This method is an extension versus the Open Inventor API.
+
+  \sa removePreRenderCallback().
+*/
+public void
+addPreRenderCallback(SoGLPreRenderCB func, Object userdata)
+{
+  this.pimpl.precblist.addCallback((new SoCallbackListCB() {
+
+	@Override
+	public void invoke(Object callbackData) {
+		func.apply(userdata, (SoGLRenderAction)callbackData);
+	}
+	  
+  }), userdata);
+}
+
+/*!
+  Removed a callback added with the addPreRenderCallback() method.
+
+  This method is an extension versus the Open Inventor API.
+
+  \sa addPreRenderCallback()
+*/
+public void
+removePreRenderCallback(SoGLPreRenderCB func, Object userdata)
+{
+  this.pimpl.precblist.removeCallback((SoCallbackListCB)(func), userdata);
+}
 
 
 }

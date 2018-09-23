@@ -155,7 +155,10 @@ set(SoState state, SoNode node,
 ////////////////////////////////////////////////////////////////////////
 {
     // if someone sets this directly, remove any normal VBO
-    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.NORMAL_VBO);
+    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.NORMAL_VBO);
+    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+        SoGLVBOElement.setNormalVBO(state, null);
+      }
 
     // Get an instance we can change (pushing if necessary)
     SoNormalElement elt = (SoNormalElement ) getElement(state, classStackIndexMap.get(SoNormalElement.class), node);

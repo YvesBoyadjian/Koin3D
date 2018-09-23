@@ -73,6 +73,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSwitch;
+import jscenegraph.port.Ctx;
 import jsceneviewer.inventor.qt.SoQtCameraController;
 import jsceneviewer.inventor.qt.SoQtCameraController.Type;
 import jsceneviewer.inventor.qt.SoQtRenderArea;
@@ -734,9 +735,9 @@ private void setZbufferState()
     makeCurrent();
 
     if (isZbufferOff()) {
-    	shareID.glDisable(GL2.GL_DEPTH_TEST);
+    	Ctx.get(shareID).glDisable(GL2.GL_DEPTH_TEST);
     } else {
-    	shareID.glEnable(GL2.GL_DEPTH_TEST);
+    	Ctx.get(shareID).glEnable(GL2.GL_DEPTH_TEST);
     }
 }
 

@@ -185,8 +185,8 @@ public class SbTime implements Mutable {
 	}
 
 	public boolean operator_less_or_equals(SbTime tm) {
-		int comparison = t.compareTo(tm.t); // java port
-		return comparison <= 0;
+		  if (this.operator_less(tm)) return true;
+		  return (this.operator_equal_equal(tm));
 	}
 
 	// Unary negation.
@@ -262,12 +262,12 @@ operator_greater(final SbTime tm)
         return false;
 }	
 	
+	/*!
+	  Compares with \a tm and return TRUE if larger or equal.
+	 */
 	public boolean operator_greater_equal(SbTime tm) {
-	    if ((t.getSeconds() >= tm.t.getSeconds()) ||
-	            (t.getSeconds() == tm.t.getSeconds() && t.getMicroSeconds() >= tm.t.getMicroSeconds()))
-	            return true;
-	        else
-	            return false;
+		  if (this.operator_greater(tm)) return true;
+		  return (this.operator_equal_equal(tm));
 	}
 
 	

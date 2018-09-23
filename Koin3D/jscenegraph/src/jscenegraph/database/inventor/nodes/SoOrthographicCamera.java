@@ -217,7 +217,7 @@ public SoOrthographicCamera()
 	   // Use: protected
 	   
 	@Override
-	   protected void
+	public void
 	   viewBoundingBox(final SbBox3f box,
 	                                        float aspect, float slack)
 	   //

@@ -30,6 +30,6 @@ public class FloatArray {
 	}
 	
 	public float get(int i) {
-		return values[i-start];
+		return values[i+start];
 	}
 }

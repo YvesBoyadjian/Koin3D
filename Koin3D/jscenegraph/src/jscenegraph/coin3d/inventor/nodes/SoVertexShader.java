@@ -68,6 +68,9 @@ public class SoVertexShader extends SoShaderObject {
                                     { return SoSubNode.getClassTypeId(SoVertexShader.class); }                   
     public SoType      getTypeId()       /* Returns type id      */
     {
+    	if(nodeHeader == null) {
+    		return super.getTypeId();
+    	}
 		return nodeHeader.getClassTypeId();		    	
     }
   public                                                                  

@@ -119,6 +119,14 @@ public class SoPath extends SoBase implements Destroyable {
 		private int numPublic; //!< How many children are public
 		private int minNumPublic; //!< Minimum we KNOW are public
 		private boolean doAuditors; //!< TRUE if auditors to be maintained
+		
+		public void copyFrom(SoPathImpl other) {
+			nodes.copyFrom(other.nodes);
+			indices.copyFrom(other.indices);
+			numPublic = other.numPublic;
+			minNumPublic = other.minNumPublic;
+			doAuditors = other.doAuditors;
+		}
 	}
 	
 	protected SoPathImpl impl = new SoPathImpl();
@@ -946,6 +954,10 @@ public static SoPath cast(SoPath path) {
 		return null;
 	}
 	return new SoPath(path);
+}
+
+public boolean operator_not_equals(SoPath path) {
+	return !operator_equals(path);
 }
 
 	   

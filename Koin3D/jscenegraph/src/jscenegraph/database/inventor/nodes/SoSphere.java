@@ -59,12 +59,15 @@ import java.util.List;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbSphere;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
@@ -74,14 +77,13 @@ import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.elements.SoComplexityElement;
 import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatPtr;
 import jscenegraph.port.VectorOfSbVec3f;
 import jscenegraph.port.VoidPtr;
@@ -242,7 +244,7 @@ public void GLRender(SoGLRenderAction action)
   mb.sendFirst();
 
   // See if texturing is enabled
-  boolean doTextures = SoGLTextureEnabledElement.get(action.getState());
+  boolean doTextures = SoGLMultiTextureEnabledElement.get(action.getState(),0);
 
   // Render the sphere. The GLRenderGeneric() method handles any
   // case. The GLRenderNvertTnone() handles the case where we are
@@ -273,7 +275,7 @@ rayPick(SoRayPickAction action)
 ////////////////////////////////////////////////////////////////////////
 {
   final SbVec3f             enterPoint = new SbVec3f(), exitPoint = new SbVec3f(), normal = new SbVec3f();
-  final SbVec4f             texCoord = new SbVec4f(0.0f, 0.0f, 0.0f, 1.0f);
+  final SbVec4fSingle             texCoord = new SbVec4fSingle(0.0f, 0.0f, 0.0f, 1.0f);
   SoPickedPoint       pp;
 
   // First see if the object is pickable
@@ -403,7 +405,7 @@ public void GLRenderVertexArray(SoGLRenderAction action, boolean sendNormals, bo
 {
   SoState state = action.getState();
   
-  GL2 gl2 = action.getCacheContext();
+  GL2 gl2 = Ctx.get(action.getCacheContext());
 
   float rad = (radius.isIgnored() ? 1.0f : radius.getValue());
 
@@ -633,10 +635,10 @@ protected void generatePrimitives(SoAction action)
     final SbVec3f     vec = new SbVec3f();
     int         depth;
     float       rad, sAvg = Float.NaN;
-    final SbVec4f     tex = new SbVec4f();
+    final SbVec4fSingle     tex = new SbVec4fSingle();
     boolean      genTexCoords = false;
     final SoPrimitiveVertex   pv = new SoPrimitiveVertex();
-    SoTextureCoordinateElement    tce = null;
+    SoMultiTextureCoordinateElement    tce = null;
 
     // Compute depth based on complexity
     depth = computeDepth(action);
@@ -644,7 +646,7 @@ protected void generatePrimitives(SoAction action)
     rad = (radius.isIgnored() ? 1.0f : radius.getValue());
 
     // Determine whether we should generate our own texture coordinates
-    switch (SoTextureCoordinateElement.getType(action.getState())) {
+    switch (SoMultiTextureCoordinateElement.getType(action.getState(),0)) {
       case EXPLICIT:
 	genTexCoords = true;
 	break;
@@ -656,7 +658,7 @@ protected void generatePrimitives(SoAction action)
     // If we're not generating our own coordinates, we'll need the
     // texture coordinate element to get coords based on points/normals.
     if (! genTexCoords)
-	tce = SoTextureCoordinateElement.getInstance(action.getState());
+	tce = SoMultiTextureCoordinateElement.getInstance(action.getState());
     else {
 	tex.getValue()[2] = 0.0f;
 	tex.getValue()[3] = 1.0f;
@@ -834,7 +836,7 @@ GLRenderGeneric(SoGLRenderAction action,
 	s_z = -(((octant & 04) >> 1) - 1);
 	order = s_x * s_y * s_z;
 	
-	final GL2 gl2 = action.getCacheContext();
+	final GL2 gl2 = Ctx.get(action.getCacheContext());
 
 	for (i = 0; i < depth - 1; i++) {
 	    yBot = (float) i      / depth;
@@ -974,7 +976,7 @@ GLRenderNvertTnone(SoGLRenderAction action)
     // Compute depth based on complexity
     depth = computeDepth(action);
 
-    final GL2 gl2 = action.getCacheContext();
+    final GL2 gl2 = Ctx.get(action.getCacheContext());
 
     for (octant = 0; octant < 8; octant++) {
 	s_x = -(((octant & 01) << 1) - 1);

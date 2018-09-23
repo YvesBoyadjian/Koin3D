@@ -25,6 +25,7 @@ package jscenegraph.database.inventor.nodes;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLTexture3EnabledElement;
 import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.database.inventor.SbBox3f;
@@ -42,7 +43,6 @@ import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoCullElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLCoordinateElement;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
@@ -1162,7 +1162,7 @@ GLRender(SoGLRenderAction action)
   // email to <pederb@coin3d.org> if you disagree.
 
   SoLazyElement.setLightModel(state, SoLazyElement.LightModel.BASE_COLOR.getValue());
-  SoGLTextureEnabledElement.set(state, /*this,*/ false);
+  SoGLMultiTextureEnabledElement.set(state, this, 0, false);
   SoGLTexture3EnabledElement.set(state, /*this,*/ false);
 
   if (this.vertexProperty.getValue() != null) {

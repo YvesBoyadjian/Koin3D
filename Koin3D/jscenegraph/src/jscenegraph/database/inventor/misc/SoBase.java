@@ -1086,5 +1086,25 @@ private static void flushInput(SoInput in)
     }
 }
 
+/*!
+  \internal
+  \since Coin 2.3
+*/
+public static void
+staticDataLock()
+{
+  //CC_MUTEX_LOCK(SoBase.PImpl.global_mutex); TODO
+}
+
+/*!
+  \internal
+  \since Coin 2.3
+*/
+public static void
+staticDataUnlock()
+{
+  //CC_MUTEX_UNLOCK(SoBase.PImpl.global_mutex); TODO
+}
+
 	
 }

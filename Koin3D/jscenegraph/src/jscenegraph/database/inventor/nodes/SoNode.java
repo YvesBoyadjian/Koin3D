@@ -57,10 +57,22 @@ package jscenegraph.database.inventor.nodes;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
+import jscenegraph.coin3d.fxviz.nodes.SoShadowSpotLight;
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate4;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
+import jscenegraph.coin3d.inventor.nodes.SoSceneTexture2;
 import jscenegraph.coin3d.inventor.nodes.SoShuttle;
 import jscenegraph.coin3d.inventor.nodes.SoTexture;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2Transform;
 import jscenegraph.coin3d.inventor.nodes.SoTexture3;
+import jscenegraph.coin3d.inventor.nodes.SoTextureCombine;
+import jscenegraph.coin3d.inventor.nodes.SoTextureScalePolicy;
+import jscenegraph.coin3d.inventor.nodes.SoTextureUnit;
+import jscenegraph.coin3d.inventor.nodes.SoTransparencyType;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoNodeList;
@@ -549,7 +561,17 @@ getByName( SbName name, SoNodeList list)
 //		       SoRotor.initClass();
 		       SoShuttle.initClass();
 
+		       SoTextureCombine.initClass(); // COIN 3D
+		       
 		SoDepthBuffer.initClass(); // COIN 3D
+		
+		SoTextureUnit.initClass(); // COIN 3D
+       
+       SoSceneTexture2.initClass(); // COIN 3D
+       
+       SoTransparencyType.initClass(); // COIN 3D
+       
+       SoTextureScalePolicy.initClass(); // COIN 3D
 	}
 
 	 ////////////////////////////////////////////////////////////////////////

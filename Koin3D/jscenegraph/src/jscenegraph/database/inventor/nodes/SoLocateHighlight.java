@@ -85,6 +85,7 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFColor;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.GLXContext;
 
 
@@ -291,7 +292,7 @@ GLRenderBelowPath(SoGLRenderAction action)
     
     // Restore old depth buffer model if needed
     if (drawHighlighted || highlightingPass) {
-    	GL2 gl2 = action.getCacheContext(); // java port
+    	GL2 gl2 = Ctx.get(action.getCacheContext()); // java port
         gl2.glDepthFunc(oldDepthFunc[0]);
     }
     // Clean up state if needed
@@ -320,7 +321,7 @@ GLRenderInPath(SoGLRenderAction action)
     
     // Restore old depth buffer model if needed
     if (drawHighlighted || highlightingPass) {
-    	GL2 gl2 = action.getCacheContext();
+    	GL2 gl2 = Ctx.get(action.getCacheContext());
         gl2.glDepthFunc(oldDepthFunc[0]);
     }
     // Clean up state if needed

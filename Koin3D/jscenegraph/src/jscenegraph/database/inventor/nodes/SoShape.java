@@ -70,6 +70,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.gl2.GLUgl2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.database.inventor.SbBox2f;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
@@ -96,7 +97,6 @@ import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
 import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoPickStyleElement;
@@ -108,6 +108,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
+import jscenegraph.port.Ctx;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -483,7 +484,7 @@ SoShape_GLRender(SoGLRenderAction action)
         matlBundle.sendFirst();
 
         // See if textures are enabled and we need to send texture coordinates
-        sendTexCoords = (SoGLTextureEnabledElement.get(state));
+        sendTexCoords = (SoGLMultiTextureEnabledElement.get(state,0));
 
         // Generate primitives to approximate the shape. Each
         // primitive will be rendered separately (through callbacks).
@@ -1450,7 +1451,7 @@ rayPickBoundingBox(SoRayPickAction action)
 
 private void RENDER_VERTEX(SoPrimitiveVertex pv, GL2 gl2)    {                                                 
     if (sendTexCoords)                                                        
-        gl2.glTexCoord4fv(pv.getTextureCoords().getValue(),0);                     
+        gl2.glTexCoord4fv(pv.getTextureCoords().getValueRead(),0);                     
     matlBundle.send(pv.getMaterialIndex(), true);                           
     if (! matlBundle.isColorOnly())                                          
         gl2.glNormal3fv(pv.getNormal().getValueRead(),0);                              
@@ -1471,7 +1472,7 @@ GLRenderTriangle(SoGLRenderAction action,
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = SoGLCacheContextElement.get(action.getState());
+	GL2 gl2 = Ctx.get(SoGLCacheContextElement.get(action.getState()));
 	
     gl2.glBegin(GL2.GL_TRIANGLES);
 
@@ -1496,7 +1497,7 @@ GLRenderLineSegment(SoGLRenderAction action,
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = SoGLCacheContextElement.get(action.getState());
+	GL2 gl2 = Ctx.get(SoGLCacheContextElement.get(action.getState()));
 	
     gl2.glBegin(GL2.GL_LINES);
 
@@ -1518,7 +1519,7 @@ GLRenderPoint(SoGLRenderAction action, final SoPrimitiveVertex v)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = SoGLCacheContextElement.get(action.getState());
+	GL2 gl2 = Ctx.get(SoGLCacheContextElement.get(action.getState()));
 	
     gl2.glBegin(GL2.GL_POINTS);
 

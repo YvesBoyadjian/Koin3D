@@ -267,14 +267,21 @@
 
 package jscenegraph.coin3d.fxviz.nodes;
 
+import jscenegraph.coin3d.fxviz.elements.SoGLShadowCullingElement;
 import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFFloat;
+import jscenegraph.database.inventor.misc.SoNotList;
+import jscenegraph.database.inventor.misc.SoNotRec;
+import jscenegraph.database.inventor.nodes.SoGroup;
+import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSubNode;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author BOYADJIAN
@@ -300,8 +307,8 @@ public class SoShadowGroup extends SoSeparator {
 	  
 	  public enum VisibilityFlag {
 		    ABSOLUTE_RADIUS(0),
-		    LONGEST_BBOX_EDGE_FACTOR(0),
-		    PROJECTED_BBOX_DEPTH_FACTOR(0);
+		    LONGEST_BBOX_EDGE_FACTOR(1),
+		    PROJECTED_BBOX_DEPTH_FACTOR(2);
 		  
 		  private int value;
 		  
@@ -311,6 +318,14 @@ public class SoShadowGroup extends SoSeparator {
 		  public int getValue() {
 			  return value;
 		  }
+		public static VisibilityFlag fromValue(Integer value2) {
+			switch(value2) {
+			case 0: return ABSOLUTE_RADIUS;
+			case 1: return LONGEST_BBOX_EDGE_FACTOR;
+			case 2: return PROJECTED_BBOX_DEPTH_FACTOR;
+			}
+			return null;
+		}
 		  };	  
 	  
 	  public final SoSFBool isActive = new SoSFBool();
@@ -336,11 +351,11 @@ public class SoShadowGroup extends SoSeparator {
 	  {
 	    SoShadowGroup.initClass();
 	    SoShadowStyleElement.initClass(SoShadowStyleElement.class);
-	    //SoGLShadowCullingElement.initClass();
+	    SoGLShadowCullingElement.initClass(SoGLShadowCullingElement.class);
 	    SoShadowStyle.initClass();
-	    //SoShadowSpotLight.initClass();
-	    //SoShadowDirectionalLight.initClass();
-	    //SoShadowCulling.initClass();
+	    SoShadowSpotLight.initClass();
+	    SoShadowDirectionalLight.initClass();
+	    SoShadowCulling.initClass();
 	  }
 
 	  /*!
@@ -371,8 +386,85 @@ public class SoShadowGroup extends SoSeparator {
 	  nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(visibilityFlag,"visibilityFlag", "VisibilityFlag");
 
 	}
+	
+	public void destructor() {
+		Destroyable.delete(pimpl);
+		super.destructor();
+	}
 
-	  
+
+// *************************************************************************
+
+public void
+GLRenderBelowPath(SoGLRenderAction action)
+{
+  pimpl.GLRender(action, false);
+}
+
+public void
+GLRenderInPath(SoGLRenderAction action)
+{
+  pimpl.GLRender(action, true);
+}
+
+public void
+notify(SoNotList nl)
+{
+  // FIXME: examine notification chain, and detect when an
+  // SoSpotLight/SoShadowDirectionalLight is changed. When this
+  // happens we can just invalidate the depth map for that spot light,
+  // and not the others.
+
+  SoNotRec rec = nl.getLastRec();
+  if (rec.getBase() != this) {
+    // was not notified through a field, subgraph was changed
+
+    rec = nl.getFirstRecAtNode();
+    if (rec != null) {
+      SoNode node = (SoNode) rec.getBase();
+      if (node.isOfType(SoGroup.getClassTypeId())) {
+        // first rec was from a group node, we need to search the scene graph again
+        pimpl.shadowlightsvalid = false;
+
+        if (pimpl.subgraphsearchenabled) {
+          pimpl.needscenesearch = true;
+        }
+      }
+      else {
+        pimpl.shadowlightsvalid = false;
+      }
+    }
+  }
+
+  if (pimpl.vertexshadercache != null) {
+    pimpl.vertexshadercache.invalidate();
+  }
+  if (pimpl.fragmentshadercache != null) {
+    pimpl.fragmentshadercache.invalidate();
+  }
+  super.notify(nl);
+}
+
+/*!
+
+  By default, the SoShadowGroup node will search its subgraph for new
+  spot lights whenever a group node under it is touched. However, this
+  might lead to bad performance in some cases so it's possible to
+  disable this feature using this method. If you do disable this
+  feature, make sure you enable it again before inserting a new spot
+  light, or insert all spot lights in the scene graph before you
+  render the scene once, and just set "on" to FALSE if you want to toggle
+  spot lights on/off on the fly.
+
+  \since Coin 2.6
+ */
+public void
+enableSubgraphSearchOnNotify(final boolean onoff)
+{
+  pimpl.subgraphsearchenabled = onoff;
+}
+
+	
 	
 	   public static void
 	     initClass()
@@ -381,5 +473,11 @@ public class SoShadowGroup extends SoSeparator {
 	     {
 	        SoSubNode.SO__NODE_INIT_CLASS(SoShadowGroup.class, "ShadowGroup", SoSeparator.class);
 	     
-	     }	
+	     }
+	public void super_GLRenderInPath(SoGLRenderAction action) {
+		super.GLRenderInPath(action);
+	}
+	public void super_GLRenderBelowPath(SoGLRenderAction action) {
+		super.GLRenderBelowPath(action);
+	}	
 }

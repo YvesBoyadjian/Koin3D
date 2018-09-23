@@ -25,6 +25,7 @@ import jscenegraph.database.inventor.sensors.SoNodeSensor;
 import jscenegraph.database.inventor.sensors.SoOneShotSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.database.inventor.sensors.SoSensorCB;
+import jscenegraph.port.Ctx;
 
 /**
  * @author Yves Boyadjian
@@ -70,7 +71,7 @@ public class SoSceneManager {
     private static SoOneShotSensor realTimeSensor = null; //!< touches realTime global field
     
     private GL2 getGL() {
-    	return renderAction.getCacheContext();
+    	return Ctx.get(renderAction.getCacheContext());
     }
      
     ////////////////////////////////////////////////////////////////////////

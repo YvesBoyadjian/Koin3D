@@ -3,12 +3,12 @@
  */
 package jexample.parts;
 
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2Transform;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.nodes.SoMaterial;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSphere;
-import jscenegraph.database.inventor.nodes.SoTexture2;
-import jscenegraph.database.inventor.nodes.SoTexture2Transform;
 import jscenegraph.database.inventor.nodes.SoTextureCoordinatePlane;
 
 /**

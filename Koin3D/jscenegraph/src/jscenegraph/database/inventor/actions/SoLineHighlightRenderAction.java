@@ -58,6 +58,7 @@
 
 package jscenegraph.database.inventor.actions;
 
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec2s;
@@ -74,7 +75,6 @@ import jscenegraph.database.inventor.nodes.SoLightModel;
 import jscenegraph.database.inventor.nodes.SoMaterialBinding;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
-import jscenegraph.database.inventor.nodes.SoTexture2;
 import jscenegraph.interaction.inventor.nodes.SoSelection;
 import jscenegraph.nodekits.inventor.SoNodeKitPath;
 import jscenegraph.nodekits.inventor.nodekits.SoBaseKit;

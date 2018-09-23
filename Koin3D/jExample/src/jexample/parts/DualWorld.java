@@ -3,11 +3,11 @@
  */
 package jexample.parts;
 
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.nodes.SoComplexity;
 import jscenegraph.database.inventor.nodes.SoDrawStyle;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSphere;
-import jscenegraph.database.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.nodes.SoTranslation;
 
 /**

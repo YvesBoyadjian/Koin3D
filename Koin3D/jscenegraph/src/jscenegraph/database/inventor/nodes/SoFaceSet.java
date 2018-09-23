@@ -61,6 +61,8 @@ import java.nio.IntBuffer;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -79,7 +81,6 @@ import jscenegraph.database.inventor.details.SoPointDetail;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
@@ -97,6 +98,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
+import jscenegraph.port.Ctx;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -740,7 +742,7 @@ public void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway, 
     (vpCache.getNumVertices()>0) &&
     (vpCache.getNumNormals()==0 || (vpCache.getNormalBinding()==SoNormalBindingElement.Binding.PER_VERTEX || vpCache.getNormalBinding()==SoNormalBindingElement.Binding.PER_VERTEX_INDEXED)) &&
     // VA rendering is only possible if there is a color VBO, since it manages the packed color swapping
-    ((getMaterialBinding(action)!=Binding.PER_VERTEX) || SoGLVBOElement.getInstance(state).getVBO(SoGLVBOElement.VBOType.COLOR_VBO) != null) &&
+    ((getMaterialBinding(action)!=Binding.PER_VERTEX) || SoGLVBOElement.getInstance(state).getColorVBO()/*getVBO(SoGLVBOElement.VBOType.COLOR_VBO)*/ != null) &&
     (vpCache.getNumTexCoords()==0 || (vpCache.getTexCoordBinding() == SoTextureCoordinateBindingElement.Binding.PER_VERTEX_INDEXED)))
   {
     fastPathTaken = true;
@@ -871,7 +873,7 @@ GLRender(SoGLRenderAction action)
     else if (shapeStyle.isTextureFunction() && vpCache.haveTexCoordsInVP()){
       state.push();
       useTexCoordsAnyway = SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
-      SoGLTextureCoordinateElement.setTexGen(state, this, null);
+      SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
     }           
 
     //If lighting or texturing is off, this vpCache and other things
@@ -1069,7 +1071,7 @@ private void
 QuadOmOn
     (SoGLRenderAction action) {
 
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
     
     // Send one normal, if there are any normals in vpCache:
     if (vpCache.getNumNormals() > 0)
@@ -1103,7 +1105,7 @@ private void
 QuadOmOnT
     (SoGLRenderAction action) {
 
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
     
     // Send one normal, if there are any normals in vpCache:
     if (vpCache.getNumNormals() > 0)
@@ -1156,7 +1158,7 @@ private void QuadOmVnT (SoGLRenderAction action) {
     int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
 
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
     
     gl2.glBegin(GL2.GL_QUADS);
 
@@ -1203,7 +1205,7 @@ QuadFmOn
     (SoGLRenderAction action) {
 
 
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
     
     // Send one normal, if there are any normals in vpCache:
     if (vpCache.getNumNormals() > 0)

@@ -225,7 +225,7 @@ GLRender(SoGLRenderAction action)
 {
   if (this.isActive.getValue()) {
     SoState state = action.getState();
-    final GL2 cachecontext = SoGLCacheContextElement.get(state);
+    final int cachecontext = SoGLCacheContextElement.get(state);
     cc_glglue glue = SoGL.cc_glglue_instance(cachecontext);
     
     if (!SoGLDriverDatabase.isSupported(glue, "GL_EXT_geometry_shader4")) {

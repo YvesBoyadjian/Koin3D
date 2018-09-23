@@ -107,7 +107,9 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.SoType.CreateMethod;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMFEnum;
 import jscenegraph.database.inventor.fields.SoMFInt32;
+import jscenegraph.database.inventor.fields.SoMFNode;
 import jscenegraph.database.inventor.fields.SoMFUInt32;
 import jscenegraph.database.inventor.fields.SoMField;
 import jscenegraph.database.inventor.fields.SoSFEnum;
@@ -143,7 +145,14 @@ public class SoSubNode {
 	  
 	public                                                                     
     static SoType       getClassTypeId(Class klass)        /* Returns class type id */   
-                                    { return classTypeId.get(klass); }                
+                                    { 
+		SoType type = classTypeId.get(klass);
+		
+		if(type == null) {
+			type = SoType.badType();			
+		}
+		return type;
+		}                
 	
 	// java port
 	public SoType getClassTypeId() {
@@ -455,6 +464,10 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
 	  SO__SF_ENUM_SET_TYPE(field, fieldName, enumType,"NODE",fieldData.get(thisClass)[0]);
   }
   
+  public void SO_NODE_SET_MF_ENUM_TYPE(SoMFEnum field, String fieldName, String enumType) {
+	  SO__MF_ENUM_SET_TYPE(field, fieldName, enumType,"NODE",fieldData.get(thisClass)[0]);
+  }  
+  
   public void SO__SF_ENUM_SET_TYPE(SoSFEnum field, String fieldName, String enumType, String contMacroName, SoFieldData contData)
   {  
         final int[] _so_sf_enum_num = new int[1];                                                  
@@ -479,6 +492,24 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
                          "Field "+ fieldName+": Did you forget to"+    
                          " use SO_"+containerMacroName+"_DEFINE_ENUM_VALUE("+typeName+", ...)?");                 	  
   }
+  
+  public void SO__MF_ENUM_SET_TYPE(SoMFEnum field, String fieldName, String enumType, String contMacroName, SoFieldData contData)
+  {  
+        final int[] _so_sf_enum_num = new int[1];                                                  
+        final int[][] _so_sf_enum_vals = new int[1][];                                                
+        final SbName[][] _so_sf_enum_names = new SbName[1][];                                            
+        contData.getEnumData(enumType,                            
+                                _so_sf_enum_num,                              
+                                _so_sf_enum_vals,                             
+                                _so_sf_enum_names);                           
+        SO__SF_ENUM_CHECK_DATA(_so_sf_enum_vals[0],                              
+                               enumType,                           
+                               fieldName,                          
+                               contMacroName);                                
+        field.setEnums(_so_sf_enum_num[0],                                   
+                           _so_sf_enum_vals[0],                                  
+                           _so_sf_enum_names[0]);                                
+    }
   
   /////////////////////////////////////////////
    ///
@@ -524,8 +555,24 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
        else if(field instanceof SoMFUInt32) {
     	   ((SoMFUInt32)field).setValue((int)defValue[0]);
        }
+       else if(field instanceof SoMFNode && defValue == null) {
+    	   field.setValue(new SoNode[1]);    	   
+       }
        else {
     	   field.setValue(defValue[0]);
+       }
+       field.setContainer(thisParent);
+   }
+ 
+// New for Coin-3
+   public void SO_NODE_ADD_EMPTY_MFIELD( SoMField field,String fieldName) {
+	   
+	   SoNode that = thisParent;
+	   
+       SO__NODE_CHECK_CONSTRUCT(/*__FILE__*/);
+       if (firstInstance()){
+           fieldData.get(thisClass)[0].addField(thisParent, fieldName,
+                               field);
        }
        field.setContainer(thisParent);
    }

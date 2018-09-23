@@ -53,6 +53,7 @@ import com.jogamp.opengl.GL2;
 import jscenegraph.database.inventor.elements.SoWindowElement;
 import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.GLXContext;
 
 /**
@@ -218,8 +219,9 @@ processSoEvent(final SoEvent event)
     }
     protected void initializeGL(GL2 gl2) {
         super.initializeGL(gl2);
-        shareID = gl2;
-        soQtSceneHandler.initializeScene(getShareID());
+        Ctx.addContext(1, gl2);
+        shareID = 1;
+        soQtSceneHandler.initializeScene(/*getShareID()*/shareID);
         isGLinitialized = true;    	
     }
     protected void resizeGL (GL2 gl2, int width, int height) {

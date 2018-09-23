@@ -56,9 +56,12 @@ package jscenegraph.database.inventor.elements;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.glue.cc_glglue;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.caches.SoGLRenderCache;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -86,10 +89,11 @@ public class SoGLDisplayList implements Destroyable {
     private final int[] startIndex = new int[1];
     private int num;
     private int refCount;
-    private GL2 context;
+    private int context;
     
     private boolean mipmap; //COIN 3D
 
+    int texturetarget; // COIN 3D
 
    public enum Type {
         DISPLAY_LIST,
@@ -98,12 +102,17 @@ public class SoGLDisplayList implements Destroyable {
         };
         
         public SoGLDisplayList(SoState state, Type type) {
-        	this(state, type, 1);
+        	this(state, type, 1, false);
         }
-    public SoGLDisplayList(SoState state, Type _type, int numToAllocate) {
+        public SoGLDisplayList(SoState state, Type type, int numToAllocate) {
+        	this(state, type, numToAllocate, false);
+        }
+    public SoGLDisplayList(SoState state, Type _type, int numToAllocate, boolean mimaptexobj) {
     	    refCount = 0;
 
     num = numToAllocate;
+    
+    mipmap = mimaptexobj;
 
     // We must depend on the GL cache context; we can't assume that a
     // cache is valid between any two render actions, since the render
@@ -114,7 +123,7 @@ public class SoGLDisplayList implements Destroyable {
 
     type = _type;
     
-    GL2 gl2 = context;
+    GL2 gl2 = Ctx.get(context);
 
     if (type == Type.TEXTURE_OBJECT) {
         glGenTextures(/*1,*/ startIndex); //glGenTextures(1, &startIndex);
@@ -142,7 +151,7 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    GL2 gl2 = context;
+    GL2 gl2 = Ctx.get(context);
 
     if (type == Type.TEXTURE_OBJECT) {
         gl2.glDeleteTextures( startIndex); //glDeleteTextures(1, &startIndex);
@@ -198,7 +207,7 @@ unref(SoState state)
 public    Type getType() { return type; }
 public    int getNumAllocated() { return num; }
 public    int getFirstIndex() { return startIndex[0]; }
-public    GL2 getContext() { return context; }
+public    int getContext() { return context; }
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -221,7 +230,7 @@ open(SoState state, int index)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = context;
+	GL2 gl2 = Ctx.get(context);
 	
     if (type == SoGLDisplayList.Type.TEXTURE_OBJECT) {
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, startIndex[0]+index);
@@ -244,11 +253,22 @@ close(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = context;
+	GL2 gl2 = Ctx.get(context);
 	
     if (type == SoGLDisplayList.Type.DISPLAY_LIST) {
         gl2.glEndList();
     }
+    else {
+        cc_glglue glw = SoGL.cc_glglue_instance(this.context);
+        //assert(SoGL.cc_glglue_has_texture_objects(glw));
+        int target = this.texturetarget;
+        if (target == 0) {
+          // target is not set. Assume normal 2D texture.
+          target = GL_TEXTURE_2D;
+        }
+        // unbind current texture object
+        SoGL.cc_glglue_glBindTexture(glw, target, 0);
+      }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -273,7 +293,7 @@ call(SoState state, int index)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = context;
+	GL2 gl2 = Ctx.get(context);
 	
     if (type == SoGLDisplayList.Type.TEXTURE_OBJECT) {
         gl2.glBindTexture(GL2.GL_TEXTURE_2D, startIndex[0]+index);
@@ -315,5 +335,26 @@ public boolean isMipMapTextureObject() {
 }
 
 
-    
+/*!
+Sets the texture object target
+\since Coin 2.5
+*/
+public void
+setTextureTarget(int target)
+{
+	this.texturetarget = target;
+}
+
+/*!
+Returns the texture target
+\since Coin 2.5
+*/
+public int getTextureTarget()
+{
+if (this.texturetarget != 0)
+  return (int) this.texturetarget;
+return GL_TEXTURE_2D;
+}
+
+
 }

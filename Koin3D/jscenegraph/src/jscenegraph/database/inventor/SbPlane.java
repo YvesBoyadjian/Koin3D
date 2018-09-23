@@ -222,5 +222,21 @@ isInHalfSpace(final SbVec3f point)
     return point.dot(normalVec) >= distance;
 }
 
+/*!
+  Return the distance from \a point to plane. Positive distance means
+  the point is in the plane's half space.
+
+  This method is an extension specific to Coin versus the original SGI
+  Inventor API.
+*/
+public float
+getDistance(SbVec3f point)
+{
+  // convert to double before doing the dot product to increase precision of the result
+  final SbVec3d dp = new SbVec3d(point);
+  final SbVec3d dn = new SbVec3d(this.normalVec);
+  return (float) (dp.dot(dn)) - this.distance;
+}
+
 
 }

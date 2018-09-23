@@ -40,13 +40,18 @@ public class SbColor4f extends SbVec4f {
 	  }
 	  
 	  public SbColor4f(float r, float g, float b, float a) {
-		  vec[0] = r;
-		  vec[1] = g;
-		  vec[2] = b;
-		  vec[3] = a;		  
+		  super(r,g,b,a);
 	  }
 
 	  /*!
+	  Default constructor. The color value will be uninitialized until
+	  explicitly set.
+	 */
+	  public SbColor4f() {
+		  super();
+	}
+
+	/*!
 	  Return color as a 32 bit packed integer in the form 0xRRGGBBAA.
 	  \sa setPackedValue().
 	 */
@@ -59,8 +64,8 @@ public class SbColor4f extends SbVec4f {
 	}
 
 	private
-		  float red()  { return vec[0]; }
-	private		  float green()  { return vec[1]; }
-	private		  float blue()  { return vec[2]; }
-	private		  float alpha() { return vec[3]; }
+		  float red()  { return g(0); }
+	private		  float green()  { return g(1); }
+	private		  float blue()  { return g(2); }
+	private		  float alpha() { return g(3); }
 }

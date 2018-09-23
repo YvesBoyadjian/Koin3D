@@ -81,7 +81,7 @@ import jscenegraph.database.inventor.misc.SoState;
 public class SoFloatElement extends SoElement {
 
     //! Storage for data.
-      float data;
+      protected float data;
       
     //! Get value.  Derived classes have static inline methods to pass
     //! in the stackIndex and cast the returned value to the right type.

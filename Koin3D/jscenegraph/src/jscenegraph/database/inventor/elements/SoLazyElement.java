@@ -350,6 +350,7 @@ public class SoLazyElement extends SoElement {
 		    	    public boolean istransparent;
 		    	    public boolean alphatest;
 		    	    public boolean glimageusealphatest;
+		    	    public boolean twoside; // COIN 3D
 		       }
 		       
 		       protected final CoinState coinstate = new CoinState();
@@ -439,6 +440,19 @@ matches( SoElement element)
 //	   #endif
 	       return null;
 	   }
+	   
+	   /*!
+	   Internal function used for resetting the OpenGL state before FBO
+	   rendering.
+	 */
+	 public static void
+	 setToDefault(SoState state)
+	 {
+	   SoLazyElement elem = SoLazyElement.getWInstance(state);
+	   elem./*SoLazyElement.*/init(state);
+	 }
+
+	   
 
 	   ///////////////////////////////////////////////////////////////////////
 	    //
@@ -849,7 +863,10 @@ setDiffuse(SoState state, SoNode node, int numColors,
             SbColor[] colors, SoColorPacker cPacker)
 {
     // if someone sets this directly, remove any color VBO
-    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+        SoGLVBOElement.setColorVBO(state, null);
+      }
 
     SoLazyElement curElt = SoLazyElement.getInstance(state);
     //Because we are getting the transparency value from state, there
@@ -875,7 +892,10 @@ setTransparency(SoState state, SoNode node, int numTransp,
             float[] transp, SoColorPacker cPacker)
 {
     // if someone sets this directly, remove any color VBO
-    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+        SoGLVBOElement.setColorVBO(state, null);
+      }
 
     SoLazyElement curElt = SoLazyElement.getInstance(state);
     //Because we are getting the diffuse value from state, there
@@ -906,7 +926,10 @@ setPacked(SoState state, SoNode node,
             int numColors, final int[] colors)
 {
     // if someone sets this directly, remove any color VBO
-    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+        SoGLVBOElement.setColorVBO(state, null);
+      }
    
     SoLazyElement curElt = SoLazyElement.getInstance(state);
     if (curElt.ivState.diffuseNodeId != (node.getNodeId()) ||     
@@ -918,6 +941,33 @@ setPacked(SoState state, SoNode node,
         curElt.registerRedundantSet(state, masks.DIFFUSE_MASK.getValue()|masks.TRANSPARENCY_MASK.getValue());
 }
 
+
+///////////////////////////////////////////////////////////////////////
+//
+// Description: static set() method for color indices
+//
+// use:  public, SoEXTENDER, static
+//
+///////////////////////////////////////////////////////////////////////  
+public static void    
+setColorIndices(SoState state, SoNode node, int numIndices, 
+            int[] indices)
+{
+    // if someone sets this directly, remove any color VBO
+    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+//    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+//        SoGLVBOElement.setColorVBO(state, null); 
+//      }
+
+    SoLazyElement curElt = SoLazyElement.getInstance(state);
+    if (curElt.ivState.diffuseNodeId !=  node.getNodeId())
+        getWInstance(state).setColorIndexElt(node, numIndices, indices);
+    else if (state.isCacheOpen()) 
+        curElt.registerRedundantSet(state, masks.DIFFUSE_MASK.getValue()); 
+}           
+
+
+
 ///////////////////////////////////////////////////////////////////////
 //
 // Description: static set() method for ambient color 
@@ -925,7 +975,7 @@ setPacked(SoState state, SoNode node,
 // use:  public, SoEXTERNAL, static
 //
 ///////////////////////////////////////////////////////////////////////  
-public void    
+public static void    
 setAmbient(SoState state, SbColor color)
 {    
     SoLazyElement curElt = SoLazyElement.getInstance(state);
@@ -1337,28 +1387,6 @@ setAlphaTestElt(boolean onoff)
 
 ///////////////////////////////////////////////////////////////////////
 //
-// Description: static set() method for color indices
-//
-// use:  public, SoEXTENDER, static
-//
-///////////////////////////////////////////////////////////////////////  
-public void    
-setColorIndices(SoState state, SoNode node, int numIndices, 
-            int[] indices)
-{
-    // if someone sets this directly, remove any color VBO
-    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
-
-    SoLazyElement curElt = SoLazyElement.getInstance(state);
-    if (curElt.ivState.diffuseNodeId !=  node.getNodeId())
-        getWInstance(state).setColorIndexElt(node, numIndices, indices);
-    else if (state.isCacheOpen()) 
-        curElt.registerRedundantSet(state, masks.DIFFUSE_MASK.getValue()); 
-}           
-
-
-///////////////////////////////////////////////////////////////////////
-//
 // Description: static set() method for transparencyType 
 //
 // use:  public, SoINTERNAL, static
@@ -1484,6 +1512,13 @@ push(SoState state)
   
     ivState.copyFrom(prevElt.ivState);
    
+}
+
+public static boolean 
+getTwoSidedLighting(SoState state)
+{
+  SoLazyElement elem = getInstance(state);
+  return elem.coinstate.twoside;
 }
 
 

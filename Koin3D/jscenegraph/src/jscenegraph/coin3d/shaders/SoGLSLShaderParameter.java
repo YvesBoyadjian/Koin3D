@@ -297,7 +297,14 @@ isValid( SoGLShaderObject  shader,
   for (i = 0; i < activeUniforms[0]; i++) {
     g.glGetActiveUniformARB(pHandle, i, /*128,*/ length, tmpSize, 
                              tmpType, myName);
-    if (Objects.equals(this.cacheName , new String(myName))) {
+    int zeroIndex = 0;
+    for(int index=0;index<256;index++) {
+    	if(myName[index]==0) {
+    		zeroIndex = index;
+    		break;
+    	}
+    }
+    if (Objects.equals(this.cacheName , new String(myName,0,zeroIndex))) {
       this.cacheSize = tmpSize[0];
       this.cacheType = tmpType[0];
       this.isActive = true;

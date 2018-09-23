@@ -56,6 +56,8 @@ package jscenegraph.database.inventor.nodes;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoEnvironmentElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLEnvironmentElement;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -70,6 +72,7 @@ import jscenegraph.database.inventor.fields.SoSFColor;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
+import jscenegraph.port.Ctx;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -224,7 +227,7 @@ public void GLRender(SoGLRenderAction action)
     final SbVec3f     v3 = new SbVec3f();
     final SbVec4f     v4 = new SbVec4f();
     
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
 
     //////////////////////
     //
@@ -235,7 +238,7 @@ public void GLRender(SoGLRenderAction action)
     // intensity, with 1.0 alpha
     v3.copyFrom( ambientColor.getValue().operator_mul(ambientIntensity.getValue()));
     v4.setValue(v3.getValueRead()[0], v3.getValueRead()[1], v3.getValueRead()[2], 1.0f);
-    glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, v4.getValue());
+    glLightModelfv(GL2.GL_LIGHT_MODEL_AMBIENT, v4.getValueRead());
 
     //////////////////////
     //
@@ -360,6 +363,9 @@ public static void initClass()
 
     // Enable elements for appropriate actions:
 
+    SO_ENABLE(SoGLRenderAction.class, SoGLEnvironmentElement.class);
+    SO_ENABLE(SoCallbackAction.class, SoEnvironmentElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoLightAttenuationElement.class);
     SO_ENABLE(SoCallbackAction.class, SoLightAttenuationElement.class);
 }
 

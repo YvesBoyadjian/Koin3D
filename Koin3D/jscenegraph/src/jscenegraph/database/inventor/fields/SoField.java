@@ -1829,7 +1829,7 @@ public boolean readConnection(SoInput in)
 		// SoSFVec2d.initClass();
 		SoSFVec3f.initClass(SoSFVec3f.class);
 		// SoSFVec3d.initClass();
-		// SoSFVec4f.initClass();
+		SoSFVec4f.initClass(SoSFVec4f.class);
 		// SoSFVec4d.initClass();
 
 		SoMFBool.initClass(SoMFBool.class);

@@ -57,13 +57,13 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoState;
 
@@ -165,7 +165,7 @@ GLRender(SoGLRenderAction action)
 {
     SoState state = action.getState();
 
-    SoGLTextureCoordinateElement.setTexGen(state, this, null);
+    SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
 
     SoTextureCoordinateDefault_doAction(action);
 }
@@ -215,7 +215,7 @@ SoTextureCoordinateDefault_doAction(SoAction action)
     SoState state = action.getState();
     // Store a pointer to the function used to compute the texture
     // coordinates in the state.
-    SoTextureCoordinateElement.setDefault(state, this);
+    SoMultiTextureCoordinateElement.setDefault(state, this, 0);
 }
 	  
 	  

@@ -43,6 +43,8 @@
 package jscenegraph.coin3d.fxviz.elements;
 
 import jscenegraph.database.inventor.elements.SoInt32Element;
+import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.nodes.SoNode;
 
 /**
  * @author BOYADJIAN
@@ -66,5 +68,31 @@ public class SoShadowStyleElement extends SoInt32Element {
 			  return value;
 		  }
 		  };
+		  
+		  public static void set(SoState state,
+		                           /* SoNode node,*/
+		                            int style)
+		  {
+		    SoInt32Element.set(classStackIndexMap.get(SoShadowStyleElement.class), state, /*node,*/ style);
+		  }
+
+		  public void init(SoState state)
+		  {
+		    super.init(state);
+		    this.data = getDefault();
+		  }
+
+
+public int get(SoState state)
+{
+  return super.get(classStackIndexMap.get(SoShadowStyleElement.class), state);
+}
+
+
+public int
+getDefault()
+{
+  return StyleFlags.CASTS_SHADOW_AND_SHADOWED.getValue();
+}
 		  
 }

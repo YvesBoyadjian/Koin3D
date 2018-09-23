@@ -3,7 +3,7 @@
  */
 package jexample.parts;
 
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoMaterial;
 import jscenegraph.database.inventor.nodes.SoMaterialBinding;

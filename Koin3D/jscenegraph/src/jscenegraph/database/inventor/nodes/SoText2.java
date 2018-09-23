@@ -59,6 +59,7 @@ import java.nio.ShortBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec2s;
@@ -74,7 +75,6 @@ import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.details.SoTextDetail;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoProjectionMatrixElement;
@@ -340,7 +340,7 @@ GLRender(SoGLRenderAction action)
     SoLazyElement.setLightModel(state,
                              SoLazyElement.LightModel.BASE_COLOR.getValue());
     // Turn off texturing
-    SoGLTextureEnabledElement.set(state, false);
+    SoGLMultiTextureEnabledElement.set(state, this, 0, false);
     
     myFont.setupToRender(state);
 

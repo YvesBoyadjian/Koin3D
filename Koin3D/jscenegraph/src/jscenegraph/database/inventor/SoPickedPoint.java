@@ -54,11 +54,11 @@
 
 package jscenegraph.database.inventor;
 
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureMatrixElement;
 import jscenegraph.database.inventor.actions.SoGetMatrixAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoPickStyleElement;
-import jscenegraph.database.inventor.elements.SoTextureMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
@@ -449,7 +449,7 @@ setObjectTextureCoords(final SbVec4f texCoords)
 {
     // Transform the object space coords by the current texture matrix
     // to get the image space texture coords
-    imageTexCoords.copyFrom( multVecMatrix4(SoTextureMatrixElement.get(state),
+    imageTexCoords.copyFrom( multVecMatrix4(SoMultiTextureMatrixElement.get(state,0),
                                     texCoords));
 }
 
@@ -494,10 +494,10 @@ multVecMatrix4(final SbMatrix m, final SbVec4f v)
     final SbVec4f     v2 = new SbVec4f();
 
     for (i = 0; i < 4; i++)
-        v2.getValue()[i] = (v.getValue()[0] * m.getValue()[0][i] +
-                 v.getValue()[1] * m.getValue()[1][i] +
-                 v.getValue()[2] * m.getValue()[2][i] +
-                 v.getValue()[3] * m.getValue()[3][i]);
+        v2.getValueRead()[i] = (v.getValueRead()[0] * m.getValue()[0][i] +
+                 v.getValueRead()[1] * m.getValue()[1][i] +
+                 v.getValueRead()[2] * m.getValue()[2][i] +
+                 v.getValueRead()[3] * m.getValue()[3][i]);
 
     return v2;
 }

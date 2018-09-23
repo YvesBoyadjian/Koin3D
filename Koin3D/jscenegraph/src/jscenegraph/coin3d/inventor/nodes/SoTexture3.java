@@ -26,6 +26,9 @@ package jscenegraph.coin3d.inventor.nodes;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.SbImage;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLTexture3EnabledElement;
 import jscenegraph.coin3d.inventor.fields.SoSFImage3;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
@@ -40,8 +43,6 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
-import jscenegraph.database.inventor.elements.SoGLTextureImageElement;
-import jscenegraph.database.inventor.elements.SoTextureImageElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -124,9 +125,9 @@ public class SoTexture3 extends SoTexture {
 	        { return SoSubNode.getFieldDataPtr(SoTexture3.class); }    	  	
 	
   public enum Model {
-    MODULATE ( SoTextureImageElement.Model.MODULATE.getValue()),
-    DECAL ( SoTextureImageElement.Model.DECAL.getValue()),
-    BLEND ( SoTextureImageElement.Model.BLEND.getValue());
+    MODULATE ( SoMultiTextureImageElement.Model.MODULATE.getValue()),
+    DECAL ( SoMultiTextureImageElement.Model.DECAL.getValue()),
+    BLEND ( SoMultiTextureImageElement.Model.BLEND.getValue());
     
     private int value;
     Model(int value) {
@@ -138,8 +139,8 @@ public class SoTexture3 extends SoTexture {
   };
 
   public enum Wrap {
-    REPEAT( SoTextureImageElement.Wrap.REPEAT.getValue()),
-    CLAMP( SoTextureImageElement.Wrap.CLAMP.getValue());
+    REPEAT( SoMultiTextureImageElement.Wrap.REPEAT.getValue()),
+    CLAMP( SoMultiTextureImageElement.Wrap.CLAMP.getValue());
     
     private int value;
     Wrap(int value) {
@@ -227,10 +228,10 @@ initClass()
 {
   SoSubNode.SO__NODE_INIT_CLASS(SoTexture3.class,"Texture3",SoTexture.class); /*SO_FROM_INVENTOR_2_6|SO_FROM_COIN_2_0);*/
 
-  SO_ENABLE(SoGLRenderAction.class, SoGLTextureImageElement.class);
+  SO_ENABLE(SoGLRenderAction.class, SoGLMultiTextureImageElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoGLTexture3EnabledElement.class);
 
-  SO_ENABLE(SoCallbackAction.class, SoTextureImageElement.class);
+  SO_ENABLE(SoCallbackAction.class, SoMultiTextureImageElement.class);
 }
 
 
@@ -329,9 +330,9 @@ GLRender(SoGLRenderAction  action)
   SoGLTexture3EnabledElement.set(state,
                                   /*this,*/ this.glimagevalid &&
                                   quality > 0.0f);
-  SoGLTextureImageElement.set(state, this,
+  SoGLMultiTextureImageElement.set(state, this,
                                this.glimagevalid ? this.glimage : null,
-                               SoTextureImageElement.Model.fromValue( model.getValue()),
+                               SoMultiTextureImageElement.Model.fromValue( model.getValue()),
                                this.blendColor.getValue());
 
 
@@ -346,6 +347,8 @@ SoTexture3_doAction(SoAction action)
 {
   SoState state = action.getState();
 
+  int unit = SoTextureUnitElement.get(state);  // COIN 3D YB
+
   if (SoTextureOverrideElement.getImageOverride(state))
     return;
 
@@ -354,12 +357,12 @@ SoTexture3_doAction(SoAction action)
   final byte[] bytes = this.images.getValue(size, nc);
 
   if (size.operator_not_equal(new SbVec3s((short)0,(short)0,(short)0))) {
-    SoTextureImageElement.set(state, this,
+    SoMultiTextureImageElement.set(state, this, unit,
                                size, nc[0], bytes,
-                               SoTextureImageElement.Wrap.fromValue((int)this.wrapT.getValue()),
-                               SoTextureImageElement.Wrap.fromValue((int)this.wrapS.getValue()),
-                               SoTextureImageElement.Wrap.fromValue((int)this.wrapR.getValue()),
-                               SoTextureImageElement.Model.fromValue(model.getValue()),
+                               SoMultiTextureImageElement.Wrap.fromValue((int)this.wrapT.getValue()),
+                               SoMultiTextureImageElement.Wrap.fromValue((int)this.wrapS.getValue()),
+                               SoMultiTextureImageElement.Wrap.fromValue((int)this.wrapR.getValue()),
+                               SoMultiTextureImageElement.Model.fromValue(model.getValue()),
                                this.blendColor.getValue());
   }
   // if a filename has been set, but the file has not been loaded, supply
@@ -369,16 +372,16 @@ SoTexture3_doAction(SoAction action)
            this.filenames.operator_square_bracket(0).length() != 0) {
     /*static*/ final byte dummytex[] = {(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,
     		(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
-    SoTextureImageElement.set(state, this,
+    SoMultiTextureImageElement.set(state, this, unit,
                                new SbVec3s((short)2,(short)2,(short)2), 1, dummytex,
-                               SoTextureImageElement.Wrap.fromValue((int)this.wrapT.getValue()),
-                               SoTextureImageElement.Wrap.fromValue((int)this.wrapS.getValue()),
-                               SoTextureImageElement.Wrap.fromValue((int)this.wrapR.getValue()),
-                               SoTextureImageElement.Model.fromValue(model.getValue()),
+                               SoMultiTextureImageElement.Wrap.fromValue((int)this.wrapT.getValue()),
+                               SoMultiTextureImageElement.Wrap.fromValue((int)this.wrapS.getValue()),
+                               SoMultiTextureImageElement.Wrap.fromValue((int)this.wrapR.getValue()),
+                               SoMultiTextureImageElement.Model.fromValue(model.getValue()),
                                this.blendColor.getValue());
   }
   else {
-    SoTextureImageElement.setDefault(state, this);
+    SoMultiTextureImageElement.setDefault(state, this, unit);
   }
   if (this.isOverride()) {
     SoTextureOverrideElement.setImageOverride(state, true);

@@ -68,6 +68,9 @@ public class SoFragmentShader extends SoShaderObject {
                                     { return SoSubNode.getClassTypeId(SoFragmentShader.class); }                   
     public SoType      getTypeId()       /* Returns type id      */
     {
+    	if(nodeHeader == null) {
+    		return super.getTypeId();
+    	}
 		return nodeHeader.getClassTypeId();		    	
     }
   public                                                                  

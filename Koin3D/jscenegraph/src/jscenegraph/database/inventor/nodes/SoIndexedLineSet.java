@@ -61,6 +61,8 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
@@ -80,7 +82,6 @@ import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
@@ -99,6 +100,7 @@ import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
+import jscenegraph.port.Ctx;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -747,7 +749,7 @@ GLRender(SoGLRenderAction action)
     }
     else if (shapeStyle.isTextureFunction() && vpCache.haveTexCoordsInVP()){
       useTexCoordsAnyway = SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
-      SoGLTextureCoordinateElement.setTexGen(state, this, null);
+      SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
     }
 
     // set up pointers
@@ -929,7 +931,7 @@ private void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway,
       (vpCache.getNumNormals()==0 || (vpCache.getNormalBinding() == SoNormalBindingElement.Binding.PER_VERTEX_INDEXED)) &&
       (vpCache.getNumColors()==0 || (vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED || vpCache.getMaterialBinding() == SoMaterialBindingElement.Binding.OVERALL)) &&
       // VA rendering is only possible if there is a color VBO, since it manages the packed color swapping
-      ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getVBO(SoGLVBOElement.VBOType.COLOR_VBO) != null) &&
+      ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getColorVBO()/*getVBO(SoGLVBOElement.VBOType.COLOR_VBO)*/ != null) &&
       (vpCache.getNumTexCoords()==0 || (vpCache.getTexCoordBinding() == SoTextureCoordinateBindingElement.Binding.PER_VERTEX_INDEXED)) &&
       (materialIndex.getNum()==1 && materialIndex.getValuesI(0)[0]==-1) && 
       (normalIndex.getNum()==1 && normalIndex.getValuesI(0)[0]==-1) && 
@@ -973,7 +975,7 @@ public void
 OmVn
     (SoGLRenderAction action ) {
 	
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     int np = numPolylines;
     final int[] numverts = numVertices;

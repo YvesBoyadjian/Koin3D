@@ -49,10 +49,13 @@
 package jscenegraph.coin3d.fxviz.nodes;
 
 import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
+import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 
@@ -113,7 +116,29 @@ public class SoShadowStyle extends SoNode {
 	  nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(style,"style", "Style");
 	}
 
+	// Doc from superclass.
+	public void
+	GLRender(SoGLRenderAction action)
+	{
+	  SoState state = action.getState();
 
+	  SoShadowStyleElement.set(state,
+	                            /*this,*/
+	                            (int) this.style.getValue());
+
+	  if ((SoShapeStyleElement.get(state).getFlags() & SoShapeStyleElement.Flags.SHADOWS.getValue())!=0) {
+
+	    if ((this.style.getValue() & Style.SHADOWED.getValue())!=0) {
+	      SoGLShaderProgramElement.enable(state, true);
+	    }
+	    else {
+	      SoGLShaderProgramElement.enable(state, false);
+	    }
+	  }
+	}
+
+
+	
 	  
 	// Doc from superclass.
 	  public static void

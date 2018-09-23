@@ -23,6 +23,7 @@
 
 package jscenegraph.coin3d.inventor.lists;
 
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.Mutable;
 
 /**
@@ -53,17 +54,17 @@ import jscenegraph.port.Mutable;
 // of the other public classes. Judging from a quick look, this seems
 // feasible, and just a couple of hours or so of work.
 //
-public class SbList<T extends Object> implements Mutable { //FIXME
+public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
 
 	  // Older compilers aren't too happy about const declarations in the
 	  // class definitions, so use the enum trick described by Scott
 	  // Meyers in "Effective C++".
 	  public static final int DEFAULTSIZE = 4;
 
-  private int itembuffersize;
-  private int numitems;
-  private Object[] itembuffer;
-  private final Object[] builtinbuffer = new Object[DEFAULTSIZE];
+  protected int itembuffersize;
+  protected int numitems;
+  protected Object[] itembuffer;
+  protected final Object[] builtinbuffer = new Object[DEFAULTSIZE];
   
 	/**
 	 * 
@@ -160,7 +161,7 @@ public class SbList<T extends Object> implements Mutable { //FIXME
     private void grow() {
     	grow(-1); // java port
     }
-private void grow(final int size) {
+protected void grow(final int size) {
     // Default behavior is to double array size.
     if (size == -1) this.itembuffersize <<= 1;
     else if (size <= this.itembuffersize) return;
@@ -176,6 +177,19 @@ private void grow(final int size) {
 public void copyFrom(Object other) {
 	final SbList<T> l = (SbList<T>)other;
     this.copy(l);
+}
+@Override
+public void destructor() {
+	// TODO Auto-generated method stub
+	
+}
+
+public T[] getArrayPtr(T[] arrayWithGoodSize) {
+	
+	for(int i=0;i<getLength();i++) {
+		arrayWithGoodSize[i] = operator_square_bracket(i);
+	}
+	return arrayWithGoodSize;
 }
 
   

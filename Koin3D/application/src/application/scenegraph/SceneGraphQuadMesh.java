@@ -5,13 +5,12 @@ package application.scenegraph;
 
 import java.awt.image.Raster;
 
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.nodes.SoCone;
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoQuadMesh;
 import jscenegraph.database.inventor.nodes.SoSeparator;
-import jscenegraph.database.inventor.nodes.SoVertexProperty;
 
 /**
  * @author Yves Boyadjian

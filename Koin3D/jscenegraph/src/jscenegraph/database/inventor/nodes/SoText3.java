@@ -67,6 +67,8 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.gl2.GLUgl2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbBox2f;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbDict;
@@ -78,6 +80,7 @@ import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.SoNodeList;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
@@ -94,13 +97,11 @@ import jscenegraph.database.inventor.elements.SoFontNameElement;
 import jscenegraph.database.inventor.elements.SoFontSizeElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoProfileCoordinateElement;
 import jscenegraph.database.inventor.elements.SoProfileElement;
 import jscenegraph.database.inventor.elements.SoProjectionMatrixElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoViewingMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -112,6 +113,7 @@ import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.libFL.FLcontext;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.system.SbSystem;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.FLoutline;
 import jscenegraph.port.fl;
 import jscenegraph.port.iconv_t;
@@ -698,7 +700,7 @@ public boolean isRenderValid(SoState state)
     // we'll have to regenerate and this cache is invalid:
     if (sideList != null) {
         if (sidesHaveTexCoords==0 &&
-            SoGLTextureEnabledElement.get(state)) {
+            SoGLMultiTextureEnabledElement.get(state,0)) {
             return false;
         }
     }
@@ -1666,7 +1668,7 @@ public boolean isValid(final SoState state)
     private static SoAction genAction;
     private static boolean genBack;
     private static boolean genTexCoord = true;
-    private static SoTextureCoordinateElement tce;
+    private static SoMultiTextureCoordinateElement tce;
 
     
 ////////////////////////////////////////////////////////////////////////
@@ -1800,7 +1802,7 @@ public void GLRender(SoGLRenderAction action)
     }
 
     // See if texturing is enabled
-    genTexCoord = SoGLTextureEnabledElement.get(action.getState());
+    genTexCoord = SoGLMultiTextureEnabledElement.get(action.getState(),0);
 
     if ((parts.getValue() & Part.SIDES.getValue())!=0 && (myFont.hasProfile())) {
         if (materialPerPart) mb.send(1, false);
@@ -1924,7 +1926,7 @@ private void renderFront(SoGLRenderAction action, int line,
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	GL2 gl2 = action.getCacheContext();
+	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
     ShortBuffer chars = myFont.getUCSString(line).asShortBuffer();
 
@@ -1970,7 +1972,7 @@ private void renderSide(SoGLRenderAction action, int line)
     // First, try to figure out if we can use glCallLists:
     boolean useCallLists = true;
     
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
 
     for (int i = 0; i < myFont.getNumUCSChars(line); i++) {
         // See if the font cache already has (or can build) a display
@@ -2282,14 +2284,14 @@ private void getFrontBBox(final SbBox2f result)
     currentGeneratingNode = this;
 
     // Set up default texture coordinate mapping, if necessary:
-    SoTextureCoordinateElement.CoordType tcType =
-        SoTextureCoordinateElement.getType(state);
-    if (tcType == SoTextureCoordinateElement.CoordType.EXPLICIT) {
+    SoMultiTextureCoordinateElement.CoordType tcType =
+        SoMultiTextureCoordinateElement.getType(state,0);
+    if (tcType == SoMultiTextureCoordinateElement.CoordType.EXPLICIT) {
         genTexCoord = true;
         tce = null;
     } else {
         genTexCoord = false;
-        tce = SoTextureCoordinateElement.getInstance(state);
+        tce = SoMultiTextureCoordinateElement.getInstance(state);
     }
 
     // Set up 3 vertices we can use
@@ -2538,7 +2540,7 @@ void vtxCB(Object v)
     // Fill in one of the primitive vertices:
     genPrimVerts[genWhichVertex].setPoint(new SbVec3f(vertex));
 
-    final SbVec4f texCoord = new SbVec4f();
+    final SbVec4fSingle texCoord = new SbVec4fSingle();
     
     // And texture coordinates:
     if (genTexCoord) {
@@ -2624,8 +2626,8 @@ private void SET(int pv, int i, int row, int col,final SbVec3f[][] p,final SbVec
   vertex[2] = p[col][i+row].getValueRead()[2]; 
   genPrimVerts[pv].setPoint(new SbVec3f(vertex));
   genPrimVerts[pv].setNormal(n[col][i*2+row]); 
-  texCoord.getValue()[0] = sTexCoords[i+row]; 
-  texCoord.getValue()[1] = tTexCoords[col+tTexCoordsIndex]; 
+  texCoord.setValue(0, sTexCoords[i+row]); 
+  texCoord.setValue(1, tTexCoords[col+tTexCoordsIndex]); 
   genPrimVerts[pv].setTextureCoords(texCoord); 
  }
 

@@ -61,7 +61,10 @@ import javax.imageio.ImageIO;
 
 import com.jogamp.opengl.GL2;
 
-import jscenegraph.coin3d.inventor.elements.SoTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SoInput;
@@ -71,10 +74,7 @@ import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
-import jscenegraph.database.inventor.elements.SoGLTextureImageElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
-import jscenegraph.database.inventor.elements.SoTextureImageElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -168,13 +168,13 @@ SoComplexity, SoMaterial, SoTexture2Transform, SoTextureCoordinate2, SoTextureCo
  * @author Yves Boyadjian
  *
  */
-public class SoTexture2 extends SoNode {
+public class SoTexture2Old extends SoNode {
 
-	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoTexture2.class,this);
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoTexture2Old.class,this);
 	   
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   
-	                                    { return SoSubNode.getClassTypeId(SoTexture2.class);  }                   
+	                                    { return SoSubNode.getClassTypeId(SoTexture2Old.class);  }                   
 	  public  SoType      getTypeId()      /* Returns type id      */
 	  {
 		  return nodeHeader.getClassTypeId();
@@ -184,7 +184,7 @@ public class SoTexture2 extends SoNode {
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoTexture2.class); }    
+	        { return SoSubNode.getFieldDataPtr(SoTexture2Old.class); }    
 	
 	  
   public
@@ -270,13 +270,13 @@ initClass()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	SoSubNode.SO__NODE_INIT_CLASS(SoTexture2.class, "Texture2", SoNode.class);
+	SoSubNode.SO__NODE_INIT_CLASS(SoTexture2Old.class, "Texture2", SoNode.class);
 
-    SO_ENABLE(SoGLRenderAction.class, SoGLTextureImageElement.class);
-    SO_ENABLE(SoCallbackAction.class, SoTextureImageElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoGLMultiTextureImageElement.class);
+    SO_ENABLE(SoCallbackAction.class, SoMultiTextureImageElement.class);
     SO_ENABLE(SoGLRenderAction.class, SoTextureOverrideElement.class);
     SO_ENABLE(SoCallbackAction.class, SoTextureOverrideElement.class);
-    SO_ENABLE(SoGLRenderAction.class, SoGLTextureEnabledElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoGLMultiTextureEnabledElement.class);
     SO_ENABLE(SoGLRenderAction.class, SoShapeStyleElement.class);
 }
 
@@ -288,7 +288,7 @@ initClass()
 //
 // Use: public
 
-public SoTexture2()
+public SoTexture2Old()
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -401,7 +401,7 @@ private static void imageChangedCB(Object data, SoSensor sensor)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoTexture2 tex = (SoTexture2 )data;
+    SoTexture2Old tex = (SoTexture2Old )data;
 
     if (tex.image.isIgnored()) return;
 
@@ -433,7 +433,7 @@ filenameChangedCB(Object data, SoSensor sensor)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoTexture2 tex = (SoTexture2 )data;
+    SoTexture2Old tex = (SoTexture2Old )data;
 
     if (tex.filename.isIgnored()) {
         tex.setReadStatus(/*false*/0);
@@ -495,10 +495,10 @@ SoTexture2_doAction(SoAction action)
     final int[] nc = new int[1];
     byte[] bytes = image.getValue(size, nc);
     
-    SoTextureImageElement.set(state, this, size, nc[0], bytes,
-                               wrapS.getValue(), wrapT.getValue(),
-                               model.getValue(), blendColor.getValue());
-    SoTextureEnabledElement.set(state, this, true); //COIN3D
+    SoMultiTextureImageElement.set(state, this, 0, size, nc[0], bytes,
+    		SoMultiTextureImageElement.Wrap.fromValue(wrapS.getValue()), SoMultiTextureImageElement.Wrap.fromValue(wrapT.getValue()),
+    		SoMultiTextureImageElement.Model.fromValue(model.getValue()), blendColor.getValue());
+    SoMultiTextureEnabledElement.set(state, this, 0, true); //COIN3D
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -544,11 +544,11 @@ GLRender(SoGLRenderAction action)
 
     float texQuality = SoTextureQualityElement.get(state);
     if (texQuality == 0 || numBytes == 0 || image.isIgnored()) {
-        SoGLTextureEnabledElement.set(state, false);
+        SoGLMultiTextureEnabledElement.set(state, this, 0, false);
         return;
     }
     else {
-        SoGLTextureEnabledElement.set(state, true);
+        SoGLMultiTextureEnabledElement.set(state, this, 0, true);
     }   
 
     // Check for special cases of 1/2 component texture and model
@@ -563,7 +563,7 @@ GLRender(SoGLRenderAction action)
                            " has only "+nc+" components (must be 3 or 4).  "+
                            "Use imgcopy to convert the image.");
 //#endif      
-        SoGLTextureEnabledElement.set(state, false);
+        SoGLMultiTextureEnabledElement.set(state, this, 0, false);
     }
     else if (nc[0] > 2 && m == Model.BLEND.getValue()) {
 //#ifdef DEBUG
@@ -572,7 +572,7 @@ GLRender(SoGLRenderAction action)
                            " has "+nc+" components (must be 1 or 2).  "+
                            "Use imgcopy to convert the image.");
 //#endif      
-        SoGLTextureEnabledElement.set(state, false);
+        SoGLMultiTextureEnabledElement.set(state, this, 0, false);
     } else {
         // This is kind of weird-- the element builds and uses the
         // display list (which is why we pass it in and assign
@@ -584,13 +584,13 @@ GLRender(SoGLRenderAction action)
 
         // See if renderList is valid (in the right context, with
         // the right texture quality):
-        GL2 context = SoGLCacheContextElement.get(state);
+        int context = SoGLCacheContextElement.get(state);
         if (renderList != null && renderList.getContext() == context &&
             texQuality == renderListQuality) {
-            SoGLTextureImageElement.set(
-                state, this, size, nc[0], bytes, texQuality,
-                wrapS.getValue(), wrapT.getValue(),
-                m, blendColor.getValue(), renderList);
+            SoGLMultiTextureImageElement.set(
+                state, this, 0, size, nc[0], bytes, /*texQuality,*/
+                SoMultiTextureImageElement.Wrap.fromValue(wrapS.getValue()), SoMultiTextureImageElement.Wrap.fromValue(wrapT.getValue()),
+                SoMultiTextureImageElement.Model.fromValue(m), blendColor.getValue()/*, renderList*/); //YB COIN 3D
         }  // Not valid, try to build
         else {
             // Free up old list, if necessary:
@@ -598,10 +598,10 @@ GLRender(SoGLRenderAction action)
                 renderList.unref(state);
                 renderList = null;
             }
-            renderList = SoGLTextureImageElement.set(
-                state, this, size, nc[0], bytes, texQuality,
-                wrapS.getValue(), wrapT.getValue(),
-                m, blendColor.getValue(), null);
+            /*renderList =*/ SoGLMultiTextureImageElement.set(
+                state, this, 0, size, nc[0], bytes,/* texQuality,*/
+                SoMultiTextureImageElement.Wrap.fromValue(wrapS.getValue()), SoMultiTextureImageElement.Wrap.fromValue(wrapT.getValue()),
+                SoMultiTextureImageElement.Model.fromValue(m), blendColor.getValue()/*, null*/);
             if (renderList != null)
                 renderList.ref();
             renderListQuality = texQuality;

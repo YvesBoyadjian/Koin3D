@@ -51,7 +51,7 @@ public abstract class SoGLShaderObject {
 		  
 protected
    cc_glglue  glctx;
-protected /*int*/GL2 cachecontext;
+protected int cachecontext;
 
 private
   ShaderType shadertype;
@@ -69,7 +69,7 @@ private int id;
   public abstract SoGLShaderParameter getNewParameter();
 
 
-public SoGLShaderObject( /*int*/GL2 cachecontext)
+public SoGLShaderObject( int cachecontext)
 {
   this.isActiveFlag = true;
   this.shadertype = ShaderType.VERTEX;
@@ -89,7 +89,7 @@ GLContext()
   return this.glctx;
 }
 
-public /*int*/GL2
+public int
 getCacheContext() 
 {
   return this.cachecontext;

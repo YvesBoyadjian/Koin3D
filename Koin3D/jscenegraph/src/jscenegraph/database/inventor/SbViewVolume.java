@@ -94,6 +94,7 @@ package jscenegraph.database.inventor;
 
 import static jscenegraph.database.inventor.SbBasic.M_PI_2;
 
+import jscenegraph.coin3d.inventor.base.SbClip;
 import jscenegraph.database.inventor.SbDPViewVolume.ProjectionType;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Array;
@@ -1604,4 +1605,96 @@ public class SbViewVolume implements Mutable {
 		return (sum < 0.0 ? true : false);
 	}
 
+	/*!
+	  Calculates the bbox of the intersection between \a bbox and the view volume.
+	  
+	  \since Coin 4.0
+	*/
+
+	public SbBox3f 
+	intersectionBox(final SbBox3f box)
+	{
+	  int i;
+	  //SbVec3f vvpts[8];
+	    final Array<SbVec3f> vvpts = new Array<>(SbVec3f.class,new SbVec3f[8]);
+	  final SbBox3f commonVolume = new SbBox3f();
+	  final SbVec3f bmin = new SbVec3f(box.getMin());
+	  final SbVec3f bmax = new SbVec3f(box.getMax());
+	  //SbPlane planes[6];
+	    final Array<SbPlane> planes = new Array<>(SbPlane.class,new SbPlane[6]);
+
+	  //*****************************************************************************
+	  // find the 8 view volume corners
+	  this.getPlaneRectangle(0.0f, vvpts.get(0), vvpts.get(1), vvpts.get(2), vvpts.get(3));
+	  this.getPlaneRectangle(this.nearToFar, vvpts.get(4), vvpts.get(5), vvpts.get(6), vvpts.get(7));
+
+	  //*****************************************************************************
+	  // all all view volume points inside the original bbox
+	  for (i = 0; i < 8; i++) {
+	    if (box.intersect(vvpts.get(i))) commonVolume.extendBy(vvpts.get(i));
+	  }
+
+	  //*****************************************************************************
+	  // add all bbox corner points inside the view volume
+	  this.getViewVolumePlanes(planes);
+	  int inside = 0;
+	  for (i = 0; i < 8; i++) {
+	    final SbVec3f pt = new SbVec3f((i&1)!=0?bmin.getValueRead()[0]:bmax.getValueRead()[0],
+	               (i&2)!=0?bmin.getValueRead()[1]:bmax.getValueRead()[1],
+	               (i&4)!=0?bmin.getValueRead()[2]:bmax.getValueRead()[2]);
+	    int j;
+	    for (j = 0; j < 6; j++) {
+	      if (!planes.get(j).isInHalfSpace(pt)) break;
+	    }
+	    if (j == 6) {
+	      commonVolume.extendBy(pt);
+	      inside++;
+	    }
+	  }
+	  if (inside==8) return commonVolume;
+	  
+	  //*****************************************************************************
+	  // clip the view volume against the bbox and add intersection points
+	  // to commonVolume
+	  //
+	  final SbClip clipper = new SbClip();
+	  // generate the 6 bbox planes, all pointing towards the center of the box
+	  for (i = 0; i < 6; i++) {
+	    int dim = i/2;
+	    final SbVec3f n = new SbVec3f(0.0f, 0.0f, 0.0f);
+	    n.setValue(dim, (i&1)!=0 ? 1.0f : -1.0f);
+	    planes.get(i).copyFrom( new SbPlane(n, ((i&1)!=0 ? bmin.getValueRead()[dim] : -bmax.getValueRead()[dim])));
+	  }
+
+	  // clip view volume polygons against the bbox planes
+	  clip_face(clipper, vvpts.get(0), vvpts.get(1), vvpts.get(3), vvpts.get(2), planes, commonVolume);
+	  clip_face(clipper, vvpts.get(1), vvpts.get(5), vvpts.get(7), vvpts.get(3), planes, commonVolume);
+	  clip_face(clipper, vvpts.get(5), vvpts.get(4), vvpts.get(6), vvpts.get(7), planes, commonVolume);
+	  clip_face(clipper, vvpts.get(4), vvpts.get(0), vvpts.get(2), vvpts.get(6), planes, commonVolume);
+	  clip_face(clipper, vvpts.get(4), vvpts.get(5), vvpts.get(1), vvpts.get(0), planes, commonVolume);
+	  clip_face(clipper, vvpts.get(2), vvpts.get(3), vvpts.get(7), vvpts.get(6), planes, commonVolume);
+
+	  return commonVolume;
+	}
+
+	public void clip_face(SbClip clipper, SbVec3f v0, SbVec3f v1,
+              SbVec3f v2, SbVec3f v3,
+              Array< SbPlane> planes, SbBox3f isect)
+{
+ int i;
+ clipper.addVertex(v0);
+ clipper.addVertex(v1);
+ clipper.addVertex(v2);
+ clipper.addVertex(v3);
+ for (i = 0; i < 6; i++) {
+   clipper.clip(planes.get(i));
+ }
+ int n = clipper.getNumVertices();
+ for (i = 0; i < n; i++) {
+   final SbVec3f tmp = new SbVec3f();
+   clipper.getVertex(i, tmp,null);
+   isect.extendBy(tmp);
+ }
+ clipper.reset();
+}
 }

@@ -270,13 +270,13 @@ public float[] get4Ptr() {
     	float[] vertexArray = new float[length*4];
     	int index = 0;
     	for(int i=0;i<length;i++) {
-    		vertexArray[index] = coords4[i].getValue()[0];
+    		vertexArray[index] = coords4[i].getValueRead()[0];
     		index++;
-    		vertexArray[index] = coords4[i].getValue()[1];
+    		vertexArray[index] = coords4[i].getValueRead()[1];
     		index++;
-    		vertexArray[index] = coords4[i].getValue()[2];
+    		vertexArray[index] = coords4[i].getValueRead()[2];
     		index++;
-    		vertexArray[index] = coords4[i].getValue()[3];
+    		vertexArray[index] = coords4[i].getValueRead()[3];
     		index++;
     	}
         return vertexArray;
@@ -298,8 +298,12 @@ set3(SoState state, SoNode node,
 ////////////////////////////////////////////////////////////////////////
 {
     // if someone sets this directly, remove any color VBO
-    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.VERTEX_VBO);
+    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.VERTEX_VBO);
 
+    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
+        SoGLVBOElement.setVertexVBO(state, null); // COIN 3D
+      }
+    
     SoCoordinateElement elt;
 
     // Get an instance we can change (pushing if necessary)
@@ -327,7 +331,10 @@ set4(SoState state, SoNode node,
 ////////////////////////////////////////////////////////////////////////
 {
     // if someone sets this directly, remove any color VBO
-    SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.VERTEX_VBO);
+    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.VERTEX_VBO);
+    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
+        SoGLVBOElement.setVertexVBO(state, null);
+      }
 
     SoCoordinateElement elt;
 

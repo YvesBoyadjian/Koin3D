@@ -60,11 +60,11 @@
 
 package jscenegraph.nodekits.inventor.nodekits;
 
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate4;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFNode;
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
-import jscenegraph.database.inventor.nodes.SoCoordinate4;
 import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoMaterialBinding;

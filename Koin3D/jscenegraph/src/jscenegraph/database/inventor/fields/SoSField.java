@@ -120,6 +120,14 @@ public abstract class SoSField<T extends Object> extends SoField {
 		return value;
 	}
 	
+	/**
+	 * Java port
+	 * @param newValue
+	 */
+	public void s(T newValue) {
+		setValue(newValue);
+	}
+	
 	/* Set value from a value of the appropriate type */ 
 	public void setValue(T newValue) {
 		

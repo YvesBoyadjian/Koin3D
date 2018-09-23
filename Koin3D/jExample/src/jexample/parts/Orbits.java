@@ -3,13 +3,11 @@
  */
 package jexample.parts;
 
-import jscenegraph.database.inventor.actions.SoGLRenderAction;
-import jscenegraph.database.inventor.nodes.SoCallback;
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.nodes.SoLineSet;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSphere;
-import jscenegraph.database.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.nodes.SoTranslation;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.database.inventor.sensors.SoTimerSensor;

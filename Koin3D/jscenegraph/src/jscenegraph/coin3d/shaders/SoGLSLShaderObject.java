@@ -49,7 +49,7 @@ public class SoGLSLShaderObject extends SoGLShaderObject {
 	private static int soglshaderobject_idcounter = 1;
 
 
-public SoGLSLShaderObject( GL2 cachecontext) {
+public SoGLSLShaderObject( int cachecontext) {
   super(cachecontext);
 
   this.programHandle = 0;
@@ -219,7 +219,7 @@ didOpenGLErrorOccur( String source, cc_glglue g)
                        "(set envvar COIN_GLERROR_DEBUGGING=1 "+
                        "and re-run to get more information)"));
     
-    retCode = true;
+    retCode = /*true*/false; // YB TODO
     glErr = g.getGL2().glGetError();
   }
   return retCode;

@@ -59,6 +59,8 @@ import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -77,7 +79,6 @@ import jscenegraph.database.inventor.details.SoPointDetail;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoGLTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
@@ -92,6 +93,7 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.SbVec3fArray;
 
 /**
@@ -725,7 +727,7 @@ GLRender(SoGLRenderAction action)
 	else if (shapeStyle.isTextureFunction() && vpCache.haveTexCoordsInVP()){
 	    state.push();
 	    useTexCoordsAnyway = SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
-	    SoGLTextureCoordinateElement.setTexGen(state, this, null);
+	    SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
 	}
 
 	//If lighting or texturing is off, this vpCache and other things
@@ -1188,7 +1190,7 @@ public void
 OmVn
     (SoGLRenderAction renderAction ) {
 	
-	GL2 gl2 = renderAction.getCacheContext();
+	GL2 gl2 = Ctx.get(renderAction.getCacheContext());
 
     Buffer vertexPtr = vpCache.getVertices(startIndex.getValue());
     final int vertexStride = vpCache.getVertexStride();

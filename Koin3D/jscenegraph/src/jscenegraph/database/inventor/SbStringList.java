@@ -84,6 +84,6 @@ public class SbStringList extends SbPList {
 		for(int i=0; i< length;i++){
 			array[i] = (String)get(i);
 		}
-		return null;
+		return array;
 	}
 }

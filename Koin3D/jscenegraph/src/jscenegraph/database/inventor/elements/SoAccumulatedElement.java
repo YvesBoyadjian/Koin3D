@@ -106,6 +106,8 @@ public class SoAccumulatedElement extends SoElement {
 	   private
 		    
 		        boolean              accumulatesWithParentFlag;
+	   
+	   //private boolean recursecapture;
 		   
 	   
 ////////////////////////////////////////////////////////////////////////
@@ -265,6 +267,24 @@ addNodeId( SoNode node)
             nodeIds.insert((Object) id, i);
     }
 }
+
+/*!
+  Convenience method which copies the node ids from \a copyfrom to
+  this element.
+
+  \COIN_FUNCTION_EXTENSION
+*/
+public void
+copyNodeIds(final SoAccumulatedElement copyfrom)
+{
+  this.nodeIds.operator_equal(copyfrom.nodeIds);
+
+  // this elements uses data from previous element in stack
+  //this.recursecapture = true;
+  this.accumulatesWithParentFlag = true;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //

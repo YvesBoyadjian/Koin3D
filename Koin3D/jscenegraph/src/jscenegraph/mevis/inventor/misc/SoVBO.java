@@ -47,8 +47,10 @@ import com.jogamp.opengl.GL2;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
+import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.CharPtr;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.VoidPtr;
 
@@ -93,7 +95,7 @@ public static boolean isVertexArrayRenderingAllowed()
 
 public static boolean shouldUseVBO( SoState state , int numData )
 {
-	GL2 gl2 = SoGLCacheContextElement.get(state); // java port
+	GL2 gl2 = Ctx.get(SoGLCacheContextElement.get(state)); // java port
 
   boolean result = isVBORenderingAllowed && gl2.isExtensionAvailable("GL_ARB_vertex_buffer_object") && (numData > _vboMinimumSizeLimit) && (numData < _vboMaximumSizeLimit);
   if (state != null) {
@@ -138,6 +140,28 @@ public void setData(int numBytes, final /*Buffer*/VoidPtr data, int nodeId, SoSt
   _hasSwappedRGBAData = false;
 }
 
+/*!
+Sets the buffer data. \a dataid is a unique id used to identify
+the buffer data. In Coin it's possible to use the node id
+(SoNode::getNodeId()) to test if a buffer is valid for a node.
+*/
+public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // COIN 3D
+{
+	  // free previous data if it was owned
+	  if (_ownsData && (_data != null)) {
+	    _data = null;//free((void*)_data);
+	  }
+	  if (dataid != _nodeId) {
+	    freeGL(state);
+	  }
+
+	  _numBytes = size;
+	  _data = data;
+	  _nodeId = dataid;
+	  _ownsData = false;
+	  _hasSwappedRGBAData = false;
+}
+
 public void allocateData( int numBytes, int nodeId , SoState state)
 {
   if (_ownsData && (_data!= null)) {
@@ -150,6 +174,18 @@ public void allocateData( int numBytes, int nodeId , SoState state)
   _nodeId = nodeId;
   _ownsData = true;
   _hasSwappedRGBAData = false;
+}
+
+/**
+ * COIN 3D YB
+ * @param size
+ * @param dataid
+ * @param state
+ * @return
+ */
+public VoidPtr allocBufferData(int size, int dataid, SoState state) {
+	allocateData(size, dataid, state);
+	return _data;
 }
 
 public void clearData()
@@ -201,7 +237,7 @@ public void freeGL(SoState state)
 
 public boolean bind(SoState state)
 {
-	GL2 gl2 = SoGLCacheContextElement.get(state);
+	GL2 gl2 = Ctx.get(SoGLCacheContextElement.get(state));
 	
   if ((_glBuffer==null) || SoGLCacheContextElement.get(state)!=_glBuffer.getContext()) {
     if (_glBuffer != null) {
@@ -275,5 +311,68 @@ public int getDataId() { return _nodeId; }
 
   //! get the lower limit for VBO usage
   public static int getVboMinimumSizeLimit() { return _vboMinimumSizeLimit; }
+
+  static int vbo_render_as_vertex_arrays = -1;
+  static int vbo_enabled = -1;
+  
+  public static boolean
+  shouldCreateVBO(SoState state, int contextid, int numdata)
+  {
+    if (vbo_enabled == 0 || vbo_render_as_vertex_arrays == 0) return false;
+    int minv = SoVBO.getVertexCountMinLimit();
+    int maxv = SoVBO.getVertexCountMaxLimit();
+    return
+      (numdata >= minv) &&
+      (numdata <= maxv) &&
+      SoVBO.isVBOFast(contextid) &&
+      (SoShapeStyleElement.get(state).getFlags() & SoShapeStyleElement.Flags.SHADOWMAP.getValue()) == 0;
+
+  }
+
+  static int vbo_vertex_count_min_limit = -1;
+  static int vbo_vertex_count_max_limit = -1;
+  
+  /*!
+  Returns the vertex VBO minimum limit.
+
+  \sa setVertexCountLimits()
+ */
+public static int
+getVertexCountMinLimit()
+{
+  return vbo_vertex_count_min_limit;
+}
+
+/*!
+  Returns the vertex VBO maximum limit.
+
+  \sa setVertexCountLimits()
+ */
+public static int
+getVertexCountMaxLimit()
+{
+  return vbo_vertex_count_max_limit;
+}
+
+public static boolean
+isVBOFast(int contextid)
+{
+  boolean result = true;
+  //assert(vbo_isfast_hash != NULL);
+  //vbo_isfast_hash.get(contextid, result); TODO
+  return result;
+}
+
+/*!
+  Returns the buffer data id.
+
+  \sa setBufferData()
+*/
+public int getBufferDataId() // COIN 3D
+{
+  //return this.dataid;
+	return this._nodeId; // YB
+}
+
 
 }

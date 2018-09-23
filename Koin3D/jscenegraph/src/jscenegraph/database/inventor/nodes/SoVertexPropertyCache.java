@@ -64,6 +64,9 @@ import java.nio.IntBuffer;
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -77,8 +80,8 @@ import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoOverrideElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.FloatArray;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
 
@@ -438,7 +441,7 @@ public class SoVertexPropertyCache {
         	//glTexCoord2fv;
         };
         texCoordStride = SbVec2f.sizeof();
-        texCoordPtr = (float[])vp.texCoord.getValuesFloat(0);
+        texCoordPtr = vp.texCoord.getValuesRef();
         needFromState &= ~BitMask.TEXCOORD_FROM_STATE_BIT.getValue();
         needFromState |= BitMask.TEXTURE_FUNCTION_BIT.getValue();
         texCoordBinding =
@@ -446,10 +449,13 @@ public class SoVertexPropertyCache {
         renderCase |= Bits.TEXCOORD_BIT.getValue();
         generateTexCoords = false;
     } else {
-        SoTextureCoordinateElement tce =
-                SoTextureCoordinateElement.getInstance(state);
-        if ((numTexCoords = tce.getNum()) > 0) {
-            if (tce.is2D()) {
+        SoMultiTextureCoordinateElement tce =
+                SoMultiTextureCoordinateElement.getInstance(state);
+        
+        int tue = SoTextureUnitElement.get(state);
+        
+        if ((numTexCoords = tce.getNum(tue)) > 0) {
+            if (tce.is2D(tue)) {
                 texCoordFunc = new SoVPCacheFunc(){
 
 					@Override
@@ -470,7 +476,7 @@ public class SoVertexPropertyCache {
 					}
                 }; 
                 texCoordStride = SbVec2f.sizeof();
-                texCoordPtr = (float[]) tce.get2Ptr();
+                texCoordPtr = tce.getArrayPtr2(tue).toFloat();//get2Ptr(tue);
             } else {
                 texCoordFunc = new SoVPCacheFunc () {
 
@@ -483,7 +489,7 @@ public class SoVertexPropertyCache {
                 	//glTexCoord4fv;
                 };
                 texCoordStride = SbVec4f.sizeof();
-                texCoordPtr = (float[]) tce.get4Ptr();
+                texCoordPtr = tce.getArrayPtr4(tue).toFloat();//get4Ptr(tue);
             }
                 texCoordBinding =
                     (byte)SoTextureCoordinateBindingElement.get(state).getValue();

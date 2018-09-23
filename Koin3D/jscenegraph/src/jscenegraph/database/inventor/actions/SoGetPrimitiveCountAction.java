@@ -25,6 +25,8 @@ package jscenegraph.database.inventor.actions;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoActionMethodList.SoActionMethod;
+import jscenegraph.database.inventor.elements.SoElement;
 
 /*!
   \class SoGetPrimitiveCountAction SoGetPrimitiveCountAction.h Inventor/actions/SoGetPrimitiveCountAction.h
@@ -66,6 +68,21 @@ public class SoGetPrimitiveCountAction extends SoAction {
 	public SoType getTypeId() {
 		return classTypeId;
 	}
+    public static SoType               getClassTypeId()                              
+    { return classTypeId; }                   
+    public                                                          
+    static void                 addMethod(SoType t, SoActionMethod method)    
+                                    { methods.addMethod(t, method); }
+  // java port
+  public  static void                 enableElement(Class<?> klass)         
+  { enabledElements.enable(SoElement.getClassTypeId(klass), SoElement.getClassStackIndex(klass));}
+  
+   public  static void                 enableElement(SoType t, int stkIndex)         
+                                    { enabledElements.enable(t, stkIndex);}  
+  protected                                                                  
+    SoEnabledElementsList  getEnabledElements()  {
+	  return enabledElements;
+  }
 
     protected  static SoEnabledElementsList enabledElements;                            
     protected  static SoActionMethodList   methods;                                     

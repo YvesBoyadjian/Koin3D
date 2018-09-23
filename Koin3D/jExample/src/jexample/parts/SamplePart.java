@@ -20,6 +20,8 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.osgi.framework.Bundle;
 
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SoDB;
@@ -28,7 +30,6 @@ import jscenegraph.database.inventor.engines.SoElapsedTime;
 import jscenegraph.database.inventor.nodes.SoBaseColor;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCone;
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
 import jscenegraph.database.inventor.nodes.SoCylinder;
 import jscenegraph.database.inventor.nodes.SoDirectionalLight;
 import jscenegraph.database.inventor.nodes.SoDrawStyle;
@@ -45,7 +46,6 @@ import jscenegraph.database.inventor.nodes.SoRotationXYZ;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSphere;
 import jscenegraph.database.inventor.nodes.SoText3;
-import jscenegraph.database.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.nodes.SoTextureCoordinate2;
 import jscenegraph.database.inventor.nodes.SoTranslation;
 import jscenegraph.database.inventor.nodes.SoTriangleStripSet;
@@ -102,7 +102,7 @@ public class SamplePart {
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
 	    		//createDemoSceneTimeWatch()
-	    		//TextureCoordinatePlane.computeRoot()
+	    		TextureCoordinatePlane.computeRoot()
 	    		//TextureCoordinates.createScene()
 	    		//Text2.createScene()
 	    		//Text3.createScene()
@@ -111,7 +111,7 @@ public class SamplePart {
 	    		//Selection.createSceneSelection()
 	    		//Manips.createScene()
 	    		//new PickTrackball().createScene()
-	    		FrolickingWords.createRoot()
+	    		//FrolickingWords.createRoot()
 	    		//Balance.createScene(viewer)
 	    		//Obelisque.makeObeliskFaceSet()
 	    		//Drapeau.makePennant()

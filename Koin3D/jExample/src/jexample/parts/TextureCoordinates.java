@@ -3,14 +3,14 @@
  */
 package jexample.parts;
 
+import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.nodes.SoCoordinate3;
 import jscenegraph.database.inventor.nodes.SoFaceSet;
 import jscenegraph.database.inventor.nodes.SoNormal;
 import jscenegraph.database.inventor.nodes.SoNormalBinding;
 import jscenegraph.database.inventor.nodes.SoSeparator;
-import jscenegraph.database.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.nodes.SoTextureCoordinate2;
 import jscenegraph.database.inventor.nodes.SoTextureCoordinateBinding;
 

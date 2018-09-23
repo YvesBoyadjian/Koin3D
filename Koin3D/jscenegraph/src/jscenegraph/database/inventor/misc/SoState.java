@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 
 
@@ -156,7 +157,7 @@ public class SoState implements Destroyable {
 	public GL2 getGL2() {
 		if(action instanceof SoGLRenderAction) {
 			SoGLRenderAction GLRenderAction = (SoGLRenderAction)action;
-			GL2 gl2 = GLRenderAction.getCacheContext();
+			GL2 gl2 = Ctx.get(GLRenderAction.getCacheContext());
 			return gl2;
 		}
 		throw new IllegalStateException("Not in a SoGLRenderAction");

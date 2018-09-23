@@ -68,6 +68,7 @@ public class Main {
 		SoCamera camera = viewer.getCameraController().getCamera();
 		
 		camera.position.setValue(0,0,0);
+		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
 		
 		viewer.getCameraController().changeCameraValues(camera);
 		
@@ -99,7 +100,7 @@ public class Main {
 	    
 	    shell.getDisplay().asyncExec(new Runnable() {
 	        public void run() {
-	    		shell.setFullScreen(true);
+	    		//shell.setFullScreen(true);
 	            shell.forceActive();
 	        }
 	    });

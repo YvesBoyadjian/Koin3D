@@ -59,6 +59,7 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.elements.SoGLNormalElement;
 import jscenegraph.database.inventor.elements.SoNormalElement;
@@ -255,8 +256,10 @@ public static void initClass()
 
     // Enable elements for appropriate actions:
     SO_ENABLE(SoGLRenderAction.class, SoGLNormalElement.class);
+    SO_ENABLE(SoGLRenderAction.class, SoNormalElement.class);
     SO_ENABLE(SoGLRenderAction.class, SoGLVBOElement.class);
     SO_ENABLE(SoCallbackAction.class, SoNormalElement.class);
+    SO_ENABLE(SoGetPrimitiveCountAction.class, SoNormalElement.class);
     SO_ENABLE(SoPickAction.class,     SoNormalElement.class);
 }
 

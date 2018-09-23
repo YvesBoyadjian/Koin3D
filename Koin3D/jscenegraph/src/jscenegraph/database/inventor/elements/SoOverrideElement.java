@@ -75,7 +75,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
  */
 public class SoOverrideElement extends SoElement {
 	
-    private enum ElementMask {
+    public enum ElementMask {
            AMBIENT_COLOR   ( 0x1),
           COLOR_INDEX     ( 0x2),
           COMPLEXITY      ( 0x4),
@@ -96,7 +96,10 @@ public class SoOverrideElement extends SoElement {
           SHAPE_HINTS     ( 0x10000),
           SHININESS       ( 0x20000),
           SPECULAR_COLOR  ( 0x40000),
-          POLYGON_OFFSET  ( 0x80000);
+          POLYGON_OFFSET  ( 0x80000),
+          TRANSPARENCY_TYPE (0x100000),
+          NORMAL_VECTOR (0x200000),
+          NORMAL_BINDING (0x400000);
            
            private int value;
            
@@ -117,6 +120,10 @@ public class SoOverrideElement extends SoElement {
 	  
   }
   
+  public static int getFlags(SoState state) {
+	    return ((SoOverrideElement)SoOverrideElement.getConstElement(state, classStackIndexMap.get(SoOverrideElement.class))).flags;
+	  }
+
   
 
 ////////////////////////////////////////////////////////////////////////
@@ -319,9 +326,19 @@ matches( SoElement elt)
     public static boolean         getTransparencyOverride(SoState state)
         { return SO_GET_OVERRIDE(state, ElementMask.TRANSPARENCY.getValue()); }
 
+
+public static boolean
+getTransparencyTypeOverride(SoState state)
+{
+  return SO_GET_OVERRIDE(state, ElementMask.TRANSPARENCY_TYPE.getValue());
+}
+
+    
     //! Returns TRUE if SoPolygonOffsetElement is overridden.
     public static boolean         getPolygonOffsetOverride(SoState state)
         { return SO_GET_OVERRIDE(state, ElementMask.POLYGON_OFFSET.getValue()); }
+    
+    
    
    public static boolean SO_GET_OVERRIDE(SoState state, int flag) {
 	   SoOverrideElement elt; 
@@ -432,6 +449,51 @@ setDiffuseColorOverride(SoState state, SoNode node,
     }             
     	
     }
+    
+    /*!
+    Can be used to set the transparency type override.
+
+    \sa setDiffuseColorOverride().
+  */
+  public static void
+  setTransparencyTypeOverride(SoState state,
+                                                 SoNode  node ,
+                                                 boolean override)
+  {
+    SO_SET_OVERRIDE(state, ElementMask.TRANSPARENCY_TYPE.getValue(), override);
+  }
+
+  /*!
+  Can be used to set normal vector override.
+
+  \CLASS_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static void
+setNormalVectorOverride(SoState state,
+                                           SoNode  node ,
+                                           boolean override)
+{
+  SO_SET_OVERRIDE(state, ElementMask.NORMAL_VECTOR.getValue(), override);
+}
+
+/*!
+  Can be used to set normal binding override.
+
+  \CLASS_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static void
+setNormalBindingOverride(SoState state,
+                                            SoNode node,
+                                            boolean override)
+{
+  SO_SET_OVERRIDE(state, ElementMask.NORMAL_BINDING.getValue(), override);
+}
+
+    
 
 /////////////////////////////////////////////////////////////////////////
 //

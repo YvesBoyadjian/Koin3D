@@ -34,7 +34,8 @@ package jterrain.geomipmapping;
 
 import com.jogamp.opengl.GL2;
 
-import jscenegraph.coin3d.inventor.elements.SoTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.database.inventor.SbBasic;
 import jscenegraph.database.inventor.SbBox2s;
 import jscenegraph.database.inventor.SbBox3f;
@@ -53,7 +54,6 @@ import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoLightModelElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -65,6 +65,7 @@ import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.port.Array;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.SbVec2fArray;
 import jscenegraph.port.SbVec3fArray;
@@ -157,8 +158,8 @@ public static void initClass()
   /* Inicializace tridy. */
   SoSubNode.SO_NODE_INIT_CLASS(SoSimpleGeoMipmapTerrain.class, SoShape.class, "Shape");
   SO_ENABLE(SoGLRenderAction.class, SoCoordinateElement.class);
-  SO_ENABLE(SoGLRenderAction.class, SoTextureCoordinateElement.class);
-  SO_ENABLE(SoGLRenderAction.class, SoTextureEnabledElement.class);
+  SO_ENABLE(SoGLRenderAction.class, SoMultiTextureCoordinateElement.class);
+  SO_ENABLE(SoGLRenderAction.class, SoMultiTextureEnabledElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoLightModelElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoNormalElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoNormalBindingElement.class);
@@ -232,12 +233,12 @@ public void GLRender(SoGLRenderAction action)
     /* Pracujeme pouze s tridimenzionalnimi geometrickymi souradnicemi
     a dvoudimenzionalnimi texturovymi souradnicemi. */
     assert(SoCoordinateElement.getInstance(state).is3D() &&
-      (SoTextureCoordinateElement.getInstance(state).getDimension() == 2));
+      (SoMultiTextureCoordinateElement.getInstance(state).getDimension(0) == 2));
 
     /* Ziskani vrcholu a texturovych souradnic. */
     coords = SoCoordinateElement.getInstance(state).getArrayPtr3();
-    texture_coords = SoTextureCoordinateElement.getInstance(state).
-      getArrayPtr2();
+    texture_coords = SoMultiTextureCoordinateElement.getInstance(state).
+      getArrayPtr2(0);
     normals = SoNormalElement.getInstance(state).getArrayPtr();
 
     /* Kontrlola velikosti mapy a dlazdice. */
@@ -272,15 +273,15 @@ public void GLRender(SoGLRenderAction action)
     SoNormalBindingElement.get(state);
   final SoMaterialBundle mat_bundle = new SoMaterialBundle(action);
 
-  this.is_texture = (SoTextureEnabledElement.get(state) &&
-    SoTextureCoordinateElement.getType(state) !=
-    SoTextureCoordinateElement.CoordType.NONE);
+  this.is_texture = (SoMultiTextureEnabledElement.get(state,0) &&
+    SoMultiTextureCoordinateElement.getType(state,0) !=
+    SoMultiTextureCoordinateElement.CoordType.NONE_TEXGEN);
   this.is_normals = (this.normals != null && SoLightModelElement.get(state) !=
     SoLightModelElement.Model.BASE_COLOR);
 
   mat_bundle.sendFirst();
   
-  GL2 gl2 = action.getCacheContext();
+  GL2 gl2 = Ctx.get(action.getCacheContext());
 
   if (!is_normals)
   {
@@ -310,8 +311,8 @@ public void generatePrimitives(SoAction action)
 
   SoState state = action.getState();
   coords = SoCoordinateElement.getInstance(state).getArrayPtr3();
-  texture_coords = SoTextureCoordinateElement.getInstance(state).
-    getArrayPtr2();
+  texture_coords = SoMultiTextureCoordinateElement.getInstance(state).
+    getArrayPtr2(0);
   normals = SoNormalElement.getInstance(state).getArrayPtr();
 
   /* Brutal-force vygenerovani triangle-stripu vyskove mapy. */

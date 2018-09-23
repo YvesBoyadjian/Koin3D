@@ -59,12 +59,15 @@ import java.util.List;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -73,10 +76,8 @@ import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.details.SoCylinderDetail;
 import jscenegraph.database.inventor.elements.SoComplexityElement;
 import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoLightModelElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBitMask;
 import jscenegraph.database.inventor.fields.SoSFFloat;
@@ -84,6 +85,7 @@ import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatPtr;
 import jscenegraph.port.VectorOfSbVec3f;
 import jscenegraph.port.VoidPtr;
@@ -327,7 +329,7 @@ GLRender(SoGLRenderAction action)
     return;
 
   // See if texturing is enabled
-  boolean doTextures = SoGLTextureEnabledElement.get(action.getState());
+  boolean doTextures = SoGLMultiTextureEnabledElement.get(action.getState(),0);
 
   // Render the cylinder. The GLRenderGeneric() method handles any
   // case. The GLRenderNvertTnone() handles the case where we are
@@ -813,7 +815,7 @@ private void GLRenderVertexArray(SoGLRenderAction action,
   _cache.vbo.bind(state);
   _cache.drawArrays(this, action, GL2.GL_TRIANGLES);
   
-  GL2 gl2 = action.getCacheContext(); // java port
+  GL2 gl2 = Ctx.get(action.getCacheContext()); // java port
   
   _cache.vbo.unbind(gl2);
   
@@ -843,11 +845,11 @@ generatePrimitives(SoAction action)
     final SbVec2f[][]             ringCoords = new SbVec2f[1][];
     final SbVec3fSingle             pt = new SbVec3fSingle(), norm = new SbVec3fSingle();
     final float[]               radius = new float[1], halfHeight = new float[1];
-    final SbVec4f             tex = new SbVec4f();
+    final SbVec4fSingle             tex = new SbVec4fSingle();
     boolean              genTexCoords = false;
     final SoPrimitiveVertex   pv = new SoPrimitiveVertex();
     final SoCylinderDetail    detail = new SoCylinderDetail();
-    SoTextureCoordinateElement    tce = null;
+    SoMultiTextureCoordinateElement    tce = null;
 
     SoMaterialBindingElement.Binding mbe =
 	SoMaterialBindingElement.get(action.getState());
@@ -865,7 +867,7 @@ generatePrimitives(SoAction action)
     pv.setDetail(detail);
 
     // Determine whether we should generate our own texture coordinates
-    switch (SoTextureCoordinateElement.getType(action.getState())) {
+    switch (SoMultiTextureCoordinateElement.getType(action.getState(),0)) {
       case EXPLICIT:
 	genTexCoords = true;
 	break;
@@ -877,7 +879,7 @@ generatePrimitives(SoAction action)
     // If we're not generating our own coordinates, we'll need the
     // texture coordinate element to get coords based on points/normals.
     if (! genTexCoords)
-	tce = SoTextureCoordinateElement.getInstance(action.getState());
+	tce = SoMultiTextureCoordinateElement.getInstance(action.getState());
     else {
 	tex.getValue()[2] = 0.0f;
 	tex.getValue()[3] = 1.0f;
@@ -1330,7 +1332,7 @@ GLRenderGeneric(SoGLRenderAction action,
     // Make sure first material is sent if necessary
     mb.sendFirst();
     
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
 
     if (HAS_PART(curParts, Part.SIDES.getValue())) {
 
@@ -1625,7 +1627,7 @@ GLRenderNvertTnone(SoGLRenderAction action)
     // Make sure first material is sent if necessary
     mb.sendFirst();
 
-	GL2 gl2 = action.getCacheContext(); //java port
+	GL2 gl2 = Ctx.get(action.getCacheContext()); //java port
 
     if (HAS_PART(curParts, Part.SIDES.getValue())) {
 

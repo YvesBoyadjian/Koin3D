@@ -202,7 +202,7 @@ public abstract class SoQtSceneHandler {
     }
 
 
-public void initializeScene(GL2 shareID)
+public void initializeScene(int shareID)
 {
     sceneMgr.reinitialize();
 

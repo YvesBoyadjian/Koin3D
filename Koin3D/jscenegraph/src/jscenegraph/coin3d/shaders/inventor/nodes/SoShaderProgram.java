@@ -90,7 +90,7 @@ import jscenegraph.database.inventor.sensors.SoSensor;
   Coin while traversing the scene graph.
 
   \li coin_texunit[n]_model - Set to 0 when texturing is disabled, and
-  to SoTextureImageElement::Model if there's a current texture on the
+  to SoTextureImageElement.Model if there's a current texture on the
   state for unit \a n.
 
   \li coin_light_model - Set to 1 for PHONG, 0 for BASE_COLOR lighting.
@@ -204,7 +204,7 @@ import jscenegraph.database.inventor.sensors.SoSensor;
 */
 
 /*!
-  \var SoMFNode SoShaderProgram::shaderObject
+  \var SoMFNode SoShaderProgram.shaderObject
 
   The shader objects.
 
@@ -295,22 +295,57 @@ public void destructor()
 // doc from parent
 public void GLRender(SoGLRenderAction action)
 {
+//	  SoState state = action.getState();
+//
+//	  // FIXME: (Martin 2004-09-21) find an alternative to invalidating the cache
+//	  SoCacheElement.invalidate(state);
+//
+//	  glShaderProgram.removeShaderObjects();
+//	  glShaderProgram.setEnableCallback(enablecb,
+//	                                          enablecbclosure);
+//
+//	  SoGLShaderProgramElement.set(state, this, glShaderProgram);
+//
+//	  int i, cnt = shaderObject.getNum();
+//
+//	  // load shader objects
+//	  for (i = 0; i <cnt; i++) {
+//	    SoNode node = shaderObject.operator_square_bracket(i)[0];
+//	    if (node.isOfType(SoShaderObject.getClassTypeId())) {
+//	      ((SoShaderObject )node).GLRender(action);
+//	    }
+//	  }
+//
+//	  // enable shader after all shader objects have been loaded
+//	  SoGLShaderProgramElement.enable(state, true);
+//
+//	  // update parameters after all shader objects have been added and enabled
+//
+//	  for (i = 0; i <cnt; i++) {
+//	    SoNode node = shaderObject.operator_square_bracket(i)[0];
+//	    if (node.isOfType(SoShaderObject.getClassTypeId())) {
+//	      ((SoShaderObject )node).updateParameters(state);
+//	    }
+//	  }
 	  SoState state = action.getState();
 
+	  int i, cnt = this.shaderObject.getNum();
+	  if (cnt == 0) {
+	    SoGLShaderProgramElement.set(state, this, null);
+	    return;
+	  }
 	  // FIXME: (Martin 2004-09-21) find an alternative to invalidating the cache
 	  SoCacheElement.invalidate(state);
 
-	  glShaderProgram.removeShaderObjects();
-	  glShaderProgram.setEnableCallback(enablecb,
-	                                          enablecbclosure);
+	  this.glShaderProgram.removeShaderObjects();
+	  this.glShaderProgram.setEnableCallback(this.enablecb,
+	                                          this.enablecbclosure);
 
-	  SoGLShaderProgramElement.set(state, this, glShaderProgram);
-
-	  int i, cnt = shaderObject.getNum();
+	  SoGLShaderProgramElement.set(state, this, this.glShaderProgram);
 
 	  // load shader objects
 	  for (i = 0; i <cnt; i++) {
-	    SoNode node = shaderObject.operator_square_bracket(i)[0];
+	    SoNode node = this.shaderObject.operator_square_bracket(i)[0];
 	    if (node.isOfType(SoShaderObject.getClassTypeId())) {
 	      ((SoShaderObject )node).GLRender(action);
 	    }
@@ -322,7 +357,7 @@ public void GLRender(SoGLRenderAction action)
 	  // update parameters after all shader objects have been added and enabled
 
 	  for (i = 0; i <cnt; i++) {
-	    SoNode node = shaderObject.operator_square_bracket(i)[0];
+	    SoNode node = this.shaderObject.operator_square_bracket(i)[0];
 	    if (node.isOfType(SoShaderObject.getClassTypeId())) {
 	      ((SoShaderObject )node).updateParameters(state);
 	    }
@@ -341,20 +376,20 @@ public void search(SoSearchAction action)
 //#if 0 // disabled, not possible to search under this node
 //  int numindices;
 //  const int * indices;
-//  if (action->getPathCode(numindices, indices) == SoAction::IN_PATH) {
+//  if (action.getPathCode(numindices, indices) == SoAction.IN_PATH) {
 //    // FIXME: not implemented -- 20050129 martin
 //  }
 //  else { // traverse all shader objects
-//    int num = this->shaderObject.getNum();
+//    int num = this.shaderObject.getNum();
 //    for (int i=0; i<num; i++) {
-//      SoNode * node = this->shaderObject[i];
-//      action->pushCurPath(i, node);
+//      SoNode * node = this.shaderObject[i];
+//      action.pushCurPath(i, node);
 //      SoNodeProfiling profiling;
 //      profiling.preTraversal(action);
-//      node->search(action);
+//      node.search(action);
 //      profiling.postTraversal(action);
-//      action->popCurPath();
-//      if (action->isFound()) return;
+//      action.popCurPath();
+//      if (action.isFound()) return;
 //    }
 //  }
 //#endif // disabled

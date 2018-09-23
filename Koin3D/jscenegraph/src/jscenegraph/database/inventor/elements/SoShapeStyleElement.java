@@ -128,6 +128,8 @@ public class SoShapeStyleElement extends SoElement {
 	public static final int BBOX_BIT = 0x2;
 	public static final int DELAY_TRANSP_BIT = 0x4;
 
+	public static final int TRANSPTYPE_MASK  = 0x0001f; //COIN 3D
+
 	
 
 	   private        int                 delayFlags; //!< True if rendering might be delayed
@@ -368,6 +370,15 @@ setTextureEnabled(SoState state, boolean value)
     // Set renderCase bits, if need texcoords:
     if (elt.needTexCoords())
         elt.renderCaseMask |= SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
+
+    // COIN 3D
+    SoShapeStyleElement elem = getElement(state);
+    if (value) {
+      elem.flags |= Flags.TEXENABLED.getValue();
+    }
+    else {
+      elem.flags &= ~Flags.TEXENABLED.getValue();
+    }
 }
 
 /*!
@@ -487,5 +498,84 @@ setTransparentTexture(SoState state, final boolean value) // COIN 3D
   }
 }
 
+/*!
+  Returns the state flags. Used internally to optimize rendering.
+
+  \ since Coin 2.4
+*/
+public int getFlags()
+{
+  return this.flags;
+}
+
+/*!
+  Sets whether we are rendering to a shadow (depth) map or not.
+
+  \since Coin 2.5
+*/
+public static void setShadowMapRendering(SoState state, boolean value)
+{
+  SoShapeStyleElement elem = getElement(state);
+  if (value) {
+    elem.flags |= Flags.SHADOWMAP.getValue();
+  }
+  else {
+    elem.flags &= ~Flags.SHADOWMAP.getValue();
+  }
+}
+
+/*!
+  Sets whether we are rendering with shadows or not.
+
+  \since Coin 2.5
+*/
+public static void
+setShadowsRendering(SoState state, boolean value)
+{
+  SoShapeStyleElement elem = getElement(state);
+  if (value) {
+    elem.flags |= Flags.SHADOWS.getValue();
+  }
+  else {
+    elem.flags &= ~Flags.SHADOWS.getValue();
+  }
+}
+
+
+/*!
+Returns the current modifiable instance (might cause a push())
+*/
+public static SoShapeStyleElement 
+getElement(SoState state)
+{
+return (SoShapeStyleElement)
+   SoElement.getElement(state, classStackIndexMap.get(SoShapeStyleElement.class));
+}
+
+/*!
+  Returns the current transparency type.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static int
+getTransparencyType(SoState state)
+{
+  SoShapeStyleElement elem = getConstElement(state);
+  return (int)(elem.flags & TRANSPTYPE_MASK);
+}
+
+/*!
+Returns the current read-only instance.
+*/
+public static SoShapeStyleElement
+getConstElement(SoState state)
+{
+return (SoShapeStyleElement)
+  (
+   SoElement.getConstElement(state, classStackIndexMap.get(SoShapeStyleElement.class))
+   );
+}
 
 }

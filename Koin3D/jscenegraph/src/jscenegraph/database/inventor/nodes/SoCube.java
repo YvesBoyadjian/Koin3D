@@ -56,12 +56,15 @@ package jscenegraph.database.inventor.nodes;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.SoMachine;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
@@ -76,17 +79,16 @@ import jscenegraph.database.inventor.elements.SoComplexityElement;
 import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
 import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
-import jscenegraph.database.inventor.elements.SoGLTextureEnabledElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoLightModelElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
-import jscenegraph.database.inventor.elements.SoTextureCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
+import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatPtr;
 import jscenegraph.port.IntPtr;
 
@@ -291,7 +293,7 @@ GLRender(SoGLRenderAction action)
 
   SoState state = action.getState();
   // See if texturing is enabled
-  boolean doTextures = SoGLTextureEnabledElement.get(state);
+  boolean doTextures = SoGLMultiTextureEnabledElement.get(state,0);
 
   // Render the cube. The GLRenderGeneric() method handles any
   // case.
@@ -457,7 +459,7 @@ GLRenderBoundingBox(SoGLRenderAction action, final SbBox3f bbox)
 
   // Make sure textures are disabled, just to speed things up
   action.getState().push();
-  SoGLTextureEnabledElement.set(action.getState(), false);
+  SoGLMultiTextureEnabledElement.set(action.getState(),this,0, false);
 
   // Make sure first material is sent if necessary
   mb.sendFirst();
@@ -468,7 +470,7 @@ GLRenderBoundingBox(SoGLRenderAction action, final SbBox3f bbox)
   bbox.getSize(size);
   scale.copyFrom(size.operator_mul(0.5f));
 
-  GL2 gl2 = SoGLCacheContextElement.get(action.getState());  
+  GL2 gl2 = Ctx.get(SoGLCacheContextElement.get(action.getState()));  
   
   for (face = 0; face < 6; face++) {
 
@@ -633,7 +635,7 @@ void GLRenderVertexArray(SoGLRenderAction action,
     }
   }
   
-  GL2 gl2 = action.getCacheContext();
+  GL2 gl2 = Ctx.get(action.getCacheContext());
 
   _cache.vbo.setData(numBytes, null, 0, state);
   _cache.vbo.bind(state);
@@ -667,11 +669,11 @@ generatePrimitives(SoAction action)
     float               s;
     final SbVec3fSingle             pt = new SbVec3fSingle(), norm = new SbVec3fSingle();
     final float[]               w = new float[1], h = new float[1], d = new float[1];
-    final SbVec4f             tex = new SbVec4f();
+    final SbVec4fSingle             tex = new SbVec4fSingle();
     boolean              genTexCoords = false;
     final SoPrimitiveVertex   pv = new SoPrimitiveVertex();
     final SoCubeDetail        detail = new SoCubeDetail();
-    SoTextureCoordinateElement    tce = null;
+    SoMultiTextureCoordinateElement    tce = null;
 
     materialPerFace = isMaterialPerFace(action);
     numDivisions    = computeNumDivisions(action);
@@ -679,7 +681,7 @@ generatePrimitives(SoAction action)
     pv.setDetail(detail);
 
     // Determine whether we should generate our own texture coordinates
-    switch (SoTextureCoordinateElement.getType(action.getState())) {
+    switch (SoMultiTextureCoordinateElement.getType(action.getState(),0)) {
       case EXPLICIT:
 	genTexCoords = true;
 	break;
@@ -691,7 +693,7 @@ generatePrimitives(SoAction action)
     // If we're not generating our own coordinates, we'll need the
     // texture coordinate element to get coords based on points/normals.
     if (! genTexCoords)
-	tce = SoTextureCoordinateElement.getInstance(action.getState());
+	tce = SoMultiTextureCoordinateElement.getInstance(action.getState());
     else {
 	tex.getValue()[2] = 0.0f;
 	tex.getValue()[3] = 1.0f;
@@ -980,7 +982,7 @@ GLRenderGeneric(SoGLRenderAction action,
 	mb.setUpMultiple();
     mb.sendFirst();
     
-    GL2 gl2 = action.getCacheContext();
+    GL2 gl2 = Ctx.get(action.getCacheContext());
 
     if (numDivisions == 1)
 	gl2.glBegin(GL2.GL_QUADS);
