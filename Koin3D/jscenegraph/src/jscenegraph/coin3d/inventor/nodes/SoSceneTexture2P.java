@@ -524,8 +524,8 @@ public class SoSceneTexture2P implements Destroyable {
 		    final int[] oldfb = new int[1];
 		    gl2.glGetIntegerv( GL2.GL_FRAMEBUFFER_BINDING/*_EXT*/, oldfb, 0 );
 
-		    SoGL.cc_glglue_glGenFramebuffers(glue, 1, fbodata.fbo_frameBuffer);
-		    SoGL.cc_glglue_glGenRenderbuffers(glue, 1, fbodata.fbo_depthBuffer);
+		    fbodata.fbo_frameBuffer = SoGL.cc_glglue_glGenFramebuffers(glue/*, 1, fbodata.fbo_frameBuffer*/); //java port
+		    fbodata.fbo_depthBuffer = SoGL.cc_glglue_glGenRenderbuffers(glue/*, 1, fbodata.fbo_depthBuffer*/); // java port
 		    SoGL.cc_glglue_glBindFramebuffer(glue, GL2.GL_FRAMEBUFFER/*_EXT*/, fbodata.fbo_frameBuffer);
 
 		    fbodata.fbo_texture = new SoGLDisplayList(state, SoGLDisplayList.Type.TEXTURE_OBJECT);
@@ -533,8 +533,8 @@ public class SoSceneTexture2P implements Destroyable {
 		    fbodata.fbo_texture.open(state);
 
 		    int gltype = GL2.GL_FLOAT;
-		    int internalformat = GL2.GL_RGBA8;
-		    int format = GL2.GL_RGBA;
+		    final int[] internalformat = new int[1]; internalformat[0] = GL2.GL_RGBA8;
+		    final int[] format = new int[1]; format[0] = GL2.GL_RGBA;
 
 		    SoSceneTexture2.soscenetexture2_translate_type(type, internalformat, format);
 
@@ -548,10 +548,10 @@ public class SoSceneTexture2P implements Destroyable {
 		    }
 
 		    gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0,
-		                 internalformat,
+		                 internalformat[0],
 		                 fbodata.fbo_size.getValue()[0], fbodata.fbo_size.getValue()[1],
 		                 0, /* border */
-		                 format,
+		                 format[0],
 		                 gltype, null);
 
 		    // for mipmaps

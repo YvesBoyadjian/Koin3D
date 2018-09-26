@@ -42,6 +42,7 @@ import jscenegraph.coin3d.glue.Gl;
 import jscenegraph.coin3d.inventor.SbImage;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.lists.SbListOfMutableRefs;
 import jscenegraph.coin3d.inventor.threads.SbStorage;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbName;
@@ -54,6 +55,7 @@ import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Mutable;
 
 /**
  * @author Yves Boyadjian
@@ -294,7 +296,7 @@ private static class soglimage_buffer {
   private static SbList <SoGLImage> glimage_reglist;
   private static int glimage_maxage = 60;
 
-  private class dldata {
+  private class dldata implements Mutable {
   public
     dldata() {
       dlist = null; age = 0;  }
@@ -304,13 +306,15 @@ private static class soglimage_buffer {
     public dldata(final dldata  org) {
       dlist = org.dlist;
         age = org.age; }
-    SoGLDisplayList dlist;
+    SoGLDisplayList dlist; // ptr
     int age;
+	@Override
+	public void copyFrom(Object other) {
+		dldata od = (dldata)other;
+	}
   };
 
-  
-
-  private final SbList<dldata> /*<dldata>*/ dlists = new SbList();
+  private final SbListOfMutableRefs<dldata> /*<dldata>*/ dlists = new SbListOfMutableRefs<>(()->new dldata());
 
   // these flags can be used to set texture properties.
   public enum Flags {

@@ -636,7 +636,7 @@ setFragmentShader(SoState state)
 
   // ATi doesn't seem to support gl_FrontFace in hardware. We've only
   // verified that nVidia supports it so far.
-  boolean twosidetest = glue.vendor_is_nvidia && ((perpixelspot[0] && numshadowlights != 0) || perpixelother[0]);
+  boolean twosidetest = /*glue.vendor_is_nvidia &&*/ ((perpixelspot[0] && numshadowlights != 0) || perpixelother[0]);
 
 
   if (numshadowlights != 0) {

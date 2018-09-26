@@ -686,72 +686,72 @@ public class SoSceneTexture2 extends SoNode {
 
 	  //#define PUBLIC(obj) obj->api
 
-	  public static void soscenetexture2_translate_type(SoSceneTexture2.Type type, /*GLenum &*/int internalformat, /*GLenum &*/int format)
+	  public static void soscenetexture2_translate_type(SoSceneTexture2.Type type, final int[] internalformat, final int[] format)
 	  {
-	    format = GL2.GL_RGBA;
-	    internalformat = GL2.GL_RGBA8;
+	    format[0] = GL2.GL_RGBA;
+	    internalformat[0] = GL2.GL_RGBA8;
 
 	    switch (type) {
 	    case DEPTH:
 	    case RGBA8:
-	      internalformat = GL2.GL_RGBA8;
+	      internalformat[0] = GL2.GL_RGBA8;
 	      break;
 	    case RGBA32F:
-	      internalformat = GL2.GL_RGBA32F/*_ARB*/;
+	      internalformat[0] = GL2.GL_RGBA32F/*_ARB*/;
 	      break;
 	    case RGB32F:
-	      internalformat = GL2.GL_RGB32F/*_ARB*/;
+	      internalformat[0] = GL2.GL_RGB32F/*_ARB*/;
 	      break;
 	    case RGBA16F:
-	      internalformat = GL2.GL_RGBA16F/*_ARB*/;
+	      internalformat[0] = GL2.GL_RGBA16F/*_ARB*/;
 	      break;
 	    case RGB16F:
-	      internalformat = GL2.GL_RGB16F/*_ARB*/;
+	      internalformat[0] = GL2.GL_RGB16F/*_ARB*/;
 	      break;
 	    case R3_G3_B2:
-	      internalformat = GL2.GL_R3_G3_B2;
+	      internalformat[0] = GL2.GL_R3_G3_B2;
 	      break;
 	    case RGB:
-	      internalformat = GL2.GL_RGB;
+	      internalformat[0] = GL2.GL_RGB;
 	      break;
 	    case RGB4:
-	      internalformat = GL2.GL_RGB4;
+	      internalformat[0] = GL2.GL_RGB4;
 	      break;
 	    case RGB5:
-	      internalformat = GL2.GL_RGB5;
+	      internalformat[0] = GL2.GL_RGB5;
 	      break;
 	    case RGB8:
-	      internalformat = GL2.GL_RGB8;
+	      internalformat[0] = GL2.GL_RGB8;
 	      break;
 	    case RGB10:
-	      internalformat = GL2.GL_RGB10;
+	      internalformat[0] = GL2.GL_RGB10;
 	      break;
 	    case RGB12:
-	      internalformat = GL2.GL_RGB12;
+	      internalformat[0] = GL2.GL_RGB12;
 	      break;
 	    case RGB16:
-	      internalformat = GL2.GL_RGB16;
+	      internalformat[0] = GL2.GL_RGB16;
 	      break;
 	    case RGBA:
-	      internalformat = GL2.GL_RGBA;
+	      internalformat[0] = GL2.GL_RGBA;
 	      break;
 	    case RGBA2:
-	      internalformat = GL2.GL_RGBA2;
+	      internalformat[0] = GL2.GL_RGBA2;
 	      break;
 	    case RGBA4:
-	      internalformat = GL2.GL_RGBA4;
+	      internalformat[0] = GL2.GL_RGBA4;
 	      break;
 	    case RGB5_A1:
-	      internalformat = GL2.GL_RGB5_A1;
+	      internalformat[0] = GL2.GL_RGB5_A1;
 	      break;
 	    case RGB10_A2:
-	      internalformat = GL2.GL_RGB10_A2;
+	      internalformat[0] = GL2.GL_RGB10_A2;
 	      break;
 	    case RGBA12:
-	      internalformat = GL2.GL_RGBA12;
+	      internalformat[0] = GL2.GL_RGBA12;
 	      break;
 	    case RGBA16:
-	      internalformat = GL2.GL_RGBA16;
+	      internalformat[0] = GL2.GL_RGBA16;
 	      break;
 	    default:
 	      assert(false);// && "unknown type");

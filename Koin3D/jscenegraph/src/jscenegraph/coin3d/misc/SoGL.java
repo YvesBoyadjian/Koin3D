@@ -473,20 +473,23 @@ public static float cc_glglue_get_max_anisotropy(cc_glglue glue) {
 	  return glue.max_anisotropy;
 }
 
-public static void cc_glglue_glGenFramebuffers(cc_glglue glue, int n, int framebuffer) {
+public static int cc_glglue_glGenFramebuffers(cc_glglue glue/*, int n, int framebuffer*/) {
 	  assert(glue.has_fbo);
-	  assert(n==1);
+	  //assert(n==1);
 	  int[] framebuffers = new int[1];
-	  framebuffers[0] = framebuffer;
-	  glue.glGenFramebuffers(n, framebuffers);
+	  //framebuffers[0] = framebuffer;
+	  glue.glGenFramebuffers(1, framebuffers);
+	  
+	  return framebuffers[0];
 }
 
-public static void cc_glglue_glGenRenderbuffers(cc_glglue glue, int n, int renderbuffer) {
+public static int cc_glglue_glGenRenderbuffers(cc_glglue glue/*, int n, int renderbuffer*/) {
 	  assert(glue.has_fbo);
-	  assert(n==1);
+	  //assert(n==1);
 	  int[] renderbuffers = new int[1];
-	  renderbuffers[0] = renderbuffer;
-	  glue.glGenRenderbuffers(n, renderbuffers);
+	  //renderbuffers[0] = renderbuffer;
+	  glue.glGenRenderbuffers(1, renderbuffers);
+	  return renderbuffers[0];
 }
 
 public static Object cc_glglue_context_create_offscreen(short width, short height) {
