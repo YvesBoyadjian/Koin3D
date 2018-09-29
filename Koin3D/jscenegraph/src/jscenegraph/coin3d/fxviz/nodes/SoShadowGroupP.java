@@ -3,6 +3,8 @@
  */
 package jscenegraph.coin3d.fxviz.nodes;
 
+import java.util.Objects;
+
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
@@ -196,6 +198,9 @@ public class SoShadowGroupP implements Destroyable {
 	    
 	    GL2 gl2 = Ctx.get(ctx);
 
+	    int error_pre = 0;
+	    int error_post = 0;
+
 	    for (int i = 0; i < thisp.shadowlights.getLength(); i++) {
 	      SoShadowLightCache cache = thisp.shadowlights.operator_square_bracket(i);
 	      int unit = cache.texunit;
@@ -205,8 +210,20 @@ public class SoShadowGroupP implements Destroyable {
 	      }
 	      else {
 	        SoGL.cc_glglue_glActiveTexture(glue, /*(GLenum)*/ ((int)(GL2.GL_TEXTURE0) + unit));
-	        if (enable) gl2.glEnable(GL2.GL_TEXTURE_2D);
-	        else gl2.glDisable(GL2.GL_TEXTURE_2D);
+	        if (enable) {
+	  		  	error_pre = gl2.glGetError();
+
+	        	gl2.glEnable(GL2.GL_TEXTURE_2D);
+
+	        	error_post = gl2.glGetError();
+	        }
+	        else {
+	  		  	error_pre = gl2.glGetError();
+
+	  		  	gl2.glDisable(GL2.GL_TEXTURE_2D);
+
+	        	error_post = gl2.glGetError();
+	        }
 	        SoGL.cc_glglue_glActiveTexture(glue, GL2.GL_TEXTURE0);
 	      }
 	    }
@@ -581,7 +598,7 @@ setVertexShader(SoState state)
 
   // never update unless the program has actually changed. Creating a
   // new GLSL program is very slow on current drivers.
-  if (this.vertexshader.sourceProgram.getValue() != gen.getShaderProgram()) {
+  if (!Objects.equals(this.vertexshader.sourceProgram.getValue(), gen.getShaderProgram())) {
     this.vertexshader.sourceProgram.setValue(gen.getShaderProgram());
     this.vertexshader.sourceType.setValue(SoShaderObject.SourceType.GLSL_PROGRAM);
     this.vertexshadercache.set(gen.getShaderProgram());
@@ -1007,7 +1024,7 @@ setFragmentShader(SoState state)
   this.shadowlightsvalid = true;
   // never update unless the program has actually changed. Creating a
   // new GLSL program is very slow on current drivers.
-  if (this.fragmentshader.sourceProgram.getValue() != gen.getShaderProgram()) {
+  if (!Objects.equals(this.fragmentshader.sourceProgram.getValue(), gen.getShaderProgram())) {
     // invalidate spotlights, and make sure the cameratransform variable is updated
     this.cameratransform.value.touch();
     this.fragmentshader.sourceProgram.setValue(gen.getShaderProgram());
