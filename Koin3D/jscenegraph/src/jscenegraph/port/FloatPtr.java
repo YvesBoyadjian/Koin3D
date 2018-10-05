@@ -43,4 +43,8 @@ public class FloatPtr {
 	public void asterisk(float value) {
 		buffer.asFloatBuffer().put(floatOffset, value);
 	}
+
+	public void destructor() {
+		buffer = null;
+	}
 }

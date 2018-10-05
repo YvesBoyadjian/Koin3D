@@ -5,6 +5,7 @@ package jscenegraph.port;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
@@ -57,6 +58,13 @@ public class VoidPtr implements Destroyable {
 		if(object instanceof IntBuffer) {
 			return (IntBuffer)object;
 		}
+		else if(object instanceof IntArrayPtr) {
+			IntArrayPtr intArrayPtr = (IntArrayPtr)object;
+			int[] array = intArrayPtr.getValues();
+			int offset = intArrayPtr.getStart();
+			int length = intArrayPtr.size();
+			return IntBuffer.wrap(array, offset, length);
+		}
 		return ((ByteBuffer)toBuffer()).asIntBuffer();
 	}
 
@@ -70,6 +78,9 @@ public class VoidPtr implements Destroyable {
 		if(object instanceof FloatArray) {
 			buffer = Util.toByteBuffer((FloatArray)object);
 		}
+		if(object instanceof IntArrayPtr) {
+			buffer = Util.toByteBuffer((IntArrayPtr)object);
+		}
 		if(object instanceof ByteBuffer) {
 			buffer = (ByteBuffer)object;
 		}
@@ -80,5 +91,27 @@ public class VoidPtr implements Destroyable {
 			buffer = (IntBuffer)object;
 		}
 		return buffer;
+	}
+
+	public boolean isFloatArray() {
+		return object instanceof FloatArray;
+	}
+
+	public FloatArray toFloatArray() {
+		if(object instanceof FloatArray) {
+			return (FloatArray)object;
+		}
+		return null;
+	}
+
+	public boolean isIntArray() {
+		return object instanceof IntArrayPtr;
+	}
+
+	public IntArrayPtr toIntArray() {
+		if(object instanceof IntArrayPtr) {
+			return (IntArrayPtr)object;
+		}
+		return null;
 	}
 }

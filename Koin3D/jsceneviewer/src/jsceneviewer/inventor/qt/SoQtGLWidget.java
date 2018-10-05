@@ -59,13 +59,18 @@ import org.eclipse.swt.events.TypedEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.opengl.GLCanvas;
-import org.eclipse.swt.opengl.GLData;
+//import org.eclipse.swt.opengl.GLCanvas;
+//import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.GLUtil;
+import org.lwjgl.opengl.swt.GLCanvas;
+import org.lwjgl.opengl.swt.GLData;
+import org.lwjgl.system.Callback;
+import org.lwjgl.glfw.GLFW;
 
 import com.jogamp.opengl.GL2;
 
@@ -587,11 +592,16 @@ public
 //	        i++;
 //	    }
 	    if (widget == null) {
-	        // we didn't find any widget for this share group, so lets
+	    	
+	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+	    	
+	    	// we didn't find any widget for this share group, so lets
 	        // just create a new one without sharing
 	        widget = new GLCanvas (parent,style | SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE,format);	        
+	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
 	        widget.setCurrent();
-	        GLCapabilities swtCapabilities = GL.createCapabilities();
+	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+	        GLCapabilities swtCapabilities = GL.createCapabilities();	        
 	        parent.initialized = false; // have to reinitialize
 	    }
 	    if (shareID == -1) {

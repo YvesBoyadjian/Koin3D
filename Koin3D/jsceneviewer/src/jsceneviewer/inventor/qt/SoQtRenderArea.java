@@ -43,10 +43,11 @@
 package jsceneviewer.inventor.qt;
 
 import org.eclipse.swt.events.TypedEvent;
-import org.eclipse.swt.opengl.GLData;
+//import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.swt.GLData;
 
 import com.jogamp.opengl.GL2;
 
@@ -131,6 +132,11 @@ public class SoQtRenderArea extends SoQtGLWidget {
 	    GLData glf = new GLData(/*GLProfile.getDefault()*/);
 	    glf.depthSize = 24;
 	    glf.doubleBuffer = true;
+	    glf.majorVersion = 4;
+	    glf.minorVersion = 5;
+	    glf.api = GLData.API.GL;
+	    glf.profile = GLData.Profile.COMPATIBILITY;
+	    glf.debug = true;
 	    // Call setFormat from parent class to avoid early construction of decoration which will fail
 	    super.setFormat(glf, style);
 

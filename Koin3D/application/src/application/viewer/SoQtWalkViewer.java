@@ -18,7 +18,7 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-
+import org.lwjgl.opengl.swt.GLCanvas;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbRotation;

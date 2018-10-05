@@ -54,8 +54,9 @@
 
 package jscenegraph.database.inventor.elements;
 
-import org.eclipse.swt.opengl.GLCanvas;
+//import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Display;
+import org.lwjgl.opengl.swt.GLCanvas;
 
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.errors.SoDebugError;

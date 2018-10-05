@@ -56,7 +56,6 @@ public class CharPtr {
 	}
 
 	public void destructor() {
-		// TODO Auto-generated method stub
-		
+		buffer = null;
 	}
 }

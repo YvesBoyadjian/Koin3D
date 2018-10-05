@@ -581,17 +581,19 @@ public class SoTerrainTest {
 	    int index = i + j*width[0]; 
 	    
 	    int hm = heightmap[/*I*/index]; if(hm<0)hm+=(256*256);
-	    points.get(I).copyFrom( new SbVec3f(x, y, /*heightmap[I]*/hm * 0.0002f));
+	    points.get(I).setValue(x, y, /*heightmap[I]*/hm * 0.0002f);
 	    texture_points.get(I).copyFrom( new SbVec2f(x, y));
 	  }
 
+      final SbVec3f normal = new SbVec3f(0.0f, 0.0f, 0.0f);
+      
 	  /* Compute inner normals. */
 	  for (int Y = 1; Y < (height[0] - 1); ++Y)
 	  {
 	    for (int X = 1; X < (width[0] - 1); ++X)
 	    {
 	      int index = Y * width[0] + X;
-	      final SbVec3f normal = new SbVec3f(0.0f, 0.0f, 0.0f);
+	      normal.setValue(0,0,0);
 
 	      normal.operator_add_equal((points.get(index - 1).operator_minus(points.get(index))).cross(points.get(index - width[0]).operator_minus(points.get(index))));
 	      normal.operator_add_equal((points.get(index - width[0]).operator_minus(points.get(index))).cross(points.get(index - width[0] + 1).operator_minus(points.get(index))));
@@ -604,14 +606,16 @@ public class SoTerrainTest {
 	    }
 	  }
 
+	    final SbVec3f normal_1 = new SbVec3f(0.0f, 0.0f, 0.0f);
+	    final SbVec3f normal_2 = new SbVec3f(0.0f, 0.0f, 0.0f);
 	  /* Compute normals at top and bottom border. */
 	  for (int X = 1; X < (width[0] - 1); ++X)
 	  {
 	    int index_1 = X;
 	    int index_2 = (height[0] - 1) * width[0] + X;
-	    final SbVec3f normal_1 = new SbVec3f(0.0f, 0.0f, 0.0f);
-	    final SbVec3f normal_2 = new SbVec3f(0.0f, 0.0f, 0.0f);
 
+	    normal_1.setValue(0,0,0);
+	    normal_2.setValue(0,0,0);
 	    /* Top border. */
 	    normal_1 .operator_add_equal( (points.get(index_1 + 1).operator_minus(points.get(index_1))).cross(points.get(index_1 + width[0]).operator_minus( points.get(index_1))));
 	    normal_1 .operator_add_equal( (points.get(index_1 + width[0]).operator_minus( points.get(index_1))).cross(points.get(index_1 + width[0] - 1).operator_minus( points.get(index_1))));
@@ -633,9 +637,9 @@ public class SoTerrainTest {
 	  {
 	    int index_1 = Y2 * width[0];
 	    int index_2 = index_1 + width[0] - 1;
-	    final SbVec3f normal_1 = new SbVec3f(0.0f, 0.0f, 0.0f);
-	    final SbVec3f normal_2 = new SbVec3f(0.0f, 0.0f, 0.0f);
 
+	    normal_1.setValue(0,0,0);
+	    normal_2.setValue(0,0,0);
 	    /* Left border. */
 	    normal_1 .operator_add_equal( (points.get(index_1 - width[0]).operator_minus(points.get(index_1))).cross(points.get(index_1 - width[0] + 1).operator_minus( points.get(index_1))));
 	    normal_1 .operator_add_equal( (points.get(index_1 - width[0] + 1).operator_minus( points.get(index_1))).cross(points.get(index_1 + 1).operator_minus( points.get(index_1))));
@@ -654,7 +658,7 @@ public class SoTerrainTest {
 
 	  /* Compute normals in corners. */
 	  int index;
-	  final SbVec3f normal = new SbVec3f();
+	  //final SbVec3f normal = new SbVec3f();
 
 	  index = 0;
 	  normal.copyFrom( (points.get(index + 1).operator_minus( points.get(index))).cross(points.get(index + width[0]).operator_minus( points.get(index))));

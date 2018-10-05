@@ -3,7 +3,9 @@
  */
 package jscenegraph.port;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.Arrays;
 
 import com.jogamp.common.nio.Buffers;
@@ -136,6 +138,28 @@ public class Util {
 		
 		retVal.rewind();
 		return retVal;
+	}
+
+	public static ByteBuffer toByteBuffer(IntArrayPtr objArray) {
+		int arrayLength = objArray.size();
+		
+		ByteBuffer retVal = null;
+		
+			int nbBytes = (int)(arrayLength * (long)Integer.SIZE / Byte.SIZE);
+			retVal = Buffers.newDirectByteBuffer(nbBytes);
+			for(int i=0; i< arrayLength;i++) {
+				retVal.putInt(objArray.get(i));
+			}
+		
+		retVal.rewind();
+		return retVal;
+	}
+
+	public static Buffer toFloatBuffer(FloatArray object) {
+		
+		int start = object.getStart();
+		float[] values = object.getValues();
+		return FloatBuffer.wrap(values, start, object.size());
 	}
 
 	public static ByteBuffer toByteBuffer(SbVec2f[] objArray) {

@@ -249,7 +249,15 @@ public boolean bind(SoState state)
     _glBuffer = new SoGLDisplayList(state, SoGLDisplayList.Type.VERTEX_BUFFER_OBJECT);
     _glBuffer.ref();
     gl2.glBindBuffer(_type, _glBuffer.getFirstIndex());
-    gl2.glBufferData(_type, (long)_numBytes, _data == null ? null : _data.toBuffer(), gl2.GL_STATIC_DRAW);
+    if(_data != null && _data.isFloatArray() && _data.toFloatArray().getStart()==0) {
+    	gl2.glBufferData(_type, (long)_numBytes, _data.toFloatArray().getValues(), gl2.GL_STATIC_DRAW);    	
+    }
+    else if(_data != null && _data.isIntArray() && _data.toIntArray().getStart()==0) {
+    	gl2.glBufferData(_type, (long)_numBytes, _data.toIntArray().getValues(), gl2.GL_STATIC_DRAW);    	
+    }
+    else {
+    	gl2.glBufferData(_type, (long)_numBytes, _data == null ? null : _data.toBuffer(), gl2.GL_STATIC_DRAW);
+    }
     _hadGLError = (gl2.glGetError() != gl2.GL_NO_ERROR);
     if (_hadGLError) {
       // unbind after error

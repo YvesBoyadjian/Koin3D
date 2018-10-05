@@ -120,7 +120,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		int nbCoordIndices = (w-1)*(h-1)*5;
 		int[] coordIndices = new int[nbCoordIndices];
 		
-		Color snow = new Color(0.95f,1.0f,1.0f);
+		Color snow = new Color(0.97f,1.0f,1.0f);
 		
 		float delta = 0;
 		int nb = 0;

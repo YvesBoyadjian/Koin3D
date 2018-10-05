@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lwjgl3-swt
+Bundle-SymbolicName: lwjgl3-swt
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: lwjgl3-swt
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.swt,
+ lwjgl
+Export-Package: org.lwjgl.opengl.swt

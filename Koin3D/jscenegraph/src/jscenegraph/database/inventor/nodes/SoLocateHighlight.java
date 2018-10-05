@@ -61,8 +61,9 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import org.eclipse.swt.opengl.GLCanvas;
+//import org.eclipse.swt.opengl.GLCanvas;
 import org.eclipse.swt.widgets.Display;
+import org.lwjgl.opengl.swt.GLCanvas;
 
 import com.jogamp.opengl.GL2;
 

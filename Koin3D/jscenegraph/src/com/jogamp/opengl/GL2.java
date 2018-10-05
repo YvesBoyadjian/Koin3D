@@ -15,6 +15,8 @@ import org.lwjgl.opengl.ARBVertexBufferObject;
 
 import com.jogamp.common.nio.Buffers;
 
+import jscenegraph.port.FloatArray;
+
 /**
  * @author Yves Boyadjian
  *
@@ -3099,6 +3101,12 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		}
 	}
 
+	default void glBufferData(int arg1, long arg2, int[] arg3, int arg4) {
+		org.lwjgl.opengl.GL15.glBufferData(arg1,arg3,arg4);
+	}
+	default void glBufferData(int arg1, long arg2, float[] arg3, int arg4) {
+		org.lwjgl.opengl.GL15.glBufferData(arg1,arg3,arg4);
+	}
 	default void glBufferSubData(int arg1, long arg2, int arg3, ByteBuffer arg4) {
 		org.lwjgl.opengl.GL15.glBufferSubData(arg1,arg2,/*arg3,*/arg4);
 	}

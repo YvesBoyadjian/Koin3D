@@ -601,7 +601,8 @@ public void GLRenderVertexArray(SoGLRenderAction action, boolean sendNormals, bo
     }
 
     _cache.vbo.freeGL(state);
-    _cache.vbo.setData(numBytes, VoidPtr.create(data.getBuffer()), 0, state);
+    VoidPtr dummy;
+    _cache.vbo.setData(numBytes, dummy = VoidPtr.create(data.getBuffer()), 0, state);
     // force upload
     _cache.vbo.bind(state);
 
@@ -611,6 +612,15 @@ public void GLRenderVertexArray(SoGLRenderAction action, boolean sendNormals, bo
     _cache.numVertices = numVertices;
 
     data.destructor();
+    
+    //java port
+    verticesPtr.destructor();
+    normalsPtr.destructor();
+    texCoordsPtr.destructor();
+    vertexOffset.destructor(); 
+    normalOffset.destructor(); 
+    texCoordOffset.destructor(); 
+    dummy.destructor();
   }
   
   _cache.vbo.bind(state);

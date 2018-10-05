@@ -1866,7 +1866,8 @@ public void jacobi3(final float[] evalues,
 		final SbMatrix m2 = value;
 		  for (int i=0; i < 4; i++) {
 			    for (int j=0; j < 4; j++) {
-			      if (m1.matrix[i][j] != m2.matrix[i][j]) return false;
+			      if (m1.matrix[i][j] != m2.matrix[i][j]) 
+			    	  return false;
 			    }
 			  }
 
