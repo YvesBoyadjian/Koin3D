@@ -94,6 +94,8 @@ import jscenegraph.port.VoidPtr;
  */
 public class SoGLLazyElement extends SoLazyElement {
 
+	private static final int FLAG_FORCE_DIFFUSE      =0x0001;
+	
     private GL2 gl2;
 	
 	   //!provide a public typedef for GLLazyState, so that GLRenderCache can use it:
@@ -108,6 +110,10 @@ public class SoGLLazyElement extends SoLazyElement {
 	        int         GLLightModel;
 	        int          GLBlending; // int, not boolean
 	        int         GLStippleNum;
+	        
+	        int vertexordering; //COIN 3D
+	        int twoside; // COIN 3d
+	        int culling; // COIN 3D
 	        
 	        public void copyFrom(GLLazyState other) {
 		                GLDiffuseNodeId = other.GLDiffuseNodeId;
@@ -128,7 +134,11 @@ public class SoGLLazyElement extends SoLazyElement {
 		        GLColorMaterial = other.GLColorMaterial;        
 		        GLLightModel = other.GLLightModel;
 		        GLBlending = other.GLBlending;
-		        GLStippleNum = other.GLStippleNum;	        	
+		        GLStippleNum = other.GLStippleNum;	    
+		        
+		        vertexordering = other.vertexordering; //COIN 3D
+		        twoside = other.twoside; // COIN 3D
+		        culling = other.culling; // COIN 3D
 	        }
 	    }; 
 	    
@@ -140,6 +150,10 @@ public class SoGLLazyElement extends SoLazyElement {
     //! BitMap indicating what GL sends have been made:
     private int GLSendBits;
     
+    private int didsetbitmask;
+    private int didntsetbitmask;
+    private int cachebitmask; // COIN 3D
+    private int opencacheflags;
 
     //! Indicator of whether in colorIndex mode or not:
       private boolean colorIndex;  
@@ -2205,4 +2219,95 @@ sendDiffuseByIndex(int index)
             le.reallySend(state, masks.ALL_MASK.getValue());}
             
 
+   public void
+   sendVertexOrdering( VertexOrdering ordering) 
+   {
+     gl2.glFrontFace(ordering == VertexOrdering.CW ? GL2.GL_CW : GL2.GL_CCW);
+     this.glState.vertexordering = (int) ordering.ordinal();
+     this.cachebitmask |= masks.VERTEXORDERING_MASK.getValue();
+   }
+
+   public void
+   sendTwosideLighting(boolean onoff)
+   {
+     gl2.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, onoff ? GL2.GL_TRUE : GL2.GL_FALSE);
+     this.glState.twoside = (int) (onoff ? 1 : 0);
+     this.cachebitmask |= masks.TWOSIDE_MASK.getValue();
+   }
+
+   public void
+   sendBackfaceCulling( boolean onoff)
+   {
+     if (onoff) gl2.glEnable(GL2.GL_CULL_FACE);
+     else gl2.glDisable(GL2.GL_CULL_FACE);
+     this.glState.culling = (onoff ? 1:0);
+     this.cachebitmask |= masks.CULLING_MASK.getValue();
+   }
+
+   public static void
+   sendVertexOrdering(SoState state, VertexOrdering ordering)
+   {
+     boolean cacheopen = state.isCacheOpen();
+     SoGLLazyElement elem = getInstance(state);
+     if (elem.glState.vertexordering != (int) ordering.ordinal()) {
+       elem.sendVertexOrdering(ordering);
+       if (cacheopen) elem.lazyDidSet(masks.VERTEXORDERING_MASK.getValue());
+     }
+     else if (cacheopen) {
+       elem.lazyDidntSet(masks.VERTEXORDERING_MASK.getValue());
+     }
+   }
+
+   public void lazyDidntSet(int mask) {
+	   if ((mask & masks.DIFFUSE_MASK.getValue())!=0) {
+		    if (0==(this.didsetbitmask & masks.DIFFUSE_MASK.getValue())) {
+		      // to be safe, always send first diffuse when a cache is open
+		      this.didsetbitmask |= masks.DIFFUSE_MASK.getValue();
+		      this.opencacheflags = FLAG_FORCE_DIFFUSE;
+		    }
+		  }
+		  this.didntsetbitmask |= mask&(~this.didsetbitmask);
+}
+
+
+public void lazyDidSet(int mask) {
+	  if ((mask & masks.DIFFUSE_MASK.getValue())!=0) {
+		    if (0==(this.didsetbitmask & masks.DIFFUSE_MASK.getValue())) {
+		      // to be safe, always send first diffuse when a cache is open
+		      this.opencacheflags |= FLAG_FORCE_DIFFUSE;
+		    }
+		  }
+		  this.didsetbitmask |= mask;
+}
+
+
+public static void
+   sendTwosideLighting(SoState state, boolean onoff)
+   {
+     boolean cacheopen = state.isCacheOpen();
+     SoGLLazyElement elem = getInstance(state);
+     if (elem.glState.twoside != (int) (onoff?1:0)) {
+       elem.sendTwosideLighting(onoff);
+       if (cacheopen) elem.lazyDidSet(masks.TWOSIDE_MASK.getValue());
+     }
+     else if (cacheopen) {
+       elem.lazyDidntSet(masks.TWOSIDE_MASK.getValue());
+     }
+   }
+
+   public static void
+   sendBackfaceCulling(SoState state, boolean onoff)
+   {
+     boolean cacheopen = state.isCacheOpen();
+     SoGLLazyElement elem = getInstance(state);
+     if (elem.glState.culling != (int) (onoff?1:0)) {
+       elem.sendBackfaceCulling(onoff);
+       if (cacheopen) elem.lazyDidSet(masks.CULLING_MASK.getValue());
+     }
+     else if (cacheopen) {
+       elem.lazyDidntSet(masks.CULLING_MASK.getValue());
+     }
+   }
+
+   
  }

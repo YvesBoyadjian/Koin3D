@@ -234,4 +234,42 @@ private void send(GL2 gl2)
         gl2.glLightModeli(GL2.GL_LIGHT_MODEL_TWO_SIDE, GL2.GL_FALSE);
     }
 }
+
+/*!
+  Update gl state. Use this is you only want to modify the
+  twoside lighting feature.
+*/
+
+public static void
+forceSend(SoState state,
+                                 boolean twoside)
+{
+  SoGLLazyElement.sendTwosideLighting(state, twoside);
+}
+
+/*!
+  Update GL state. Use this if you don't care about the two-side
+  lighting state.
+*/
+
+public static void
+forceSend(SoState state,
+                                 boolean ccw, boolean cull)
+{
+  SoGLLazyElement.sendVertexOrdering(state, ccw ? SoLazyElement.VertexOrdering.CCW : SoLazyElement.VertexOrdering.CW);
+  SoGLLazyElement.sendBackfaceCulling(state, cull);
+}
+
+//! FIXME: write doc.
+
+public static void
+forceSend(SoState state,
+                                 boolean ccw, boolean cull,
+                                 boolean twoside)
+{
+  SoGLLazyElement.sendVertexOrdering(state, ccw ? SoLazyElement.VertexOrdering.CCW : SoLazyElement.VertexOrdering.CW);
+  SoGLLazyElement.sendBackfaceCulling(state, cull);
+  SoGLLazyElement.sendTwosideLighting(state, twoside);
+}
+
 }

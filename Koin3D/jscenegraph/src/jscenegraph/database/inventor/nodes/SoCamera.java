@@ -62,6 +62,7 @@ import static com.jogamp.opengl.GL2GL3.GL_LINE;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbRotation;
@@ -77,16 +78,20 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetMatrixAction;
 import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
+import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoFocalDistanceElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoGLProjectionMatrixElement;
 import jscenegraph.database.inventor.elements.SoGLRenderPassElement;
+import jscenegraph.database.inventor.elements.SoGLShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoGLUpdateAreaElement;
 import jscenegraph.database.inventor.elements.SoGLViewingMatrixElement;
 import jscenegraph.database.inventor.elements.SoGLViewportRegionElement;
+import jscenegraph.database.inventor.elements.SoLineWidthElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoProjectionMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
@@ -503,27 +508,280 @@ viewAll(SoPath path, final SbViewportRegion vpRegion, float slack)
 //
 // Use: extender
 
-public void
-SoCamera_doAction(SoAction action)
+    // MEVISLAB
+//public void
+//SoCamera_doAction(SoAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    final SbViewVolume        viewVol = new SbViewVolume();
+//    final boolean[]              changeRegion = new boolean[1];
 //
-////////////////////////////////////////////////////////////////////////
+//    // Get the current viewport region
+//    SbViewportRegion vpReg =
+//        SoViewportRegionElement.get(action.getState());
+//
+//    // Compute the view volume
+//    SoCamera_computeView(vpReg, viewVol, changeRegion);
+//
+//    // Set the state
+//    final SbVec3f dummyJitter = new SbVec3f();
+//    setElements(action, viewVol, changeRegion[0],
+//                changeRegion[0] ? getViewportBounds(vpReg) : vpReg,
+//                false, dummyJitter);
+//}
+
+// Documented in superclass. Overridden to set up the viewing and
+// projection matrices.
+    
+    // COIN 3D
+void
+SoCamera_doAction(SoAction action)
 {
-    final SbViewVolume        viewVol = new SbViewVolume();
-    final boolean[]              changeRegion = new boolean[1];
+  SoState state = action.getState();
 
-    // Get the current viewport region
-    SbViewportRegion vpReg =
-        SoViewportRegionElement.get(action.getState());
+  final SbViewportRegion vp = new SbViewportRegion();
+  final SbViewVolume vv = new SbViewVolume();
+  this.getView(action, vv, vp, false);
 
-    // Compute the view volume
-    SoCamera_computeView(vpReg, viewVol, changeRegion);
+  final SbMatrix affine = new SbMatrix(), proj = new SbMatrix();
+  if (vv.getDepth() == 0.0f || vv.getWidth() == 0.0f || vv.getHeight() == 0.0f) {
+    // Handle empty scenes.
+    affine.copyFrom(SbMatrix.identity());
+    proj.copyFrom(SbMatrix.identity());
+  }
+  else {
+    vv.getMatrices(affine, proj);
 
-    // Set the state
-    final SbVec3f dummyJitter = new SbVec3f();
-    setElements(action, viewVol, changeRegion[0],
-                changeRegion[0] ? getViewportBounds(vpReg) : vpReg,
-                false, dummyJitter);
+    final boolean[] identity = new boolean[1];
+    final SbMatrix mm = SoModelMatrixElement.get(state, identity); // ref
+    if (!identity[0]) {
+      vv.transform(mm);
+      affine.multRight(mm.inverse());
+    }
+  }
+  SoViewVolumeElement.set(state, this, vv);
+  SoProjectionMatrixElement.set(state, this, proj);
+  SoViewingMatrixElement.set(state, this, affine);
+  SoFocalDistanceElement.set(state, /*this,*/ this.focalDistance.getValue()); // YB
 }
+
+//
+// private method which calculates view volume, and calculates
+// new viewport region if viewportMapping requires this.
+// The state is updated with the new viewport, not with the
+// new view volume.
+//
+public void
+getView(SoAction action, final SbViewVolume resultvv, final SbViewportRegion resultvp,
+                  boolean considermodelmatrix)
+{
+  SoState state = action.getState();
+  // need to test if vp element is enabled. SoGetPrimitiveCountAction
+  // does not enable this element, although I think it should (to get
+  // correct SCREEN_SPACE complexity handling).  pederb, 2001-10-31
+  boolean usevpelement =
+    state.isElementEnabled(SoViewportRegionElement.getClassStackIndex(SoViewportRegionElement.class));
+  
+  if (usevpelement) {
+    resultvp.copyFrom(SoViewportRegionElement.get(state));
+  }
+  else {
+    // just set it to some value. It's not important as the current
+    // action does not support viewports.
+    resultvp.copyFrom(new SbViewportRegion((short)256, (short)256));
+  }
+  final SbMatrix mm = considermodelmatrix ? new SbMatrix(SoModelMatrixElement.get(state)) : new SbMatrix(SbMatrix.identity());
+  final SbViewportRegion oldvp = new SbViewportRegion(resultvp);
+  resultvv.copyFrom(this.getViewVolume(oldvp, resultvp, mm));
+
+  if (resultvp.operator_not_equal(oldvp)) {
+    // only draw if this is an SoGLRenderAction
+    if (action.isOfType(SoGLRenderAction.getClassTypeId())) {
+      this.drawCroppedFrame((SoGLRenderAction)action, this.viewportMapping.getValue(), oldvp, resultvp);
+    }
+    if (usevpelement) {
+      SoViewportRegionElement.set(action.getState(), resultvp);
+    }
+  }
+}
+
+/*!
+  Convenience method which returns the actual view volume used when
+  rendering, adjusted for the current viewport mapping.
+
+  Supply the view's viewport in \a vp. If the viewport mapping
+  is one of CROP_VIEWPORT_FILL_FRAME, CROP_VIEWPORT_LINE_FRAME or
+  CROP_VIEWPORT_NO_FRAME, \a resultvp will be modified to contain the
+  resulting viewport.
+
+  If you got any transformations in front of the camera, \a mm should
+  contain this transformation.
+  
+  \since Coin 4.0
+*/
+public SbViewVolume 
+getViewVolume(final SbViewportRegion vp, 
+                        final SbViewportRegion resultvp, 
+                        final SbMatrix mm) 
+{
+  float aspectratio = resultvp.getViewportAspectRatio();
+  int vpm = this.viewportMapping.getValue();  
+  boolean adjustvp = false;
+  resultvp.copyFrom(vp);
+  final SbViewVolume resultvv = new SbViewVolume();
+
+  switch (ViewportMapping.fromValue(vpm)) {
+  case CROP_VIEWPORT_FILL_FRAME:
+  case CROP_VIEWPORT_LINE_FRAME:
+  case CROP_VIEWPORT_NO_FRAME:
+    resultvv.copyFrom( this.getViewVolume(0.0f));
+    adjustvp = true;
+    break;
+  case ADJUST_CAMERA:
+    resultvv.copyFrom( this.getViewVolume(aspectratio));
+    if (aspectratio < 1.0f) resultvv.scale(1.0f / aspectratio);
+    break;
+  case LEAVE_ALONE:
+    resultvv.copyFrom( this.getViewVolume(0.0f));
+    break;
+  default:
+    assert(false);// && "unknown viewport mapping");
+    break;
+  }
+
+  if (mm.operator_not_equal(SbMatrix.identity())) {
+    resultvv.transform(mm);
+  }
+  if (adjustvp) {
+    float cameraratio = this.aspectRatio.getValue();
+    if (aspectratio != cameraratio) {
+      final SbViewportRegion oldvp = new SbViewportRegion(resultvp);
+      if (aspectratio < cameraratio) {
+        resultvp.scaleHeight(aspectratio/cameraratio);
+      }
+      else {
+        resultvp.scaleWidth(cameraratio/aspectratio);
+      }
+    }
+  }
+  return resultvv;
+}
+
+//
+// private method that draws a cropped frame
+//
+public void
+drawCroppedFrame(SoGLRenderAction action,
+                           final int viewportmapping,
+                           final SbViewportRegion oldvp,
+                           final SbViewportRegion newvp)
+{
+  if (viewportmapping == SoCamera.ViewportMapping.CROP_VIEWPORT_NO_FRAME.getValue()) return;
+
+  if (action.handleTransparency(false))
+    return;
+
+  SoState state = action.getState();
+  state.push();
+
+  if (viewportmapping == SoCamera.ViewportMapping.CROP_VIEWPORT_LINE_FRAME.getValue()) {
+    SoLineWidthElement.set(state, /*this,*/ 1.0f); //YB
+  }
+  else { // FILL
+    SoDrawStyleElement.set(state, /*this,*/ SoDrawStyleElement.Style.FILLED); // YB
+    // turn off backface culling
+    SoGLShapeHintsElement.forceSend(state, true, false);
+  }
+  
+  GL2 gl2 = state.getGL2();
+
+  final SbVec2s oldorigin = new SbVec2s(oldvp.getViewportOriginPixels());
+  final SbVec2s oldsize = new SbVec2s(oldvp.getViewportSizePixels());
+  gl2.glMatrixMode(GL2.GL_PROJECTION);
+  // projection matrix will be set later, so don't push
+  gl2.glOrtho(oldorigin.getValue()[0], oldorigin.getValue()[0]+oldsize.getValue()[0]-1,
+          oldorigin.getValue()[1], oldorigin.getValue()[1]+oldsize.getValue()[1]-1,
+          -1, 1);
+
+  SoGLMultiTextureEnabledElement.disableAll(state);
+
+  gl2.glPushAttrib(GL2.GL_LIGHTING_BIT|
+		  GL2.GL_FOG_BIT|
+		  GL2.GL_DEPTH_BUFFER_BIT|
+		  GL2.GL_TEXTURE_BIT|
+		  GL2.GL_CURRENT_BIT);
+
+  gl2.glMatrixMode(GL2.GL_MODELVIEW);
+  gl2.glPushMatrix();
+  gl2.glLoadIdentity();
+  gl2.glDisable(GL2.GL_LIGHTING);
+  gl2.glDisable(GL2.GL_FOG);
+  gl2.glDisable(GL2.GL_DEPTH_TEST);
+
+  gl2.glColor3f(0.8f, 0.8f, 0.8f);
+
+  final SbVec2s origin = new SbVec2s(newvp.getViewportOriginPixels());
+  final SbVec2s size = new SbVec2s(newvp.getViewportSizePixels());
+  final SbVec2s orgsize = new SbVec2s(oldvp.getViewportSizePixels());
+
+  if (size.getValue()[0] < orgsize.getValue()[0]) {
+    short minpos = (short)(origin.getValue()[0] - 1);
+    short maxpos = (short)(origin.getValue()[0] + size.getValue()[0]);
+    if (viewportmapping == SoCamera.ViewportMapping.CROP_VIEWPORT_LINE_FRAME.getValue()) {
+    	gl2.glBegin(GL2.GL_LINES);
+      gl2.glVertex2s(minpos, oldorigin.getValue()[1]);
+      gl2.glVertex2s(minpos, (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]));
+      gl2.glVertex2s(maxpos, oldorigin.getValue()[1]);
+      gl2.glVertex2s(maxpos, (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]));
+      gl2.glEnd();
+    }
+    else {
+    	gl2.glBegin(GL2.GL_QUADS);
+      gl2.glVertex2s(oldorigin.getValue()[0], oldorigin.getValue()[1]);
+      gl2.glVertex2s(oldorigin.getValue()[0], (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]-1));
+      gl2.glVertex2s(minpos, (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]));
+      gl2.glVertex2s(minpos, oldorigin.getValue()[1]);
+
+      gl2.glVertex2s(maxpos, oldorigin.getValue()[1]);
+      gl2.glVertex2s(maxpos, (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]-1));
+      gl2.glVertex2s((short)(oldorigin.getValue()[0]+oldsize.getValue()[0]-1), (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]-1));
+      gl2.glVertex2s((short)(oldorigin.getValue()[0]+oldsize.getValue()[0]-1), oldorigin.getValue()[1]);
+      gl2.glEnd();
+    }
+  }
+  else if (size.getValue()[1] < orgsize.getValue()[1]) {
+    short minpos = (short)(origin.getValue()[1] - 1);
+    short maxpos = (short)(origin.getValue()[1] + size.getValue()[1]);
+    if (viewportmapping == SoCamera.ViewportMapping.CROP_VIEWPORT_LINE_FRAME.getValue()) {
+    	gl2.glBegin(GL2.GL_LINES);
+      gl2.glVertex2s(oldorigin.getValue()[0], minpos);
+      gl2.glVertex2s((short)(oldorigin.getValue()[0]+oldsize.getValue()[0]), minpos);
+      gl2.glVertex2s(oldorigin.getValue()[0], maxpos);
+      gl2.glVertex2s((short)(oldorigin.getValue()[0]+oldsize.getValue()[0]), maxpos);
+      gl2.glEnd();
+    }
+    else {
+    	gl2.glBegin(GL2.GL_QUADS);
+      gl2.glVertex2s(oldorigin.getValue()[0], minpos);
+      gl2.glVertex2s((short)(oldorigin.getValue()[0]+oldsize.getValue()[0]-1), minpos);
+      gl2.glVertex2s((short)(oldorigin.getValue()[0]+oldsize.getValue()[0]-1), oldorigin.getValue()[1]);
+      gl2.glVertex2s(oldorigin.getValue()[0], oldorigin.getValue()[1]);
+
+      gl2.glVertex2s(oldorigin.getValue()[0], maxpos);
+      gl2.glVertex2s(oldorigin.getValue()[0], (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]-1));
+      gl2.glVertex2s((short)(oldorigin.getValue()[0]+oldsize.getValue()[0]-1), (short)(oldorigin.getValue()[1]+oldsize.getValue()[1]-1));
+      gl2.glVertex2s((short)(oldorigin.getValue()[1]+oldsize.getValue()[0]-1), maxpos);
+      gl2.glEnd();
+    }
+  }
+
+  gl2.glPopMatrix();
+  gl2.glPopAttrib();
+
+  state.pop();
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -839,8 +1097,21 @@ getBoundingBox(SoGetBoundingBoxAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     // Do the usual stuff first
+	  //SoCacheElement.invalidate(action.getState()); COIN 3d
     SoCamera_doAction(action);
 }
+
+// Doc in superclass.
+public void getMatrix(SoGetMatrixAction action)
+{
+  final SbViewportRegion vp = new SbViewportRegion();
+  final SbViewVolume vv = new SbViewVolume();
+  this.getView(action, vv, vp, false);
+  vv.transform(action.getMatrix());
+  SoViewVolumeElement.set(action.getState(), this, vv);
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //

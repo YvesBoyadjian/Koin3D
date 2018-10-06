@@ -95,7 +95,6 @@ package jscenegraph.database.inventor;
 import static jscenegraph.database.inventor.SbBasic.M_PI_2;
 
 import jscenegraph.coin3d.inventor.base.SbClip;
-import jscenegraph.database.inventor.SbDPViewVolume.ProjectionType;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Array;
 import jscenegraph.port.Mutable;
@@ -139,7 +138,7 @@ public class SbViewVolume implements Mutable {
 	public final SbVec3f lrf = new SbVec3f();
 	public final SbVec3f ulf = new SbVec3f();
 
-	// private final SbDPViewVolume dpvv = new SbDPViewVolume(); TODO
+	private final SbDPViewVolume dpvv = new SbDPViewVolume();
 
 	// ! Points on the near clipping plane. Add in the projPoint to
 	// ! figure out where they are in world space:
@@ -1078,11 +1077,12 @@ public class SbViewVolume implements Mutable {
 	 * This method is an extension for Coin, and is not available in the original
 	 * Open Inventor.
 	 */
-	// public void
-	// getViewVolumePlanes(final Array<SbPlane> planes)
-	// {
-	// this.dpvv.getViewVolumePlanes(planes);
-	// }
+	 public void
+	 getViewVolumePlanes(final Array<SbPlane> planes)
+	 {
+		 this.dpvv.update(this); //YB 
+		 this.dpvv.getViewVolumePlanes(planes);
+	 }
 
 	/*
 	 * ! Returns the six planes defining the view volume in the following order:
@@ -1092,118 +1092,165 @@ public class SbViewVolume implements Mutable {
 	 * This method is an extension for Coin, and is not available in the original
 	 * Open Inventor.
 	 */
-	public void getViewVolumePlanes(final Array<SbPlane> planes) {
-		final SbVec3f far_ll = new SbVec3f();
-		final SbVec3f far_lr = new SbVec3f();
-		final SbVec3f far_ul = new SbVec3f();
-		final SbVec3f far_ur = new SbVec3f();
-
-		this.getPlaneRectangle(this.nearToFar, far_ll, far_lr, far_ul, far_ur);
-		final SbVec3f near_ur = this.ulf.operator_add(this.lrf.operator_minus(this.llf));
-
-		final SbVec3f f_ulf = dp_to_sbvec3f(this.ulf.operator_add(this.projPoint));
-		final SbVec3f f_llf = dp_to_sbvec3f(this.llf.operator_add(this.projPoint));
-		final SbVec3f f_lrf = dp_to_sbvec3f(this.lrf.operator_add(this.projPoint));
-		final SbVec3f f_near_ur = dp_to_sbvec3f(near_ur.operator_add(this.projPoint));
-		final SbVec3f f_far_ll = dp_to_sbvec3f(far_ll.operator_add(this.projPoint));
-		final SbVec3f f_far_lr = dp_to_sbvec3f(far_lr.operator_add(this.projPoint));
-		final SbVec3f f_far_ul = dp_to_sbvec3f(far_ul.operator_add(this.projPoint));
-		final SbVec3f f_far_ur = dp_to_sbvec3f(far_ur.operator_add(this.projPoint));
-
-		planes.set(0, new SbPlane(f_ulf, f_llf, f_far_ll)); // left
-		planes.set(1, new SbPlane(f_llf, f_lrf, f_far_lr)); // bottom
-		planes.set(2, new SbPlane(f_lrf, f_near_ur, f_far_ur)); // right
-		planes.set(3, new SbPlane(f_near_ur, f_ulf, f_far_ul)); // top
-		planes.set(4, new SbPlane(f_ulf, f_near_ur, f_lrf)); // near
-		planes.set(5, new SbPlane(f_far_ll, f_far_lr, f_far_ur)); // far
-
-		// check for inverted view volume (negative aspectRatio)
-		if (!planes.get(0).isInHalfSpace(f_lrf)) {
-			final SbVec3f n = new SbVec3f();
-			float D;
-
-			n.copyFrom(planes.get(0).getNormal());
-			D = planes.get(0).getDistanceFromOrigin();
-			planes.set(0, new SbPlane(n.operator_minus(), -D));
-
-			n.copyFrom(planes.get(2).getNormal());
-			D = planes.get(2).getDistanceFromOrigin();
-			planes.set(2, new SbPlane(n.operator_minus(), -D));
-		}
-		if (!planes.get(1).isInHalfSpace(f_near_ur)) {
-			final SbVec3f n = new SbVec3f();
-			float D;
-
-			n.copyFrom(planes.get(1).getNormal());
-			D = planes.get(1).getDistanceFromOrigin();
-			planes.set(1, new SbPlane(n.operator_minus(), -D));
-
-			n.copyFrom(planes.get(3).getNormal());
-			D = planes.get(3).getDistanceFromOrigin();
-			planes.set(3, new SbPlane(n.operator_minus(), -D));
-
-		}
-
-		if (!planes.get(4).isInHalfSpace(f_far_ll)) {
-			final SbVec3f n = new SbVec3f();
-			float D;
-
-			n.copyFrom(planes.get(4).getNormal());
-			D = planes.get(4).getDistanceFromOrigin();
-			planes.set(4, new SbPlane(n.operator_minus(), -D));
-
-			n.copyFrom(planes.get(5).getNormal());
-			D = planes.get(5).getDistanceFromOrigin();
-			planes.set(5, new SbPlane(n.operator_minus(), -D));
-
-		}
-
-	}
+//	public void getViewVolumePlanes(final Array<SbPlane> planes) {
+//		final SbVec3f far_ll = new SbVec3f();
+//		final SbVec3f far_lr = new SbVec3f();
+//		final SbVec3f far_ul = new SbVec3f();
+//		final SbVec3f far_ur = new SbVec3f();
+//
+//		this.getPlaneRectangle(this.nearToFar, far_ll, far_lr, far_ul, far_ur);
+//		final SbVec3f near_ur = this.ulf.operator_add(this.lrf.operator_minus(this.llf));
+//
+//		final SbVec3f f_ulf = dp_to_sbvec3f(this.ulf.operator_add(this.projPoint));
+//		final SbVec3f f_llf = dp_to_sbvec3f(this.llf.operator_add(this.projPoint));
+//		final SbVec3f f_lrf = dp_to_sbvec3f(this.lrf.operator_add(this.projPoint));
+//		final SbVec3f f_near_ur = dp_to_sbvec3f(near_ur.operator_add(this.projPoint));
+//		final SbVec3f f_far_ll = dp_to_sbvec3f(far_ll.operator_add(this.projPoint));
+//		final SbVec3f f_far_lr = dp_to_sbvec3f(far_lr.operator_add(this.projPoint));
+//		final SbVec3f f_far_ul = dp_to_sbvec3f(far_ul.operator_add(this.projPoint));
+//		final SbVec3f f_far_ur = dp_to_sbvec3f(far_ur.operator_add(this.projPoint));
+//
+//		planes.set(0, new SbPlane(f_ulf, f_llf, f_far_ll)); // left
+//		planes.set(1, new SbPlane(f_llf, f_lrf, f_far_lr)); // bottom
+//		planes.set(2, new SbPlane(f_lrf, f_near_ur, f_far_ur)); // right
+//		planes.set(3, new SbPlane(f_near_ur, f_ulf, f_far_ul)); // top
+//		planes.set(4, new SbPlane(f_ulf, f_near_ur, f_lrf)); // near
+//		planes.set(5, new SbPlane(f_far_ll, f_far_lr, f_far_ur)); // far
+//
+//		// check for inverted view volume (negative aspectRatio)
+//		if (!planes.get(0).isInHalfSpace(f_lrf)) {
+//			final SbVec3f n = new SbVec3f();
+//			float D;
+//
+//			n.copyFrom(planes.get(0).getNormal());
+//			D = planes.get(0).getDistanceFromOrigin();
+//			planes.set(0, new SbPlane(n.operator_minus(), -D));
+//
+//			n.copyFrom(planes.get(2).getNormal());
+//			D = planes.get(2).getDistanceFromOrigin();
+//			planes.set(2, new SbPlane(n.operator_minus(), -D));
+//		}
+//		if (!planes.get(1).isInHalfSpace(f_near_ur)) {
+//			final SbVec3f n = new SbVec3f();
+//			float D;
+//
+//			n.copyFrom(planes.get(1).getNormal());
+//			D = planes.get(1).getDistanceFromOrigin();
+//			planes.set(1, new SbPlane(n.operator_minus(), -D));
+//
+//			n.copyFrom(planes.get(3).getNormal());
+//			D = planes.get(3).getDistanceFromOrigin();
+//			planes.set(3, new SbPlane(n.operator_minus(), -D));
+//
+//		}
+//
+//		if (!planes.get(4).isInHalfSpace(f_far_ll)) {
+//			final SbVec3f n = new SbVec3f();
+//			float D;
+//
+//			n.copyFrom(planes.get(4).getNormal());
+//			D = planes.get(4).getDistanceFromOrigin();
+//			planes.set(4, new SbPlane(n.operator_minus(), -D));
+//
+//			n.copyFrom(planes.get(5).getNormal());
+//			D = planes.get(5).getDistanceFromOrigin();
+//			planes.set(5, new SbPlane(n.operator_minus(), -D));
+//
+//		}
+//
+//	}
 
 	//
 	// Returns the four points defining the view volume rectangle at the
 	// specified distance from the near plane, towards the far plane. The
 	// points are returned in normalized view volume coordinates
 	// (projPoint is not added).
-	public void getPlaneRectangle(final float distance, final SbVec3f lowerleft, final SbVec3f lowerright,
-			final SbVec3f upperleft, final SbVec3f upperright) {
-		final SbVec3f near_ur = new SbVec3f(this.ulf.operator_add(this.lrf.operator_minus(this.llf)));
+//	public void getPlaneRectangle(final float distance, final SbVec3f lowerleft, final SbVec3f lowerright,
+//			final SbVec3f upperleft, final SbVec3f upperright) {
+//		final SbVec3f near_ur = new SbVec3f(this.ulf.operator_add(this.lrf.operator_minus(this.llf)));
+//
+//		// #if COIN_DEBUG
+//		if (this.llf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))
+//				|| this.lrf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))
+//				|| this.ulf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))
+//				|| near_ur.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))) {
+//			SoDebugError.postWarning("SbDPViewVolume::getPlaneRectangle", "Invalid frustum.");
+//
+//		}
+//		// #endif // COIN_DEBUG
+//
+//		if (this.type == ProjectionType.PERSPECTIVE) {
+//			float depth = this.nearDist + distance;
+//			final SbVec3f dir = new SbVec3f();
+//			dir.copyFrom(this.llf);
+//			dir.normalize(); // safe to normalize here
+//			lowerleft.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
+//
+//			dir.copyFrom(this.lrf);
+//			dir.normalize(); // safe to normalize here
+//			lowerright.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
+//
+//			dir.copyFrom(this.ulf);
+//			dir.normalize(); // safe to normalize here
+//			upperleft.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
+//
+//			dir.copyFrom(near_ur);
+//			dir.normalize(); // safe to normalize here
+//			upperright.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
+//		} else {
+//			lowerleft.copyFrom(this.llf.operator_add(this.projDir.operator_mul(distance)));
+//			lowerright.copyFrom(this.lrf.operator_add(this.projDir.operator_mul(distance)));
+//			upperleft.copyFrom(this.ulf.operator_add(this.projDir.operator_mul(distance)));
+//			upperright.copyFrom(near_ur.operator_add(this.projDir.operator_mul(distance)));
+//		}
+//	}
+	//
+	// Returns the four points defining the view volume rectangle at the
+	// specified distance from the near plane, towards the far plane.
+	public void getPlaneRectangle( float distance, final SbVec3f lowerleft,
+	                                final SbVec3f lowerright,
+	                                final SbVec3f upperleft,
+	                                final SbVec3f upperright)
+	{
+	  final SbVec3f near_ur = this.ulf.operator_add(this.lrf.operator_minus(this.llf));
+	  
+	//#if COIN_DEBUG
+	  if (this.llf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f)) ||
+	      this.lrf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f)) ||
+	      this.ulf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f)) ||
+	      near_ur.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))) {
+	    SoDebugError.postWarning("SbDPViewVolume::getPlaneRectangle",
+	                              "Invalid frustum.");
 
-		// #if COIN_DEBUG
-		if (this.llf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))
-				|| this.lrf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))
-				|| this.ulf.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))
-				|| near_ur.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))) {
-			SoDebugError.postWarning("SbDPViewVolume::getPlaneRectangle", "Invalid frustum.");
+	  }
+	//#endif // COIN_DEBUG
 
-		}
-		// #endif // COIN_DEBUG
+	  if (this.type == ProjectionType.PERSPECTIVE) {
+	    final SbVec3f dir = new SbVec3f();
+	    dir.copyFrom( this.llf.operator_minus(this.projPoint));
+	    dir.normalize(); // safe to normalize here
+	    lowerleft.copyFrom( this.llf.operator_add(dir.operator_mul( distance / dir.dot(this.projDir))));
 
-		if (this.type == ProjectionType.PERSPECTIVE) {
-			float depth = this.nearDist + distance;
-			final SbVec3f dir = new SbVec3f();
-			dir.copyFrom(this.llf);
-			dir.normalize(); // safe to normalize here
-			lowerleft.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
+	    dir.copyFrom( this.lrf.operator_minus(this.projPoint));
+	    dir.normalize(); // safe to normalize here
+	    lowerright.copyFrom( this.lrf.operator_add(dir.operator_mul( distance / dir.dot(this.projDir))));
 
-			dir.copyFrom(this.lrf);
-			dir.normalize(); // safe to normalize here
-			lowerright.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
+	    dir.copyFrom( this.ulf.operator_minus(this.projPoint));
+	    dir.normalize(); // safe to normalize here
+	    upperleft.copyFrom( this.ulf.operator_add(dir.operator_mul( distance / dir.dot(this.projDir))));
 
-			dir.copyFrom(this.ulf);
-			dir.normalize(); // safe to normalize here
-			upperleft.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
-
-			dir.copyFrom(near_ur);
-			dir.normalize(); // safe to normalize here
-			upperright.copyFrom(dir.operator_mul(depth).operator_div(dir.dot(this.projDir)));
-		} else {
-			lowerleft.copyFrom(this.llf.operator_add(this.projDir.operator_mul(distance)));
-			lowerright.copyFrom(this.lrf.operator_add(this.projDir.operator_mul(distance)));
-			upperleft.copyFrom(this.ulf.operator_add(this.projDir.operator_mul(distance)));
-			upperright.copyFrom(near_ur.operator_add(this.projDir.operator_mul(distance)));
-		}
+	    dir.copyFrom( near_ur.operator_minus(this.projPoint));
+	    dir.normalize(); // safe to normalize here
+	    upperright.copyFrom( near_ur.operator_add(dir.operator_mul( distance / dir.dot(this.projDir))));
+	  }
+	  else {
+	    lowerleft.copyFrom( this.llf.operator_add(this.projDir.operator_mul(distance)));
+	    lowerright.copyFrom( this.lrf.operator_add(this.projDir.operator_mul(distance)));
+	    upperleft.copyFrom( this.ulf.operator_add(this.projDir.operator_mul(distance)));
+	    upperright.copyFrom( near_ur.operator_add(this.projDir.operator_mul(distance)));
+	  }
 	}
+
 
 	//
 	// some convenience function for converting between single precision

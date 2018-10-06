@@ -47,12 +47,12 @@ import jscenegraph.port.Array;
  */
 public class SbDPViewVolume {
 	
-	public
-		  enum ProjectionType { ORTHOGRAPHIC, PERSPECTIVE };
+	//public
+		  //enum ProjectionType { ORTHOGRAPHIC, PERSPECTIVE };
 	
 		  
 
-		  private			  ProjectionType type;
+		  private			  SbViewVolume.ProjectionType type;
 		  private			  final SbVec3d projPoint = new SbVec3d();
 		  private			  final SbVec3d projDir = new SbVec3d();
 		  private			  double nearDist;
@@ -164,7 +164,7 @@ public class SbDPViewVolume {
 	  }
 	//#endif // COIN_DEBUG
 
-	  if (this.type == ProjectionType.PERSPECTIVE) {
+	  if (this.type == SbViewVolume.ProjectionType.PERSPECTIVE) {
 	    double depth = this.nearDist + distance;
 	    final SbVec3d dir = new SbVec3d();
 	    dir.copyFrom(this.llf);
@@ -201,4 +201,73 @@ public class SbDPViewVolume {
 	  return new SbVec3f((float)(v.vec[0]), (float)(v.vec[1]), (float)(v.vec[2]));
 	}
 
+	// FIXME: bitmap-illustration for function doc which shows how the
+	// frustum is set up wrt the input arguments. 20010919 mortene.
+	/*!
+	  Set up the view volume for perspective projections. The line of
+	  sight will be through origo along the negative z axis.
+
+	  \sa ortho().
+	*/
+	public void perspective(double fovy, double aspect,
+	                            double nearval, double farval)
+	{
+	//#if COIN_DEBUG
+	  if (fovy<0.0f || fovy > Math.PI) {
+	    SoDebugError.postWarning("SbDPViewVolume::perspective",
+	                              "Field of View 'fovy' ("+fovy+") is out of bounds "+
+	                              "[0,PI]. Clamping to be within bounds.");
+	    if (fovy<0.0f) fovy=0.0f;
+	    else if (fovy>Math.PI) fovy=Math.PI;
+	  }
+
+//	#if 0 // obsoleted 2003-02-03 pederb. A negative aspect ratio is ok
+//	  if (aspect<0.0f) {
+//	    SoDebugError::postWarning("SbDPViewVolume::perspective",
+//	                              "Aspect ratio 'aspect' (%d) should be >=0.0f. "
+//	                              "Clamping to 0.0f.",aspect);
+//	    aspect=0.0f;
+//	  }
+//	#endif // obsoleted
+
+	  if (nearval>farval) {
+	    SoDebugError.postWarning("SbDPViewVolume::perspective",
+	                              "far coordinate ("+farval+") should be larger than "+
+	                              "near coordinate ("+nearval+"). Swapping near/far."
+	                              );
+	    double tmp=farval;
+	    farval=nearval;
+	    nearval=tmp;
+	  }
+	//#endif // COIN_DEBUG
+
+	  this.type = SbViewVolume.ProjectionType.PERSPECTIVE;
+	  this.projPoint.setValue(0.0f, 0.0f, 0.0f);
+	  this.projDir.setValue(0.0f, 0.0f, -1.0f);
+	  this.nearDist = nearval;
+	  this.nearToFar = farval - nearval;
+
+	  double top = nearval * (double)(Math.tan(fovy/2.0f));
+	  double bottom = -top;
+	  double left = bottom * aspect;
+	  double right = -left;
+
+	  this.llf.setValue(left, bottom, -nearval);
+	  this.lrf.setValue(right, bottom, -nearval);
+	  this.ulf.setValue(left, top, -nearval);
+	}
+
+	public void update(SbViewVolume sbViewVolume) {
+		this.llf.setValue(sbViewVolume.llf.operator_minus(sbViewVolume.projPoint));
+		this.lrf.setValue(sbViewVolume.lrf.operator_minus(sbViewVolume.projPoint));
+		this.ulf.setValue(sbViewVolume.ulf.operator_minus(sbViewVolume.projPoint));
+		
+		this.type = sbViewVolume.type;
+		this.projPoint.setValue(sbViewVolume.projPoint);
+		this.projDir.setValue(sbViewVolume.projDir);
+		this.nearDist = sbViewVolume.nearDist;
+		this.nearToFar = sbViewVolume.nearToFar;
+	}
+
+	
 }

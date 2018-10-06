@@ -631,8 +631,12 @@ getMatrix(SoGetMatrixAction action)
     // since this shouldn't have any effect on other nodes being
     // traversed.
 
-    if (action.getPathCode(numIndices, indices) == SoAction.PathCode.IN_PATH)
+    if (action.getPathCode(numIndices, indices) == SoAction.PathCode.IN_PATH) {
+        // need to push/pop to handle SoUnitsElement correctly
+        action.getState().push();
         children.traverse(action, 0, indices[0][numIndices[0] - 1]);
+        action.getState().pop();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////

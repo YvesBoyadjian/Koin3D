@@ -3369,4 +3369,8 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		return org.lwjgl.opengl.GL11.glIsEnabled(function);
 	}
 
+	default void glVertex2s(short arg0, short arg1) {
+		org.lwjgl.opengl.GL11.glVertex2s(arg0, arg1);
+	}
+
 }

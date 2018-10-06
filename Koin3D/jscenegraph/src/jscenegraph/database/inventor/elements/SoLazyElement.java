@@ -108,6 +108,11 @@ public class SoLazyElement extends SoElement {
       }
     };
 
+    public enum VertexOrdering { // COIN 3D
+        CW,
+        CCW
+      };
+
 	
 	
 	public static interface SoDrawElementsCallback {

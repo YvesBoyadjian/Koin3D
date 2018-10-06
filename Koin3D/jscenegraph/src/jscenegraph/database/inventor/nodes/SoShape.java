@@ -70,6 +70,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.gl2.GLUgl2;
 
+import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.database.inventor.SbBox2f;
 import jscenegraph.database.inventor.SbBox3f;
@@ -102,6 +103,7 @@ import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoPickStyleElement;
 import jscenegraph.database.inventor.elements.SoProjectionMatrixElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
+import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoViewingMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -425,11 +427,26 @@ shouldGLRender(SoGLRenderAction action)
 {
     // SoNode has already checked for render abort, so don't need to
     // do it now
+	  SoState state = action.getState();
+
+	  SoShapeStyleElement shapestyle = SoShapeStyleElement.get(state);
+	  int shapestyleflags = shapestyle.getFlags();
 
     // Check if the shape is invisible
     if (SoDrawStyleElement.get(action.getState()) ==
         SoDrawStyleElement.Style.INVISIBLE)
         return false;
+
+    boolean transparent = (shapestyleflags & (SoShapeStyleElement.Flags.TRANSP_TEXTURE.getValue()|
+            SoShapeStyleElement.Flags.TRANSP_MATERIAL.getValue())) != 0;
+
+    
+    if ((shapestyleflags & SoShapeStyleElement.Flags.SHADOWMAP.getValue())!=0) {
+        if (transparent) return false;
+        int style = SoShadowStyleElement.get(state);
+        if ((style & SoShadowStyleElement.StyleFlags.CASTS_SHADOW.getValue())!=0) return true;
+        return false;
+      }
 
     // If the shape is transparent and transparent objects are being
     // delayed, don't render now

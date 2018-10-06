@@ -83,9 +83,9 @@ public class SoShadowStyleElement extends SoInt32Element {
 		  }
 
 
-public int get(SoState state)
+public static int get(SoState state)
 {
-  return super.get(classStackIndexMap.get(SoShadowStyleElement.class), state);
+  return SoInt32Element.get(classStackIndexMap.get(SoShadowStyleElement.class), state);
 }
 
 

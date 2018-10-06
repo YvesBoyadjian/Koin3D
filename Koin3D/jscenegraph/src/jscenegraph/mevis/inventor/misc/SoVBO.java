@@ -337,8 +337,8 @@ public int getDataId() { return _nodeId; }
 
   }
 
-  static int vbo_vertex_count_min_limit = -1;
-  static int vbo_vertex_count_max_limit = -1;
+  static int vbo_vertex_count_min_limit = /*-1*/_vboMinimumSizeLimit;
+  static int vbo_vertex_count_max_limit = /*-1*/_vboMaximumSizeLimit;
   
   /*!
   Returns the vertex VBO minimum limit.

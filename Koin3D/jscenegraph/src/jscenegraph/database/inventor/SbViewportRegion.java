@@ -343,4 +343,8 @@ operator_equal_equal( SbViewportRegion reg2)
             reg1.vpSize.operator_equal_equal(reg2.vpSize));
 }
 
+public boolean operator_not_equal(SbViewportRegion oldvp) {
+	return !operator_equal_equal(oldvp);
+}
+
 }
