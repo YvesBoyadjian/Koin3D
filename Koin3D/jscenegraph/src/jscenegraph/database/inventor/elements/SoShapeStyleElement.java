@@ -214,6 +214,9 @@ push(SoState state)
     texFunc = sse.texFunc;
     needNorms = sse.needNorms;
     renderCaseMask = sse.renderCaseMask;
+    
+    flags = sse.flags; // COIN 3D
+    
     //Capture previous element:
     sse.capture(state);
 }

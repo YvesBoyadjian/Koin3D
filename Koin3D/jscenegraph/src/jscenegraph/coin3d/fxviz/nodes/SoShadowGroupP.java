@@ -1200,7 +1200,7 @@ updateDirectionalCamera(SoState state, SoShadowLightCache cache, final SbMatrix 
   final SbPlane plane = new SbPlane(dir, cam.position.getValue());
   // move to eye space
   plane.transform(SoViewingMatrixElement.get(state));
-  SbVec3f N = plane.getNormal();
+  SbVec3f N = new SbVec3f(plane.getNormal());
   float D = plane.getDistanceFromOrigin();
 
 //#if 0

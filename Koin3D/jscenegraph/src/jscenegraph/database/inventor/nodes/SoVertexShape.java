@@ -68,6 +68,7 @@ import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2f;
@@ -87,6 +88,7 @@ import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
+import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -357,11 +359,26 @@ shouldGLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	  SoState state = action.getState();
+	  
+	  SoShapeStyleElement shapestyle = SoShapeStyleElement.get(state);
+	  int shapestyleflags = shapestyle.getFlags();
 
     // Check if the shape is invisible
     if (SoDrawStyleElement.get(action.getState()) ==
         SoDrawStyleElement.Style.INVISIBLE)
         return false;
+
+    boolean transparent = (shapestyleflags & (SoShapeStyleElement.Flags.TRANSP_TEXTURE.getValue()|
+            SoShapeStyleElement.Flags.TRANSP_MATERIAL.getValue())) != 0;
+
+    // YB COIN 3D
+    if ((shapestyleflags & SoShapeStyleElement.Flags.SHADOWMAP.getValue())!=0) {
+        if (transparent) return false;
+        int style = SoShadowStyleElement.get(state);
+        if ((style & SoShadowStyleElement.StyleFlags.CASTS_SHADOW.getValue())!=0) return true;
+        return false;
+      }
 
     // If the shape is transparent and transparent objects are being
     // delayed, don't render now
