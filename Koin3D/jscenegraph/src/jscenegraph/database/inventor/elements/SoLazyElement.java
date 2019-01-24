@@ -350,7 +350,7 @@ public class SoLazyElement extends SoElement {
 		       
 		       protected final ivStateStructName ivState = new ivStateStructName();
 		       
-		       private class CoinState {
+		       class CoinState {
 		    	    public int glimageid;
 		    	    public boolean istransparent;
 		    	    public boolean alphatest;

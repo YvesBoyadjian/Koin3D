@@ -83,9 +83,9 @@ import jscenegraph.port.Mutable;
  */
 public class SoNotList implements Mutable {
 
-	 private SoNotRec first, last;
-	 private  SoNotRec firstAtNode;
-	 private  SoField lastField;
+	 private SoNotRec first, last; // ptr
+	 private  SoNotRec firstAtNode; // ptr
+	 private  SoField lastField; // ptr
 	 private  int timeStamp;
 	 
 	 public SoNotList() {

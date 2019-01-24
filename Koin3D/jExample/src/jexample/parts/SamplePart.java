@@ -18,6 +18,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GLDebugMessageCallbackI;
 import org.osgi.framework.Bundle;
 
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
@@ -1258,6 +1260,8 @@ SoSeparator createPlanet2(float radius, float distance,
 		fillLayout.type = SWT.VERTICAL;
 		shell.setLayout(fillLayout);
 		
+    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+    	
 		SoQt.init("demo");
 		//SoDB.setDelaySensorTimeout(new SbTime(1.0/120.0));
 		//SoDB.setRealTimeInterval(new SbTime(1.0/120.0));
@@ -1285,6 +1289,7 @@ SoSeparator createPlanet2(float radius, float distance,
 	    
 	    shell.setLocation(x, y);		shell.open ();
 		shell.setLocation(x, y);
+		
 		while (!shell.isDisposed ()) {
 			if (!display.readAndDispatch ()) display.sleep ();
 		}

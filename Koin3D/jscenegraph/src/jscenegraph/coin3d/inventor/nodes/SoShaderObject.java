@@ -759,6 +759,8 @@ sensorCB(Object data, SoSensor sensor)
 {
   SoShaderObject thisp = (SoShaderObject) data;
   SoField field = ((SoNodeSensor )sensor).getTriggerField();
+  
+  //field.evaluate(); //YB
 
   if (field == thisp.owner.sourceProgram ||
       field == thisp.owner.sourceType) {

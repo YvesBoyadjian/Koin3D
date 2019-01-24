@@ -108,9 +108,9 @@ public class SoNotRec {
 		ENGINE		//!< Engine notifying connected field
 	}
 	
-	private SoBase base;
+	private SoBase base; // ptr
 	private Type type;
-	private SoNotRec previous; 
+	private SoNotRec previous; // ptr
 	
 	// Constructor - passed the base pointer. 
 	public SoNotRec(SoBase b) {

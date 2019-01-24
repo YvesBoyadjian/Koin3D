@@ -223,6 +223,7 @@ findLast(Object auditor, SoNotRec.Type type)
 
 	            notify1(workingList, i);
 	        }
+	        workingList.destructor();
 	    }
 	}
 	//
@@ -255,6 +256,7 @@ findLast(Object auditor, SoNotRec.Type type)
 	  case FIELD:
 	  case ENGINE:
 	  ((SoField ) getObject(index)).notify(list);
+	  //((SoField ) getObject(index)).evaluate(); // YB
 	  break;
 	  }
 	 }

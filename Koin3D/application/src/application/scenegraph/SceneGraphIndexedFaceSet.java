@@ -49,7 +49,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private static final float SUN_RADIUS = 7e8f;
 	
-	private static final SbColor SUN_COLOR = new SbColor(1f, 0.9f, 0.5f);
+	private static final SbColor SUN_COLOR = new SbColor(1f, 0.9f, 0.67f);
 	
 	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	

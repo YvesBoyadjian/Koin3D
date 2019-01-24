@@ -58,7 +58,10 @@ import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.shaders.SoGLShaderProgram;
+import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoMachine;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
@@ -1004,6 +1007,9 @@ reallySend(final SoState state, int bitmask)
                                 
                 case LIGHT_MODEL_CASE :
                     if (glState.GLLightModel == ivState.lightModel) break;
+                    //SoGLShaderProgram prog = SoGLShaderProgramElement.get((SoState) state); //COIN 3D YB
+                    //if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_light_model"), /*this.coinstate*/ivState.lightModel); // COIN 3D
+                    ////if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside ? 1:0);
                     if (ivState.lightModel == SoLazyElement.LightModel.PHONG.getValue()){
                         gl2.glEnable(GL2.GL_LIGHTING);
                         if (colorIndex)gl2.glShadeModel(GL2.GL_FLAT);
@@ -1156,6 +1162,13 @@ reallySend(final SoState state, int bitmask)
                     glState.GLStippleNum = ivState.stippleNum;                  
                                         
                     realSendBits |= masks.TRANSPARENCY_MASK.getValue();                      
+                //    break; YB
+                //case TWOSIDE_CASE:
+                //    if (this.glState.twoside != (this.coinstate.twoside ? 1:0)) {
+                //      /*SoGLShaderProgram*/ prog = SoGLShaderProgramElement.get((SoState) state);
+                //      if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside ? 1:0);
+                //      this.sendTwosideLighting(this.coinstate.twoside);
+                //    }
                     break;
             }
         }
