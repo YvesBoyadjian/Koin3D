@@ -3,13 +3,15 @@
  */
 package jscenegraph.port;
 
+import java.nio.FloatBuffer;
+
 import jscenegraph.database.inventor.SbVec2f;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SbVec2fArray {
+public class SbVec2fArray implements FloatBufferAble {
 
 	private float[] valuesArray;
 	
@@ -43,5 +45,10 @@ public class SbVec2fArray {
 		}
 		
 		return valuesArray;
+	}
+
+	@Override
+	public FloatBuffer toFloatBuffer() {
+		return FloatBuffer.wrap(valuesArray,delta*2,valuesArray.length - delta*2);
 	}
 }

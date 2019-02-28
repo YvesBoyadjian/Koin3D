@@ -100,7 +100,7 @@ public class SoCoordinate4 extends SoNode {
 	SoCoordinate4_doAction(SoAction  action)
 	{
 	  SoCoordinateElement.set4(action.getState(), this,
-	                            point.getNum(), point.getValues(0));
+	                            point.getNum(), point.getValuesSbVec4fArray(/*0*/));
 	}
 
 	// Doc from superclass.

@@ -62,6 +62,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.SbVec4fArray;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ public class SoCoordinateElement extends SoReplacedElement {
 	   protected
 		        int             numCoords;
 	   protected        SbVec3fArray       coords3;
-	   protected        SbVec4f[]       coords4;
+	   protected        SbVec4fArray       coords4;
 	   protected        boolean              coordsAre3D;
 		    	
 	   private
@@ -175,7 +176,7 @@ get3(int index)
     else {
         // Cast the const away...
         SoCoordinateElement     elt = (SoCoordinateElement ) this;
-        SbVec4f           c4  = coords4[index];
+        SbVec4f           c4  = coords4.get(index);
 
         // If we can't do the projection, or we don't have to
         if (c4.operator_square_bracket(3) == 0.0 || c4.operator_square_bracket(3) == 1.0) {
@@ -253,7 +254,7 @@ get4(int index)
     }
 
     else
-        return coords4[index];
+        return coords4.get(index);
 }
 
 /**
@@ -270,13 +271,13 @@ public float[] get4Ptr() {
     	float[] vertexArray = new float[length*4];
     	int index = 0;
     	for(int i=0;i<length;i++) {
-    		vertexArray[index] = coords4[i].getValueRead()[0];
+    		vertexArray[index] = coords4.get(i).getValueRead()[0];
     		index++;
-    		vertexArray[index] = coords4[i].getValueRead()[1];
+    		vertexArray[index] = coords4.get(i).getValueRead()[1];
     		index++;
-    		vertexArray[index] = coords4[i].getValueRead()[2];
+    		vertexArray[index] = coords4.get(i).getValueRead()[2];
     		index++;
-    		vertexArray[index] = coords4[i].getValueRead()[3];
+    		vertexArray[index] = coords4.get(i).getValueRead()[3];
     		index++;
     	}
         return vertexArray;
@@ -326,7 +327,7 @@ set3(SoState state, SoNode node,
 
 public static void
 set4(SoState state, SoNode node,
-                          int numCoords, final SbVec4f[] coords)
+                          int numCoords, final SbVec4fArray coords)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -371,6 +372,28 @@ getArrayPtr3()
 //#endif // COIN_DEBUG
 
   return this.coords3/*D*/;
+}
+
+/*!
+  Returns a pointer to the 4D coordinate array. Don't use this method
+  unless SoCoordinateElement::is3D() returns \c FALSE.
+
+  This method is not part of the original SGI Open Inventor v2.1 API.
+
+  \since Coin 1.0
+*/
+public SbVec4fArray
+getArrayPtr4()
+{
+//#if COIN_DEBUG
+  if (this.is3D()) {
+    SoDebugError.postWarning("SoDiffuseColorElement::getArrayPtr4",
+                              "coordinates are *not* 4D -- use "+
+                              "getArrayPtr3() instead");
+  }
+//#endif // COIN_DEBUG
+
+  return this.coords4/*D*/;
 }
 
 

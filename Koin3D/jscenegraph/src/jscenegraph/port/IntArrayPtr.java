@@ -3,12 +3,45 @@
  */
 package jscenegraph.port;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * @author Yves Boyadjian
  *
  */
 public class IntArrayPtr {
 	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Objects.hash(array);
+		result = prime * result + Objects.hash(intOffset);
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof IntArrayPtr)) {
+			return false;
+		}
+		IntArrayPtr other = (IntArrayPtr) obj;
+		return array == other.array && intOffset == other.intOffset;
+	}
+
 	int [] array;	
 	int intOffset;
 
@@ -20,6 +53,11 @@ public class IntArrayPtr {
 	public IntArrayPtr(int[] array) {
 		this.array = array;
 		intOffset = 0;
+	}
+
+	public IntArrayPtr(IntArrayPtr intArrayPtr) {
+		this.array = intArrayPtr.array;
+		this.intOffset = intArrayPtr.intOffset;
 	}
 
 	public void plusPlus() {
@@ -44,5 +82,23 @@ public class IntArrayPtr {
 	
 	public int get(int i) {
 		return array[i+intOffset];
+	}
+
+	public IntArrayPtr plus(int num) {
+		return new IntArrayPtr(intOffset+num,array);
+	}
+
+	public int minus(IntArrayPtr other) {
+		if(array != other.array) {
+			throw new IllegalArgumentException();
+		}
+		return other.intOffset - intOffset;
+	}
+
+	public boolean lessThan(IntArrayPtr other) {
+		if(array != other.array) {
+			throw new IllegalArgumentException();
+		}
+		return intOffset < other.intOffset;
 	}
 }

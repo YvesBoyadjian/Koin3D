@@ -62,6 +62,8 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFInt32;
+import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.IntArrayPtr;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,6 +197,38 @@ public SoNonIndexedShape()
     // The center point is the average of the vertices
     center.operator_div_equal((float) numVertices);
 	}     
+	
+	/*!  
+	  Convenience method that might adjust \a start and \a end
+	  pointers, which should point at the start and end of the numVertices
+	  array when calling this method. This takes care of the case where
+	  numVertices contains a single -1, and all coordinates in the state
+	  (or in the vertexProperty field) should be rendered as one
+	  primitive.
+
+	  \a dummyarray should be a temporary array, with room for one integer.
+
+	  Not part of the OIV API.  
+	*/
+	protected void
+	fixNumVerticesPointers(final SoState state, final IntArrayPtr[] start, final IntArrayPtr[] end,
+	                                          int[] dummyarray) // COIN3D
+	{
+	  if ((start[0].plus(1).equals(end[0])) && (start[0].get(0) == -1)) {
+	    final SoCoordinateElement coordelem =
+	      SoCoordinateElement.getInstance(state);
+	    SoVertexProperty vp = (SoVertexProperty ) this.vertexProperty.getValue();
+	    boolean vpvtx = vp != null && (vp.vertex.getNum() > 0);
+
+	    final int numCoords = vpvtx ?
+	      vp.vertex.getNum() :
+	      coordelem.getNum();
+
+	    dummyarray[0] = numCoords - startIndex.getValue();
+	    start[0] = new IntArrayPtr(dummyarray);
+	    end[0] = numCoords > 1 ? start[0].plus(1) : start[0];
+	  }
+	}
 	
 
 ////////////////////////////////////////////////////////////////////////

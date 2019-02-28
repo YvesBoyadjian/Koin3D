@@ -122,4 +122,8 @@ public class Array<T extends Mutable> {
 	public Class<T> getElementClass() {
 		return klass;
 	}
+
+	public Array<T> addressOf(int offset) {
+		return new Array<T>(klass,offset,array);
+	}
 }

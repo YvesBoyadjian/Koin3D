@@ -56,6 +56,7 @@
 package jscenegraph.database.inventor.caches;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.misc.SoNormalGenerator;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.SbVec3fArray;
@@ -75,9 +76,9 @@ import jscenegraph.port.SbVec3fArray;
  */
 public class SoNormalCache extends SoCache implements Destroyable {
 
-  private
-    int                 numNormals;             //!< Number of normals
-    private SbVec3fArray       normals;               //!< Array of normals
+  private SoNormalCacheP pimpl;
+    //int                 numNormals;             //!< Number of normals
+    //private SbVec3fArray       normals;               //!< Array of normals
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -90,9 +91,10 @@ public class SoNormalCache extends SoCache implements Destroyable {
 public SoNormalCache(SoState state) { super(state);
 //
 ////////////////////////////////////////////////////////////////////////
+	pimpl = new SoNormalCacheP();
 
-    numNormals = 0;
-    normals = null;
+    pimpl.numNormals = 0;
+    pimpl.normalData_normals = null;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -106,17 +108,31 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if (normals != null) {
-        normals = null;
+    if (pimpl.normalData_normals != null) {
+        pimpl.normalData_normals = null;
         }
 }
 
     //! Returns the number of normals and list of normals
-public     int                 getNum()           { return numNormals; }
-public  SbVec3fArray      getNormals()       { return normals;    }
+public     int                 getNum()           {
+	  if (pimpl.numNormals == 0 && pimpl.normalData_generator != null) {
+		    return pimpl.normalData_generator.getNumNormals();
+		  }
+	  return pimpl.numNormals; 
+	}
+public  SbVec3fArray      getNormals()       {
+	  if (pimpl.numNormals == 0 && pimpl.normalData_generator != null) {
+		    return pimpl.normalData_generator.getNormals();
+		  }
+		  return pimpl.normalData_normals;
+	}
 
 // java port
 public float[] getNormalsFloat() {
+	
+	SbVec3fArray normals = getNormals();
+	
+	int numNormals = getNum();
 	float[] normalArray = new float[numNormals*3];
 	int index=0;
 	for(int i=0;i<numNormals;i++) {
@@ -142,7 +158,35 @@ set(int _numNormals, final SbVec3fArray _normals)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    numNormals = _numNormals;
-    normals    = _normals;
+    this.clearGenerator();
+    pimpl.numNormals = _numNormals;
+    pimpl.normalData_normals    = _normals; pimpl.normalData_generator = null;
+    pimpl.indices.truncate(0, true);
+    pimpl.normalArray.truncate(0, true);
 }
+
+/*!
+  Uses a normal generator in this cache. The normal generator will
+  be deleted when the cache is deleted or reset.
+*/
+public void set(SoNormalGenerator generator) {
+	  this.clearGenerator();
+	  pimpl.indices.truncate(0, true);
+	  pimpl.normalArray.truncate(0, true);
+	  pimpl.numNormals = 0;
+	  pimpl.normalData_generator = generator; pimpl.normalData_normals = null; // java port
+}
+//
+// frees generator and resets normal data.
+//
+public void
+clearGenerator()
+{
+  if (pimpl.numNormals == 0 && pimpl.normalData_generator != null) {
+    Destroyable.delete(pimpl.normalData_generator);
+  }
+  pimpl.normalData_normals = null; pimpl.normalData_generator = null; // java port
+  pimpl.numNormals = 0;
+}
+
 }

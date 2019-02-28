@@ -219,7 +219,7 @@ ensureProgramHandle( cc_glglue g)
   this.getProgramHandle(g, true);
 }
 
-public long getProgramHandle( cc_glglue  g) { // java port
+public int getProgramHandle( cc_glglue  g) { // java port
 	return getProgramHandle(g, false);
 }
 public /*COIN_GLhandle*/int

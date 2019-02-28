@@ -340,7 +340,7 @@ public class SoSceneTexture2P implements Destroyable {
 		  {
 			  GL2 gl2 = state.getGL2();
 			  
-		    SbVec2s size = this.api.size.getValue();
+		    SbVec2s size = new SbVec2s(this.api.size.getValue());
 
 		    SoNode scene = this.api.scene.getValue();
 		    assert(scene != null);
@@ -379,7 +379,7 @@ public class SoSceneTexture2P implements Destroyable {
 		        this.glcontextsize.getValue()[0] = (short) Tidbits.coin_geq_power_of_two(size.getValue()[0]);
 		        this.glcontextsize.getValue()[1] = (short) Tidbits.coin_geq_power_of_two(size.getValue()[1]);
 
-		        if (this.glcontextsize != size) {
+		        if (this.glcontextsize.operator_not_equal(size)) {
 		          if (didwarn == 0) {
 		            SoDebugError.postWarning("SoSceneTexture2P.updatePBuffer",
 		                                      "Requested non power of two size, but your OpenGL "+

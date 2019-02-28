@@ -88,6 +88,7 @@ import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.GLXContext;
+import jscenegraph.port.SbColorArray;
 
 
 
@@ -369,8 +370,8 @@ preRender(SoGLRenderAction action, final int[] oldDepthFunc)
         // Diffuse Color
         if (style.getValue() == Styles.EMISSIVE_DIFFUSE.getValue()) {
             SoOverrideElement.setDiffuseColorOverride(state, this, true);
-            SbColor[] colors = new SbColor[1];
-            colors[0] = col;
+            SbColorArray colors = new SbColorArray(1);
+            colors.get(0).setValue(col);
             SoLazyElement.setDiffuse(state, this, 1, colors, colorPacker);
         }
     }

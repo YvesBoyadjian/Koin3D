@@ -113,6 +113,7 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	}
 
 	/* Get pointer into array of values */
+	@Deprecated
 	public SbVec3f[] getValues(int start) {
 		evaluate();
 
@@ -135,12 +136,14 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		return shiftedValues;
 	}
 
+	@Deprecated
 	public ByteBuffer getValuesBytes(int start) {
 		FloatArray values = getValuesArray(start);
 		return Util.toByteBuffer(values);
 	}
 
 	// java port
+	@Deprecated
 	public float[] getValuesFloat(int start) {
 		evaluate();
 
@@ -312,7 +315,7 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
-		DoubleConsumer[] ref = getValues(0)[index].getRef();
+		DoubleConsumer[] ref = getValuesSbVec3fArray().get(index).getRef();
 		return (in.read(ref[0]) && in.read(ref[1]) && in.read(ref[2]));
 	}
 
@@ -385,8 +388,8 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	
     public SbVec3fArray startEditingFast()                                
     { 
-	evaluate(); 
-	return new SbVec3fArray(valuesArray); 
+    	evaluate(); 
+    	return new SbVec3fArray(valuesArray); 
 	}                                        
 
     public SbVec3fArray getValuesSbVec3fArray() {

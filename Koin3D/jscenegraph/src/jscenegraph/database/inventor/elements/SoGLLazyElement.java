@@ -74,6 +74,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.SbColorArray;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
 
@@ -114,7 +115,7 @@ public class SoGLLazyElement extends SoLazyElement {
 	        int          GLBlending; // int, not boolean
 	        int         GLStippleNum;
 	        
-	        int vertexordering; //COIN 3D
+	        /*VertexOrdering*/int vertexordering; //COIN 3D
 	        int twoside; // COIN 3d
 	        int culling; // COIN 3D
 	        
@@ -266,8 +267,11 @@ pop(SoState state, SoElement prevTopElement)
     
     //copy GL state:
     glState.copyFrom(prevTop.glState);
- 
-
+    //this.colorindex = prevTop.colorindex; TODO
+    this.didsetbitmask = prevTop.didsetbitmask;
+    this.didntsetbitmask = prevTop.didntsetbitmask;
+    this.cachebitmask = prevTop.cachebitmask;
+    this.opencacheflags = prevTop.opencacheflags;
 }
 
 
@@ -281,7 +285,7 @@ pop(SoState state, SoElement prevTopElement)
 ////////////////////////////////////////////////////////////////////////
 public void
 setDiffuseElt(SoNode node,  
-    int numColors,   SbColor[] colors, SoColorPacker cPacker)
+    int numColors,   SbColorArray colors, SoColorPacker cPacker)
 {
     if (colorIndex) return;
     ivState.diffuseColors = colors;
@@ -638,7 +642,7 @@ setMaterialElt(SoNode node, int mask,
       final SoMFColor specular, final   SoMFFloat shininess)
 {
     if ((mask & masks.DIFFUSE_MASK.getValue())!=0 && !colorIndex ){
-        ivState.diffuseColors = diffuse.getValues(0);
+        ivState.diffuseColors = diffuse.getValuesSbColorArray(/*0*/);
         ivState.numDiffuseColors = diffuse.getNum();        
         ivState.diffuseNodeId = (node.getNodeId()); 
         ivState.packed = false;
@@ -926,6 +930,21 @@ reset(SoState state, int bitmask)
                     le.glState.GLBlending = -1;
                     break;                  
 
+                case VERTEXORDERING_CASE:
+                    le.glState.vertexordering = -1; //COIN3D
+                    break;
+                    
+                case CULLING_CASE:
+                    le.glState.culling = -1; //COIN3D
+                    break;
+                    
+                case TWOSIDE_CASE:
+                    le.glState.twoside = -1; //COIN3D
+                    break;
+                    
+                case SHADE_MODEL_CASE:
+                    // le.glState.flatshading = -1; TODO COIN3D
+                    break;
             }
         }
    }
@@ -1007,8 +1026,8 @@ reallySend(final SoState state, int bitmask)
                                 
                 case LIGHT_MODEL_CASE :
                     if (glState.GLLightModel == ivState.lightModel) break;
-                    //SoGLShaderProgram prog = SoGLShaderProgramElement.get((SoState) state); //COIN 3D YB
-                    //if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_light_model"), /*this.coinstate*/ivState.lightModel); // COIN 3D
+                    SoGLShaderProgram prog = SoGLShaderProgramElement.get((SoState) state); //COIN 3D 
+                    if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_light_model"), /*this.coinstate*/ivState.lightModel); // COIN 3D
                     ////if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside ? 1:0);
                     if (ivState.lightModel == SoLazyElement.LightModel.PHONG.getValue()){
                         gl2.glEnable(GL2.GL_LIGHTING);
@@ -1161,14 +1180,22 @@ reallySend(final SoState state, int bitmask)
                     }
                     glState.GLStippleNum = ivState.stippleNum;                  
                                         
-                    realSendBits |= masks.TRANSPARENCY_MASK.getValue();                      
-                //    break; YB
-                //case TWOSIDE_CASE:
-                //    if (this.glState.twoside != (this.coinstate.twoside ? 1:0)) {
-                //      /*SoGLShaderProgram*/ prog = SoGLShaderProgramElement.get((SoState) state);
-                //      if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside ? 1:0);
-                //      this.sendTwosideLighting(this.coinstate.twoside);
-                //    }
+                    realSendBits |= masks.TRANSPARENCY_MASK.getValue();
+                    break;
+                    
+                case VERTEXORDERING_CASE:
+                	
+                    if (this.glState.vertexordering != this.coinstate.vertexordering) {
+                      this.sendVertexOrdering(SoLazyElement.VertexOrdering.fromValue(this.coinstate.vertexordering));
+                    }
+                    break;
+                    
+                case TWOSIDE_CASE:
+                    if (this.glState.twoside != (this.coinstate.twoside ? 1:0)) {
+                      /*SoGLShaderProgram*/ prog = SoGLShaderProgramElement.get((SoState) state);
+                      if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside ? 1:0);
+                      this.sendTwosideLighting(this.coinstate.twoside);
+                    }
                     break;
             }
         }
@@ -2089,7 +2116,7 @@ packColors(SoColorPacker cPacker)
         }
         else{
             if (multTrans) indx = i;
-            packedArray[i] = (ivState.diffuseColors[i]).
+            packedArray[i] = (ivState.diffuseColors.get(i)).
                 getPackedValue(ivState.transparencies[indx]);       
         }
         
@@ -2160,7 +2187,7 @@ private static int PAT_INDEX(int x, int y) {
 	return ((y) * 4 + x);
 }
 
-public void updateColorVBO( SoState state, SoVBO vbo )
+public void updateColorVBO( SoState state, SoVBO vbo ) // FIXME YB not in synchro with Coin3D
 {
   int maxId = ivState.diffuseNodeId;
   if (ivState.transpNodeId > maxId) {
@@ -2236,7 +2263,7 @@ sendDiffuseByIndex(int index)
    sendVertexOrdering( VertexOrdering ordering) 
    {
      gl2.glFrontFace(ordering == VertexOrdering.CW ? GL2.GL_CW : GL2.GL_CCW);
-     this.glState.vertexordering = (int) ordering.ordinal();
+     this.glState.vertexordering = (int) ordering.getValue();
      this.cachebitmask |= masks.VERTEXORDERING_MASK.getValue();
    }
 
@@ -2321,6 +2348,5 @@ public static void
        elem.lazyDidntSet(masks.CULLING_MASK.getValue());
      }
    }
-
    
  }

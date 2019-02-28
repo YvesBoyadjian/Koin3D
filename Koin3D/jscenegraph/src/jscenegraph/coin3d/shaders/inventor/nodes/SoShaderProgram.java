@@ -244,7 +244,7 @@ public class SoShaderProgram extends SoNode {
 	  private Object enablecbclosure;
 
 //private SoShaderProgram * owner;
-	  private final static SoGLShaderProgram glShaderProgram = new SoGLShaderProgram();
+	  private final SoGLShaderProgram glShaderProgram = new SoGLShaderProgram();
 
 	  private static void sensorCB(Object data, SoSensor sensor)
 	  {

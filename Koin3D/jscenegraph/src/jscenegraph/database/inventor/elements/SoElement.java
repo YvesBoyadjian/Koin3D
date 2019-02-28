@@ -79,9 +79,12 @@ import jscenegraph.coin3d.inventor.elements.SoTextureCombineElement;
 import jscenegraph.coin3d.inventor.elements.SoTextureScalePolicyElement;
 import jscenegraph.coin3d.inventor.elements.SoTextureScaleQualityElement;
 import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
+import jscenegraph.coin3d.inventor.elements.SoVertexAttributeBindingElement;
+import jscenegraph.coin3d.inventor.elements.SoVertexAttributeElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLEnvironmentElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLTexture3EnabledElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLVertexAttributeElement;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.SoType.CreateMethod;
@@ -409,6 +412,12 @@ private        int                 depth;
 		SoElement.initClass(SoDepthBufferElement.class); // COIN 3D
 		SoElement.initClass(SoGLDepthBufferElement.class); // COIN
 																		// 3D
+		
+		  SoVertexAttributeElement.initClass(SoVertexAttributeElement.class);
+		  SoGLVertexAttributeElement.initClass(SoGLVertexAttributeElement.class);
+		  SoVertexAttributeBindingElement.initClass(SoVertexAttributeBindingElement.class);
+		
+		
 		SoLightElement.initClass(SoLightElement.class); // COIN 3D
 		
 		SoTextureUnitElement.initClass(SoTextureUnitElement.class); // COIN 3D
@@ -429,6 +438,7 @@ private        int                 depth;
 
 		       SoElement.initClass(SoWindowElement.class);
 
+		       
 	}
 
 	// This is the initial number of slots in the array of types that's

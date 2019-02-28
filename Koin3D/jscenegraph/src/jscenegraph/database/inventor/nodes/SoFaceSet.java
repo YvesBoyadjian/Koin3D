@@ -56,15 +56,21 @@ package jscenegraph.database.inventor.nodes;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
-import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
+import jscenegraph.coin3d.inventor.elements.SoVertexAttributeBindingElement;
+import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbBox3f;
+import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
@@ -72,26 +78,34 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
+import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.bundles.SoNormalBundle;
 import jscenegraph.database.inventor.bundles.SoTextureCoordinateBundle;
+import jscenegraph.database.inventor.caches.SoConvexDataCache;
 import jscenegraph.database.inventor.caches.SoNormalCache;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.details.SoFaceDetail;
 import jscenegraph.database.inventor.details.SoPointDetail;
+import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
+import jscenegraph.database.inventor.elements.SoCreaseAngleElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
+import jscenegraph.database.inventor.elements.SoGLCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
+import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
+import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.fields.SoSFBool;
+import jscenegraph.database.inventor.misc.SoNormalGenerator;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
@@ -99,6 +113,11 @@ import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.FloatArray;
+import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.MutableSbVec3fArray;
+import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.SbVec4fArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,8 +232,20 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
 
     //! This enum is used to indicate the current material or normal binding
     public enum Binding {
-        OVERALL, PER_FACE, PER_VERTEX
+        OVERALL, PER_FACE, PER_VERTEX;
+
+		public int getValue() {
+			return ordinal();
+		}
     };
+
+ // for concavestatus
+    private final int STATUS_UNKNOWN = 0;
+    private final int STATUS_CONVEX = 1;
+    private final int STATUS_CONCAVE = 2;
+
+    private final int UNKNOWN_TYPE = -1;
+    private final int MIXED_TYPE = -2;
 
 	
 
@@ -255,6 +286,8 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     	QuadRenderFunc[8] = (set, action)-> set.QuadFmOn(action);
     	QuadRenderFunc[16] = (set, action)-> set.QuadFmOn(action);
     }
+    
+    SoFaceSetP pimpl;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -267,6 +300,10 @@ public SoFaceSet()
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	pimpl = new SoFaceSetP();
+	pimpl.convexCache = null;
+	pimpl.concavestatus = STATUS_UNKNOWN;
+	pimpl.primitivetype = UNKNOWN_TYPE;
 
   nodeHeader.SO_NODE_CONSTRUCTOR(/*SoFaceSet*/);
   nodeHeader.SO_NODE_ADD_MFIELD(numVertices,"numVertices", (SO_FACE_SET_USE_REST_OF_VERTICES));
@@ -672,6 +709,92 @@ figureNormals(SoState state, SoNormalBundle nb)
   return false;
 }
 
+static int current_errors_generateDefaultNormals = 0;
+
+// doc from parent
+public boolean
+generateDefaultNormals(SoState state, SoNormalCache nc)
+{
+  boolean ccw = true;
+  if (SoShapeHintsElement.getVertexOrdering(state) ==
+      SoShapeHintsElement.VertexOrdering.CLOCKWISE) ccw = false;
+
+  SoNormalGenerator gen =
+    new SoNormalGenerator(ccw, this.numVertices.getNum() * 3);
+
+  int idx = startIndex.getValue();
+  final int[] dummyarray = new int[1];
+  IntArrayPtr ptr = this.numVertices.getValuesIntArrayPtr(0);
+  IntArrayPtr end = ptr.plus(this.numVertices.getNum());
+  IntArrayPtr[] ptr_dummy = new IntArrayPtr[1];ptr_dummy[0] = ptr;
+  IntArrayPtr[] end_dummy = new IntArrayPtr[1];end_dummy[0] = end;
+  this.fixNumVerticesPointers(state, ptr_dummy, end_dummy, dummyarray);
+  ptr = ptr_dummy[0];
+  end = end_dummy[0];
+
+  final SoCoordinateElement coords =
+    SoCoordinateElement.getInstance(state);
+
+  int numcoords = coords.getNum();
+
+  // Robustness test to see if the startindex is valid.  If it is
+  // not, print error message and return FALSE.
+  if (idx < 0) {
+    if (current_errors_generateDefaultNormals < 1) {
+      SoDebugError.postWarning("SoFaceSet::generateDefaultNormals", "startIndex == "+idx+" "+
+                                "< 0, which is erroneous. This message will only "+
+                                "be printed once, but more errors might be present"
+                                );
+    }
+    current_errors_generateDefaultNormals++;
+
+    // Unable to generate normals for illegal faceset
+    return false;
+  }
+
+  // Generate normals for the faceset
+  while (ptr.lessThan(end)) {
+    int num = ptr.get(); ptr.plusPlus();
+    // If a valid number of points for the faceset has been specified,
+    // and the end index is below the number of points available, then
+    // everything is okidoki, and a polygon is added to the normal
+    // generator.
+    if (num >= 3 && (idx + num) <= numcoords) {
+      gen.beginPolygon();
+      while (num-- != 0) {
+        gen.polygonVertex(coords.get3(idx++));
+      }
+      gen.endPolygon();
+    }
+    // If an invalid polygon has been specified, print errormessage
+    // and return FALSE.
+    else {
+      SoDebugError.postWarning("SoFaceSet::generateDefaultNormals", "Erroneous "+
+                                "number of coordinates: "+num+" specified for FaceSet. "+
+                                "Legal value is >= 3, with "+(numcoords - idx)+" coordinate(s) available"
+                                 );
+
+      // Not able to generate normals for invalid faceset
+      return false;
+    }
+  }
+
+  switch (this.findNormalBinding(state)) {
+  case PER_VERTEX:
+    gen.generate(SoCreaseAngleElement.get(state));
+    break;
+  case PER_FACE:
+    gen.generatePerFace();
+    break;
+  case OVERALL:
+    gen.generateOverall();
+    break;
+  }
+  nc.set(gen);
+  return true;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -802,232 +925,260 @@ public void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway, 
 //
 // Use: protected
 
+static int current_errors = 0;
+
 public void
 GLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  SoState state = action.getState();
+	  int[] dummyarray = new int[1];
+	  IntArrayPtr ptr = this.numVertices.getValuesIntArrayPtr(0); //java port
+	  IntArrayPtr end = ptr.plus(this.numVertices.getNum());
+	  if ((end.minus(ptr) == 1) && (ptr.get(0) == 0)) return; // nothing to render
 
-  // Get ShapeStyleElement
-  SoShapeStyleElement shapeStyle = SoShapeStyleElement.get(state);
+	  if (pimpl.primitivetype == UNKNOWN_TYPE) {
+	    pimpl.primitivetype = MIXED_TYPE;
+	    int numtriangles = 0;
+	    int numquads = 0;
+	    int numothers = 0;
 
-  SoVertexProperty vp = (SoVertexProperty )vertexProperty.getValue();
+	    IntArrayPtr nv = this.numVertices.getValuesIntArrayPtr(0);
+	    final int n = this.numVertices.getNum();
+	    for (int i = 0; i < n; i++) {
+	      switch (nv.get(i)) {
+	      case 3:
+	        numtriangles++;
+	        break;
+	      case 4:
+	        numquads++;
+	        break;
+	      default:
+	        numothers++;
+	        break;
+	      }
+	    }
+	    if (numtriangles != 0 && numquads == 0 && numothers == 0) {
+	      pimpl.primitivetype = GL.GL_TRIANGLES;
+	    }
+	    else if (numquads != 0 && numtriangles == 0 && numothers == 0) {
+	      pimpl.primitivetype = GL2.GL_QUADS;
+	    }
+	  }
 
-  // First see if the object is visible and should be rendered now:
-  if (shapeStyle.mightNotRender()) {
-    if (vpCache.mightNeedSomethingFromState(shapeStyle)) {
-      vpCache.fillInColorAndTranspAvail(vp, state);
-    }
-    if (! shouldGLRender(action))
-      return;
-  }
+	  boolean didusevbo = false;
+	  SoState state = action.getState();
+	  IntArrayPtr[] ptrRef = new IntArrayPtr[1]; ptrRef[0] = ptr; // java port
+	  IntArrayPtr[] endRef = new IntArrayPtr[1]; endRef[0] = end; // java port
+	  this.fixNumVerticesPointers(state, ptrRef, endRef, dummyarray);
+	  ptr = ptrRef[0]; end = endRef[0];// java port
 
-  if (vp != null) {
-    vp.putVBOsIntoState(state);
-  }
+	  boolean storedinvalid = SoCacheElement.setInvalid(false);
+	  state.push(); // for convex cache
 
-  if (vpCache.mightNeedSomethingFromState(shapeStyle)) {
+	  if (this.vertexProperty.getValue() != null) {
+	    state.push();
+	    this.vertexProperty.getValue().GLRender(action);
+	  }
 
-    vpCache.fillInCache(vp,  state);
+	  if (!this.shouldGLRender(action)) {
+	    if (this.vertexProperty.getValue() != null) {
+	      state.pop();
+	    }
+	    // for convex cache
+	    SoCacheElement.setInvalid(storedinvalid);
+	    state.pop();
+	    return;
+	  }
+	  
+	  SoMaterialBundle mb = null;
+	  SoTextureCoordinateBundle tb = null;
 
-    // Set up numTris/Quads/Faces and count vertices if necessary
-    if (numTris < 0)
-      setupNumTrisQuadsFaces();
+		try {
+	  if (!this.useConvexCache(action)) {
+	    // render normally
+	    final SoCoordinateElement[] tmp = new SoCoordinateElement[1]; // ptr
+	    final SbVec3fArray[] normals = new SbVec3fArray[1]; // ptr
+	    boolean doTextures;
 
-    // If faces might be concave, we have to send them through GLU:
-    final SoShapeHintsElement.VertexOrdering[] vo = new SoShapeHintsElement.VertexOrdering[1];
-    final SoShapeHintsElement.ShapeType[] st = new SoShapeHintsElement.ShapeType[1];
-    final SoShapeHintsElement.FaceType[] ft = new SoShapeHintsElement.FaceType[1];
-    SoShapeHintsElement.get(state, vo, st, ft);
+	    mb = new SoMaterialBundle(action);
+	    tb = new SoTextureCoordinateBundle(action, true, false);
+	    doTextures = tb.needCoordinates();
 
-    if ((numQuads > 0 || numFaces > 0)
-      && ft[0] != SoShapeHintsElement.FaceType.CONVEX) {
+	    boolean needNormals = !mb.isColorOnly() || tb.isFunction();
 
-        // Use generatePrimitives for now...
-        SoShape_GLRender(action);
-        return;
-    }
+	    SoVertexShape.getVertexData(state, tmp, normals,
+	                                 needNormals);
 
+	    SoGLCoordinateElement coords = (SoGLCoordinateElement )tmp[0];
 
-    if (vpCache.shouldGenerateNormals(shapeStyle)) {
-      // See if there is a valid normal cache. If so, use it:
-      SoNormalCache normCache = getNormalCache();
-      if (normCache == null || !normCache.isValid(state)) {
-        final SoNormalBundle nb = new SoNormalBundle(action, false);
-        nb.initGenerator(totalNumVertices);
-        generateDefaultNormals(state, nb);
-        normCache = getNormalCache();
-        nb.destructor();
-      }
-      vpCache.numNorms = normCache.getNum();
-      vpCache.normalPtr = /*(byte[])*/normCache.getNormalsFloat(); // java port
-    }
+	    Binding mbind = this.findMaterialBinding(state);
+	    Binding nbind = this.findNormalBinding(state);
 
-    SoTextureCoordinateBundle tcb = null;
-    int useTexCoordsAnyway = 0;
-    if (vpCache.shouldGenerateTexCoords(shapeStyle)) {
-      state.push();
-      tcb = new SoTextureCoordinateBundle(action, true, true);
-    }
-    else if (shapeStyle.isTextureFunction() && vpCache.haveTexCoordsInVP()){
-      state.push();
-      useTexCoordsAnyway = SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
-      SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
-    }           
+	    if (!needNormals) nbind = Binding.OVERALL;
 
-    //If lighting or texturing is off, this vpCache and other things
-    //need to be reconstructed when lighting or texturing is turned
-    //on, so we set the bits in the VP cache:
-    if(! shapeStyle.needNormals()) vpCache.needFromState |= 
-      SoVertexPropertyCache.Bits.NORMAL_BITS.getValue();
-    if(! shapeStyle.needTexCoords()) vpCache.needFromState |= 
-      SoVertexPropertyCache.Bits.TEXCOORD_BIT.getValue();
+	    SoNormalCache nc = null; // ptr
 
-    // If doing multiple colors, turn on ColorMaterial:
-    if (vpCache.getNumColors() > 1) {
-      SoGLLazyElement.setColorMaterial(state, true);
-    }
-    //
-    // Ask LazyElement to setup:
-    //
-    SoGLLazyElement lazyElt = (SoGLLazyElement )
-      SoLazyElement.getInstance(state);
+	    if (needNormals && normals[0] == null) {
+	      nc = this.generateAndReadLockNormalCache(state);
+	      normals[0] = nc.getNormals();
+	    }
 
-    if (vpCache.colorIsInVtxProp()) {
-      lazyElt.send(state, SoLazyElement.masks.ALL_MASK.getValue());
-      lazyElt.sendVPPacked(state, (IntBuffer)
-        vpCache.getColors(0).toIntBuffer()/*.asIntBuffer()*/);
-    }
-    else lazyElt.send(state, SoLazyElement.masks.ALL_MASK.getValue());
+	    mb.sendFirst(); // make sure we have the correct material
 
-//#ifdef DEBUG
-    // Check for enough vertices:
-    if (vpCache.numVerts < totalNumVertices + startIndex.getValue()){
-      SoDebugError.post("SoFaceSet::GLRender",
-        "Too few vertices specified;"+
-        " need "+(totalNumVertices + startIndex.getValue())+", have "+ vpCache.numVerts);
-    }
-    // Check for enough colors, normals, texcoords:
-    int numNormalsNeeded = 0;
-    if (shapeStyle.needNormals()) switch (vpCache.getNormalBinding()) {
-    case OVERALL:
-      numNormalsNeeded = 1;
-      break;
-    case PER_VERTEX:
-    case PER_VERTEX_INDEXED:
-      numNormalsNeeded = totalNumVertices + startIndex.getValue();
-      break;
-    case PER_FACE:
-    case PER_FACE_INDEXED:
-    case PER_PART:
-    case PER_PART_INDEXED:
-      numNormalsNeeded = numTris + numQuads + numFaces;              
-      break;
-    }
-    if (vpCache.getNumNormals() < numNormalsNeeded)
-      SoDebugError.post("SoFaceSet::GLRender",
-      "Too few normals specified;"+
-      " need "+numNormalsNeeded+", have "+ vpCache.getNumNormals());
+	    int idx = this.startIndex.getValue();
 
-    if ((shapeStyle.needTexCoords() || useTexCoordsAnyway != 0) && 
-      !vpCache.shouldGenerateTexCoords(shapeStyle)) {
+	    // Robustness test to see if the startindex is valid.  If it is
+	    // not, print error message and exit.
+	    if (idx < 0) {
+	      if (current_errors < 1) {
+	        SoDebugError.postWarning("SoFaceSet::GLRender", "startIndex == "+idx+" "+
+	                                  "< 0, which is erroneous. This message will only "+
+	                                  "be printed once, but more errors might be present"
+	                                  );
+	      }
+	      current_errors++;
 
-        if (vpCache.getNumTexCoords() < 
-          totalNumVertices+startIndex.getValue())
-          SoDebugError.post("SoFaceSet::GLRender",
-          "Too few texture coordinates specified;"+
-          " need "+(totalNumVertices+startIndex.getValue())+", have "+ vpCache.getNumTexCoords());
-    }
-    int numColorsNeeded = 0;
-    switch (vpCache.getMaterialBinding()) {
-    case OVERALL:
-      break;
-    case PER_VERTEX:
-    case PER_VERTEX_INDEXED:
-      numColorsNeeded = totalNumVertices + startIndex.getValue();
-      break;
-    case PER_FACE:
-    case PER_FACE_INDEXED:
-    case PER_PART:
-    case PER_PART_INDEXED:
-      numColorsNeeded = numTris + numQuads + numFaces;
-      break;
-    }
-    if (vpCache.getNumColors() < numColorsNeeded)
-      SoDebugError.post("SoFaceSet::GLRender",
-      "Too few diffuse colors specified;"+
-      " need "+numColorsNeeded+", have "+ vpCache.getNumColors());
-//#endif
+	      // Unlock resource if needed
+	      if (nc != null) {
+	        this.readUnlockNormalCache();
+	      }
 
-    GLRenderInternal(action, useTexCoordsAnyway, shapeStyle);
+	      // Goto end of this method to clean up resources
+	      return; //goto glrender_done; java port : execute finally
+	    }
 
-    // If doing multiple colors, turn off ColorMaterial:
-    if (vpCache.getNumColors() > 1) {
-      SoGLLazyElement.setColorMaterial(state, false);
-      ((SoGLLazyElement )SoLazyElement.getInstance(state)).
-        reset(state, SoLazyElement.masks.DIFFUSE_MASK.getValue());
-    }
+	    // check if we can render things using glDrawArrays
+	    if (SoGLDriverDatabase.isSupported(SoGL.sogl_glue_instance(state), SoGLDriverDatabase.SO_GL_VERTEX_ARRAY) &&
+	        (pimpl.primitivetype == GL.GL_TRIANGLES) ||
+	        (pimpl.primitivetype == GL2.GL_QUADS) &&
+	        (nbind != Binding.PER_FACE) &&
+	        (mbind != Binding.PER_FACE) &&
+	        !tb.isFunction()) {
+	      boolean dovbo = this.startVertexArray(action,
+	                                            coords,
+	                                            nbind == Binding.PER_VERTEX ? normals[0] : null,
+	                                            doTextures,
+	                                            (mbind == Binding.PER_VERTEX));
+	      int numprimitives = this.numVertices.getNum();
+	      if (pimpl.primitivetype == GL.GL_TRIANGLES) numprimitives *= 3;
+	      else numprimitives *= 4; // quads
+	      SoGL.cc_glglue_glDrawArrays(SoGL.sogl_glue_instance(state), pimpl.primitivetype,
+	                             idx, numprimitives); 
+	      this.finishVertexArray(action, dovbo, nbind == Binding.PER_VERTEX,
+	                              doTextures, (mbind == Binding.PER_VERTEX));
+	      
+	    }
+	    else {
+	      SOGL_FACESET_GLRENDER(nbind, mbind, doTextures ? 1 : 0, /*(*/coords,
+	                                                       normals[0],
+	                                                       /*&*/mb,
+	                                                       /*&*/tb,
+	                                                       nbind.getValue(),
+	                                                       mbind.getValue(),
+	                                                       doTextures ? 1 : 0,
+	                                                       idx,
+	                                                       ptr,
+	                                                       end,
+	                                                       needNormals/*)*/);
+	    }
 
-    if (totalNumVertices < AUTO_CACHE_FS_MIN_WITHOUT_VP &&
-      vpCache.mightNeedSomethingFromState(shapeStyle)) {
-        SoGLCacheContextElement.shouldAutoCache(state,
-          SoGLCacheContextElement.AutoCache.DO_AUTO_CACHE.getValue());
-    } else if (totalNumVertices > AUTO_CACHE_FS_MAX &&
-      !SoGLCacheContextElement.getIsRemoteRendering(state)) {
-        SoGLCacheContextElement.shouldAutoCache(state,
-          SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
-    }           
+	    if (nc != null) {
+	      this.readUnlockNormalCache();
+	    }
+	  }
+} 
+	 //glrender_done:
+		 finally {
+		 mb.destructor();
+	  tb.destructor();
 
-    if (tcb != null) {
-      tcb.destructor();//delete tcb;
-      state.pop();
-    } else if (useTexCoordsAnyway != 0) 
-      state.pop();
+	  if (this.vertexProperty.getValue() != null)
+	    state.pop();
 
-  }
-  else {
-    // If doing multiple colors, turn on ColorMaterial:
-    if (vpCache.getNumColors() > 1) {
-      SoGLLazyElement.setColorMaterial(state, true);
-    }
-    //
-    // Ask LazyElement to setup:
-    //
-    SoGLLazyElement lazyElt = (SoGLLazyElement )
-      SoLazyElement.getInstance(state);
+	  // needed for convex cache
+	  SoCacheElement.setInvalid(storedinvalid);
+	  state.pop();
 
-    if(vpCache.colorIsInVtxProp()){
-      lazyElt.send(state, SoLazyElement.masks.ALL_MASK.getValue());
-      lazyElt.sendVPPacked(state, (IntBuffer)
-        vpCache.getColors(0).toIntBuffer()/*.asIntBuffer()*/);
-    }
-    else lazyElt.send(state, SoLazyElement.masks.ALL_MASK.getValue());
-
-    GLRenderInternal(action, 0, shapeStyle);
-
-    // If doing multiple colors, turn off ColorMaterial:
-    if (vpCache.getNumColors() > 1) {
-      SoGLLazyElement.setColorMaterial(state, false);
-      ((SoGLLazyElement )SoLazyElement.getInstance(state)).
-        reset(state, SoLazyElement.masks.DIFFUSE_MASK.getValue());
-    }
-    // Influence auto-caching algorithm:
-    if (totalNumVertices > AUTO_CACHE_FS_MAX &&
-      !SoGLCacheContextElement.getIsRemoteRendering(state)) {
-
-        SoGLCacheContextElement.shouldAutoCache(state,
-          SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
-    }
-
-    // restore USE_REST_OF_VERTICES (-1)
-    if (usingUSE_REST){
-      numVertices.set1Value(numVertices.getNum()-1, -1);
-      numVertices.enableNotify(nvNotifyEnabled);
-    }           
-  }
-  return;
+	  int numv = this.numVertices.getNum();
+	  // send approx number of triangles for autocache handling
+	  SoGL.sogl_autocache_update(state, numv != 0 ?
+	                        (this.numVertices.operator_square_bracketI(0)-2)*numv : 0, didusevbo);		 
 }
+}
+
+
+//
+// translates current material binding to the internal enum
+//
+private SoFaceSet.Binding
+findMaterialBinding(SoState state)
+{
+  SoMaterialBindingElement.Binding matbind =
+    SoMaterialBindingElement.get(state);
+
+  Binding binding;
+  switch (matbind) {
+  case OVERALL:
+    binding = Binding.OVERALL;
+    break;
+  case PER_VERTEX:
+  case PER_VERTEX_INDEXED:
+    binding = Binding.PER_VERTEX;
+    break;
+  case PER_PART:
+  case PER_PART_INDEXED:
+  case PER_FACE:
+  case PER_FACE_INDEXED:
+    binding = Binding.PER_FACE;
+    break;
+  default:
+    binding = Binding.OVERALL;
+//#if COIN_DEBUG
+    SoDebugError.postWarning("SoFaceSet::findMaterialBinding",
+                              "unknown material binding setting");
+//#endif // COIN_DEBUG
+    break;
+  }
+  return binding;
+}
+
+
+//
+// translates current normal binding to the internal enum
+//
+private SoFaceSet.Binding
+findNormalBinding(SoState state)
+{
+  SoNormalBindingElement.Binding normbind =
+    SoNormalBindingElement.get(state);
+
+  Binding binding;
+  switch (normbind) {
+  case OVERALL:
+    binding = Binding.OVERALL;
+    break;
+  case PER_VERTEX:
+  case PER_VERTEX_INDEXED:
+    binding = Binding.PER_VERTEX;
+    break;
+  case PER_PART:
+  case PER_PART_INDEXED:
+  case PER_FACE:
+  case PER_FACE_INDEXED:
+    binding = Binding.PER_FACE;
+    break;
+  default:
+    binding = Binding.PER_VERTEX;
+//#if COIN_DEBUG
+    SoDebugError.postWarning("SoFaceSet::findNormalBinding",
+                              "unknown normal binding setting");
+//#endif // COIN_DEBUG
+    break;
+  }
+  return binding;
+}
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -1038,19 +1189,237 @@ GLRender(SoGLRenderAction action)
 // Use: private 
 
 public void
-notify(SoNotList list)
+notify(SoNotList l)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  if (list.getLastRec().getType() == SoNotRec.Type.CONTAINER &&
-    ((list.getLastField() == numVertices) ||
-    (list.getLastField() == vertexProperty)) ) {
-      numTris = numQuads = numFaces = totalNumVertices = -1;
-      vpCache.invalidate();
+//  if (list.getLastRec().getType() == SoNotRec.Type.CONTAINER &&
+//    ((list.getLastField() == numVertices) ||
+//    (list.getLastField() == vertexProperty)) ) {
+//      numTris = numQuads = numFaces = totalNumVertices = -1;
+//      vpCache.invalidate();
+//  }
+//
+//  SoShape_notify(list);
+	
+	  // Overridden to invalidate convex cache.
+	  pimpl.readLockConvexCache();
+	  if (pimpl.convexCache != null) pimpl.convexCache.invalidate();
+	  pimpl.readUnlockConvexCache();
+	  SoField f = l.getLastField();
+	  if (f == this.numVertices) {
+	    pimpl.concavestatus = STATUS_UNKNOWN;
+	    pimpl.primitivetype = UNKNOWN_TYPE;
+	  }
+	  super.notify(l);	
+}
+
+final SbVec3fSingle dummynormal = new SbVec3fSingle();
+
+//
+// internal method which checks if convex cache needs to be
+// used or (re)created. Renders the shape if convex cache needs to be used.
+//
+private boolean
+useConvexCache(SoAction action)
+{
+  SoState state = action.getState();
+  if (SoShapeHintsElement.getFaceType(state) == SoShapeHintsElement.FaceType.CONVEX)
+    return false;
+
+  int idx = this.startIndex.getValue();
+  final IntArrayPtr[] ptr = new IntArrayPtr[1]; ptr[0] = this.numVertices.getValuesIntArrayPtr(0);
+  final IntArrayPtr[] end = new IntArrayPtr[1]; end[0] = ptr[0].plus(this.numVertices.getNum());
+  final int[] dummyarray = new int[1];
+  this.fixNumVerticesPointers(state, ptr, end, dummyarray);
+
+  if (pimpl.concavestatus == STATUS_UNKNOWN) {
+    final IntArrayPtr tst = new IntArrayPtr(ptr[0]);
+    while (tst.lessThan(end[0])) {
+      if (tst.get() > 3) break;
+      tst.plusPlus();
+    }
+    if (tst.lessThan(end[0])) pimpl.concavestatus = STATUS_CONCAVE;
+    else pimpl.concavestatus = STATUS_CONVEX;
+  }
+  if (pimpl.concavestatus == STATUS_CONVEX) {
+    return false;
   }
 
-  SoShape_notify(list);
+  pimpl.readLockConvexCache();
+
+  boolean isvalid = pimpl.convexCache != null && pimpl.convexCache.isValid(state);
+
+  final SbMatrix modelmatrix = new SbMatrix();
+  if (!isvalid) {
+    pimpl.readUnlockConvexCache();
+    pimpl.writeLockConvexCache();
+    if (pimpl.convexCache != null) pimpl.convexCache.unref();
+
+    // use nopush to avoid cache dependencies.
+    SoModelMatrixElement nopushelem = (SoModelMatrixElement)
+      state.getElementNoPush(SoModelMatrixElement.getClassStackIndex(SoModelMatrixElement.class));
+
+    // need to send matrix if we have some weird transformation
+    modelmatrix.copyFrom(nopushelem.getModelMatrix());
+    if (modelmatrix.getValue()[3][0] == 0.0f &&
+        modelmatrix.getValue()[3][1] == 0.0f &&
+        modelmatrix.getValue()[3][2] == 0.0f &&
+        modelmatrix.getValue()[3][3] == 1.0f) modelmatrix.copyFrom(SbMatrix.identity());
+
+    pimpl.convexCache = new SoConvexDataCache(state);
+    pimpl.convexCache.ref();
+    SoCacheElement.set(state, pimpl.convexCache);
+  }
+
+  final SoCoordinateElement[] tmp = new SoCoordinateElement[1]; // ptr
+  final SbVec3fArray[] normals = new SbVec3fArray[1]; //ptr
+  boolean doTextures;
+
+  final SoMaterialBundle mb = new SoMaterialBundle(action);
+
+  boolean needNormals = !mb.isColorOnly();
+
+  SoVertexShape.getVertexData(state, tmp, normals,
+                               needNormals);
+
+  final SoGLCoordinateElement coords = (SoGLCoordinateElement )tmp[0];
+
+  final SoTextureCoordinateBundle tb = new SoTextureCoordinateBundle(action, true, false);
+  doTextures = tb.needCoordinates();
+
+  SoConvexDataCache.Binding mbind;
+
+  switch (this.findMaterialBinding(state)) {
+  case OVERALL:
+    mbind = SoConvexDataCache.Binding.NONE;
+    break;
+  case PER_VERTEX:
+    mbind = SoConvexDataCache.Binding.PER_VERTEX;
+    break;
+  case PER_FACE:
+    mbind = SoConvexDataCache.Binding.PER_FACE;
+    break;
+  default:
+    mbind = SoConvexDataCache.Binding.NONE;
+    break;
+  }
+
+  SoConvexDataCache.Binding nbind;
+  switch (this.findNormalBinding(state)) {
+  case OVERALL:
+    nbind = SoConvexDataCache.Binding.NONE;
+    break;
+  case PER_VERTEX:
+    nbind = SoConvexDataCache.Binding.PER_VERTEX;
+    break;
+  case PER_FACE:
+    nbind = SoConvexDataCache.Binding.PER_FACE;
+    break;
+  default:
+    nbind = SoConvexDataCache.Binding.NONE;
+    break;
+  }
+
+  SoNormalCache nc = null; // ptr
+
+  if (needNormals && normals[0] == null) {
+    nc = this.generateAndReadLockNormalCache(state);
+    normals[0] = nc.getNormals();
+  }
+  else if (!needNormals) {
+    nbind = SoConvexDataCache.Binding.NONE;
+  }
+  if (nbind == SoConvexDataCache.Binding.NONE && normals == null) {
+    dummynormal.setValue(0.0f, 0.0f, 1.0f);
+    normals[0] = /*&*/new SbVec3fArray(dummynormal);
+  }
+
+  SoConvexDataCache.Binding tbind = SoConvexDataCache.Binding.NONE;
+  if (tb.needCoordinates()) tbind = SoConvexDataCache.Binding.PER_VERTEX;
+
+  if (!isvalid) {
+    SoCacheElement.set(state, null); // close cache
+    // create an index table to be able to use convex cache.
+    // should be fast compared to the tessellation
+    final int diff = end[0].minus(ptr[0]);
+    final SbList <Integer> dummyidx = new SbList<>((int)(diff * 4));
+    final IntArrayPtr tptr = new IntArrayPtr(ptr[0]);
+    while (tptr.lessThan(end[0])) {
+      int num = tptr.get(0); tptr.plusPlus();
+      while (num-- != 0) {
+        dummyidx.append(idx++);
+      }
+      dummyidx.append(-1);
+    }
+    pimpl.convexCache.generate(coords, modelmatrix,
+                                dummyidx.getArrayPtr(new Integer[dummyidx.getLength()]), dummyidx.getLength(),
+                                null, null, null,
+                                mbind,
+                                nbind,
+                                tbind);
+
+    pimpl.writeUnlockConvexCache();
+    pimpl.readLockConvexCache();
+  }
+
+  mb.sendFirst(); // make sure we have the correct material
+
+  // the convex data cache will change PER_VERTEX binding
+  // to PER_VERTEX_INDEXED. We must do so also.
+  int realmbind = (int) mbind.getValue();
+  int realnbind = (int) nbind.getValue();
+
+  // hack warning. We rely on PER_VERTEX_INDEXED == PER_VERTEX+1
+  // and PER_FACE_INDEXED == PER_FACE+1 in SoGL.cpp
+  if (mbind == SoConvexDataCache.Binding.PER_VERTEX ||
+      mbind == SoConvexDataCache.Binding.PER_FACE) realmbind++;
+  if (nbind == SoConvexDataCache.Binding.PER_VERTEX ||
+      nbind == SoConvexDataCache.Binding.PER_FACE) realnbind++;
+
+  final SoVertexAttributeBundle vab = new SoVertexAttributeBundle(action, true);
+  boolean doattribs = vab.doAttributes();
+
+  SoVertexAttributeBindingElement.Binding attribbind = 
+    SoVertexAttributeBindingElement.get(state);
+
+    if (!doattribs) { 
+      // for overall attribute binding we check for doattribs before
+      // sending anything in SoGL::FaceSet::GLRender
+      attribbind = SoVertexAttributeBindingElement.Binding.OVERALL;
+    }
+
+  // use the IndededFaceSet rendering method.
+  SoGL.sogl_render_faceset(coords,
+                      pimpl.convexCache.getCoordIndices(),
+                      pimpl.convexCache.getNumCoordIndices(),
+                      normals[0],
+                      pimpl.convexCache.getNormalIndices(),
+                      /*&*/mb,
+                      pimpl.convexCache.getMaterialIndices(),
+                      /*&*/tb,
+                      pimpl.convexCache.getTexIndices(),
+                      /*&*/vab,
+                      realnbind,
+                      realmbind,
+                      attribbind.getValue(),
+                      doTextures ? 1 : 0,
+                      doattribs ? 1 : 0);
+
+
+  if (nc != null) {
+    this.readUnlockNormalCache();
+  }
+
+  pimpl.readUnlockConvexCache();
+  
+  vab.destructor();
+  mb.destructor();
+  tb.destructor();
+
+  return true;
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -1240,5 +1609,335 @@ QuadFmOn
     gl2.glEnd();
 }
 
+enum AttributeBinding {
+    OVERALL /*= 0*/,
+    PER_FACE /*= 1*/,
+    PER_VERTEX /*= 2*/
+  };
+
+private void SOGL_FACESET_GLRENDER(Binding normalbinding, Binding materialbinding, int texturing,
+		SoGLCoordinateElement/*(*/coords,
+		SbVec3fArray normals,
+		SoMaterialBundle/*&*/mb,
+		SoTextureCoordinateBundle/*&*/tb,
+		int nbind,
+		int mbind,
+		int doTextures,
+		int idx,
+		IntArrayPtr ptr,
+		IntArrayPtr end,
+		boolean needNormals/*)*/)  {
+	SOGL_FACESET_GLRENDER_RESOLVE_ARG1(normalbinding, materialbinding, texturing, /*(*/coords,
+            normals,
+            /*&*/mb,
+            /*&*/tb,
+            nbind,
+            mbind,
+            doTextures,
+            idx,
+            ptr,
+            end,
+            needNormals/*)*/);
+}
+
+private void SOGL_FACESET_GLRENDER_RESOLVE_ARG1(Binding normalbinding,Binding materialbinding,int texturing,
+		SoGLCoordinateElement/*(*/coords,
+		SbVec3fArray normals,
+		SoMaterialBundle/*&*/mb,
+		SoTextureCoordinateBundle/*&*/tb,
+		int nbind,
+		int mbind,
+		int doTextures,
+		int idx,
+		IntArrayPtr ptr,
+		IntArrayPtr end,
+		boolean needNormals/*)*/)  {
+switch (normalbinding) {                                               
+case OVERALL:                                           
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(AttributeBinding.OVERALL, materialbinding, texturing, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+  break;                                                               
+case PER_FACE:                                          
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(AttributeBinding.PER_FACE, materialbinding, texturing, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+  break;                                                               
+case PER_VERTEX:                                        
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(AttributeBinding.PER_VERTEX, materialbinding, texturing, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+  break;                                                               
+default:                                                               
+  throw new IllegalArgumentException("invalid materialbinding value");                            
+  //break;                                                               
+}
+}
+
+private void SOGL_FACESET_GLRENDER_RESOLVE_ARG2(AttributeBinding normalbinding, Binding materialbinding, int texturing,
+		SoGLCoordinateElement/*(*/coords,
+		SbVec3fArray normals,
+		SoMaterialBundle/*&*/mb,
+		SoTextureCoordinateBundle/*&*/tb,
+		int nbind,
+		int mbind,
+		int doTextures,
+		int idx,
+		IntArrayPtr ptr,
+		IntArrayPtr end,
+		boolean needNormals/*)*/) { 
+switch (materialbinding) {                                             
+case OVERALL:                                           
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, AttributeBinding.OVERALL, texturing, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+  break;                                                               
+case PER_FACE:                                          
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, AttributeBinding.PER_FACE, texturing, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+  break;                                                               
+case PER_VERTEX:                                        
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, AttributeBinding.PER_VERTEX, texturing, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+  break;                                                               
+default:                                                               
+  throw new IllegalArgumentException("invalid materialbinding value");                            
+  //break;                                                               
+}
+}
+
+private void SOGL_FACESET_GLRENDER_RESOLVE_ARG3(AttributeBinding normalbinding, AttributeBinding materialbinding, int texturing,
+		SoGLCoordinateElement/*(*/coords,
+		SbVec3fArray normals,
+		SoMaterialBundle/*&*/mb,
+		SoTextureCoordinateBundle/*&*/tb,
+        int nbind,
+        int mbind,
+        int doTextures,
+        int idx,
+        IntArrayPtr ptr,
+        IntArrayPtr end,
+        boolean needNormals/*)*/) {
+if (texturing != 0) {                                                       
+  SOGL_FACESET_GLRENDER_CALL_FUNC(normalbinding, materialbinding, true, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+} else {                                                               
+  SOGL_FACESET_GLRENDER_CALL_FUNC(normalbinding, materialbinding, false, /*(*/coords,
+          normals,
+          /*&*/mb,
+          /*&*/tb,
+          nbind,
+          mbind,
+          doTextures,
+          idx,
+          ptr,
+          end,
+          needNormals/*)*/); 
+}
+}
+
+private void SOGL_FACESET_GLRENDER_CALL_FUNC(AttributeBinding normalbinding, AttributeBinding materialbinding, boolean texturing, 
+		SoGLCoordinateElement coords,
+		SbVec3fArray normals,
+        /*&*/SoMaterialBundle mb,
+        /*&*/SoTextureCoordinateBundle tb,
+        int nbind,
+        int mbind,
+        int doTextures,
+        int idx,
+        IntArrayPtr ptr,
+        IntArrayPtr end,
+        boolean needNormals/*)*/) { 
+	/*SoGL::FaceSet::*/GLRender/*<normalbinding, materialbinding, texturing>*/(
+			normalbinding, materialbinding, texturing,
+			/*(*/coords,
+        normals,
+        /*&*/mb,
+        /*&*/tb,
+        nbind,
+        mbind,
+        doTextures,
+        idx,
+        ptr,
+        end,
+        needNormals/*)*/);
+}
+
+static int current_errors2 = 0;
+
+// This is the same code as in SoGLCoordinateElement::send().
+// It is inlined here for speed (~15% speed increase).
+private static void SEND_VERTEX(int _idx_, boolean is3d,    SbVec3fArray coords3d,
+SbVec4fArray coords4d, GL2 gl2) {
+if (is3d) gl2.glVertex3fv(coords3d.get(_idx_).getValueRead(),0); 
+else gl2.glVertex4fv(coords4d.get(_idx_).getValueRead(),0);
+}
+
+  private static void GLRender(AttributeBinding NormalBinding, AttributeBinding MaterialBinding, boolean TexturingEnabled,
+		  final SoGLCoordinateElement coords,
+                       final SbVec3fArray normals_,
+                       final SoMaterialBundle mb,
+                       final SoTextureCoordinateBundle tb,
+                       int nbind,
+                       int mbind,
+                       int doTextures,
+                       int idx,
+                       IntArrayPtr ptr,
+                       IntArrayPtr end,
+                       boolean needNormals)
+  {
+	  ptr = new IntArrayPtr(ptr); // java port
+	  MutableSbVec3fArray normals = new MutableSbVec3fArray(normals_);
+	  
+    // Make sure specified coordinate startindex is valid
+    assert(idx >= 0);
+
+    SbVec3fArray coords3d = null;
+    SbVec4fArray coords4d = null;
+    boolean is3d = coords.is3D();
+    if (is3d) {
+      coords3d = coords.getArrayPtr3();
+    }
+    else {
+      coords4d = coords.getArrayPtr4();
+    }
+    int numcoords = coords.getNum();
+
+    int matnr = 0;
+    int texnr = 0;
+    int mode = GL2.GL_POLYGON;
+    int newmode;
+    int n;
+    
+    GL2 gl2 = new GL2() {};
+
+    final SbVec3fSingle dummynormal = new SbVec3fSingle(0.0f, 0.0f, 1.0f);
+    SbVec3fArray currnormal = new SbVec3fArray(dummynormal);
+    if (normals != null) currnormal = new SbVec3fArray(normals);
+    if ((AttributeBinding)NormalBinding == AttributeBinding.OVERALL) {
+      if (needNormals) gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+    }
+
+    while (ptr.lessThan(end)) {
+      n = ptr.get(); ptr.plusPlus();
+
+      if (n < 3 || idx + n > numcoords) {
+        if (current_errors2 < 1) {
+          SoDebugError.postWarning("[nonindexedfaceset]::GLRender", "Erroneous "+
+                                    "number of coordinates specified: "+n+". Must "+
+                                    "be >= 3 and less than or equal to the number of "+
+                                    "coordinates available (which is: "+(numcoords - idx)+"). Aborting "+
+                                    "rendering. This message will be shown only once, "+
+                                    "but more errors might be present");
+        }
+
+        current_errors2++;
+        break;
+      }
+
+      if (n == 3) newmode = GL2.GL_TRIANGLES;
+      else if (n == 4) newmode = GL2.GL_QUADS;
+      else newmode = GL2.GL_POLYGON;
+      if (newmode != mode) {
+        if (mode != GL2.GL_POLYGON) gl2.glEnd();
+        mode = newmode;
+        gl2.glBegin( mode);
+      }
+      else if (mode == GL2.GL_POLYGON) gl2.glBegin(GL2.GL_POLYGON);
+
+      if ((AttributeBinding)NormalBinding != AttributeBinding.OVERALL) {
+        currnormal = new SbVec3fArray(normals); normals.plusPlus();
+        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+      }
+      if ((AttributeBinding)MaterialBinding != AttributeBinding.OVERALL) {
+        mb.send(matnr++, true);
+      }
+      if (TexturingEnabled == true) {
+        tb.send(texnr++, coords.get3(idx), currnormal.get(0));
+      }
+      SEND_VERTEX(idx, is3d, coords3d, coords4d, gl2);
+      idx++;
+      while (--n != 0) {
+        if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
+          currnormal = new SbVec3fArray(normals); normals.plusPlus();
+          gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+        }
+        if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX) {
+          mb.send(matnr++, true);
+        } else if ((AttributeBinding)MaterialBinding != AttributeBinding.OVERALL) {
+          // only needed for nvidia color-per-face bug workaround
+          mb.send(matnr-1, true);
+        }
+
+        if (TexturingEnabled == true) {
+          tb.send(texnr++, coords.get3(idx), currnormal.get(0));
+        }
+        SEND_VERTEX(idx, is3d, coords3d, coords4d, gl2);
+        idx++;
+      }
+      if (mode == GL2.GL_POLYGON) gl2.glEnd();
+    }
+    if (mode != GL2.GL_POLYGON) gl2.glEnd();
+//#undef SEND_VERTEX
+  }
 
 }

@@ -318,5 +318,21 @@ public void setValue(int i, float f) {
 	s(i,f);
 }
 
+public float getX() {
+	return g(0);
+}
+
+public float getY() {
+	return g(1);
+}
+
+public float getZ() {
+	return g(2);
+}
+
+public float getW() {
+	return g(3);
+}
+
 
  }

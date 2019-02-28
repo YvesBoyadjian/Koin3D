@@ -253,7 +253,7 @@ isValid( SoGLShaderObject  shader,
   if ((pId == this.programid) && (this.location > -1) && !this.isActive) return true;
   
   if ((pId == this.programid) && (this.location > -1) && 
-      (this.cacheName == name) && (this.cacheType == type)) {
+      Objects.equals(this.cacheName,name) && (this.cacheType == type)) {
     if (num != null) { // assume: ARRAY
       if (this.cacheSize < num[0]) {
         // FIXME: better error handling - 20050128 martin

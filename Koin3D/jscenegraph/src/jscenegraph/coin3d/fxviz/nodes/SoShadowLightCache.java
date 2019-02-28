@@ -365,7 +365,7 @@ shadowmap_post_glcallback(Object closure, SoAction action)
 {
   if (action.isOfType(SoGLRenderAction.getClassTypeId())) {
     // for debugging the shadow map
-    // reinterpret_cast<SoShadowLightCache*>(closure)->dumpBitmap("/home/pederb/Desktop/shadow.rgb");
+    ((SoShadowLightCache)closure).dumpBitmap("D:/shadowj.rgb");
     // nothing to do yet
   }
 }
@@ -500,5 +500,71 @@ createGaussSG(SoShaderProgram program, SoSceneTexture2 tex)
   return sep;
 }
 
+int dumpBitmap(String filename) {
+    int width;
+    int height;
+    int comp;
+    
+    GL2 gl2 = new GL2() {};
+
+    int[] vp = new int[4];
+    gl2.glGetIntegerv(GL2.GL_VIEWPORT, vp, 0);
+    width = vp[2];
+    height = vp[3];
+    comp = 1;
+
+    byte[] bytes = new byte[width*height*comp];
+    gl2.glFlush();
+    gl2.glReadPixels(0,0, (short)width, (short)height, GL2.GL_RED, GL2.GL_UNSIGNED_BYTE, bytes);
+    
+    int blacks=0;
+    int size = width*height*comp;
+    for(int i=0;i<size;i++) {
+    	if(bytes[i]!= -1) {
+    		blacks++;
+    	}
+    }
+
+//    int x, y, c;
+//    unsigned char * tmpbuf;
+//    unsigned char buf[500];
+//
+//    FILE * fp = fopen(filename, "wb");
+//    if (!fp) {
+//      return 0;
+//    }
+//
+//    write_short(fp, 0x01da); /* imagic */
+//    write_short(fp, 0x0001); /* raw (no rle yet) */
+//
+//    if (comp == 1)
+//      write_short(fp, 0x0002); /* 2 dimensions (heightmap) */
+//    else
+//      write_short(fp, 0x0003); /* 3 dimensions */
+//
+//    write_short(fp, (unsigned short) width);
+//    write_short(fp, (unsigned short) height);
+//    write_short(fp, (unsigned short) comp);
+//
+//    memset(buf, 0, 500);
+//    buf[7] = 255; /* set maximum pixel value to 255 */
+//    strcpy((char *)buf+8, "http://www.coin3d.org");
+//    fwrite(buf, 1, 500, fp);
+//
+//    tmpbuf = (unsigned char *) malloc(width);
+//
+//    for (c = 0; c < comp; c++) {
+//      for (y = 0; y < height; y++) {
+//        for (x = 0; x < width; x++) {
+//          tmpbuf[x] = bytes[x * comp + y * comp * width + c];
+//        }
+//        fwrite(tmpbuf, 1, width, fp);
+//      }
+//    }
+//    free(tmpbuf);
+//    fclose(fp);
+//    delete[] bytes;
+    return 1;
+  }
 
 }

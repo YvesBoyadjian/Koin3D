@@ -138,14 +138,14 @@ pop(SoState state, SoElement prevElt)
     // time a renderAction is applied.  Essentially, the first camera
     // in a scene graph will leak outside of its separator.
     //
-    if (prevElt.getDepth() != 0) {
+    //if (prevElt.getDepth() != 0) { COIN3D
         // Since popping this element has GL side effects, make sure any
         // open caches capture it
         capture(state);
 
         // Restore previous view matrix
         send();
-    }
+    //}
 }
 
 ////////////////////////////////////////////////////////////////////////

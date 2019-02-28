@@ -8,7 +8,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  lwjgl;bundle-version="1.0.0";visibility:=reexport,
  org.eclipse.swt,
- org.lwjglx;bundle-version="1.0.0"
+ org.lwjglx;bundle-version="1.0.0",
+ lwjgl3-swt;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.jogamp.common.nio,
@@ -18,6 +19,7 @@ Export-Package: com.jogamp.common.nio,
  jscenegraph.coin3d.inventor,
  jscenegraph.coin3d.inventor.elements,
  jscenegraph.coin3d.inventor.lists,
+ jscenegraph.coin3d.inventor.nodes,
  jscenegraph.database.inventor,
  jscenegraph.database.inventor.actions,
  jscenegraph.database.inventor.bundles,

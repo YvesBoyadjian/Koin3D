@@ -66,12 +66,19 @@ import org.lwjglx.util.glu.GLUtessellator;
 import org.lwjglx.util.glu.GLUtessellatorCallback;
 import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.glu.GLU;
 import com.jogamp.opengl.glu.gl2.GLUgl2;
 
 import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
+import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLVertexAttributeElement;
+import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbBox2f;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
@@ -94,7 +101,9 @@ import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.details.SoFaceDetail;
 import jscenegraph.database.inventor.details.SoPointDetail;
+import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
+import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
@@ -109,8 +118,12 @@ import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.FloatBufferAble;
+import jscenegraph.port.SbColorArray;
+import jscenegraph.port.SbVec3fArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1632,6 +1645,211 @@ shouldPrimitiveCount(SoGetPrimitiveCountAction action)
 {
   return true; // FIXME: what to do here? pederb 1999-11-25
 }
+
+/*!
+  Convenience method that enables vertex arrays and/or VBOs
+  Returns \e TRUE if VBO is used.
+
+  \sa finishVertexArray()
+  \since Coin 3.0
+*/
+int hasWarned = 0;
+protected boolean
+startVertexArray(SoGLRenderAction action,
+                          SoCoordinateElement coords,
+                          SbVec3fArray pervertexnormals,
+                          boolean texpervertex,
+                          boolean colorpervertex)
+{
+  SoState state = action.getState();
+  final cc_glglue glue = SoGL.sogl_glue_instance(state);
+  final SoGLVBOElement vboelem = SoGLVBOElement.getInstance(state);
+  final int contextid = action.getCacheContext();
+
+  boolean dovbo = true;
+  if (!SoGLDriverDatabase.isSupported(glue, SoGLDriverDatabase.SO_GL_VBO_IN_DISPLAYLIST)) {
+    if (SoCacheElement.anyOpen(state)) {
+      dovbo = false;
+    }
+  }
+  SoVBO vertexvbo = dovbo ? vboelem.getVertexVBO() : null;
+  if (vertexvbo == null) dovbo = false;
+  boolean didbind = false;
+
+  if (colorpervertex) {
+     /*GLvoid*/SbColorArray dataptr = null;
+    SoVBO colorvbo = dovbo ? vboelem.getColorVBO() : null;
+    SoGLLazyElement lelem = (SoGLLazyElement) SoLazyElement.getInstance(state);
+    if (colorvbo != null) {
+      lelem.updateColorVBO(state,colorvbo); // java port
+      colorvbo.bindBuffer(contextid);
+      didbind = true;
+    }
+    else {
+      if (didbind) {
+        SoGL.cc_glglue_glBindBuffer(glue, GL_ARRAY_BUFFER, 0);
+        didbind = false;
+      }
+      dataptr = (/*GLvoid*/SbColorArray) lelem.getDiffusePointer();
+    }
+    if (colorvbo != null) {
+      SoGL.cc_glglue_glColorPointer(glue, 4, GL_UNSIGNED_BYTE, 0, dataptr);
+    }
+    else {
+      SoGL.cc_glglue_glColorPointer(glue, 3, GL_FLOAT, 0, dataptr);
+    }
+    SoGL.cc_glglue_glEnableClientState(glue, GL_COLOR_ARRAY);
+  }
+  if (texpervertex) {
+    SoMultiTextureCoordinateElement mtelem = null;
+    boolean[] enabledunits = null;
+    final int[] lastenabled = new int[1];
+    
+    enabledunits = SoMultiTextureEnabledElement.getEnabledUnits(state, lastenabled);
+    if (enabledunits != null) {
+      mtelem = SoMultiTextureCoordinateElement.getInstance(state);
+    }
+    SoVBO vbo;
+    if (!SoGLDriverDatabase.isSupported(glue, SoGLDriverDatabase.SO_GL_MULTITEXTURE)) {
+      if (lastenabled[0]>0) {
+	if (hasWarned == 0) {
+	  SoDebugError.postWarning("SoShape::startVertexArray",
+				    "Multitexturing is not supported on this hardware, but more than one textureunit is in use."
+				  );
+	  hasWarned = 1;
+	}
+      }
+      lastenabled[0] = 0;
+    }
+
+    for (int i = 0; i <= lastenabled[0]; i++) {
+      if (enabledunits[i] && mtelem.getNum(i) != 0) {
+        int dim = mtelem.getDimension(i);
+        /*GLvoid*/FloatBufferAble tptr;
+        switch (dim) {
+        default:
+        case 2: tptr = ( /*GLvoid*/FloatBufferAble) mtelem.getArrayPtr2(i); break;
+        case 3: tptr = ( /*GLvoid*/FloatBufferAble) mtelem.getArrayPtr3(i); break;
+        case 4: tptr = ( /*GLvoid*/FloatBufferAble) mtelem.getArrayPtr4(i); break;
+        }
+	if (SoGLDriverDatabase.isSupported(glue, SoGLDriverDatabase.SO_GL_MULTITEXTURE)) {
+	  SoGL.cc_glglue_glClientActiveTexture(glue, GL.GL_TEXTURE0 + i);
+	}
+        vbo = dovbo ? vboelem.getTexCoordVBO(i) : null;
+        if (vbo != null) {
+          vbo.bindBuffer(contextid);
+          didbind = true;
+          tptr = null;
+        }
+        else {
+          if (didbind) {
+            SoGL.cc_glglue_glBindBuffer(glue, GL_ARRAY_BUFFER, 0);
+            didbind = false;
+          }
+        }
+        SoGL.cc_glglue_glTexCoordPointer(glue, dim, GL_FLOAT, 0, tptr);
+        SoGL.cc_glglue_glEnableClientState(glue, GL_TEXTURE_COORD_ARRAY);
+      }
+    }
+  }
+  if (pervertexnormals != null) {
+    SoVBO vbo = dovbo ? vboelem.getNormalVBO() : null;
+    /*GLvoid*/FloatBufferAble dataptr = null;
+    if (vbo != null) {
+      vbo.bindBuffer(contextid);
+      didbind = true;
+    }
+    else {
+      dataptr = (/*GLvoid*/FloatBufferAble) pervertexnormals;
+      if (didbind) {
+        SoGL.cc_glglue_glBindBuffer(glue, GL_ARRAY_BUFFER, 0);
+        didbind = false;
+      }
+    }
+    SoGL.cc_glglue_glNormalPointer(glue, GL_FLOAT, 0, dataptr);
+    SoGL.cc_glglue_glEnableClientState(glue, GL_NORMAL_ARRAY);
+  }
+  /*GLvoid*/FloatBufferAble dataptr = null;
+  if (vertexvbo != null) {
+    vertexvbo.bindBuffer(contextid);
+  }
+  else {
+    dataptr = coords.is3D() ?
+      ((/*GLvoid*/FloatBufferAble )coords.getArrayPtr3()) :
+      ((/*GLvoid*/FloatBufferAble )coords.getArrayPtr4());
+  }
+  SoGL.cc_glglue_glVertexPointer(glue, coords.is3D() ? 3 : 4, GL_FLOAT, 0,
+                            dataptr);
+  SoGL.cc_glglue_glEnableClientState(glue, GL_VERTEX_ARRAY);
+
+  SoGLVertexAttributeElement.getInstance(state).enableVBO(action);
+
+  return dovbo;
+}
+
+/*!
+  Should be called after rendering with vertex arrays. This method
+  will disable arrays and VBOs enabled in the startVertexArray()
+  function.
+
+  \sa startVertexArray()
+  \since Coin 3.0
+*/
+public void
+finishVertexArray(SoGLRenderAction action,
+                           boolean vbo,
+                           boolean normpervertex,
+                           boolean texpervertex,
+                           boolean colorpervertex)
+{
+  SoState state = action.getState();
+  cc_glglue glue = SoGL.sogl_glue_instance(state);
+
+  if (vbo) {
+    if (!SoGLDriverDatabase.isSupported(glue, SoGLDriverDatabase.SO_GL_VBO_IN_DISPLAYLIST)) {
+      SoCacheElement.invalidate(state);
+      SoGLCacheContextElement.shouldAutoCache(state,
+                                               SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
+    }
+    // unset VBO buffer
+    SoGL.cc_glglue_glBindBuffer(glue, GL_ARRAY_BUFFER, 0);
+  }
+  SoGL.cc_glglue_glDisableClientState(glue, GL_VERTEX_ARRAY);
+  if (normpervertex) {
+    SoGL.cc_glglue_glDisableClientState(glue, GL_NORMAL_ARRAY);
+  }
+  if (texpervertex) {
+    final int[] lastenabled = new int[1];
+    boolean[] enabledunits =
+      SoMultiTextureEnabledElement.getEnabledUnits(state, lastenabled);
+    if (!SoGLDriverDatabase.isSupported(glue, SoGLDriverDatabase.SO_GL_MULTITEXTURE)) {
+      //Should already have warned in StartVertexArray
+      lastenabled[0] = 0;
+    }
+    
+    final SoMultiTextureCoordinateElement mtelem =
+      SoMultiTextureCoordinateElement.getInstance(state);
+    
+    for (int i = 0; i <= lastenabled[0]; i++) {
+      if (enabledunits[i] && mtelem.getNum(i) != 0) {
+	if (SoGLDriverDatabase.isSupported(glue, SoGLDriverDatabase.SO_GL_MULTITEXTURE)) {
+	  SoGL.cc_glglue_glClientActiveTexture(glue, GL2.GL_TEXTURE0 + i);
+	}
+        SoGL.cc_glglue_glDisableClientState(glue, GL_TEXTURE_COORD_ARRAY);
+      }
+    }
+    SoGL.cc_glglue_glClientActiveTexture(glue, GL2.GL_TEXTURE0);
+  }
+  if (colorpervertex) {
+    SoGLLazyElement lelem = (SoGLLazyElement) SoLazyElement.getInstance(state);
+    lelem.reset(state, SoLazyElement.masks.DIFFUSE_MASK.getValue());
+
+    SoGL.cc_glglue_glDisableClientState(glue, GL_COLOR_ARRAY);
+  }
+
+  SoGLVertexAttributeElement.getInstance(state).disableVBO(action);
+}
+
 
 	  
 	 }

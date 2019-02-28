@@ -167,7 +167,7 @@ getShaderObjectIds(final SbList <Integer> ids)
   ids.operator_assign(this.objectids);
 }
 
-public long 
+public int 
 getGLSLShaderProgramHandle(SoState state)  
 {
     int cachecontext = SoGLCacheContextElement.get(state);

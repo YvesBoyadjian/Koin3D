@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.ui,
  loader;bundle-version="1.0.0",
  org.eclipse.swt,
  jsceneviewer,
- jscenegraph;bundle-version="1.0.0"
+ jscenegraph;bundle-version="1.0.0",
+ lwjgl3-swt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: application
 Bundle-ActivationPolicy: lazy

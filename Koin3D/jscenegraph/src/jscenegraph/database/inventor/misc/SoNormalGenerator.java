@@ -544,5 +544,17 @@ setNormal(int index, final SbVec3f newNormal)
 }
 
 
+public void generatePerFace() {
+	// TODO Auto-generated method stub
+	
+}
+
+
+public void generateOverall() {
+	// TODO Auto-generated method stub
+	
+}
+
+
 
 }

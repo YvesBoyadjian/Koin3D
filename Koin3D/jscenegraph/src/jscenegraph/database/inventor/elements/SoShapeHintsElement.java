@@ -327,5 +327,31 @@ get(SoState state,
     faceType[0]            = elt.faceType;
 }
 
+//! FIXME: write doc.
+
+public static VertexOrdering
+getVertexOrdering(SoState state)
+{
+final SoShapeHintsElement elem = (SoShapeHintsElement)
+  (
+   SoElement.getConstElement(state, classStackIndexMap.get(SoShapeHintsElement.class))
+   );
+return elem.vertexOrdering;
+}
+
+
+
+//! FIXME: write doc.
+
+public static FaceType
+getFaceType(SoState state)
+{
+final SoShapeHintsElement elem = (SoShapeHintsElement)
+  (
+   SoElement.getConstElement(state, classStackIndexMap.get(SoShapeHintsElement.class))
+   );
+return elem.faceType;
+}
+
 
 }

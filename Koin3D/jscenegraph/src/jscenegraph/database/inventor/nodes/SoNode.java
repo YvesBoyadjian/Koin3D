@@ -72,6 +72,7 @@ import jscenegraph.coin3d.inventor.nodes.SoTextureCombine;
 import jscenegraph.coin3d.inventor.nodes.SoTextureScalePolicy;
 import jscenegraph.coin3d.inventor.nodes.SoTextureUnit;
 import jscenegraph.coin3d.inventor.nodes.SoTransparencyType;
+import jscenegraph.coin3d.inventor.nodes.SoVertexAttribute;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
@@ -572,6 +573,8 @@ getByName( SbName name, SoNodeList list)
        SoTransparencyType.initClass(); // COIN 3D
        
        SoTextureScalePolicy.initClass(); // COIN 3D
+       
+       SoVertexAttribute.initClass(); // COIN 3D
 	}
 
 	 ////////////////////////////////////////////////////////////////////////

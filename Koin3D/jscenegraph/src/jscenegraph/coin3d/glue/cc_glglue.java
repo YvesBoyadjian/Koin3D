@@ -13,6 +13,10 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
 import jscenegraph.port.Ctx;
+import jscenegraph.port.FloatBufferAble;
+import jscenegraph.port.SbColorArray;
+import jscenegraph.port.ShortBufferAble;
+import jscenegraph.port.VoidPtr;
 
 /**
  * @author Yves Boyadjian
@@ -286,6 +290,99 @@ public void glGenFramebuffers(int n, int[] framebuffers) {
 
 public void glGenRenderbuffers(int n, int[] renderbuffers) {
 	gl2.glGenRenderbuffers( n, renderbuffers);
+}
+
+public void glDrawArrays(int mode, int first, int count) {
+	gl2.glDrawArrays(mode, first, count);
+}
+
+public void glGenBuffers(int n, int[] buffers) {
+	gl2.glGenBuffers(n,buffers);
+}
+
+public void glBindBuffer(int target, int buffer) {
+	gl2.glBindBuffer(target,buffer);
+}
+
+public void glBufferData(int target, long size, VoidPtr data, int usage) {
+	gl2.glBufferData(target,size,data.toBuffer(),usage);
+}
+
+public void glColorPointer(int size, int type, int stride, FloatBufferAble pointer) {
+	if(pointer == null) {
+		gl2.glColorPointer(size,type,stride, 0);		
+	}
+	else {
+		gl2.glColorPointer(size,type,stride,pointer.toFloatBuffer());
+	}
+}
+
+public void glEnableClientState(int array) {
+	gl2.glEnableClientState(array);
+}
+
+public void glClientActiveTexture(int texture) {
+	gl2.glClientActiveTexture(texture);
+}
+
+public void glTexCoordPointer(int size, int type, int stride, FloatBufferAble pointer) {
+	gl2.glTexCoordPointer(size,type,stride,pointer.toFloatBuffer());
+}
+
+public void glNormalPointer(int type, int stride, FloatBufferAble pointer) {
+	gl2.glNormalPointer(type,stride,pointer.toFloatBuffer());
+}
+
+public void glVertexPointer(int size, int type, int stride, FloatBufferAble pointer) {
+	gl2.glVertexPointer(size,type,stride,pointer.toFloatBuffer());
+}
+
+public void glVertexAttrib1fARB(int index, float x) {
+	gl2.glVertexAttrib1fARB(index,x);
+}
+
+public void glVertexAttrib2fvARB(int index, float[] v) {
+	gl2.glVertexAttrib2fvARB(index,v);
+}
+
+public void glVertexAttrib3fvARB(int index, float[] v) {
+	gl2.glVertexAttrib3fvARB(index,v);
+}
+
+public void glVertexAttrib4fvARB(int index, float[] v) {
+	gl2.glVertexAttrib4fvARB(index,v);
+}
+
+public void glVertexAttrib1sARB(int index, short x) {
+	gl2.glVertexAttrib1sARB(index,x);
+}
+
+public void glDisableVertexAttribArrayARB(int index) {
+	gl2.glDisableVertexAttribArrayARB(index);
+}
+
+public void glEnableVertexAttribArrayARB(int index) {
+	gl2.glEnableVertexAttribArrayARB(index);
+}
+
+public int glGetAttribLocationARB(int programobj, String name) {
+	return gl2.glGetAttribLocationARB(programobj,name);
+}
+
+public void glVertexAttribPointerARB(int index, int size, int type, boolean normalized, int stride, Object pointer) {
+	if(pointer == null) {
+		gl2.glVertexAttribPointer/*ARB*/(index,size,type,normalized,stride,/*pointer*/0);
+	}
+	else if (pointer instanceof FloatBufferAble) {
+		gl2.glVertexAttribPointer/*ARB*/(index,size,type,normalized,stride,((FloatBufferAble)pointer).toFloatBuffer());
+	}
+	else if (pointer instanceof ShortBufferAble) {
+		gl2.glVertexAttribPointer/*ARB*/(index,size,type,normalized,stride,((ShortBufferAble)pointer).toShortBuffer());
+	}
+}
+
+public void glDisableClientState(int array) {
+	gl2.glDisableClientState(array);
 }
 
 }

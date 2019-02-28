@@ -252,16 +252,16 @@ public class GLU {
 		tobj.gluTessEndContour();
 	}
 
-	public static void gluTessVertex(GLUtessellator tobj, double[] v, int i, SbVec2f t) {
-		tobj.gluTessVertex(v,i,t);
-	}
-
 	public static void gluTessEndPolygon(GLUtessellator tobj) {
 		tobj.gluTessEndPolygon();
 	}
 
 	public static GLUtessellator gluNewTess() {
 		return GLUtessellatorImpl.gluNewTess();
+	}
+	
+	public static void gluDeleteTess(GLUtessellator tobj) {
+		tobj.gluDeleteTess();
 	}
 
 	public static void gluTessCallback(GLUtessellator tobj, int gluBegin, GLUtessellatorCallback cb) {
@@ -275,5 +275,8 @@ public class GLU {
 	public static String gluErrorString(int error_code) {
 		return org.lwjglx.util.glu.GLU.gluErrorString(error_code);
 	}
-	  
+
+	public static void gluTessNormal(GLUtessellator tobj, double x, double y, double z) {
+		tobj.gluTessNormal(x, y, z);
+	}
 }

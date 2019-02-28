@@ -8,7 +8,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  jscenegraph,
  org.eclipse.swt,
- lwjgl
+ lwjgl,
+ lwjgl-glfw;bundle-version="1.0.0",
+ lwjgl3-swt;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: jsceneviewer.inventor.qt,

@@ -61,6 +61,10 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Array;
+import jscenegraph.port.FloatArray;
+import jscenegraph.port.Mutable;
+import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.SbVec4fArray;
 import jscenegraph.port.Util;
 
 /**
@@ -94,11 +98,7 @@ example:
 
 public class SoMFVec4f extends SoMField<SbVec4f> {
 
-	@Override
-	public boolean read1Value(SoInput in, int index) {
-		DoubleConsumer[] ref = getValues(0)[index].getRef();
-		return (in.read(ref[0]) && in.read(ref[1]) && in.read(ref[2]) && in.read(ref[3]));
-	}
+	private float[] valuesArray;
 
 	@Override
 	protected SbVec4f constructor() {
@@ -115,17 +115,161 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	 * Faster method
 	 * 
 	 * */
-	public Array<SbVec4f> getValuesArray(int start) {
+//	public Array<SbVec4f> getValuesArray(int start) {
+//		evaluate();
+//				
+//		Array<SbVec4f> shiftedValues = new Array<SbVec4f>(SbVec4f.class, start, values);
+//		return shiftedValues;
+//	}
+
+	/* Get pointer into array of values */
+	@Deprecated
+	public SbVec4f[] getValues(int start) {
 		evaluate();
-				
-		Array<SbVec4f> shiftedValues = new Array<SbVec4f>(SbVec4f.class, start, values);
+
+		SbVec4f[] shiftedValues = new SbVec4f[valuesArray.length/4 - start];
+		for (int i = start; i < valuesArray.length/4; i++) {
+			shiftedValues[i - start] = new SbVec4f(valuesArray,i*4);
+		}
 		return shiftedValues;
 	}
 
-	// java port
+	/**
+	 * Java port
+	 * @return
+	 */
+	public float[] getValuesRef() {
+		evaluate();
+		
+		return valuesArray;
+	}
+
+	/* Get pointer into array of values 
+	 * 
+	 * Faster method
+	 * 
+	 * */
+	public FloatArray getValuesArray(int start) {
+		evaluate();
+				
+		FloatArray shiftedValues = new FloatArray( start*4, valuesArray);
+		return shiftedValues;
+	}
+
 	public ByteBuffer getValuesBytes(int start) {
-		SbVec4f[] values = getValues(start);
+		FloatArray values = getValuesArray(start);
 		return Util.toByteBuffer(values);
 	}
 
+	private float[] arrayConstructorInternal(int length) {
+		return new float[length*3];
+	}
+
+	public void setValuesPointer(float[] userdata) {
+		makeRoom(0);
+		  if (userdata != null) { 
+			    valuesArray = userdata;
+			    // userDataIsUsed = true; COIN3D 
+			    num = maxNum = userdata.length/4; 
+			    valueChanged(); 
+		} 
+		
+	}
+	
+	////////////////////////////////////////////////////////////////////////
+	//
+	// Description:
+	// Reads one (indexed) value from file. Returns FALSE on error.
+	//
+	// Use: private
+
+	public boolean read1Value(SoInput in, int index)
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		DoubleConsumer[] ref = getValuesSbVec4fArray().get(index).getRef();
+		return (in.read(ref[0]) && in.read(ref[1]) && in.read(ref[2]) && in.read(ref[3]));
+	}
+
+    //! Set the \p index'th value to the given floating point values.
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Sets one vector value from 3 separate floats. (Convenience function)
+//
+//Use: public
+
+	public void set1Value(int index, float x, float y, float z, float w) {
+	    set1Value(index, new SbVec4f(x, y, z, w));		
+	}
+
+	protected void allocValues(int newNum) {
+		if (valuesArray == null) {
+			if (newNum > 0) {
+				valuesArray = arrayConstructorInternal(newNum);
+			}
+		} else {
+			float[] oldValues = valuesArray;
+			int i;
+
+			if (newNum > 0) {
+				valuesArray = arrayConstructorInternal(newNum);
+				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
+					valuesArray[4*i] = oldValues[4*i];
+					valuesArray[4*i+1] = oldValues[4*i+1];
+					valuesArray[4*i+2] = oldValues[4*i+2];
+					valuesArray[4*i+3] = oldValues[4*i+3];
+				}
+			} else
+				valuesArray = null;
+			// delete [] oldValues; java port
+		}
+
+		num = maxNum = newNum;
+	}
+
+	/* Set field to have one value */
+	public void setValue(SbVec4f newValue) {
+		makeRoom(1);
+		Mutable dest = new SbVec4f(valuesArray,0);
+		Mutable src = (Mutable) newValue;
+		dest.copyFrom(src);
+		valueChanged();
+	}
+
+    /* Get non-const pointer into array of values for batch edits */          
+    public SbVec4f[] startEditing()                                
+        { 
+    	evaluate(); 
+    	return getValues(0); 
+    	}                                        
+                                                                              
+	/* Set 1 value at given index */
+	public void set1Value(int index, SbVec4f newValue) {
+		if (index >= getNum())
+			makeRoom(index + 1);
+		valuesArray[index*4] = newValue.getX();
+		valuesArray[index*4+1] = newValue.getY();
+		valuesArray[index*4+2] = newValue.getZ();
+		valuesArray[index*4+3] = newValue.getW();
+		valueChanged();
+	}
+
+	public SbVec4f operator_square_bracket(int i) {
+		evaluate();
+		return new SbVec4f(valuesArray,i*4);
+	}
+	
+    public SbVec4fArray startEditingFast()                                
+    { 
+    	evaluate(); 
+    	return new SbVec4fArray(valuesArray); 
+	}                                        
+
+
+    public SbVec4fArray getValuesSbVec4fArray() {
+		evaluate();
+
+		return new SbVec4fArray(valuesArray); 		
+    }
 }

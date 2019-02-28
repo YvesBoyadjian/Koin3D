@@ -3,6 +3,8 @@
  */
 package jscenegraph.port;
 
+import java.nio.FloatBuffer;
+
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
@@ -12,7 +14,7 @@ import jscenegraph.database.inventor.SbVec4fSingle;
  * @author Yves Boyadjian
  *
  */
-public class SbVec4fArray {
+public class SbVec4fArray implements FloatBufferAble {
 
 	private float[] valuesArray;
 
@@ -54,5 +56,10 @@ public class SbVec4fArray {
 		}
 		
 		return valuesArray;
+	}
+
+	@Override
+	public FloatBuffer toFloatBuffer() {
+		return FloatBuffer.wrap(valuesArray,delta*4,valuesArray.length - delta*4);
 	}
 }

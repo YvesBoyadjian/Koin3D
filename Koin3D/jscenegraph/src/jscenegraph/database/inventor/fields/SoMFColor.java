@@ -57,7 +57,11 @@ package jscenegraph.database.inventor.fields;
 import java.util.function.DoubleConsumer;
 
 import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.Mutable;
+import jscenegraph.port.SbColorArray;
+import jscenegraph.port.SbVec3fArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +95,32 @@ SbColor
  */
 public class SoMFColor extends SoMField<SbColor> {
 
+	private float[] valuesArray;
+	
+	protected void allocValues(int newNum) {
+		if (valuesArray == null) {
+			if (newNum > 0) {
+				valuesArray = arrayConstructorInternal(newNum);
+			}
+		} else {
+			float[] oldValues = valuesArray;
+			int i;
+
+			if (newNum > 0) {
+				valuesArray = arrayConstructorInternal(newNum);
+				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
+					valuesArray[3*i] = oldValues[3*i];
+					valuesArray[3*i+1] = oldValues[3*i+1];
+					valuesArray[3*i+2] = oldValues[3*i+2];
+				}
+			} else
+				valuesArray = null;
+			// delete [] oldValues; java port
+		}
+
+		num = maxNum = newNum;
+	}	
+
 	public void setValue(float r, float g, float b) {
 		setValue(new SbColor(r, g, b));
 	}
@@ -99,20 +129,34 @@ public class SoMFColor extends SoMField<SbColor> {
 		setValue(new SbColor(rgb));
 	}
 	
+	/* Set field to have one value */
+	public void setValue(SbColor newValue) {
+		makeRoom(1);
+		Mutable dest = new SbColor(valuesArray,0);
+		Mutable src = (Mutable) newValue;
+		dest.copyFrom(src);
+		valueChanged();
+	}
+
 	/**
 	 * java port
 	 * @param start
 	 * @param newValues
 	 */
 	public void setValues(int start, float[][] newValues) {
-		int nbColors = newValues.length;
-		SbColor[] colors = new SbColor[nbColors]; 
-		for(int i=0;i<nbColors;i++) {
-			float[] val = newValues[i];
-			SbColor color = new SbColor(val);
-			colors[i] = color;
+		int num = newValues.length; // Number of values to set
+		int newNum = start + num;
+		int i;
+
+		if (newNum > getNum())
+			makeRoom(newNum);
+
+		for (i = 0; i < num; i++) {
+			valuesArray[(start + i)*3] = newValues[i][0];
+			valuesArray[(start + i)*3+1] = newValues[i][1];
+			valuesArray[(start + i)*3+2] = newValues[i][2];
 		}
-		setValues(start, colors);
+		valueChanged();
 	}
 
 
@@ -122,16 +166,19 @@ public class SoMFColor extends SoMField<SbColor> {
 	 * @param newValues
 	 */
 public void setValues(int start, float[] newValues) {
-	int nbColors = newValues.length/3;
-	SbColor[] colors = new SbColor[nbColors]; 
-	for(int i=0;i<nbColors;i++) {
-		float valr = newValues[i*3];
-		float valg = newValues[i*3+1];
-		float valb = newValues[i*3+2];
-		SbColor color = new SbColor(valr,valg,valb);
-		colors[i] = color;
+	int num = newValues.length/3; // Number of values to set
+	int newNum = start + num;
+	int i;
+
+	if (newNum > getNum())
+		makeRoom(newNum);
+
+	for (i = 0; i < num; i++) {
+		valuesArray[(start + i)*3] = newValues[3*i];
+		valuesArray[(start + i)*3+1] = newValues[3*i+1];
+		valuesArray[(start + i)*3+2] = newValues[3*i+2];
 	}
-	setValues(start, colors);
+	valueChanged();
 }
 	@Override
 	protected SbColor constructor() {
@@ -141,6 +188,22 @@ public void setValues(int start, float[] newValues) {
 	@Override
 	protected SbColor[] arrayConstructor(int length) {
 		return new SbColor[length];
+	}
+
+	private float[] arrayConstructorInternal(int length) {
+		return new float[length*3];
+	}
+
+	/* Get pointer into array of values */
+	@Deprecated
+	public SbColor[] getValues(int start) {
+		evaluate();
+
+		SbColor[] shiftedValues = new SbColor[valuesArray.length/3 - start];
+		for (int i = start; i < valuesArray.length/3; i++) {
+			shiftedValues[i - start] = new SbColor(valuesArray,i*3);
+		}
+		return shiftedValues;
 	}
 
 
@@ -155,10 +218,8 @@ public boolean read1Value(SoInput in, int index)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	DoubleConsumer[] ret = ((SbColor)values[index]).getRef();
-    return (in.read(ret[0]) &&
-            in.read(ret[1]) &&
-            in.read(ret[2]));
+	DoubleConsumer[] ref = getValuesSbColorArray().get(index).getRef();
+	return (in.read(ref[0]) && in.read(ref[1]) && in.read(ref[2]));
 }
 
 
@@ -184,6 +245,13 @@ readBinaryValues(SoInput in, int numToRead)
     return false;
 }
 
+/* Get non-const pointer into array of values for batch edits */          
+public SbColor[] startEditing()                                
+    { 
+	evaluate(); 
+	return getValues(0); 
+	}                                        
+                                                                          
 /**
  * java port
  * @param index
@@ -191,5 +259,32 @@ readBinaryValues(SoInput in, int numToRead)
  */
 public void set1Value(int index, float[] rgb) {
 	set1Value(index, new SbColor(rgb));
+}
+
+/* Set 1 value at given index */
+public void set1Value(int index, SbColor newValue) {
+	if (index >= getNum())
+		makeRoom(index + 1);
+	valuesArray[index*3] = newValue.getX();
+	valuesArray[index*3+1] = newValue.getY();
+	valuesArray[index*3+2] = newValue.getZ();
+	valueChanged();
+}
+
+public SbColor operator_square_bracket(int i) {
+	evaluate();
+	return new SbColor(valuesArray,i*3);
+}
+
+public SbColorArray startEditingFast()                                
+{ 
+	evaluate(); 
+	return new SbColorArray(valuesArray); 
+}                                        
+
+public SbColorArray getValuesSbColorArray() {
+	evaluate();
+
+	return new SbColorArray(valuesArray); 		
 }
 }

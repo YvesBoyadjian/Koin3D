@@ -4,16 +4,31 @@ import java.nio.ByteBuffer;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.TidBits;
 import jscenegraph.coin3d.glue.cc_glglue;
+import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.errors.DebugError;
+import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.bundles.SoMaterialBundle;
+import jscenegraph.database.inventor.bundles.SoTextureCoordinateBundle;
+import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
+import jscenegraph.database.inventor.elements.SoGLCoordinateElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoBasic;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.FloatBufferAble;
+import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.MutableSbVec3fArray;
+import jscenegraph.port.SbColorArray;
+import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.SbVec4fArray;
 import jscenegraph.port.Util;
+import jscenegraph.port.VoidPtr;
 
 public class SoGL {
 
@@ -33,9 +48,9 @@ sogl_glue_instance( SoState  state)
   // FIXME: disabled until we figure out why this doesn't work on some
   // Linux systems (gcc 3.2 systems, it seems). pederb, 2003-11-24
 //#if 0
-//  assert(action->isOfType(SoGLRenderAction::getClassTypeId()) &&
+//  assert(action.isOfType(SoGLRenderAction::getClassTypeId()) &&
 //         "must have state from SoGLRenderAction to get hold of GL wrapper");
-//  return cc_glglue_instance(action->getCacheContext());
+//  return cc_glglue_instance(action.getCacheContext());
 //#else // disabled
   if (action.isOfType(SoGLRenderAction.getClassTypeId())) {
     return cc_glglue_instance(action.getCacheContext());
@@ -103,7 +118,7 @@ public static void
 cc_glglue_glActiveTexture(final cc_glglue w,
                           /*GLenum*/int texture)
 {
-  //assert(w->glActiveTexture);
+  //assert(w.glActiveTexture);
   w.getGL2().glActiveTexture(texture);
 }
 
@@ -283,15 +298,15 @@ cc_glglue_glext_supported( cc_glglue wrapper, String extension)
 	/*
   uintptr_t key = (uintptr_t)cc_namemap_get_address(extension);
 
-  void * result = NULL;
-  if (cc_dict_get(wrapper->glextdict, key, &result)) {
-    return result != NULL;
+  void * result = null;
+  if (cc_dict_get(wrapper.glextdict, key, &result)) {
+    return result != null;
   }
-  result = coin_glglue_extension_available(wrapper->extensionsstr, extension) ?
-    (void*) 1 : NULL;
-  cc_dict_put(wrapper->glextdict, key, result);
+  result = coin_glglue_extension_available(wrapper.extensionsstr, extension) ?
+    (void*) 1 : null;
+  cc_dict_put(wrapper.glextdict, key, result);
 
-  return result != NULL;*/
+  return result != null;*/
 	return true;
 }
 
@@ -344,7 +359,7 @@ cc_glglue_glTexImage3D(cc_glglue w,
                        int type,
                        ByteBuffer pixels)
 {
-  //assert(w->glTexImage3D);
+  //assert(w.glTexImage3D);
   w.getGL2().glTexImage3D(target, level, internalformat,
                   width, height, depth, border,
                   format, type, pixels);
@@ -498,7 +513,7 @@ public static Object cc_glglue_context_create_offscreen(short width, short heigh
 		  } else {
 //		#ifdef HAVE_NOGL
 //		  assert(FALSE && "unimplemented");
-//		  return NULL;
+//		  return null;
 //		#elif defined(HAVE_GLX)
 //		  return glxglue_context_create_offscreen(width, height);
 //		#elif defined(HAVE_WGL)
@@ -557,6 +572,1011 @@ public static void cc_glglue_context_reinstate_previous(Object ctx) {
  }
 }
 
+public static void
+cc_glglue_glDrawArrays(cc_glglue glue,
+                       /*GLenum*/int mode, /*GLint*/int first, /*GLsizei*/int count)
+{
+  //assert(glue.glDrawArrays);
+  glue.glDrawArrays(mode, first, count);
+}
+
+
+public static void
+cc_glglue_glGenBuffers(cc_glglue glue, /*GLsizei*/int n, /*GLu*/int[] buffers)
+{
+  //assert(glue.glGenBuffers);
+  glue.glGenBuffers(n, buffers);
+}
+
+public static void cc_glglue_glGenBuffers(cc_glglue glue, int n, Integer[] buffers) {
+	  //assert(glue.glGenBuffers);
+	int length = buffers.length;
+	int[] buffersN = new int[length];
+	  glue.glGenBuffers(n, buffersN);
+	  for(int i=0; i< length;i++) {
+		  buffers[i] = buffersN[i];
+	  }
+}
+
+public static void cc_glglue_glBindBuffer(cc_glglue glue, int target, int buffer) {
+	  //assert(glue.glBindBuffer);
+	  glue.glBindBuffer(target, buffer);
+}
+
+public static void cc_glglue_glBufferData(cc_glglue glue, int target, long size, VoidPtr data, int usage) {
+	  //assert(glue.glBufferData);
+	  glue.glBufferData(target, size, data, usage);
+}
+
+public static void cc_glglue_glColorPointer(cc_glglue glue, int size, int type, int stride, SbColorArray pointer) {
+	  //assert(glue.glColorPointer);
+	  glue.glColorPointer(size, type, stride, pointer);
+}
+
+public static void cc_glglue_glEnableClientState(cc_glglue glue, int array) {
+	  //assert(glue.glEnableClientState);
+	  glue.glEnableClientState(array);
+}
+
+public static void cc_glglue_glClientActiveTexture(cc_glglue w, int texture) {
+//	  if (!w.glClientActiveTexture && texture == GL_TEXTURE0)
+//		    return;
+//		  assert(w.glClientActiveTexture);
+		  w.glClientActiveTexture(texture);
+}
+
+public static void cc_glglue_glTexCoordPointer(cc_glglue glue, int size, int type, int stride, FloatBufferAble pointer) {
+	  //assert(glue.glTexCoordPointer);
+	  glue.glTexCoordPointer(size, type, stride, pointer);
+}
+
+public static void cc_glglue_glNormalPointer(cc_glglue glue, int type, int stride, FloatBufferAble pointer) {
+	  //assert(glue.glNormalPointer);
+	  glue.glNormalPointer(type, stride, pointer);
+}
+
+public static void cc_glglue_glVertexPointer(cc_glglue glue, int size, int type, int stride, FloatBufferAble pointer) {
+	  //assert(glue.glVertexPointer);
+	  glue.glVertexPointer(size, type, stride, pointer);
+}
+
+public static void cc_glglue_glDisableClientState(cc_glglue glue, int array) {
+	  //assert(glue.glDisableClientState);
+	  glue.glDisableClientState(array);
+}
+
+static int SOGL_AUTOCACHE_REMOTE_MIN = 500000;
+static int SOGL_AUTOCACHE_REMOTE_MAX = 5000000;
+static int SOGL_AUTOCACHE_LOCAL_MIN = 100000;
+static int SOGL_AUTOCACHE_LOCAL_MAX = 1000000;
+static int SOGL_AUTOCACHE_VBO_LIMIT = 65536;
+
+/*!
+  Called by each shape during rendering. Will enable/disable autocaching
+  based on the number of primitives.
+*/
+static boolean didtestenv = false;
+public static void
+sogl_autocache_update(SoState state, int numprimitives, boolean didusevbo)
+{
+  if (!didtestenv) {
+    String env;
+    env = TidBits.coin_getenv("COIN_AUTOCACHE_REMOTE_MIN");
+    if (env != null) {
+      SOGL_AUTOCACHE_REMOTE_MIN = Util.atoi(env);
+    }
+    env = TidBits.coin_getenv("COIN_AUTOCACHE_REMOTE_MAX");
+    if (env != null) {
+      SOGL_AUTOCACHE_REMOTE_MAX = Util.atoi(env);
+    }
+    env = TidBits.coin_getenv("COIN_AUTOCACHE_LOCAL_MIN");
+    if (env != null) {
+      SOGL_AUTOCACHE_LOCAL_MIN = Util.atoi(env);
+    }
+    env = TidBits.coin_getenv("COIN_AUTOCACHE_LOCAL_MAX");
+    if (env != null) {
+      SOGL_AUTOCACHE_LOCAL_MAX = Util.atoi(env);
+    }
+    env = TidBits.coin_getenv("COIN_AUTOCACHE_VBO_LIMIT");
+    if (env != null) {
+      SOGL_AUTOCACHE_VBO_LIMIT = Util.atoi(env);
+    }
+    didtestenv = true;
+  }
+
+  int minval = SOGL_AUTOCACHE_LOCAL_MIN;
+  int maxval = SOGL_AUTOCACHE_LOCAL_MAX;
+  if (SoGLCacheContextElement.getIsRemoteRendering(state)) {
+    minval = SOGL_AUTOCACHE_REMOTE_MIN;
+    maxval = SOGL_AUTOCACHE_REMOTE_MAX;
+  }
+  if (numprimitives <= minval) {
+    SoGLCacheContextElement.shouldAutoCache(state, SoGLCacheContextElement.AutoCache.DO_AUTO_CACHE.getValue());
+  }
+  else if (numprimitives >= maxval) {
+    SoGLCacheContextElement.shouldAutoCache(state, SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
+  }
+  SoGLCacheContextElement.incNumShapes(state);
+
+  if (didusevbo) {
+    // avoid creating caches when rendering large VBOs
+    if (numprimitives > SOGL_AUTOCACHE_VBO_LIMIT) {
+      SoGLCacheContextElement.shouldAutoCache(state, SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
+    }
+  }
+}
+
+
+public static void
+sogl_render_faceset( final SoGLCoordinateElement vertexlist,
+                    IntArrayPtr vertexindices,
+                    int num_vertexindices,
+                    final SbVec3fArray normals,
+                    IntArrayPtr normindices,
+                    final SoMaterialBundle materials,
+                    IntArrayPtr matindices,
+                    final SoTextureCoordinateBundle texcoords,
+                    IntArrayPtr texindices,
+                    final SoVertexAttributeBundle attribs,
+                    final int nbind,
+                    final int mbind,
+                    final int attribbind,
+                    final int dotexture,
+                    final int doattribs)
+{
+  SOGL_FACESET_GLRENDER(nbind, mbind, attribbind, 
+		  											vertexlist,
+                                                   vertexindices,
+                                                   num_vertexindices,
+                                                   normals,
+                                                   normindices,
+                                                   materials,
+                                                   matindices,
+                                                   texcoords,
+                                                   texindices,
+                                                   attribs,
+                                                   dotexture,
+                                                   doattribs
+                                                   );
+}
+
+public static void SOGL_FACESET_GLRENDER(final int normalbinding, final int materialbinding, final int vertexattributebinding,
+		SoGLCoordinateElement vertexlist,
+		IntArrayPtr    vertexindices,
+		int    num_vertexindices,
+		SbVec3fArray    normals,
+		IntArrayPtr    normindices,
+		SoMaterialBundle    materials,
+		IntArrayPtr    matindices,
+		SoTextureCoordinateBundle    texcoords,
+		IntArrayPtr    texindices,
+		SoVertexAttributeBundle    attribs,
+		int    dotexture,
+		int    doattribs
+		)  {
+	SOGL_FACESET_GLRENDER_RESOLVE_ARG1(normalbinding, materialbinding, vertexattributebinding, 
+				vertexlist,
+                vertexindices,
+                num_vertexindices,
+                normals,
+                normindices,
+                materials,
+                matindices,
+                texcoords,
+                texindices,
+                attribs,
+                dotexture,
+                doattribs
+			);
+}
+
+enum AttributeBinding {
+    OVERALL(0),
+    PER_FACE(1),
+    PER_FACE_INDEXED(2),
+    PER_VERTEX(3),
+    PER_VERTEX_INDEXED(4);
+	
+	private int value;
+	
+	AttributeBinding(int value) {
+		this.value = value;
+	}
+	
+	public int getValue() {
+		return value;
+	}
+	
+	public static AttributeBinding fromValue(int value) {
+		switch(value) {
+		case 0 : return AttributeBinding.OVERALL;
+		case 1 : return AttributeBinding.PER_FACE;
+		case 2 : return AttributeBinding.PER_FACE_INDEXED;
+		case 3 : return AttributeBinding.PER_VERTEX;
+		case 4 : return AttributeBinding.PER_VERTEX_INDEXED;
+		default : 
+			return null;
+		}
+	}
+  };
+
+
+
+private static final void SOGL_FACESET_GLRENDER_RESOLVE_ARG1(int normalbinding, int materialbinding, int vertexattributebinding, 
+		SoGLCoordinateElement vertexlist,
+		IntArrayPtr    vertexindices,
+		int    num_vertexindices,
+		SbVec3fArray    normals,
+		IntArrayPtr    normindices,
+		SoMaterialBundle    materials,
+		IntArrayPtr    matindices,
+		SoTextureCoordinateBundle    texcoords,
+		IntArrayPtr    texindices,
+		SoVertexAttributeBundle    attribs,
+		int    dotexture,
+		int    doattribs
+		)  {
+switch (SoGL.AttributeBinding.fromValue(normalbinding)) { 
+case OVERALL: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(SoGL.AttributeBinding.OVERALL, materialbinding, vertexattributebinding, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_FACE: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(SoGL.AttributeBinding.PER_FACE, materialbinding, vertexattributebinding, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_FACE_INDEXED: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(SoGL.AttributeBinding.PER_FACE_INDEXED, materialbinding, vertexattributebinding, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_VERTEX: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(SoGL.AttributeBinding.PER_VERTEX, materialbinding, vertexattributebinding, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_VERTEX_INDEXED: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(SoGL.AttributeBinding.PER_VERTEX_INDEXED, materialbinding, vertexattributebinding, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+default: 
+  throw new IllegalArgumentException("invalid normal binding argument"); 
+}
+}
+
+private static final void  SOGL_FACESET_GLRENDER_RESOLVE_ARG2(SoGL.AttributeBinding normalbinding, int materialbinding, int vertexattributebinding, 
+		SoGLCoordinateElement vertexlist,
+		IntArrayPtr    vertexindices,
+		int    num_vertexindices,
+		SbVec3fArray    normals,
+		IntArrayPtr    normindices,
+		SoMaterialBundle    materials,
+		IntArrayPtr    matindices,
+		SoTextureCoordinateBundle    texcoords,
+		IntArrayPtr    texindices,
+		SoVertexAttributeBundle    attribs,
+		int    dotexture,
+		int    doattribs
+		)  {
+switch (SoGL.AttributeBinding.fromValue(materialbinding)) { 
+case OVERALL: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, SoGL.AttributeBinding.OVERALL, vertexattributebinding,
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_FACE: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, SoGL.AttributeBinding.PER_FACE, vertexattributebinding,
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_FACE_INDEXED: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, SoGL.AttributeBinding.PER_FACE_INDEXED, vertexattributebinding,
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_VERTEX: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, SoGL.AttributeBinding.PER_VERTEX, vertexattributebinding,
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_VERTEX_INDEXED: 
+  SOGL_FACESET_GLRENDER_RESOLVE_ARG3(normalbinding, SoGL.AttributeBinding.PER_VERTEX_INDEXED, vertexattributebinding,
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+default: 
+  throw new IllegalArgumentException("invalid material binding argument"); 
+}
+}
+
+private static final void SOGL_FACESET_GLRENDER_RESOLVE_ARG3(SoGL.AttributeBinding normalbinding, SoGL.AttributeBinding materialbinding, int vertexattributebinding,
+		SoGLCoordinateElement vertexlist,
+		IntArrayPtr    vertexindices,
+		int    num_vertexindices,
+		SbVec3fArray    normals,
+		IntArrayPtr    normindices,
+		SoMaterialBundle    materials,
+		IntArrayPtr    matindices,
+		SoTextureCoordinateBundle    texcoords,
+		IntArrayPtr    texindices,
+		SoVertexAttributeBundle    attribs,
+		int    dotexture,
+		int    doattribs
+		)  {
+switch (SoGL.AttributeBinding.fromValue(vertexattributebinding)) { 
+case OVERALL: 
+  SOGL_FACESET_GLRENDER_CALL_FUNC(normalbinding, materialbinding, SoGL.AttributeBinding.OVERALL, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_FACE: 
+  SOGL_FACESET_GLRENDER_CALL_FUNC(normalbinding, materialbinding, SoGL.AttributeBinding.OVERALL, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_FACE_INDEXED: 
+  SOGL_FACESET_GLRENDER_CALL_FUNC(normalbinding, materialbinding, SoGL.AttributeBinding.OVERALL, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_VERTEX: 
+  SOGL_FACESET_GLRENDER_CALL_FUNC(normalbinding, materialbinding, SoGL.AttributeBinding.PER_VERTEX, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+case PER_VERTEX_INDEXED: 
+  SOGL_FACESET_GLRENDER_CALL_FUNC(normalbinding, materialbinding, SoGL.AttributeBinding.PER_VERTEX_INDEXED, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+		  ); 
+  break; 
+default: 
+	throw new IllegalArgumentException("invalid vertex attribute binding argument"); 
+}
+}
+
+private static void SOGL_FACESET_GLRENDER_CALL_FUNC(SoGL.AttributeBinding normalbinding, SoGL.AttributeBinding materialbinding, SoGL.AttributeBinding vertexattributebinding,
+		SoGLCoordinateElement vertexlist,
+		IntArrayPtr    vertexindices,
+		int    num_vertexindices,
+		SbVec3fArray    normals,
+		IntArrayPtr    normindices,
+		SoMaterialBundle    materials,
+		IntArrayPtr    matindices,
+		SoTextureCoordinateBundle    texcoords,
+		IntArrayPtr    texindices,
+		SoVertexAttributeBundle    attribs,
+		int    dotexture,
+		int    doattribs
+		) {
+	FaceSet_GLRender(normalbinding, materialbinding, vertexattributebinding, 
+			vertexlist,
+            vertexindices,
+            num_vertexindices,
+            normals,
+            normindices,
+            materials,
+            matindices,
+            texcoords,
+            texindices,
+            attribs,
+            dotexture,
+            doattribs
+			);
+}
+
+// This is the same code as in SoGLCoordinateElement::send().
+// It is inlined here for speed (~15% speed increase).
+private static void SEND_VERTEX(int _idx_, boolean is3d, SbVec3fArray coords3d, SbVec4fArray coords4d, GL2 gl2) {
+	if (is3d) gl2.glVertex3fv(coords3d.get(_idx_).getValueRead(),0);             
+	else gl2.glVertex4fv(coords4d.get(_idx_).getValueRead(),0);
+}
+
+// Variable used for counting errors and make sure not a
+// bunch of errormessages flood the screen.
+private static int current_errors = 0;
+
+//  template < int NormalBinding,
+//             int MaterialBinding,
+//             int VertexAttributeBinding >
+  static void FaceSet_GLRender(
+		  SoGL.AttributeBinding NormalBinding, SoGL.AttributeBinding MaterialBinding, SoGL.AttributeBinding VertexAttributeBinding,
+		  SoGLCoordinateElement vertexlist,
+                     IntArrayPtr vertexindices_,
+                     int numindices,
+                     SbVec3fArray normals_,
+                     IntArrayPtr normalindices_,
+                     SoMaterialBundle materials,
+                     IntArrayPtr matindices_,
+                     SoTextureCoordinateBundle texcoords,
+                     IntArrayPtr texindices_,
+                       SoVertexAttributeBundle attribs,
+                       int dotexture,
+                       int doattribs)
+  {
+	    // just in case someone forgot
+	    if (matindices_ == null) matindices_ = vertexindices_;
+	    if (normalindices_ == null) normalindices_ = vertexindices_;
+
+	  IntArrayPtr vertexindices = new IntArrayPtr(vertexindices_);
+	  MutableSbVec3fArray normals = new MutableSbVec3fArray(normals_);
+	  IntArrayPtr normalindices = new IntArrayPtr(normalindices_);
+	  IntArrayPtr matindices = new IntArrayPtr(matindices_);
+	  IntArrayPtr texindices = new IntArrayPtr(texindices_);
+
+    int texidx = 0;
+
+    SbVec3fArray coords3d = null;
+    SbVec4fArray coords4d = null;
+    boolean is3d = vertexlist.is3D();
+    if (is3d) {
+      coords3d = vertexlist.getArrayPtr3();
+    }
+    else {
+      coords4d = vertexlist.getArrayPtr4();
+    }
+
+    int mode = GL2.GL_POLYGON; // ...to save a test
+    int newmode;
+    IntArrayPtr viptr = new IntArrayPtr(vertexindices);
+    IntArrayPtr vistartptr = new IntArrayPtr(vertexindices);
+    IntArrayPtr viendptr = viptr.plus(numindices);
+    int v1, v2, v3, v4, v5 = 0; // v5 init unnecessary, but kills a compiler warning.
+    int numverts = vertexlist.getNum();
+
+    final SbVec3fSingle dummynormal = new SbVec3fSingle(0,0,1);
+    SbVec3fArray currnormal = new SbVec3fArray(dummynormal);
+    if ((SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_VERTEX ||
+       (SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_FACE ||
+       (SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_VERTEX_INDEXED ||
+       (SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_FACE_INDEXED ||
+       dotexture != 0) {
+      if (normals != null) currnormal = new SbVec3fArray(normals);
+    }
+
+    int matnr = 0;
+    int attribnr = 0;
+
+    if (doattribs != 0 && (SoGL.AttributeBinding)VertexAttributeBinding == SoGL.AttributeBinding.OVERALL) {
+      attribs.send(0);
+    }
+
+    GL2 gl2 = new GL2() {};
+    
+    while (viptr.plus(2).lessThan(viendptr)) {
+      v1 = viptr.get(); viptr.plusPlus();
+      v2 = viptr.get(); viptr.plusPlus();
+      v3 = viptr.get(); viptr.plusPlus();
+
+      // This test is for robustness upon buggy data sets
+      if (v1 < 0 || v2 < 0 || v3 < 0 ||
+          v1 >= numverts || v2 >= numverts || v3 >= numverts) {
+
+        if (current_errors < 1) {
+          SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+                                    "Ignoring (offset: "+(viptr.minus(vistartptr) - 3)+", ["+v1+" "+v2+" "+v3+"]). Should be within "+
+                                    " [0, "+(numverts - 1)+"] This message will only be shown once, but "+
+                                    "more errors might be present"
+                                     );
+        }
+        current_errors++;
+        break;
+      }
+      if(viptr.lessThan(viendptr)) { v4 = viptr.get(); viptr.plusPlus();} else { v4 = -1;};
+      if (v4  < 0) newmode = GL2.GL_TRIANGLES;
+      // This test for numverts is for robustness upon buggy data sets
+      else if (v4 >= numverts) {
+        newmode = GL2.GL_TRIANGLES;
+
+        if (current_errors < 1) {
+          SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+                                    "(offset: "+(viptr.minus(vistartptr) - 4)+", ["+v1+" "+v2+" "+v3+" "+v4+"]). Should be within "+
+                                    " [0, "+(numverts - 1)+"] This message will only be shown once, but "+
+                                    "more errors might be present"
+                                    );
+        }
+        current_errors++;
+      }
+      else {
+        if(viptr.lessThan(viendptr)) { v5 = viptr.get(); viptr.plusPlus(); } else {v5 = -1;}
+        if (v5 < 0) newmode = GL2.GL_QUADS;
+        // This test for numverts is for robustness upon buggy data sets
+        else if (v5 >= numverts) {
+          newmode = GL2.GL_QUADS;
+
+          if (current_errors < 1) {
+            SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+                                      "(offset: "+(viptr.minus(vistartptr) - 5)+", ["+v1+" "+v2+" "+v3+" "+v4+" "+v5+"]). Should be within "+
+                                      " [0, "+(numverts - 1)+"] This message will only be shown once, but "+
+                                      "more errors might be present"
+                                       );
+          }
+          current_errors++;
+        }
+        else newmode = GL2.GL_POLYGON;
+      }
+      
+      if (newmode != mode) {
+        if (mode != GL2.GL_POLYGON) gl2.glEnd();
+        mode = newmode;
+        gl2.glBegin( mode);
+      }
+      else if (mode == GL2.GL_POLYGON) gl2.glBegin(GL2.GL_POLYGON);
+
+      /* vertex 1 *********************************************************/
+      if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX ||
+          (AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE) {
+        materials.send(matnr++, true);
+      } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX_INDEXED ||
+                 (AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE_INDEXED) {
+        materials.send(matindices.get(), true);matindices.plusPlus();
+      }
+
+      if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX ||
+          (AttributeBinding)NormalBinding == AttributeBinding.PER_FACE) {
+        currnormal = new SbVec3fArray(normals); normals.plusPlus();
+        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+      } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED ||
+                 (AttributeBinding)NormalBinding == AttributeBinding.PER_FACE_INDEXED) {
+        currnormal = /*&*/new SbVec3fArray(normals,normalindices.get()); normalindices.plusPlus();
+        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+      }
+
+      if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
+       attribs.send(attribnr++);
+      } else if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        attribs.send(vertexindices.get()); vertexindices.plusPlus();
+      }
+
+      if (dotexture != 0) {
+    	  int dummy;
+    	  if(texindices != null) {
+    		  dummy = texindices.get();
+    		  texindices.plusPlus();
+    	  }
+    	  else {
+    		  dummy = texidx;
+    		  texidx++;
+    	  }
+        texcoords.send(/*texindices != null ? *texindices++ : texidx++*/dummy,
+                        vertexlist.get3(v1),
+                        currnormal.get(0));
+      }
+
+      SEND_VERTEX(v1,is3d,coords3d,coords4d,gl2);
+
+      /* vertex 2 *********************************************************/
+      if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX) {
+        materials.send(matnr++, true);
+      } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        materials.send(matindices.get(), true);matindices.plusPlus();
+      }
+
+      // nvidia color-per-face-bug workaround
+      if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE) {
+        materials.send(matnr-1, true);
+      } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE_INDEXED) {
+        materials.send(matindices.get(-1), true);
+      }
+
+      if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
+        currnormal = new SbVec3fArray(normals);normals.plusPlus();
+        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+      } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+      }
+
+      if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
+       attribs.send(attribnr++);
+      } else if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        attribs.send(vertexindices.get());vertexindices.plusPlus();
+      }
+
+      if (dotexture != 0) {
+    	  int dummy;
+    	  if(texindices != null) {
+    		  dummy = texindices.get();
+    		  texindices.plusPlus();
+    	  }
+    	  else {
+    		  dummy = texidx;
+    		  texidx++;
+    	  }
+        texcoords.send(/*texindices ? *texindices++ : texidx++*/dummy,
+                        vertexlist.get3(v2),
+                        currnormal.get(0));
+      }
+
+      SEND_VERTEX(v2,is3d,coords3d,coords4d,gl2);
+
+      /* vertex 3 *********************************************************/
+      if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX) {
+        materials.send(matnr++, true);
+      } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        materials.send(matindices.get(), true); matindices.plusPlus();
+      }
+
+      // nvidia color-per-face-bug workaround
+      if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE) {
+        materials.send(matnr-1, true);
+      } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE_INDEXED) {
+        materials.send(matindices.get(-1), true);
+      }
+
+      if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
+        currnormal = new SbVec3fArray(normals);normals.plusPlus();
+        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+      } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+      }
+
+      if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
+       attribs.send(attribnr++);
+      } else if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        attribs.send(vertexindices.get());vertexindices.plusPlus();
+      }
+
+      if (dotexture != 0) {
+    	  int dummy;
+    	  if(texindices != null) {
+    		  dummy = texindices.get();
+    		  texindices.plusPlus();
+    	  }
+    	  else {
+    		  dummy = texidx;
+    		  texidx++;
+    	  }
+        texcoords.send(/*texindices ? *texindices++ : texidx++*/dummy,
+                        vertexlist.get3(v3),
+                        currnormal.get(0));
+      }
+
+      SEND_VERTEX(v3,is3d,coords3d,coords4d,gl2);
+
+      if (mode != GL2.GL_TRIANGLES) {
+        /* vertex 4 (quad or polygon)**************************************/
+        if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX) {
+          materials.send(matnr++, true);
+        } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+          materials.send(matindices.get(), true); matindices.plusPlus();
+        }
+
+        // nvidia color-per-face-bug workaround
+        if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE) {
+          materials.send(matnr-1, true);
+        } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE_INDEXED) {
+          materials.send(matindices.get(-1), true);
+        }
+
+        if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
+          currnormal = new SbVec3fArray(normals);normals.plusPlus();
+          gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+        } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+          currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+          gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+        }
+
+        if (dotexture != 0) {
+        	int dummy;
+        	if(texindices != null) {
+        		dummy = texindices.get();
+        		texindices.plusPlus();
+        	}
+        	else {
+        		dummy = texidx;
+        		texidx++;
+        	}
+          texcoords.send(/*texindices ? *texindices++ : texidx++*/dummy,
+                          vertexlist.get3(v4),
+                          currnormal.get(0));
+        }
+
+        if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
+          attribs.send(attribnr++);
+        } 
+        else if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+          attribs.send(vertexindices.get()); vertexindices.plusPlus();
+        }
+        SEND_VERTEX(v4,is3d,coords3d,coords4d,gl2);
+
+        if (mode == GL2.GL_POLYGON) {
+          /* vertex 5 (polygon) ********************************************/
+          if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX) {
+            materials.send(matnr++, true);
+          } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+            materials.send(matindices.get(), true); matindices.plusPlus();
+          }
+
+          // nvidia color-per-face-bug workaround
+          if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE) {
+            materials.send(matnr-1, true);
+          } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE_INDEXED) {
+            materials.send(matindices.get(-1), true);
+          }
+
+          if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
+            currnormal = new SbVec3fArray(normals);normals.plusPlus();
+            gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+          } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+            currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+            gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+          }
+
+          if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
+            attribs.send(attribnr++);
+          } else if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+            attribs.send(vertexindices.get());vertexindices.plusPlus();
+          }
+
+          if (dotexture != 0) {
+        	  int dummy;
+        	  if(texindices != null) {
+        		  dummy = texindices.get();
+        		  texindices.plusPlus();
+        	  }
+        	  else {
+        		  dummy = texidx;
+        		  texidx++;
+        	  }
+            texcoords.send(/*texindices ? *texindices++ : texidx++*/dummy,
+                            vertexlist.get3(v5),
+                            currnormal.get(0));
+
+          }
+
+          SEND_VERTEX(v5,is3d,coords3d,coords4d,gl2);
+
+          if(viptr.lessThan(viendptr)) { v1 = viptr.get(); viptr.plusPlus();}else { v1 = -1;}
+          while (v1 >= 0) {
+            // For robustness upon buggy data sets
+            if (v1 >= numverts) {
+              if (current_errors < 1) {
+                SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+                                          "(offset: "+(viptr.minus(vistartptr) - 1)+", [... "+v1+"]). Should be within "+
+                                          "[0, "+(numverts - 1)+"] This message will only be shown once, but "+
+                                          "more errors might be present"
+                                           );
+              }
+              current_errors++;
+              break;
+            }
+
+            /* vertex 6-n (polygon) *****************************************/
+            if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX) {
+              materials.send(matnr++, true);
+            } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+              materials.send(matindices.get(), true);matindices.plusPlus();
+            }
+
+            // nvidia color-per-face-bug workaround
+            if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE) {
+              materials.send(matnr-1, true);
+            } else if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_FACE_INDEXED) {
+              materials.send(matindices.get(-1), true);
+            }
+
+            if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
+              currnormal = new SbVec3fArray(normals);normals.plusPlus();
+              gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+            } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+              currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+              gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+            }
+
+            if (dotexture != 0) {
+            	int dummy;
+            	if(texindices != null) {
+            		dummy = texindices.get();
+            		texindices.plusPlus();
+            	}
+            	else {
+            		dummy = texidx;
+            		texidx++;
+            	}
+              texcoords.send(/*texindices ? *texindices++ : texidx++*/dummy,
+                              vertexlist.get3(v1),
+                              currnormal.get(0));
+            }
+
+            if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
+              attribs.send(attribnr++);
+            } else if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+              attribs.send(vertexindices.get());vertexindices.plusPlus();
+            }
+            SEND_VERTEX(v1,is3d,coords3d,coords4d,gl2);
+
+            if(viptr.lessThan(viendptr)) { v1 = viptr.get(); viptr.plusPlus();}else {v1 = -1;}
+          }
+          gl2.glEnd(); /* draw polygon */
+        }
+      }
+
+      if ((AttributeBinding)MaterialBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        matindices.plusPlus();
+      }
+      if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        normalindices.plusPlus();
+      }
+      if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX_INDEXED) {
+        vertexindices.plusPlus();
+      }
+
+      if (dotexture != 0) {
+        if (texindices != null) texindices.plusPlus();
+      }
+    }
+    // check if triangle or quad
+    if (mode != GL2.GL_POLYGON) gl2.glEnd();
+  }
 
 
 }

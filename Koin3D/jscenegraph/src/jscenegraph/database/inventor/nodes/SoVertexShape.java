@@ -62,7 +62,6 @@ import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 
-import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -78,6 +77,7 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.bundles.SoNormalBundle;
 import jscenegraph.database.inventor.caches.SoNormalCache;
+import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoCreaseAngleElement;
@@ -200,9 +200,9 @@ public abstract class SoVertexShape extends SoShape {
 
 	 
 	 
-  private
+  //private
     //! This allows instances to cache normals that have been generated
-    SoNormalCache       normalCache;
+    //SoNormalCache       normalCache;
 
   public
     //! callback used for pre/post vertex array rendering on SoVertexShapes (MeVis ONLY)
@@ -214,6 +214,7 @@ public abstract class SoVertexShape extends SoShape {
     private static VertexArrayRenderingCB _preVertexArrayRenderingCB;
     private static VertexArrayRenderingCB _postVertexArrayRenderingCB;
   
+    private SoVertexShapeP pimpl;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -226,10 +227,13 @@ public SoVertexShape()
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	pimpl = new SoVertexShapeP();
+	pimpl.normalcache = null;
+	
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoVertexShape*/);
     nodeHeader.SO_NODE_ADD_SFIELD(vertexProperty,"vertexProperty", (null));
 
-    normalCache = null;
+    //normalCache = null;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -243,8 +247,8 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if (normalCache != null)
-        normalCache.destructor();
+    if (pimpl.normalcache != null)
+        pimpl.normalcache.destructor();
     
     super.destructor();
 }
@@ -270,11 +274,31 @@ generateDefaultNormals(SoState state, SoNormalBundle normalBundle)
     return false;
 }
 
+//This documentation block has a copy in vrml97/VertexShape.cpp.
+/*!
+\COININTERNAL
+
+Subclasses should override this method to generate default normals
+using the SoNormalCache class. This is more effective than using
+SoNormalGenerator. Return \c TRUE if normals were generated, \c
+FALSE otherwise.
+
+Default method just returns \c FALSE.
+
+\COIN_FUNCTION_EXTENSION
+*/
+public boolean
+generateDefaultNormals(SoState state,
+                                   SoNormalCache nc)
+{
+return false;
+}
+
 	
     
 
     //! Returns the current normal cache, or NULL if there is none
-    public SoNormalCache       getNormalCache() { return normalCache; }
+    public SoNormalCache       getNormalCache() { return pimpl.normalcache; }
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -291,13 +315,13 @@ setNormalCache(SoState state,
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if (normalCache != null)
-        normalCache.unref();
+    if (pimpl.normalcache != null)
+        pimpl.normalcache.unref();
 
-    normalCache = new SoNormalCache(state);
-    normalCache.ref();
+    pimpl.normalcache = new SoNormalCache(state);
+    pimpl.normalcache.ref();
 
-    normalCache.set(numNormals, normals);
+    pimpl.normalcache.set(numNormals, normals);
 
     // Set up the dependencies
 //#define ADD_DEPENDENCY(elt)                                                   \
@@ -307,9 +331,9 @@ setNormalCache(SoState state,
 //    ADD_DEPENDENCY(SoCreaseAngleElement);
 //    ADD_DEPENDENCY(SoShapeHintsElement);
 
-    normalCache.addElement(state.getConstElement(SoCoordinateElement.getClassStackIndex(SoCoordinateElement.class)));
-    normalCache.addElement(state.getConstElement(SoCreaseAngleElement.getClassStackIndex(SoCreaseAngleElement.class)));
-    normalCache.addElement(state.getConstElement(SoShapeHintsElement.getClassStackIndex(SoShapeHintsElement.class)));
+    pimpl.normalcache.addElement(state.getConstElement(SoCoordinateElement.getClassStackIndex(SoCoordinateElement.class)));
+    pimpl.normalcache.addElement(state.getConstElement(SoCreaseAngleElement.getClassStackIndex(SoCreaseAngleElement.class)));
+    pimpl.normalcache.addElement(state.getConstElement(SoShapeHintsElement.getClassStackIndex(SoShapeHintsElement.class)));
     
 }
 
@@ -327,9 +351,9 @@ notify(SoNotList list)
 ////////////////////////////////////////////////////////////////////////
 {
     // Destroy cache, if present
-    if (normalCache != null) {
-        normalCache.unref();
-        normalCache = null;
+    if (pimpl.normalcache != null) {
+    	pimpl.normalcache.unref();
+    	pimpl.normalcache = null;
     }
     vpCache.invalidate();
 
@@ -359,53 +383,54 @@ shouldGLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	  SoState state = action.getState();
-	  
-	  SoShapeStyleElement shapestyle = SoShapeStyleElement.get(state);
-	  int shapestyleflags = shapestyle.getFlags();
-
-    // Check if the shape is invisible
-    if (SoDrawStyleElement.get(action.getState()) ==
-        SoDrawStyleElement.Style.INVISIBLE)
-        return false;
-
-    boolean transparent = (shapestyleflags & (SoShapeStyleElement.Flags.TRANSP_TEXTURE.getValue()|
-            SoShapeStyleElement.Flags.TRANSP_MATERIAL.getValue())) != 0;
-
-    // YB COIN 3D
-    if ((shapestyleflags & SoShapeStyleElement.Flags.SHADOWMAP.getValue())!=0) {
-        if (transparent) return false;
-        int style = SoShadowStyleElement.get(state);
-        if ((style & SoShadowStyleElement.StyleFlags.CASTS_SHADOW.getValue())!=0) return true;
-        return false;
-      }
-
-    // If the shape is transparent and transparent objects are being
-    // delayed, don't render now
-    // if there is transparency in the vertex property node, the object is
-    // transparent.  If there are no colors in the vertexProperty node,
-    // we have to check the state.
-    if (!vpCache.colorIsInVtxProp()){
-        if (action.handleTransparency())
-                return false;
-    }
-    else if (vpCache.transpIsInVtxProp()){
-        if (action.handleTransparency(true))
-                return false;
-    }
-    else
-            SoLazyElement.setBlending(action.getState(), false);        
-
-    // If the current complexity is BOUNDING_BOX, just render the
-    // cuboid surrounding the shape and tell the shape to stop
-    if (SoComplexityTypeElement.get(action.getState()) ==
-        SoComplexityTypeElement.Type.BOUNDING_BOX) {
-        GLRenderBoundingBox(action);
-        return false;
-    }
-
-    // Otherwise, go ahead and render the object
-    return true;
+//	  SoState state = action.getState();
+//	  
+//	  SoShapeStyleElement shapestyle = SoShapeStyleElement.get(state);
+//	  int shapestyleflags = shapestyle.getFlags();
+//
+//    // Check if the shape is invisible
+//    if (SoDrawStyleElement.get(action.getState()) ==
+//        SoDrawStyleElement.Style.INVISIBLE)
+//        return false;
+//
+//    boolean transparent = (shapestyleflags & (SoShapeStyleElement.Flags.TRANSP_TEXTURE.getValue()|
+//            SoShapeStyleElement.Flags.TRANSP_MATERIAL.getValue())) != 0;
+//
+//    // YB COIN 3D
+//    if ((shapestyleflags & SoShapeStyleElement.Flags.SHADOWMAP.getValue())!=0) {
+//        if (transparent) return false;
+//        int style = SoShadowStyleElement.get(state);
+//        if ((style & SoShadowStyleElement.StyleFlags.CASTS_SHADOW.getValue())!=0) return true;
+//        return false;
+//      }
+//
+//    // If the shape is transparent and transparent objects are being
+//    // delayed, don't render now
+//    // if there is transparency in the vertex property node, the object is
+//    // transparent.  If there are no colors in the vertexProperty node,
+//    // we have to check the state.
+//    if (!vpCache.colorIsInVtxProp()){
+//        if (action.handleTransparency())
+//                return false;
+//    }
+//    else if (vpCache.transpIsInVtxProp()){
+//        if (action.handleTransparency(true))
+//                return false;
+//    }
+//    else
+//            SoLazyElement.setBlending(action.getState(), false);        
+//
+//    // If the current complexity is BOUNDING_BOX, just render the
+//    // cuboid surrounding the shape and tell the shape to stop
+//    if (SoComplexityTypeElement.get(action.getState()) ==
+//        SoComplexityTypeElement.Type.BOUNDING_BOX) {
+//        GLRenderBoundingBox(action);
+//        return false;
+//    }
+//
+//    // Otherwise, go ahead and render the object
+//    return true;
+	  return super.shouldGLRender(action);
 }
 
 protected boolean beginVertexArrayRendering( SoGLRenderAction action )
@@ -654,6 +679,107 @@ getVertexData(SoState state,
   normals[0] = null;
   if (neednormals) {
     normals[0] = SoNormalElement.getInstance(state).getArrayPtr();
+  }
+}
+
+/*!  
+
+  Convenience method that can be used by subclasses to return or
+  create a normal cache. If the current cache is not valid, it takes
+  care of unrefing the old cache and pushing and popping the state to
+  create element dependencies when creating the new cache.
+
+  When returning from this method, the normal cache will be
+  read locked, and the caller should call readUnlockNormalCache()
+  when the normals in the cache is no longer needed.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+protected SoNormalCache 
+generateAndReadLockNormalCache(SoState state)
+{
+  this.readLockNormalCache();
+  if (pimpl.normalcache != null && pimpl.normalcache.isValid(state)) {
+    return pimpl.normalcache;
+  }
+  this.readUnlockNormalCache();
+  this.writeLockNormalCache();
+  
+  boolean storeinvalid = SoCacheElement.setInvalid(false);
+  
+  if (pimpl.normalcache != null) pimpl.normalcache.unref();
+  state.push(); // need to push for cache dependencies
+  pimpl.normalcache = new SoNormalCache(state);
+  pimpl.normalcache.ref();
+  SoCacheElement.set(state, pimpl.normalcache);
+  //
+  // See if the node supports the Coin-way of generating normals
+  //
+  if (!generateDefaultNormals(state, pimpl.normalcache)) {
+    // FIXME: implement SoNormalBundle
+    if (generateDefaultNormals(state, (SoNormalBundle )null)) {
+      // FIXME: set generator in normal cache
+    }
+  }
+  state.pop(); // don't forget this pop
+  
+  SoCacheElement.setInvalid(storeinvalid);
+  this.writeUnlockNormalCache();
+  this.readLockNormalCache();
+  return pimpl.normalcache;
+}
+
+
+/*!
+  Read lock the normal cache. This method should be called before
+  fetching the normal cache (using getNormalCache()). When the cached
+  normals are no longer needed, readUnlockNormalCache() must be called.
+  
+  It is also possible to use generateAndReadLockNormalCache().
+
+  \COIN_FUNCTION_EXTENSION
+
+  \sa readUnlockNormalCache()
+  \since Coin 2.0
+*/
+void 
+readLockNormalCache()
+{
+  if (SoVertexShapeP.normalcachemutex != null) {
+    SoVertexShapeP.normalcachemutex.readLock();
+  }
+}
+
+/*!
+  Read unlock the normal cache. Should be called when the read-locked
+  cached normals are no longer needed.
+
+  \sa readLockNormalCache()
+  \since Coin 2.0
+*/
+void 
+readUnlockNormalCache()
+{
+  if (SoVertexShapeP.normalcachemutex != null) {
+    SoVertexShapeP.normalcachemutex.readUnlock();
+  }
+}
+
+void 
+writeLockNormalCache()
+{
+  if (SoVertexShapeP.normalcachemutex != null) {
+    SoVertexShapeP.normalcachemutex.writeLock();
+  }
+}
+
+void 
+writeUnlockNormalCache()
+{
+  if (SoVertexShapeP.normalcachemutex != null) {
+    SoVertexShapeP.normalcachemutex.writeUnlock();
   }
 }
 

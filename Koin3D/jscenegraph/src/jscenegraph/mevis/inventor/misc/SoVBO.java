@@ -35,19 +35,65 @@
  Date:   09-2011
 */
 
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+\**************************************************************************/
+
+/*!
+  \class SoVBO
+  \brief The SoVBO class is used to handle OpenGL vertex buffer objects.
+
+  It wraps the buffer handling, taking care of multi-context handling
+  and allocation/deallocation of buffers. FIXME: more doc.
+
+*/
+
 package jscenegraph.mevis.inventor.misc;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.jogamp.common.nio.Buffers;
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.glue.cc_glglue;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.CharPtr;
 import jscenegraph.port.Ctx;
@@ -80,6 +126,29 @@ private		  boolean _hadGLError;
 
 private		  static int _vboMinimumSizeLimit = 20;
 private		  static int _vboMaximumSizeLimit = 0x10000000;
+
+// COIN3D
+private /*GLenum*/int target;
+private /*GLenum*/int usage;
+private /*const GLvoid **/VoidPtr data;
+private /*intptr_t*/long datasize;
+private /*SbUniqueId*/long dataid;
+private boolean didalloc;
+
+private final /*SbHash<uint32_t, GLuint>*/Map<Integer,Integer> vbohash = new HashMap<>();
+
+
+//private static int vbo_vertex_count_min_limit = -1;
+//private static int vbo_vertex_count_max_limit = -1;
+//private static int vbo_render_as_vertex_arrays = -1;
+//private static int vbo_enabled = -1;
+private static int vbo_debug = -1;
+
+// VBO rendering seems to be faster than other rendering, even for
+// large VBOs. Just set the default limit very high
+private static final int DEFAULT_MAX_LIMIT = 100000000;
+private static final int DEFAULT_MIN_LIMIT = 20;
+
 	
 private final static boolean isVARenderingAllowed;
 private final static boolean isVBORenderingAllowed;
@@ -380,6 +449,52 @@ public int getBufferDataId() // COIN 3D
 {
   //return this.dataid;
 	return this._nodeId; // YB
+}
+
+/*!
+  Binds the buffer for the context \a contextid.
+*/
+public void
+bindBuffer(int contextid)
+{
+  if ((this.data == null) ||
+      (this.datasize == 0)) {
+    throw new IllegalStateException(/*assert(0 &&*/ "no data in buffer");
+    //return; java port
+  }
+
+  final cc_glglue glue = SoGL.cc_glglue_instance((int) contextid);
+
+  final Integer[] buffer = new Integer[1];
+  if ( (buffer[0] = this.vbohash.get(contextid)) == null) {
+    // need to create a new buffer for this context
+    SoGL.cc_glglue_glGenBuffers(glue, 1, buffer);
+    SoGL.cc_glglue_glBindBuffer(glue, this.target, buffer[0]);
+    SoGL.cc_glglue_glBufferData(glue, this.target,
+                           this.datasize,
+                           this.data,
+                           this.usage);
+    this.vbohash.put(contextid, buffer[0]);
+  }
+  else {
+    // buffer already exists, bind it
+    SoGL.cc_glglue_glBindBuffer(glue, this.target, buffer[0]);
+  }
+
+//#if COIN_DEBUG
+  if (vbo_debug != 0) {
+    if (this.target == GL.GL_ELEMENT_ARRAY_BUFFER) {
+      SoDebugError.postInfo("SoVBO::bindBuffer",
+                             "Rendering using VBO. Index array size: "+
+                             (this.datasize / Integer.BYTES)/*sizeof(int32_t)*/);
+    }
+    else {
+      SoDebugError.postInfo("SoVBO::bindBuffer",
+                             "Setting up buffer for rendering. Datasize: "+
+                             this.datasize);
+    }
+  }
+//#endif // COIN_DEBUG
 }
 
 

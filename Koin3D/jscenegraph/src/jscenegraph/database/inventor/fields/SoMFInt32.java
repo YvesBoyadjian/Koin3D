@@ -58,7 +58,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import jscenegraph.database.inventor.SoInput;
-import jscenegraph.port.Mutable;
+import jscenegraph.port.IntArrayPtr;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of int32_t integers.
@@ -262,6 +262,17 @@ public int[] getValuesI(int start) {
 		retVal[i] = (int) values[i + start];
 	}
 	return retVal;
+}
+
+/**
+ * Java port
+ * @param start
+ * @return
+ */
+public IntArrayPtr getValuesIntArrayPtr(int start) {
+	evaluate();
+
+	return new IntArrayPtr(start, values);
 }
 
 public int operator_square_bracketI(int i) {

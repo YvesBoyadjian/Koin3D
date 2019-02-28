@@ -164,6 +164,8 @@ private class extInfo {
 	   protected	        boolean              is2PassTransp;
 	   protected		        boolean              isRemoteRendering;
 	   protected		        int                 autoCacheBits;
+	   private int numshapes; // COIN3D
+	   private int numseparators; // COIN3D
 	   
 	   private static SbList <so_scheduledeletecb_info> scheduledeletecblist;
 
@@ -503,4 +505,19 @@ public static int getUniqueCacheContext()
   return id;
 }
 
-	   }
+/*!
+  Increment the number of shapes in a open cache.
+
+  \since Coin 3.0
+ */
+public static void
+incNumShapes(SoState state)
+{
+  SoGLCacheContextElement elem = (SoGLCacheContextElement)
+    state.getElementNoPush(classStackIndexMap.get(SoGLCacheContextElement.class));
+
+  elem.numshapes++;
+}
+
+
+}

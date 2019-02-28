@@ -8,14 +8,11 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 
 import com.jogamp.common.nio.Buffers;
-
-import jscenegraph.port.FloatArray;
 
 /**
  * @author Yves Boyadjian
@@ -2877,7 +2874,15 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	}
 
 	default void glVertex3fv(float[] arg1, int arg2) {
-		org.lwjgl.opengl.GL11.glVertex3fv( arg1);
+		if(arg2 == 0)
+			org.lwjgl.opengl.GL11.glVertex3fv( arg1);
+		else {
+			float[] three = new float[3];
+			three[0] = arg1[arg2];
+			three[1] = arg1[arg2+1];
+			three[2] = arg1[arg2+2];
+			org.lwjgl.opengl.GL11.glVertex3fv( three);
+		}
 	}
 
 	default void glVertex3fv(FloatBuffer arg) {
@@ -2912,6 +2917,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL20.glVertexAttribPointer(arg1, arg2, arg3, arg4, arg5, arg6);		
 	}
 
+	default void glVertexAttribPointer(int arg1, int arg2, int arg3, boolean arg4, int arg5, ShortBuffer arg6) {
+		org.lwjgl.opengl.GL20.glVertexAttribPointer(arg1, arg2, arg3, arg4, arg5, arg6);		
+	}
+
 	default void glVertexAttribPointer(int arg1, int arg2, int arg3, boolean arg4, int arg5, IntBuffer arg6) {
 		org.lwjgl.opengl.GL20.glVertexAttribPointer(arg1, arg2, arg3, arg4, arg5, arg6);		
 	}
@@ -2938,6 +2947,9 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	}
 
 	default void glNormal3fv(float[] arg1, int arg2) {
+		if(arg2 != 0) {
+			throw new IllegalArgumentException();
+		}
 		org.lwjgl.opengl.GL11.glNormal3fv( arg1);
 	}
 
@@ -3051,6 +3063,14 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 
 	default void glLightModeli(int arg1, int arg2) {
 		org.lwjgl.opengl.GL11.glLightModeli(arg1,arg2);
+	}
+
+	default void glColorPointer(int arg1, int glUnsignedByte, int arg3, int i) {
+		org.lwjgl.opengl.GL11.glColorPointer(arg1, glUnsignedByte, arg3, i);
+	}
+
+	default void glColorPointer(int arg1, int arg2, int arg3, FloatBuffer arg4) {
+		org.lwjgl.opengl.GL11.glColorPointer(arg1,arg2,arg3,arg4);
 	}
 
 	default void glColorPointer(int arg1, int arg2, int arg3, IntBuffer arg4) {
@@ -3191,10 +3211,6 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glTexCoord2fv(floatBuffer);
 	}
 
-	default void glColorPointer(int arg1, int glUnsignedByte, int arg3, int i) {
-		org.lwjgl.opengl.GL11.glColorPointer(arg1, glUnsignedByte, arg3, i);
-	}
-
 	default void glIndexiv(int[] c, int c_offset) {
 		org.lwjgl.opengl.GL11.glIndexiv(c/*, c_offset*/);
 	}
@@ -3212,7 +3228,16 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	}
 
 	default void glVertex4fv(float[] v, int v_offset) {
-		org.lwjgl.opengl.GL11.glVertex4fv(v/*, v_offset*/);
+		if(v_offset == 0)
+			org.lwjgl.opengl.GL11.glVertex4fv(v/*, v_offset*/);
+		else {
+			float[] four = new float[4];
+			four[0] = v[v_offset];
+			four[1] = v[v_offset+1];
+			four[2] = v[v_offset+2];
+			four[3] = v[v_offset+3];
+			org.lwjgl.opengl.GL11.glVertex4fv(four/*, v_offset*/);
+		}
 	}
 
 	default void glClearColor(float arg0, float arg1, float arg2,
@@ -3362,7 +3387,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	}
 
 	default void glReadPixels(int x, int y, short width, short height, int format, int type, byte[] offscreenbuffer) {
-		org.lwjgl.opengl.GL11.glReadPixels(x,y,width,height,format,type, ByteBuffer.wrap(offscreenbuffer));
+		int capacity = offscreenbuffer.length;
+		ByteBuffer bb = BufferUtils.createByteBuffer(capacity);
+		org.lwjgl.opengl.GL11.glReadPixels(x,y,width,height,format,type, bb);
+		bb.get(offscreenbuffer);
 	}
 
 	default boolean glIsEnabled(int function) {
@@ -3371,6 +3399,47 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 
 	default void glVertex2s(short arg0, short arg1) {
 		org.lwjgl.opengl.GL11.glVertex2s(arg0, arg1);
+	}
+
+	default void glGenBuffers(int n, int[] buffers) {
+		assert(n == buffers.length);
+		org.lwjgl.opengl.GL15.glGenBuffers(buffers);
+	}
+
+	default void glClientActiveTexture(int texture) {
+		org.lwjgl.opengl.GL13.glClientActiveTexture(texture);
+	}
+
+	default void glVertexAttrib1fARB(int index, float x) {
+		org.lwjgl.opengl.GL20.glVertexAttrib1f/*ARB*/(index,x);
+	}
+
+	default void glVertexAttrib2fvARB(int index, float[] v) {
+		org.lwjgl.opengl.GL20.glVertexAttrib2fv/*ARB*/(index,v);
+	}
+
+	default void glVertexAttrib3fvARB(int index, float[] v) {
+		org.lwjgl.opengl.GL20.glVertexAttrib3fv/*ARB*/(index,v);
+	}
+
+	default void glVertexAttrib4fvARB(int index, float[] v) {
+		org.lwjgl.opengl.GL20.glVertexAttrib4fv/*ARB*/(index,v);
+	}
+
+	default void glVertexAttrib1sARB(int index, short x) {
+		org.lwjgl.opengl.GL20.glVertexAttrib1s/*ARB*/(index,x);
+	}
+
+	default void glDisableVertexAttribArrayARB(int index) {
+		org.lwjgl.opengl.GL20.glDisableVertexAttribArray/*ARB*/(index);
+	}
+
+	default void glEnableVertexAttribArrayARB(int index) {
+		org.lwjgl.opengl.GL20.glEnableVertexAttribArray/*ARB*/(index);
+	}
+
+	default int glGetAttribLocationARB(int programobj, String name) {
+		return org.lwjgl.opengl.GL20.glGetAttribLocation/*ARB*/(programobj,name);
 	}
 
 }

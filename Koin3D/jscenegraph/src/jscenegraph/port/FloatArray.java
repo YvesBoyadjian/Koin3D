@@ -32,4 +32,12 @@ public class FloatArray {
 	public float get(int i) {
 		return values[i+start];
 	}
+	
+	public float[] get3() {
+		float[] three = new float[3];
+		three[0] = values[start];
+		three[1] = values[start+1];
+		three[2] = values[start+2];
+		return three;
+	}
 }

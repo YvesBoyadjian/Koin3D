@@ -191,6 +191,17 @@ public T[] getArrayPtr(T[] arrayWithGoodSize) {
 	}
 	return arrayWithGoodSize;
 }
+public void truncate(int length, boolean b) {
+	truncate(length, b ? 1 : 0);
+}
+
+public void truncate( int length, int dofit /*= 0*/) {
+//#ifdef COIN_EXTRA_DEBUG
+  assert(length <= this.numitems);
+//#endif // COIN_EXTRA_DEBUG
+  this.numitems = length;
+  if (dofit != 0) this.fit();
+}
 
   
 }

@@ -1849,7 +1849,7 @@ public boolean readConnection(SoInput in)
 		// SoMFPlaned.initClass();
 		SoMFRotation.initClass(SoMFRotation.class);
 		SoMFRotationd.initClass(SoMFRotationd.class);
-		// SoMFShort.initClass();
+		SoMFShort.initClass(SoMFShort.class);
 		SoMFString.initClass(SoMFString.class);
 		SoMFTime.initClass(SoMFTime.class);
 		SoMFUInt32.initClass(SoMFUInt32.class);

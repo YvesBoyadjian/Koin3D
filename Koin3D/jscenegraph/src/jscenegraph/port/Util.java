@@ -125,6 +125,7 @@ public class Util {
 		return retVal;
 	}
 
+	@Deprecated
 	public static ByteBuffer toByteBuffer(FloatArray objArray) {
 		int arrayLength = objArray.size();
 		
@@ -155,12 +156,12 @@ public class Util {
 		return retVal;
 	}
 
-	public static Buffer toFloatBuffer(FloatArray object) {
-		
-		int start = object.getStart();
-		float[] values = object.getValues();
-		return FloatBuffer.wrap(values, start, object.size());
-	}
+//	public static Buffer toFloatBuffer(FloatArray object) {
+//		
+//		int start = object.getStart();
+//		float[] values = object.getValues();
+//		return FloatBuffer.wrap(values, start, object.size());
+//	}
 
 	public static ByteBuffer toByteBuffer(SbVec2f[] objArray) {
 		int arrayLength = objArray.length;

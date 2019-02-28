@@ -69,6 +69,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
+import jscenegraph.port.SbColorArray;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///
@@ -109,8 +110,26 @@ public class SoLazyElement extends SoElement {
     };
 
     public enum VertexOrdering { // COIN 3D
-        CW,
-        CCW
+        CW(0),
+        CCW(1);
+    	
+    	private int value;
+    	
+    	VertexOrdering(int value) {
+    		this.value = value;
+    	}
+    	
+    	public int getValue() {
+    		return value;
+    	}
+    	
+    	public static VertexOrdering fromValue(int value) {
+    		switch(value) {
+    		case 0: return CW;
+    		case 1: return CCW;
+    		default: return null;
+    		}
+    	}
       };
 
 	
@@ -133,7 +152,7 @@ public class SoLazyElement extends SoElement {
 	public static final float SO_LAZY_SHINY_THRESHOLD       =  0.005f;
 
 	 //! number of components (subelements) in this element:
-	   public static final int SO_LAZY_NUM_COMPONENTS         = 9; // TODO
+	   public static final int SO_LAZY_NUM_COMPONENTS         = 15; // TODO
 	    	
 
 	   public
@@ -276,7 +295,7 @@ public class SoLazyElement extends SoElement {
 		                boolean              packedTransparent;
 		                int             numDiffuseColors;
 		                int             numTransparencies;
-		                SbColor[]       diffuseColors;
+		                SbColorArray       diffuseColors;
 		                float[]         transparencies;
 		                int[]      packedColors;
 		                int[]      colorIndices;
@@ -355,7 +374,17 @@ public class SoLazyElement extends SoElement {
 		    	    public boolean istransparent;
 		    	    public boolean alphatest;
 		    	    public boolean glimageusealphatest;
+		    	    public /*VertexOrdering*/int vertexordering; // COIN 3D
 		    	    public boolean twoside; // COIN 3D
+		    	    
+		    	    public void copyFrom(CoinState other) {
+			    	    glimageid = other.glimageid;
+			    	    istransparent = other.istransparent;
+			    	    alphatest = other.alphatest;
+			    	    glimageusealphatest = other.glimageusealphatest;
+			    	    vertexordering = other.vertexordering; // COIN 3D
+			    	    twoside = other.twoside; // COIN 3D		    	    	
+		    	    }
 		       }
 		       
 		       protected final CoinState coinstate = new CoinState();
@@ -369,7 +398,7 @@ public class SoLazyElement extends SoElement {
     //!  store pointers to the default color, transp so that we can set
     //!  point to them if no other color or transp has been set.
     
-    protected static SbColor[]      defaultDiffuseColor;
+    protected static SbColorArray      defaultDiffuseColor;
     protected static float[]        defaultTransparency;
     protected static int[]      defaultColorIndices;
     protected static int[]     defaultPackedColor;
@@ -552,7 +581,7 @@ matches( SoElement element)
 	     public     int[] getPackedPointer()
 	              {return ivState.packedColors;}
 	      
-	     public SbColor[]      getDiffusePointer()
+	     public SbColorArray      getDiffusePointer()
 	              {return ivState.diffuseColors; }
 	      
 	     public int[]       getColorIndexPointer()
@@ -629,8 +658,8 @@ public void init(SoState state)
     
     // Initialize default color storage if not already done
     if (defaultDiffuseColor == null) {
-        defaultDiffuseColor     = new SbColor[1];
-        defaultDiffuseColor[0] = new SbColor(getDefaultDiffuse());
+        defaultDiffuseColor     = SbColorArray.allocate(1);
+        defaultDiffuseColor.get(0).setValue(getDefaultDiffuse());
         defaultTransparency     = new float[1];
         defaultTransparency[0]    = getDefaultTransparency();
         defaultColorIndices     = new int[1];
@@ -665,6 +694,9 @@ public void init(SoState state)
     ivState.drawElementsCallback = null;    
     ivState.drawArraysCallbackUserData = null;
     ivState.drawElementsCallbackUserData = null;        
+
+    coinstate.vertexordering = VertexOrdering.CCW.getValue();
+    coinstate.twoside = false;
 }
 
 	private static final SbColor unpacker = new SbColor(0, 0, 0);
@@ -685,10 +717,10 @@ getDiffuse(SoState state, int index)
     if (index > curElt.ivState.numDiffuseColors || index < 0){
         SoDebugError.post("SoLazyElement.getDiffuse", 
                         "invalid index");
-        return(new SbColor(defaultDiffuseColor[0]));
+        return(new SbColor(defaultDiffuseColor.get(0)));
     }
 //#endif
-    if (!curElt.ivState.packed) return (curElt.ivState.diffuseColors[index]);
+    if (!curElt.ivState.packed) return (curElt.ivState.diffuseColors.get(index));
     unpacker.copyFrom( new SbColor( 
        ((curElt.ivState.packedColors[index] & 0xff000000) >> 24) * 1.0f/255,  
        ((curElt.ivState.packedColors[index] & 0xff0000) >> 16) * 1.0f/255,              
@@ -865,7 +897,7 @@ getBlending(SoState state)
 ///////////////////////////////////////////////////////////////////////  
 public static void    
 setDiffuse(SoState state, SoNode node, int numColors, 
-            SbColor[] colors, SoColorPacker cPacker)
+            SbColorArray colors, SoColorPacker cPacker)
 {
     // if someone sets this directly, remove any color VBO
     //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
@@ -1141,7 +1173,7 @@ setMaterials(SoState state,  SoNode node,
 
 public void
 setDiffuseElt(SoNode  node,  int numColors,  
-        SbColor[] colors, SoColorPacker packer)
+        SbColorArray colors, SoColorPacker packer)
 {
 
     ivState.diffuseNodeId = node.getNodeId();
@@ -1345,7 +1377,7 @@ setMaterialElt(SoNode node, int mask, SoColorPacker packer,
 {
     if ((mask & masks.DIFFUSE_MASK.getValue()) != 0){
         ivState.diffuseNodeId = node.getNodeId();
-        ivState.diffuseColors = diffuse.getValues(0);
+        ivState.diffuseColors = diffuse.getValuesSbColorArray();
         ivState.numDiffuseColors = diffuse.getNum(); 
         ivState.packed=false;
         ivState.packedTransparent = false;
@@ -1517,6 +1549,7 @@ push(SoState state)
   
     ivState.copyFrom(prevElt.ivState);
    
+    this.coinstate.copyFrom( prevElt.coinstate);
 }
 
 public static boolean 

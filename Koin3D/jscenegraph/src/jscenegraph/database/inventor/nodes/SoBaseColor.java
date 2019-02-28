@@ -202,7 +202,7 @@ SoBaseColor_doAction(SoAction action)
             SoOverrideElement.setDiffuseColorOverride(state, this, true);
         }
         SoGLLazyElement.setDiffuse(state, this, rgb.getNum(), 
-            rgb.getValues(0), colorPacker);
+            rgb.getValuesSbColorArray(/*0*/), colorPacker);
 
         if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
           // update the VBO, no data is passed since that is done by SoColorPacker later on

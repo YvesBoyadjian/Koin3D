@@ -195,6 +195,11 @@ public void destructor()
     //! Sends indexed texture coordinate to GL during rendering
     public void                send(int index) { GLTexCoordElt.send(index); }
 
+    public void send( int index, final SbVec3f point,
+            final SbVec3f normal) {
+    /*glElt*/GLTexCoordElt.send(index, point, normal);
+  }
+
 
     
 ////////////////////////////////////////////////////////////////////////

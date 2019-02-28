@@ -104,6 +104,10 @@ public class SbColor extends SbVec3f {
 		setValue(compArray);
 	}
 	
+	public SbColor(float[] valuesArray, int indice) {
+		super(valuesArray,indice);
+	}
+
 	// java port
 	public int getPackedValue() {
 		return getPackedValue(0);

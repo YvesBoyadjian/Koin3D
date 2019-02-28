@@ -647,5 +647,12 @@ popMatrixElt(final SbMatrix matrix)
 }
 
 
+public SbMatrix 
+getModelMatrix()
+{
+  return this.modelMatrix;
+}
+
+
 
 }
