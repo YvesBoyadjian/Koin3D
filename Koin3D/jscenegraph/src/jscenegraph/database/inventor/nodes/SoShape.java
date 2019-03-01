@@ -98,6 +98,7 @@ import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
+import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.details.SoFaceDetail;
 import jscenegraph.database.inventor.details.SoPointDetail;
@@ -162,6 +163,8 @@ public abstract class SoShape extends SoNode {
   }
   public  static SoFieldData[] getFieldDataPtr()                              
         { return SoSubNode.getFieldDataPtr(SoShape.class); }              
+  
+  private SoShapeP pimpl;
 	
       //! This type is used by the triangle shape generation methods
     //! (beginShape, etc.)
@@ -340,6 +343,7 @@ public abstract class SoShape extends SoNode {
   
 	protected SoShape() {
 		nodeHeader.SO_NODE_CONSTRUCTOR();
+		pimpl = new SoShapeP();
 	}
 	
 	 ////////////////////////////////////////////////////////////////////////
@@ -1472,6 +1476,24 @@ rayPickBoundingBox(SoRayPickAction action)
     // Pick the cube using a special method that is designed for
     // this task
     bboxCube.rayPickBoundingBox(action, box);
+}
+
+
+
+/*!
+  Return the bounding box cache for this shape. It might return
+  NULL if no bounding box cache has been created. If not NULL, the
+  caller must check if the cache is valid before using it. This
+  can be done using SoCache::isValid().
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public SoBoundingBoxCache
+getBoundingBoxCache() 
+{
+  return pimpl.bboxcache;
 }
 	  
 

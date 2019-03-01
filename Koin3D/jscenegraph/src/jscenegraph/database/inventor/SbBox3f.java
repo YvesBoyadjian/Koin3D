@@ -57,6 +57,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.util.function.DoubleConsumer;
+
 import jscenegraph.port.Mutable;
 
 
@@ -504,6 +506,11 @@ getVolume()
         xyz.setValue(2, max.getValueRead()[2] - min.getValueRead()[2]); }
 	}
 
+	  public void getSize(DoubleConsumer sizeX, DoubleConsumer sizeY, DoubleConsumer sizeZ)
+	    { if (isEmpty()) { sizeX.accept(0); sizeY.accept(0); sizeZ.accept(0); }
+	      else { sizeX.accept( max.getValueRead()[0] - min.getValueRead()[0]); sizeY.accept( max.getValueRead()[1] - min.getValueRead()[1]); sizeZ.accept(max.getValueRead()[2] - min.getValueRead()[2]); } }
+
+	
 	     // java port
 	     @Override
         public void copyFrom(Object otherObject) {
