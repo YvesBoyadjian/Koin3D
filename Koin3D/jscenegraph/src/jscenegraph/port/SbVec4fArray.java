@@ -62,4 +62,10 @@ public class SbVec4fArray implements FloatBufferAble {
 	public FloatBuffer toFloatBuffer() {
 		return FloatBuffer.wrap(valuesArray,delta*4,valuesArray.length - delta*4);
 	}
+
+	public static SbVec4fArray copyOf(SbVec4fArray coords4) {
+		if(coords4 == null)
+			return null;
+		return new SbVec4fArray(coords4,0);
+	}
 }

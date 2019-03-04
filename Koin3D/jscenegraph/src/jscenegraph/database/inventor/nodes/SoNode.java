@@ -73,6 +73,7 @@ import jscenegraph.coin3d.inventor.nodes.SoTextureScalePolicy;
 import jscenegraph.coin3d.inventor.nodes.SoTextureUnit;
 import jscenegraph.coin3d.inventor.nodes.SoTransparencyType;
 import jscenegraph.coin3d.inventor.nodes.SoVertexAttribute;
+import jscenegraph.coin3d.inventor.nodes.SoVertexAttributeBinding;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
@@ -147,6 +148,49 @@ public abstract class SoNode extends SoFieldContainer {
 
 		   	private boolean override; //!< TRUE if node overrides others
 
+		    public enum NodeType {
+		        INVENTOR     ( 0x0000),
+		        VRML1        ( 0x0001),
+		        VRML2        ( 0x0002),
+		        INVENTOR_1   ( 0x0004),
+		        INVENTOR_2_0 ( 0x0008),
+		        INVENTOR_2_1 ( 0x0010),
+		        INVENTOR_2_5 ( 0x0020),
+		        INVENTOR_2_6 ( 0x0040),
+		        COIN_1_0     ( 0x0080),
+		        COIN_2_0     ( 0x0100),
+		        EXTENSION    ( 0x0200),
+		        COIN_2_2     ( 0x0400),
+		        COIN_2_3     ( 0x0800),
+		        COIN_2_4     ( 0x1000),
+		        INVENTOR_5_0 ( 0x2000),
+		        COIN_2_5     ( 0x4000),
+		        COIN_3_0     ( 0x8000),
+		        INVENTOR_6_0 ( 0x10000),
+		        COIN_4_0     ( 0x20000);
+		        
+		        private int value;
+		        
+		        NodeType(int value) {
+		        	this.value = value;
+		        }
+		        
+		        public int getValue() {
+		        	return value;
+		        }
+		        
+		        public static NodeType fromValue( int value) {
+		        	for(NodeType nt : NodeType.values()) {
+		        		if(nt.getValue() == value) {
+		        			return nt;
+		        		}		        		
+		        	}
+		        	return null;
+		        }
+		      };
+
+		   	
+		   	
 	protected SoNode() {
 
 //		 #ifdef DEBUG
@@ -432,6 +476,18 @@ getByName( SbName name, SoNodeList list)
 	public static int getActionMethodIndex(SoType t)
 	               { return t.getData(); }
 
+
+/*!
+  This function performs the typical operation of a node for any
+  action.
+*/
+public void
+doAction(SoAction action)
+{
+}
+
+	
+	
 	 ////////////////////////////////////////////////////////////////////////
 	   //
 	   // Description:
@@ -507,6 +563,7 @@ getByName( SbName name, SoNodeList list)
 		       SoLinearProfile.initClass();
 		       SoMaterial.initClass();
 		       SoMaterialBinding.initClass();
+		       SoVertexAttributeBinding.initClass(); // COIN 3D
 		       SoMatrixTransform.initClass();
 //		       SoMultipleCopy.initClass();
 		       SoNormal.initClass();
@@ -1033,4 +1090,19 @@ GLRenderOffPath(SoGLRenderAction action)
 	        pick(action);
 	    }
 
-	    	    	   }
+	    /*!
+	    Returns the node type set for this node.
+
+	    This method is an extension versus the Open Inventor API.
+
+	    \sa setNodeType()
+	  */
+	  public SoNode.NodeType
+	  getNodeType() 
+	  {
+	    int type = 0;// this.stateflags & FLAG_TYPEMASK; TODO
+	    return NodeType.fromValue(type);
+	  }
+
+	    
+}

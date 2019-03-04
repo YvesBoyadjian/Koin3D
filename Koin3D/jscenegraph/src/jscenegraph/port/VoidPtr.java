@@ -114,4 +114,33 @@ public class VoidPtr implements Destroyable {
 		}
 		return null;
 	}
+
+	public UShortPtr toUShortPtr() {
+		if(object instanceof UShortPtr) {
+			return (UShortPtr)object;
+		}
+		if(object instanceof ByteBuffer) {
+			return new UShortPtr((ByteBuffer)object);
+		}
+		return null;
+	}
+
+	public ByteBuffer toByteBuffer() {
+		if(object instanceof ByteBuffer) {
+			return (ByteBuffer) object;
+		}
+		return null;
+	}
+
+	public static VoidPtr[] cast(IntArrayPtr[] arrayPtr) {
+		if(arrayPtr == null) {
+			return null;
+		}
+		int length = arrayPtr.length;
+		VoidPtr[] casted = new VoidPtr[length];
+		for(int i=0; i<length;i++) {
+			casted[i] = VoidPtr.create(arrayPtr[i]);
+		}
+		return casted;
+	}
 }

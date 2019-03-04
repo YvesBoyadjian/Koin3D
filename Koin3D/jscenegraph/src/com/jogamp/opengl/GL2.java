@@ -14,6 +14,9 @@ import org.lwjgl.opengl.ARBVertexBufferObject;
 
 import com.jogamp.common.nio.Buffers;
 
+import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.VoidPtr;
+
 /**
  * @author Yves Boyadjian
  *
@@ -2953,6 +2956,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glNormal3fv( arg1);
 	}
 
+	default void glNormal3fv(float[] arg1) {
+		org.lwjgl.opengl.GL11.glNormal3fv( arg1);
+	}
+
 	default void glTexCoord2f(float arg1, float arg2) {
 		org.lwjgl.opengl.GL11.glTexCoord2f( arg1, arg2);
 	}
@@ -3440,6 +3447,21 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 
 	default int glGetAttribLocationARB(int programobj, String name) {
 		return org.lwjgl.opengl.GL20.glGetAttribLocation/*ARB*/(programobj,name);
+	}
+
+	default void glDrawElements(int mode, int count, int type, VoidPtr indices) {
+		ByteBuffer bb = indices.toByteBuffer();
+		org.lwjgl.opengl.GL11.glDrawElements(mode,type,bb);
+	}
+
+	default void glMultiDrawElements(int mode, IntArrayPtr count, int type, VoidPtr[] indices, int primcount) {
+		
+		assert(primcount == count.size());
+		for(int i=0;i<primcount;i++) {
+			VoidPtr iindices = indices[i];
+			int icount = count.get(i);
+			glDrawElements(mode, icount, type, iindices);
+		}
 	}
 
 }

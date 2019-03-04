@@ -70,6 +70,17 @@ public class SoConvexDataCache extends SoCache {
 			public int getValue() {
 				return ordinal();
 			}
+			
+			public static Binding fromValue(int value) {
+				switch(value) {
+				case 0 : return NONE;
+				case 1 : return PER_FACE;
+				case 2 : return PER_FACE_INDEXED;
+				case 3 : return PER_VERTEX;
+				case 4 : return PER_VERTEX_INDEXED;
+				default: return null;
+				}
+			}
 		  };
 
 		  private SoConvexDataCacheP pimpl;
@@ -195,10 +206,10 @@ public class SoConvexDataCache extends SoCache {
 public void
 generate( SoCoordinateElement coords,
                             final SbMatrix matrix,
-                            final Integer[] vind,
+                            final IntArrayPtr vind,
                             int numv,
-                            Integer[] mind, Integer[] nind,
-                            Integer[] tind,
+                            IntArrayPtr mind, IntArrayPtr nind,
+                            IntArrayPtr tind,
                             Binding matbind, Binding normbind,
                             Binding texbind)
 {
@@ -255,7 +266,7 @@ generate( SoCoordinateElement coords,
   if (gt) { glutess.beginPolygon(); }
   else { tess.beginPolygon(); }
   for (int i = 0; i < numv; i++) {
-    if (vind[i] < 0) {
+    if (vind.get(i) < 0) {
       if (gt) { glutess.endPolygon(); }
       else { tess.endPolygon(); }
       if (matbind == Binding.PER_VERTEX_INDEXED || 
@@ -271,24 +282,24 @@ generate( SoCoordinateElement coords,
       }
     }
     else {
-      tessdata.vertexInfo.get(i).vertexnr = vind[i];
+      tessdata.vertexInfo.get(i).vertexnr = vind.get(i);
       if (mind != null)
-        tessdata.vertexInfo.get(i).matnr = mind[matnr];
+        tessdata.vertexInfo.get(i).matnr = mind.get(matnr);
       else tessdata.vertexInfo.get(i).matnr = matnr;
       if (matbind.getValue() >= Binding.PER_VERTEX.getValue()) {
         matnr++;
       }
       if (nind != null)
-        tessdata.vertexInfo.get(i).normnr = nind[normnr];
+        tessdata.vertexInfo.get(i).normnr = nind.get(normnr);
       else tessdata.vertexInfo.get(i).normnr = normnr;
       if (normbind.getValue() >= Binding.PER_VERTEX.getValue())
         normnr++;
       if (tind != null)
-        tessdata.vertexInfo.get(i).texnr = tind[texnr++];
+        tessdata.vertexInfo.get(i).texnr = tind.get(texnr++);
       else
         tessdata.vertexInfo.get(i).texnr = texnr++;
 
-      final SbVec3f v = new SbVec3f(coords.get3(vind[i]));
+      final SbVec3f v = new SbVec3f(coords.get3(vind.get(i)));
       if (!identity) matrix.multVecMatrix(v,v);
       if (gt) { glutess.addVertex(v, (Object)(tessdata.vertexInfo.addressOf(i))); }
       else { tess.addVertex(v, (Object)(tessdata.vertexInfo.addressOf(i))); }
@@ -296,7 +307,7 @@ generate( SoCoordinateElement coords,
   }
   
   // if last coordIndex != -1, terminate polygon
-  if (numv > 0 && vind[numv-1] != -1) {
+  if (numv > 0 && vind.get(numv-1) != -1) {
     if (gt) { glutess.endPolygon(); }
     else { tess.endPolygon(); }
   }

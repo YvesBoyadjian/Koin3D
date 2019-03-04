@@ -43,12 +43,13 @@ import jscenegraph.coin3d.inventor.elements.SoVertexAttributeElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLVertexAttributeElement;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.bundles.SoBundle;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoVertexAttributeBundle extends SoBundle {
+public class SoVertexAttributeBundle extends SoBundle implements Destroyable {
 
 	private
 		   SoVertexAttributeElement elem; //ptr

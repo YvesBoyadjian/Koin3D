@@ -65,7 +65,9 @@ import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoMachine;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.caches.SoCache;
 import jscenegraph.database.inventor.caches.SoGLRenderCache;
+import jscenegraph.database.inventor.caches.SoNormalCache;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoMFColor;
 import jscenegraph.database.inventor.fields.SoMFFloat;
@@ -884,10 +886,17 @@ reset(SoState state, int bitmask)
     //  If cache is open, we must assume that there has been a GLSend
     //  of the component being reset, and set the corresponding GLSendBit.
     if (state.isCacheOpen()){
-        SoGLRenderCache thisCache = (SoGLRenderCache)
-                SoCacheElement.getCurrentCache((SoState)state);
-        SoGLLazyElement cacheLazyElt = thisCache.getLazyElt();
-        cacheLazyElt.GLSendBits |= bitmask;
+    	SoCache cache = SoCacheElement.getCurrentCache((SoState)state); // YB
+    	if(cache instanceof SoGLRenderCache) { // YB
+    		SoGLRenderCache thisCache = (SoGLRenderCache) cache;
+    		SoGLLazyElement cacheLazyElt = thisCache.getLazyElt();
+    		cacheLazyElt.GLSendBits |= bitmask;
+    	}
+    	else {
+    		// do nothing
+    	}
+    	  SoGLLazyElement elem = getInstance(state/*ptr*/); //COIN 3D
+    	    elem.cachebitmask |= bitmask; // COIN 3D   	
     }
         
     for(int j=0; (j< SO_LAZY_NUM_COMPONENTS) && (bitmask != 0); j++, bitmask >>=1){ 
@@ -1197,6 +1206,12 @@ reallySend(final SoState state, int bitmask)
                       this.sendTwosideLighting(this.coinstate.twoside);
                     }
                     break;
+                    
+//                case SHADE_MODEL_CASE:
+//                    if (this.glState.flatshading != this.coinstate.flatshading) {
+//                      this.sendFlatshading(this.coinstate.flatshading);
+//                    }
+//                    break;
             }
         }
     }

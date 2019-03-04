@@ -59,6 +59,7 @@ import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.caches.SoNormalCache;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
@@ -68,9 +69,12 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoNotRec;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.FloatArray;
+import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.SbVec3fArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -792,6 +796,60 @@ allocateSequentialWithHoles()
     }
     return result;
 }
+
+/*!
+  Convenience method that will fetch data needed for rendering or
+  generating primitives. Takes care of normal cache.
+
+  This method was not part of the original SGI Open Inventor API, and
+  is an extension specific for Coin.
+*/
+public boolean
+getVertexData(final SoState state,
+                              final SoCoordinateElement[] coords,
+                              final SbVec3fArray[] normals,
+                              final IntArrayPtr[] cindices,
+                              final IntArrayPtr[] nindices,
+                              final IntArrayPtr[] tindices,
+                              final IntArrayPtr[] mindices,
+                              final int[] numcindices,
+                              boolean needNormals,
+                              final boolean[] normalCacheUsed)
+{
+  super.getVertexData(state, coords, normals, needNormals);
+  
+  cindices[0] = this.coordIndex.getValuesIntArrayPtr(0);
+  numcindices[0] = this.coordIndex.getNum();
+
+  mindices[0] = this.materialIndex.getValuesIntArrayPtr(0);
+  if (this.materialIndex.getNum() <= 0 || mindices[0].get(0) < 0) mindices[0] = null;
+
+  tindices[0] = this.textureCoordIndex.getValuesIntArrayPtr(0);
+  if (this.textureCoordIndex.getNum() <= 0 || tindices[0].get(0) < 0) tindices[0] = null;
+
+  normalCacheUsed[0] = false;
+  nindices[0] = null;
+  if (needNormals) {
+    nindices[0] = this.normalIndex.getValuesIntArrayPtr(0);
+    if (this.normalIndex.getNum() <= 0 || nindices[0].get(0) < 0) nindices[0] = null;
+
+    if (normals[0] == null) {
+      SoNormalCache nc = this.generateAndReadLockNormalCache(state);
+      normals[0] = nc.getNormals();
+      nindices[0] = nc.getIndices();
+      normalCacheUsed[0] = true;
+     
+      // if no normals were generated, unlock normal cache before
+      // returning
+      if (normals[0] == null) {
+        this.readUnlockNormalCache();
+        normalCacheUsed[0] = false;
+      }
+    }
+  }
+  return true;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //

@@ -77,7 +77,7 @@ import jscenegraph.port.Destroyable;
  * @author Yves Boyadjian
  *
  */
-public class SoVertexShapeP {
+public class SoVertexShapeP implements Destroyable {
 
 	public
 		  SoNormalCache normalcache; // ptr
@@ -107,6 +107,12 @@ public class SoVertexShapeP {
 	 */
 	public SoVertexShapeP() {
 		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public void destructor() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

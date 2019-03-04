@@ -7,6 +7,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
+import java.util.Comparator;
 
 import com.jogamp.common.nio.Buffers;
 
@@ -254,5 +255,26 @@ public class Util {
 			}
 		}
 		return new String(Arrays.copyOfRange(str,0,endIndex));
+	}
+
+	public static void qsort(Object base, int num, int size, Comparator comparator) {
+		if(base instanceof IntArrayPtr) {
+			IntArrayPtr iap = (IntArrayPtr)base;
+			int[][] array = new int[size][num];
+			int index = 0;
+			for(int i=0;i<size;i++) {
+				for(int j = 0; j<num;j++) {
+					array[i][j] = iap.get(index++);
+				}
+			}
+			Arrays.sort(array,comparator);
+			index = 0;
+			for(int i=0;i<size;i++) {
+				for(int j = 0; j<num;j++) {
+					iap.set(index++, array[i][j]); 
+				}
+			}
+		}
+		throw new IllegalArgumentException();
 	}
 }

@@ -78,6 +78,10 @@ public class SoCacheElement extends SoElement {
 		    
 	   private static boolean       invalidated;            //!< invalidate() called?
 		    	
+		 public static void initClass(final Class<? extends SoElement> javaClass) {
+			 SoElement.initClass(javaClass);
+			 invalidated = false;
+		 }
 	   
 ////////////////////////////////////////////////////////////////////////
 //
@@ -91,6 +95,7 @@ init(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	super.init(state);
     cache = null;
 }
 
@@ -107,7 +112,7 @@ set(SoState state, SoCache cache)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoCacheElement      elt;
+    SoCacheElement      elem;
 
 //#ifdef DEBUG
 //    if (cache == NULL) {
@@ -118,18 +123,26 @@ set(SoState state, SoCache cache)
 //#endif    
 
     // Get an instance we can change (pushing if necessary)
-    elt = (SoCacheElement ) getElement(state, classStackIndexMap.get(SoCacheElement.class));
+    elem = (SoCacheElement ) getElement(state, classStackIndexMap.get(SoCacheElement.class));
 
-    if (elt == null) {
-        SoDebugError.post("SoCacheElement::set", "unable to access element");
-        return;
-    }
-
-    elt.cache = cache;
-    elt.cache.ref();
-
-    // Let the state know a cache is open.
-    state.setCacheOpen(true);
+//    if (elt == null) {
+//        SoDebugError.post("SoCacheElement::set", "unable to access element");
+//        return;
+//    }
+//
+//    elt.cache = cache;
+//    elt.cache.ref();
+//
+//    // Let the state know a cache is open.
+//    state.setCacheOpen(true);
+    if (elem != null) {
+        if (elem.cache != null) elem.cache.unref();
+        elem.cache = cache;
+        if (elem.cache != null) {
+          elem.cache.ref();
+          state.setCacheOpen(true);
+        }
+      }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -158,23 +171,12 @@ anyOpen(SoState state)
 	       //! Returns the cache stored in an instance. This may be NULL.
     public SoCache            getCache() { return cache; }
 	   
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Returns the previous invalidated state, and sets the invalidated
-//    flag to TRUE.  Used by SoGLCacheList to avoid auto-caching
-//    things that call ::invalidate().
-//
-// Use: internal, static
-
-public static boolean
-setInvalid(boolean newValue)
-//
-////////////////////////////////////////////////////////////////////////
+// Documented in superclass. Overridden to initialize element.
+public void
+push(SoState state)
 {
-    boolean oldValue = invalidated;
-    invalidated = newValue;
-    return oldValue;
+  super.push(state);
+  this.cache = null;
 }
 
 	   
@@ -328,6 +330,27 @@ addCacheDependency(SoState state, SoCache cache)
         cacheElt = ( SoCacheElement ) cacheElt.getNextInStack();
     }
 }
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Returns the previous invalidated state, and sets the invalidated
+//flag to TRUE.  Used by SoGLCacheList to avoid auto-caching
+//things that call ::invalidate().
+//
+//Use: internal, static
+
+public static boolean
+setInvalid(boolean newValue)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	boolean oldValue = invalidated;
+	invalidated = newValue;
+	return oldValue;
+}
+
+
 
     //! returns the current cache, from the top of the stack.  Does not
     //! cause a cache dependence like getConstElement().

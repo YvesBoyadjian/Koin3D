@@ -184,7 +184,7 @@ public SoResetTransform()
 //
 // Use: extender
 
-void
+public void
  doAction(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////

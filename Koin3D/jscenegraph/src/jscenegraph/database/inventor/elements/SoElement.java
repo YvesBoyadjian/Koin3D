@@ -333,7 +333,7 @@ private        int                 depth;
 		        SoFloatElement.SoFloatElement_initClass(SoFloatElement.class);
 
 		        // Initialize derived classes
-		        SoElement.initClass(SoCacheElement.class);
+		        SoCacheElement.initClass(SoCacheElement.class);
 		        SoElement.initClass(SoClipPlaneElement.class);
 		        SoElement.initClass(SoComplexityElement.class);
 		        SoElement.initClass(SoComplexityTypeElement.class);

@@ -214,6 +214,22 @@ Sets the buffer data. \a dataid is a unique id used to identify
 the buffer data. In Coin it's possible to use the node id
 (SoNode::getNodeId()) to test if a buffer is valid for a node.
 */
+public void
+setBufferData(VoidPtr data, int size)
+{
+	setBufferData(data, size, 0);
+}
+void
+setBufferData(VoidPtr data, int size, int dataid)
+{
+	setBufferData(data,size,dataid,null); // TODO YB 
+}
+
+/*!
+Sets the buffer data. \a dataid is a unique id used to identify
+the buffer data. In Coin it's possible to use the node id
+(SoNode::getNodeId()) to test if a buffer is valid for a node.
+*/
 public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // COIN 3D
 {
 	  // free previous data if it was owned
@@ -239,10 +255,19 @@ public void allocateData( int numBytes, int nodeId , SoState state)
   freeGL(state);
 
   _numBytes = numBytes;
-  _data = VoidPtr.create(Buffers.newDirectByteBuffer(numBytes/*/Integer.BYTES*/));//ByteBuffer.allocate(numBytes);//new int[numBytes/Integer.SIZE];//malloc(numBytes); TODO JOGL
+  _data = VoidPtr.create(Buffers.newDirectByteBuffer(numBytes));
   _nodeId = nodeId;
   _ownsData = true;
   _hasSwappedRGBAData = false;
+}
+
+// java port
+public VoidPtr allocBufferData(int size) {
+	return allocBufferData(size,0);
+}
+
+public VoidPtr allocBufferData(int size, int dataid) {
+	return allocBufferData(size,dataid,null); // TODO YB
 }
 
 /**
@@ -495,6 +520,20 @@ bindBuffer(int contextid)
     }
   }
 //#endif // COIN_DEBUG
+}
+
+
+public static boolean
+shouldRenderAsVertexArrays(SoState state,
+                                  int contextid,
+                                  int numdata)
+{
+  // FIXME: consider also using results from the performance tests
+
+  // don't render as vertex arrays if there are very few elements to
+  // be rendered. The VA setup overhead would make it slower than just
+  // doing plain immediate mode rendering.
+  return (numdata >= vbo_vertex_count_min_limit) && vbo_render_as_vertex_arrays != 0;
 }
 
 

@@ -98,6 +98,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.SbVec3fArray;
 
 
@@ -246,9 +247,9 @@ public SoVertexShape()
 public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
-{
-    if (pimpl.normalcache != null)
-        pimpl.normalcache.destructor();
+{    
+    if (pimpl.normalcache != null) pimpl.normalcache.unref();
+    Destroyable.delete(pimpl);
     
     super.destructor();
 }

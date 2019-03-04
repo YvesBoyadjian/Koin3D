@@ -110,7 +110,7 @@ public SoCache(SoState state)
     refCount = 0;
     invalidated = false;
 
-    depth = state.getDepth();
+    depth = state != null ? state.getDepth() : 0; //COIN 3D
 
     int bytesNeeded = (SoElement.getNumStackIndices()+7)/8;
 

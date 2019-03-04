@@ -580,6 +580,20 @@ cc_glglue_glDrawArrays(cc_glglue glue,
   glue.glDrawArrays(mode, first, count);
 }
 
+public static void
+cc_glglue_glDrawElements(cc_glglue glue,
+                         /*GLenum*/int mode, /*GLsizei*/int count, /*GLenum*/int type,
+                         VoidPtr indices)
+{
+  //assert(glue.glDrawElements);
+  glue.glDrawElements(mode, count, type, indices);
+}
+
+public static void cc_glglue_glMultiDrawElements(cc_glglue glue, int mode, IntArrayPtr count, int type,
+		VoidPtr[] indices, int primcount) {
+	  //assert(glue.glMultiDrawElements);
+	  glue.glMultiDrawElements(mode, count, type, indices, primcount);
+}
 
 public static void
 cc_glglue_glGenBuffers(cc_glglue glue, /*GLsizei*/int n, /*GLu*/int[] buffers)
@@ -1169,7 +1183,7 @@ private static int current_errors = 0;
 	  MutableSbVec3fArray normals = new MutableSbVec3fArray(normals_);
 	  IntArrayPtr normalindices = new IntArrayPtr(normalindices_);
 	  IntArrayPtr matindices = new IntArrayPtr(matindices_);
-	  IntArrayPtr texindices = new IntArrayPtr(texindices_);
+	  IntArrayPtr texindices = texindices_ != null ? new IntArrayPtr(texindices_) : null;
 
     int texidx = 0;
 

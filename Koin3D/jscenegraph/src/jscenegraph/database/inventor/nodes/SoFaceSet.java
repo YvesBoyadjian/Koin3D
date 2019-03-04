@@ -64,6 +64,7 @@ import com.jogamp.opengl.GL3;
 import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
 import jscenegraph.coin3d.inventor.elements.SoVertexAttributeBindingElement;
 import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.coin3d.misc.SoGL;
@@ -1343,7 +1344,7 @@ useConvexCache(SoAction action)
     // create an index table to be able to use convex cache.
     // should be fast compared to the tessellation
     final int diff = end[0].minus(ptr[0]);
-    final SbList <Integer> dummyidx = new SbList<>((int)(diff * 4));
+    final SbListInt dummyidx = new SbListInt((int)(diff * 4));
     final IntArrayPtr tptr = new IntArrayPtr(ptr[0]);
     while (tptr.lessThan(end[0])) {
       int num = tptr.get(0); tptr.plusPlus();
@@ -1353,7 +1354,7 @@ useConvexCache(SoAction action)
       dummyidx.append(-1);
     }
     pimpl.convexCache.generate(coords, modelmatrix,
-                                dummyidx.getArrayPtr(new Integer[dummyidx.getLength()]), dummyidx.getLength(),
+                                dummyidx.getArrayPtr(), dummyidx.getLength(),
                                 null, null, null,
                                 mbind,
                                 nbind,

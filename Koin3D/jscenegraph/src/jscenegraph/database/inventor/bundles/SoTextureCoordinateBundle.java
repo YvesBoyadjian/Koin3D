@@ -192,7 +192,7 @@ public SoTextureCoordinateBundle(SoAction action,
 	  boolean glrender = forRendering || action.isOfType(SoGLRenderAction.getClassTypeId());
 	  boolean bumpenabled = glrender && /*(SoBumpMapElement.get(this.state) != null)*/false; //TODO
 
-	  if (!needinit && !multienabled[0] && !bumpenabled) return;
+	  if (!needinit && multienabled == null && !bumpenabled) return;
 	  
 	  // It is safe to assume that shapenode is of type SoShape, so we
 	  // cast to SoShape before doing any operations on the node.

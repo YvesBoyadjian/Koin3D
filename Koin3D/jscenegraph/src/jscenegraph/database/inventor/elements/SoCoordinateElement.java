@@ -371,7 +371,7 @@ getArrayPtr3()
   }
 //#endif // COIN_DEBUG
 
-  return this.coords3/*D*/;
+  return SbVec3fArray.copyOf(this.coords3)/*D*/;
 }
 
 /*!
@@ -393,7 +393,7 @@ getArrayPtr4()
   }
 //#endif // COIN_DEBUG
 
-  return this.coords4/*D*/;
+  return SbVec4fArray.copyOf(this.coords4)/*D*/;
 }
 
 

@@ -43,6 +43,14 @@ public class SbVec3fArray implements FloatBufferAble {
 		this.delta = other.getDelta()+ delta;
 	}
 
+	public static SbVec3fArray copyOf(SbVec3fArray other) {
+		if(other == null) {
+			return null;
+		}
+		SbVec3fArray copy = new SbVec3fArray(other,0);
+		return copy;
+	}
+
 	public SbVec3f get(int index) {
 		return new SbVec3f(valuesArray, (index+delta)*3);
 	}
@@ -75,5 +83,18 @@ public class SbVec3fArray implements FloatBufferAble {
 
 	int getDelta() {
 		return delta;
+	}
+
+	public static SbVec3fArray fromArray(SbVec3f[] arrayPtr) {
+		int length = arrayPtr.length;
+		float[] valuesArray = new float[length*3];
+		int indice=0;
+		for(int i=0; i< length; i++) {
+			valuesArray[indice++] = arrayPtr[i].getX();
+			valuesArray[indice++] = arrayPtr[i].getY();
+			valuesArray[indice++] = arrayPtr[i].getZ();
+		}
+		SbVec3fArray retVal = new SbVec3fArray(valuesArray);
+		return retVal;
 	}
 }

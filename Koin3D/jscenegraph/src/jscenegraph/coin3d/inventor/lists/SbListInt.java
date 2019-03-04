@@ -27,6 +27,16 @@ public class SbListInt {
 		itembuffersize = DEFAULTSIZE;
 		itembuffer = builtinbuffer;
 	}
+	
+	public SbListInt(int sizehint) {
+		super();
+		itembuffersize = DEFAULTSIZE;
+		numitems = 0;
+		itembuffer = builtinbuffer; 
+		if(sizehint > DEFAULTSIZE) {
+			this.grow(sizehint);
+		}
+	}
 
 	public int getLength() {
 		return this.numitems;
@@ -91,6 +101,12 @@ public class SbListInt {
 
 	public void truncate(int length, boolean b) {
 		truncate(length, b ? 1 :0);
+	}
+
+	public int operator_square_bracket(int i) {
+		if(i<numitems)
+			return itembuffer[i];
+		throw new IllegalArgumentException();
 	}
 
 	  

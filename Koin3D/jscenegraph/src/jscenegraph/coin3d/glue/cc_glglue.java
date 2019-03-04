@@ -14,6 +14,7 @@ import com.jogamp.opengl.GL3;
 
 import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatBufferAble;
+import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbColorArray;
 import jscenegraph.port.ShortBufferAble;
 import jscenegraph.port.VoidPtr;
@@ -383,6 +384,14 @@ public void glVertexAttribPointerARB(int index, int size, int type, boolean norm
 
 public void glDisableClientState(int array) {
 	gl2.glDisableClientState(array);
+}
+
+public void glDrawElements(int mode, int count, int type, VoidPtr indices) {
+	gl2.glDrawElements(mode, count, type, indices);
+}
+
+public void glMultiDrawElements(int mode, IntArrayPtr count, int type, VoidPtr[] indices, int primcount) {
+	gl2.glMultiDrawElements(mode,count,type,indices,primcount);
 }
 
 }

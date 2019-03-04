@@ -101,4 +101,21 @@ public class IntArrayPtr {
 		}
 		return intOffset < other.intOffset;
 	}
+
+	public void set(int index, int value) {
+		array[intOffset+index] = value;
+	}
+
+	public boolean greaterOrEqual(IntArrayPtr other) {
+		if(array != other.array) {
+			throw new IllegalArgumentException();
+		}
+		return intOffset >= other.intOffset;
+	}
+
+	public int starPlusPlus() {
+		int retVal = get();
+		plusPlus();
+		return retVal;
+	}
 }

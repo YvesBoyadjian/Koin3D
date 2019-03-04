@@ -11,6 +11,9 @@ import jscenegraph.port.Util;
  */
 public class TidBits {
 
+	static int COIN_DEBUG_EXTRA = -1;
+	static int COIN_DEBUG_NORMALIZE = -1;
+
 	/**
 	 * 
 	 */
@@ -64,4 +67,23 @@ coin_getenv(String envname)
 {
 	return System.getenv(envname); // java port
 }
+
+
+/*
+ * Will return TRUE if extra debugging information is enabled. These
+ * are typically debugging messages extra for Coin and not found in
+ * SGI Inventor. Also, these debugging message will not necessarily
+ * mean that anything is wrong, but they can be useful for debugging
+ * anyway.
+ */
+public static int
+coin_debug_extra()
+{
+//#if COIN_DEBUG
+  return COIN_DEBUG_EXTRA;
+//#else /* COIN_DEBUG */
+//  return 0;
+//#endif /* !COIN_DEBUG */
+}
+
 }
