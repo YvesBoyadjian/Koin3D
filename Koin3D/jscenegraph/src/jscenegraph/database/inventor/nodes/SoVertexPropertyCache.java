@@ -243,12 +243,12 @@ public class SoVertexPropertyCache {
         	
         };
         colorStride = Integer.SIZE/Byte.SIZE;// sizeof(int32_t);
-        colorPtr = (int[])le.getColorIndexPointer();
+        colorPtr = (IntArrayPtr)new IntArrayPtr(le.getColorIndexPointer());
         needFromState |= BitMask.COLOR_FROM_STATE_BITS.getValue();
     } else {
         if ((!colorOverride) &&         
             (vp != null && (numColors = vp.orderedRGBA.getNum()) != 0)) {
-            colorPtr = (int[])vp.orderedRGBA.getValuesI(0);
+            colorPtr = (IntArrayPtr)new IntArrayPtr(vp.orderedRGBA.getValuesI(0));
             colorFunc = new SoVPCacheFunc () {
 
 				@Override
@@ -283,7 +283,7 @@ public class SoVertexPropertyCache {
             colorIsInVP = false;
             numColors = le.getNumDiffuse();
             needFromState |= BitMask.COLOR_FROM_STATE_BITS.getValue();
-            colorPtr = (int[]) le.getPackedPointer();
+            colorPtr = (IntArrayPtr) le.getPackedPointer();
             colorFunc = new SoVPCacheFunc () {
 
 				@Override
@@ -553,7 +553,7 @@ public class SoVertexPropertyCache {
   public   /*Buffer*/VoidPtr getColors(int i) 
         { 
 	  	int offset = (int)((long)colorStride*i/(Integer.SIZE/Byte.SIZE));
-	  	int length = colorPtr.length - offset;
+	  	int length = colorPtr.size() - offset;
 	  	return VoidPtr.create(/*Buffers.copyIntBuffer(*/new IntArrayPtr(offset, colorPtr)/*IntBuffer.wrap(colorPtr, offset, length)*//*)*/);	  	
 	  }
   public   Buffer getTexCoords(int i) 
@@ -607,7 +607,7 @@ public class SoVertexPropertyCache {
   public    float[] normalPtr;
   public    int normalStride, numNorms;
   public    SoVPCacheFunc colorFunc;
-  public    int[] colorPtr;
+  public    IntArrayPtr colorPtr;
   public   int colorStride, numColors;
   public    SoVPCacheFunc texCoordFunc;
   public    float[] texCoordPtr;

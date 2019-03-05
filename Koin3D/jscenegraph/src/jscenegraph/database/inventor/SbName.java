@@ -283,4 +283,23 @@ public static boolean isIdentStartChar(char c)
 	public String toString() {
 		return getString();
 	}
+	
+	/*!
+	  Returns an empty-string SbName instance.
+
+	  \since Coin 3.0
+	*/
+	  static SbName emptyname = null;
+
+
+	public static SbName 
+	empty() // static
+	{
+	  if (emptyname == null) {
+	    emptyname = new SbName("");
+	    //coin_atexit(SbName_atexit, CC_ATEXIT_SBNAME);
+	  }
+	  return emptyname;
+	}
+	
 }

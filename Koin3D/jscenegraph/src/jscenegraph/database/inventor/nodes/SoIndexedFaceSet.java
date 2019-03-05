@@ -792,7 +792,7 @@ public void GLRender(SoGLRenderAction action)
 	  SoGL.sogl_autocache_update(state, this.coordIndex.getNum() / 4, didrenderasvbo);
 	  
 	  tb.destructor(); // java port
-	  mb.destructor(); // java port
+	  mb.destructor(); // java port	  
 	}
 
 //

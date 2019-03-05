@@ -59,6 +59,7 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoOverrideElement;
@@ -316,4 +317,10 @@ pick(SoPickAction action)
     SoMaterialBinding_doAction(action);
 }
 	  
+// Doc from superclass.
+public void
+getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  SoMaterialBinding_doAction(action);
+}
 }

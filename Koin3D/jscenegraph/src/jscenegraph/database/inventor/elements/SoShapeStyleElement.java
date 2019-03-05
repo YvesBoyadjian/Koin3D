@@ -485,6 +485,25 @@ isScreenDoor(SoState state)
 }
 
 /*!
+  Sets material transparency.
+
+  \since Coin 2.4
+*/
+public static void
+setTransparentMaterial(SoState state, boolean value)
+{
+  SoShapeStyleElement elem = getElement(state);
+  if (value) {
+    elem.flags |= Flags.TRANSP_MATERIAL.getValue();
+  }
+  else {
+    elem.flags &= ~Flags.TRANSP_MATERIAL.getValue();
+  }
+}
+
+
+
+/*!
   Sets texture transparency.
 
   \since Coin 2.4

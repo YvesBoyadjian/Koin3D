@@ -59,6 +59,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
+import jscenegraph.coin3d.inventor.annex.profiler.elements.SoProfilerElement;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
@@ -632,6 +633,13 @@ init()
 
         SoError.initClasses();
         SoElement.initElements();
+
+        // The profiler-elements must also be initialized before actions, of
+        // course. (Note that at least the first one *must* be initialized
+        // even if COIN_PROFILER is not set, as we use its classStackIndex
+        // when checking if its present on the state stack.)
+        SoProfilerElement.initClass(SoProfilerElement.class);
+
         SoAction.initClasses();
         SoNode.initClasses();
         SoField.initClasses();

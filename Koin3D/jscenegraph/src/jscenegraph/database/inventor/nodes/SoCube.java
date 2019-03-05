@@ -58,6 +58,8 @@ import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
@@ -90,6 +92,7 @@ import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatPtr;
+import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.IntPtr;
 
 
@@ -282,32 +285,87 @@ public SoCube()
 //
 // Use: extender
 
+//public void
+//GLRender(SoGLRenderAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//  // First see if the object is visible and should be rendered now
+//  if (! shouldGLRender(action))
+//    return;
+//
+//  SoState state = action.getState();
+//  // See if texturing is enabled
+//  boolean doTextures = SoGLMultiTextureEnabledElement.get(state,0);
+//
+//  // Render the cube. The GLRenderGeneric() method handles any
+//  // case.
+//  boolean sendNormals = (SoLightModelElement.get(state) !=
+//    SoLightModelElement.Model.BASE_COLOR);
+//
+//  if ((SoDrawStyleElement.get(state) == SoDrawStyleElement.Style.FILLED) &&
+//      (SoVBO.isVertexArrayRenderingAllowed() && SoVBO.shouldUseVBO(state, SoVBO.getVboMinimumSizeLimit()+1 ))) {
+//    // only use vertex array rendering if VA/VBO is allowed and if draw style is FILLED.
+//    GLRenderVertexArray(action, sendNormals, doTextures);
+//  } else {
+//    GLRenderGeneric(action, sendNormals, doTextures);
+//  }
+//}
+// Doc in parent.
 public void
 GLRender(SoGLRenderAction action)
-//
-////////////////////////////////////////////////////////////////////////
 {
-  // First see if the object is visible and should be rendered now
-  if (! shouldGLRender(action))
-    return;
-
+  if (!this.shouldGLRender(action)) return;
   SoState state = action.getState();
-  // See if texturing is enabled
-  boolean doTextures = SoGLMultiTextureEnabledElement.get(state,0);
+  
+  SoMaterialBindingElement.Binding binding =
+    SoMaterialBindingElement.get(state);
 
-  // Render the cube. The GLRenderGeneric() method handles any
-  // case.
-  boolean sendNormals = (SoLightModelElement.get(state) !=
-    SoLightModelElement.Model.BASE_COLOR);
+  boolean materialPerPart =
+    (binding == SoMaterialBindingElement.Binding.PER_PART ||
+     binding == SoMaterialBindingElement.Binding.PER_PART_INDEXED ||
+     binding == SoMaterialBindingElement.Binding.PER_FACE ||
+     binding == SoMaterialBindingElement.Binding.PER_FACE_INDEXED);
 
-  if ((SoDrawStyleElement.get(state) == SoDrawStyleElement.Style.FILLED) &&
-      (SoVBO.isVertexArrayRenderingAllowed() && SoVBO.shouldUseVBO(state, SoVBO.getVboMinimumSizeLimit()+1 ))) {
-    // only use vertex array rendering if VA/VBO is allowed and if draw style is FILLED.
-    GLRenderVertexArray(action, sendNormals, doTextures);
-  } else {
-    GLRenderGeneric(action, sendNormals, doTextures);
+  boolean doTextures = false;
+  boolean do3DTextures = false;
+  if (SoGLMultiTextureEnabledElement.get(state, 0)) {
+    doTextures = true;
+    if (SoGLMultiTextureEnabledElement.getMode(state,0) ==
+        SoMultiTextureEnabledElement.Mode.TEXTURE3D) {
+      do3DTextures = true;
+    }
   }
+
+  final SoMaterialBundle mb = new SoMaterialBundle(action);
+  mb.sendFirst();
+
+  boolean sendNormals = !mb.isColorOnly() ||
+    (SoMultiTextureCoordinateElement.getType(state) == SoMultiTextureCoordinateElement.CoordType.FUNCTION);
+
+  int flags = 0;
+  if (materialPerPart) flags |= SoGL.SOGL_MATERIAL_PER_PART;
+  if (doTextures) {
+    switch (SoMultiTextureEnabledElement.getMode(state, 0)) {
+    default:
+      flags |= SoGL.SOGL_NEED_TEXCOORDS;
+      break;
+    case CUBEMAP:
+      flags |= SoGL.SOGL_NEED_3DTEXCOORDS;
+      break;
+    }
+  }
+  else if (do3DTextures) flags |= SoGL.SOGL_NEED_3DTEXCOORDS;
+  if (sendNormals) flags |= SoGL.SOGL_NEED_NORMALS;
+
+  SoGL.sogl_render_cube(width.getValue(),
+                   height.getValue(),
+                   depth.getValue(),
+                   mb,
+                   flags, state);
+  mb.destructor(); // java port
 }
+
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -602,12 +660,12 @@ void GLRenderVertexArray(SoGLRenderAction action,
   CharPtr texCoordOffset = new CharPtr(texCoordsPtr); 
   CharPtr colorOffset = new CharPtr(colorsPtr);
 
-  int[] colors =  SoLazyElement.getPackedColors(state);
-  int color = colors[0];
+  IntArrayPtr colors =  SoLazyElement.getPackedColors(state);
+  int color = colors.get(0);
   final SbVec3f normal = new SbVec3f();
   for (int face = 0; face < 6; face++) {
     if (materialPerFace && face > 0) {
-      color = colors[face];
+      color = colors.get(face);
     }
     if (sendNormals) {
       normal.copyFrom(normals[face]);

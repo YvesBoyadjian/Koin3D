@@ -60,6 +60,11 @@ public class IntArrayPtr {
 		this.intOffset = intArrayPtr.intOffset;
 	}
 
+	public IntArrayPtr(int offset, IntArrayPtr intArrayPtr) {
+		this.array = intArrayPtr.array;
+		this.intOffset = intArrayPtr.intOffset + offset;
+	}
+
 	public void plusPlus() {
 		intOffset++;
 	}
@@ -117,5 +122,11 @@ public class IntArrayPtr {
 		int retVal = get();
 		plusPlus();
 		return retVal;
+	}
+
+	public static IntArrayPtr copyOf(IntArrayPtr other) {
+		if(other == null)
+			return null;
+		return new IntArrayPtr(other);
 	}
 }

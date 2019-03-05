@@ -120,9 +120,9 @@ public SbColor
 setPackedValue(int orderedRGBA, float[] transparency)
 {
     float f = 1.0f / 255.0f;
-    vec[0] = ((orderedRGBA & 0xFF000000)>>>24) * f;
-    vec[1] = ((orderedRGBA & 0xFF0000) >>> 16) * f;
-    vec[2] = ((orderedRGBA & 0xFF00) >>> 8) * f;
+    s(0, ((orderedRGBA & 0xFF000000)>>>24) * f);
+    s(1, ((orderedRGBA & 0xFF0000) >>> 16) * f);
+    s(2, ((orderedRGBA & 0xFF00) >>> 8) * f);
     transparency[0] = 1.0f - (orderedRGBA & 0xFF) * f;
     
     return (this);
@@ -146,10 +146,10 @@ setPackedValue(int orderedRGBA, float[] transparency)
 	public int getPackedValue(float transparency) {
 		
 	     return (
-	    		           (((int) (vec[0] * 255)) << 24) +
-	    		           (((int) (vec[1] * 255)) << 16) +
-	    		           (((int) (vec[2] * 255)) << 8) +
-	    		           ((int) ((1.0 - transparency) * 255)));
+	    		           (((int) (g(0) * 255 + 0.5f)) << 24) +
+	    		           (((int) (g(1) * 255 + 0.5f)) << 16) +
+	    		           (((int) (g(2) * 255 + 0.5f)) << 8) +
+	    		           ((int) ((1.0f - transparency) * 255 + 0.5f)));
 	    		  	}
 }
 

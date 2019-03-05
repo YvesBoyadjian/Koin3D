@@ -461,6 +461,11 @@ public class SoMultiTextureCoordinateElement extends SoElement {
 	*/
 
 	public static SoMultiTextureCoordinateElement.CoordType
+	getType(SoState state)
+	{
+		return getType(state,0);
+	}
+	public static SoMultiTextureCoordinateElement.CoordType
 	getType(SoState state, int unit)
 	{
 	  SoMultiTextureCoordinateElement element =

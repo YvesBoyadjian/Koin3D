@@ -2945,6 +2945,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glMaterialfv(arg1,arg2,arg3);
 	}
 
+	default void glMaterialfv(int arg1, int arg2, float[] arg3) {
+		org.lwjgl.opengl.GL11.glMaterialfv(arg1,arg2,arg3);
+	}
+
 	default void glClear(int arg) {
 		org.lwjgl.opengl.GL11.glClear(arg);
 	}
@@ -3260,6 +3264,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glPolygonStipple(Buffers.newDirectByteBuffer(bs)/*, i*/);
 	}
 
+	default void glPolygonStipple(byte[] bs) {
+		org.lwjgl.opengl.GL11.glPolygonStipple(Buffers.newDirectByteBuffer(bs));
+	}
+
 	default void glGetBooleanv(int glRgbaMode, byte[] b, int i) {
 		ByteBuffer buf = Buffers.newDirectByteBuffer(b);
 		org.lwjgl.opengl.GL11.glGetBooleanv(glRgbaMode, buf);
@@ -3454,6 +3462,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glDrawElements(mode,type,bb);
 	}
 
+	default void glDrawElements(int mode, int count, int type, long indices) {
+		org.lwjgl.opengl.GL11.glDrawElements(mode,count,type,indices);
+	}
+
 	default void glMultiDrawElements(int mode, IntArrayPtr count, int type, VoidPtr[] indices, int primcount) {
 		
 		assert(primcount == count.size());
@@ -3462,6 +3474,26 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 			int icount = count.get(i);
 			glDrawElements(mode, icount, type, iindices);
 		}
+	}
+
+	default void glColor4ub(byte red, byte green, byte blue, byte alpha) {
+		org.lwjgl.opengl.GL11.glColor4ub(red, green, blue, alpha);
+	}
+
+	default void glBlendFuncSeparate(int rgbsrc, int rgbdst, int alphasrc, int alphadst) {
+		org.lwjgl.opengl.GL14.glBlendFuncSeparate(rgbsrc, rgbdst, alphasrc, alphadst);
+	}
+
+	default void glAlphaFunc(int func, float value) {
+		org.lwjgl.opengl.GL11.glAlphaFunc(func, value);
+	}
+
+	default void glTexCoord3fv(float[] v) {
+		org.lwjgl.opengl.GL11.glTexCoord3fv(v);
+	}
+
+	default void glTexCoord2fv(float[] v) {
+		org.lwjgl.opengl.GL11.glTexCoord2fv(v);
 	}
 
 }

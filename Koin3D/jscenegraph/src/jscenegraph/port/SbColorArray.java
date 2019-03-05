@@ -55,4 +55,10 @@ public class SbColorArray implements FloatBufferAble {
 	public FloatBuffer toFloatBuffer() {
 		return FloatBuffer.wrap(valuesArray, delta*3, valuesArray.length - delta*3);
 	}
+
+	public static SbColorArray copyOf(SbColorArray other) {
+		if(other == null)
+			return null;
+		return new SbColorArray(other,0);
+	}
 }

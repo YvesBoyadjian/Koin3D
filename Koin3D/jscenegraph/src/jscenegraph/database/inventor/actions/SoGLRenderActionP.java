@@ -14,4 +14,7 @@ public class SoGLRenderActionP {
 	  SoGLRenderAction.SoGLRenderAbortCB abortcallback;
 	  Object abortcallbackdata;
 	  final SoCallbackList precblist = new SoCallbackList();
+	  
+	  boolean smoothing;
+	  boolean needglinit;
 }

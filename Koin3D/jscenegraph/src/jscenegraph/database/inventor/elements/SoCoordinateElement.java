@@ -312,7 +312,7 @@ set3(SoState state, SoNode node,
 
     if (elt != null) {
         elt.numCoords   = numCoords;
-        elt.coords3     = coords;
+        elt.coords3     = SbVec3fArray.copyOf(coords);
         elt.coordsAre3D = true;
     }
 }

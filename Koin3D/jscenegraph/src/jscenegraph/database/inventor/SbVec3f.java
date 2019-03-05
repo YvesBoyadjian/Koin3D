@@ -251,6 +251,18 @@ getValue(final float[] x, final float[] y, final float[] z)
     z[0] = g(2);
 }
         
+/**
+ * java port
+ * @param xyz
+ */
+public void
+getValue(final float[] xyz)
+{
+    xyz[0] = g(0);
+    xyz[1] = g(1);
+    xyz[2] = g(2);
+}
+        
 	//
 	 // Returns geometric length of vector
 	 //

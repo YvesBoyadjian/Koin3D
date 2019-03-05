@@ -134,4 +134,8 @@ public interface SbBasic {
 	    	  return (Val < Min) ? Min : (Val > Max) ? Max : Val;
 	    	}
 
+	    static int SbClamp( int Val, int Min, int Max ) {
+	    	  return (Val < Min) ? Min : (Val > Max) ? Max : Val;
+	    	}
+
 	   }

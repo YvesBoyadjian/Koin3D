@@ -130,7 +130,7 @@ private		  static int _vboMaximumSizeLimit = 0x10000000;
 // COIN3D
 private /*GLenum*/int target;
 private /*GLenum*/int usage;
-private /*const GLvoid **/VoidPtr data;
+//private /*const GLvoid **/VoidPtr data;
 private /*intptr_t*/long datasize;
 private /*SbUniqueId*/long dataid;
 private boolean didalloc;
@@ -175,7 +175,9 @@ public static boolean shouldUseVBO( SoState state , int numData )
 
 public SoVBO( int type )
 {
+	usage = GL2.GL_STATIC_DRAW;
   _type = type;
+  target = type; // COIN 3D
   _ownsData = false;
   _numBytes = 0;
   _data = null;
@@ -219,7 +221,7 @@ setBufferData(VoidPtr data, int size)
 {
 	setBufferData(data, size, 0);
 }
-void
+public void
 setBufferData(VoidPtr data, int size, int dataid)
 {
 	setBufferData(data,size,dataid,null); // TODO YB 
@@ -242,6 +244,7 @@ public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // 
 
 	  _numBytes = size;
 	  _data = data;
+	  datasize = size;
 	  _nodeId = dataid;
 	  _ownsData = false;
 	  _hasSwappedRGBAData = false;
@@ -256,6 +259,7 @@ public void allocateData( int numBytes, int nodeId , SoState state)
 
   _numBytes = numBytes;
   _data = VoidPtr.create(Buffers.newDirectByteBuffer(numBytes));
+  datasize = numBytes;
   _nodeId = nodeId;
   _ownsData = true;
   _hasSwappedRGBAData = false;
@@ -482,7 +486,7 @@ public int getBufferDataId() // COIN 3D
 public void
 bindBuffer(int contextid)
 {
-  if ((this.data == null) ||
+  if ((this._data == null) ||
       (this.datasize == 0)) {
     throw new IllegalStateException(/*assert(0 &&*/ "no data in buffer");
     //return; java port
@@ -497,7 +501,7 @@ bindBuffer(int contextid)
     SoGL.cc_glglue_glBindBuffer(glue, this.target, buffer[0]);
     SoGL.cc_glglue_glBufferData(glue, this.target,
                            this.datasize,
-                           this.data,
+                           this._data,
                            this.usage);
     this.vbohash.put(contextid, buffer[0]);
   }

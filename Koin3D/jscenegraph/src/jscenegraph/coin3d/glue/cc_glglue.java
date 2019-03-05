@@ -4,6 +4,7 @@
 package jscenegraph.coin3d.glue;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.EXTGeometryShader4;
@@ -331,11 +332,21 @@ public void glTexCoordPointer(int size, int type, int stride, FloatBufferAble po
 }
 
 public void glNormalPointer(int type, int stride, FloatBufferAble pointer) {
-	gl2.glNormalPointer(type,stride,pointer.toFloatBuffer());
+	if(pointer == null) {
+		gl2.glNormalPointer(type,stride,0);		
+	}
+	else {
+		gl2.glNormalPointer(type,stride,pointer.toFloatBuffer());
+	}
 }
 
 public void glVertexPointer(int size, int type, int stride, FloatBufferAble pointer) {
-	gl2.glVertexPointer(size,type,stride,pointer.toFloatBuffer());
+	if(pointer == null) {
+		gl2.glVertexPointer(size,type,stride,0);
+	}
+	else {
+		gl2.glVertexPointer(size,type,stride,pointer.toFloatBuffer());
+	}
 }
 
 public void glVertexAttrib1fARB(int index, float x) {
@@ -387,11 +398,20 @@ public void glDisableClientState(int array) {
 }
 
 public void glDrawElements(int mode, int count, int type, VoidPtr indices) {
-	gl2.glDrawElements(mode, count, type, indices);
+	if(indices == null) {
+		gl2.glDrawElements(mode, count, type, 0);		
+	}
+	else {
+		gl2.glDrawElements(mode, count, type, indices);
+	}
 }
 
 public void glMultiDrawElements(int mode, IntArrayPtr count, int type, VoidPtr[] indices, int primcount) {
 	gl2.glMultiDrawElements(mode,count,type,indices,primcount);
+}
+
+public void glBlendFuncSeparate(int rgbsrc, int rgbdst, int alphasrc, int alphadst) {
+	gl2.glBlendFuncSeparate( rgbsrc, rgbdst, alphasrc, alphadst);
 }
 
 }

@@ -7,6 +7,7 @@ import com.jogamp.opengl.GL2;
 import jscenegraph.coin3d.TidBits;
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.errors.DebugError;
 import jscenegraph.database.inventor.SbVec3f;
@@ -21,10 +22,12 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoBasic;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.FloatArray;
 import jscenegraph.port.FloatBufferAble;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.MutableSbVec3fArray;
 import jscenegraph.port.SbColorArray;
+import jscenegraph.port.SbVec2fArray;
 import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.SbVec4fArray;
 import jscenegraph.port.Util;
@@ -32,6 +35,18 @@ import jscenegraph.port.VoidPtr;
 
 public class SoGL {
 
+	// flags for cone, cylinder and cube
+
+	public static final int SOGL_RENDER_SIDE         =0x01;
+	public static final int SOGL_RENDER_TOP          =0x02;
+	public static final int SOGL_RENDER_BOTTOM       =0x04;
+	public static final int SOGL_MATERIAL_PER_PART   =0x08;
+	public static final int SOGL_NEED_NORMALS        =0x10;
+	public static final int SOGL_NEED_TEXCOORDS      =0x20;
+	public static final int SOGL_NEED_3DTEXCOORDS    =0x40;
+	public static final int SOGL_NEED_MULTITEXCOORDS =0x80;// internal
+
+	
 	static int COIN_MAXIMUM_TEXTURE2_SIZE = -1;
 	static int COIN_MAXIMUM_TEXTURE3_SIZE = -1;
 	
@@ -1591,6 +1606,145 @@ private static int current_errors = 0;
     // check if triangle or quad
     if (mode != GL2.GL_POLYGON) gl2.glEnd();
   }
+
+public static boolean cc_glglue_has_blendfuncseparate(cc_glglue glue) {
+	return true;
+}
+
+public static void cc_glglue_glBlendFuncSeparate(cc_glglue glue, int rgbsrc, int rgbdst, int alphasrc,
+		int alphadst) {
+	  glue.glBlendFuncSeparate(rgbsrc, rgbdst, alphasrc, alphadst);
+}
+
+//
+// the 12 triangles in the cube
+//
+static int sogl_cube_vindices[] =
+{
+  0, 1, 3, 2,
+  5, 4, 6, 7,
+  1, 5, 7, 3,
+  4, 0, 2, 6,
+  4, 5, 1, 0,
+  2, 3, 7, 6
+};
+
+static float sogl_cube_texcoords[] =
+{
+  1.0f, 1.0f,
+  0.0f, 1.0f,
+  0.0f, 0.0f,
+  1.0f, 0.0f
+};
+
+static float sogl_cube_3dtexcoords[][] =
+{
+  {1.0f, 1.0f, 1.0f},
+  {1.0f, 1.0f, 0.0f},
+  {1.0f, 0.0f, 1.0f},
+  {1.0f, 0.0f, 0.0f},
+  {0.0f, 1.0f, 1.0f},
+  {0.0f, 1.0f, 0.0f},
+  {0.0f, 0.0f, 1.0f},
+  {0.0f, 0.0f, 0.0f}
+};
+
+static float sogl_cube_normals[] =
+{
+  0.0f, 0.0f, 1.0f,
+  0.0f, 0.0f, -1.0f,
+  -1.0f, 0.0f, 0.0f,
+  1.0f, 0.0f, 0.0f,
+  0.0f, 1.0f, 0.0f,
+  0.0f, -1.0f, 0.0f
+};
+
+
+public static void
+sogl_generate_cube_vertices(SbVec3fArray varray,
+                       float w,
+                       float h,
+                       float d)
+{
+  for (int i = 0; i < 8; i++) {
+    varray.get(i).setValue((i&1)!=0 ? -w : w,
+                       (i&2)!=0 ? -h : h,
+                       (i&4)!=0 ? -d : d);
+  }
+}
+
+
+
+public static void
+sogl_render_cube( float width,
+                  float height,
+                  float depth,
+                 SoMaterialBundle material,
+                 int flagsin,
+                 SoState state)
+{
+  boolean[] unitenabled = null;
+  final int[] maxunit = new int[1];
+  cc_glglue glue = null;
+
+  int flags = flagsin;
+
+  if (state != null) {
+    unitenabled =
+      SoMultiTextureEnabledElement.getEnabledUnits(state, maxunit);
+    if (unitenabled != null) {
+      glue = sogl_glue_instance(state);
+      flags |= SOGL_NEED_MULTITEXCOORDS;
+    }
+    else maxunit[0] = -1;
+  }
+
+  GL2 gl2 = state.getGL2();
+
+
+  SbVec3fArray varray = new SbVec3fArray(new float[8*3]);
+  sogl_generate_cube_vertices(varray,
+                         width * 0.5f,
+                         height * 0.5f,
+                         depth * 0.5f);
+  gl2.glBegin(GL2.GL_QUADS);
+  IntArrayPtr iptr = new IntArrayPtr(sogl_cube_vindices);
+  int u;
+  
+  SbVec3fArray cn = new SbVec3fArray(sogl_cube_normals);
+  SbVec2fArray ct = new SbVec2fArray(sogl_cube_texcoords);
+
+  for (int i = 0; i < 6; i++) { // 6 quads
+    if ((flags & SOGL_NEED_NORMALS)!=0)
+      gl2.glNormal3fv(/*sogl_cube_normals[i*3]*/cn.get(i).getValueRead());
+    if ((flags & SOGL_MATERIAL_PER_PART)!=0)
+      material.send(i, true);
+    for (int j = 0; j < 4; j++) {
+      if ((flags & SOGL_NEED_3DTEXCOORDS)!=0) {
+    	  gl2.glTexCoord3fv(sogl_cube_3dtexcoords[iptr.get()]);
+      }
+      else if ((flags & SOGL_NEED_TEXCOORDS)!=0) {
+    	  gl2.glTexCoord2fv(/*&sogl_cube_texcoords[j<<1]*/ct.get(j).getValueRead());
+      }
+      if ((flags & SOGL_NEED_MULTITEXCOORDS)!=0) {
+        for (u = 1; u <= maxunit[0]; u++) {
+          if (unitenabled[u]) {
+            SoGL.cc_glglue_glMultiTexCoord2fv(glue, (int) (GL2.GL_TEXTURE0 + u),
+                                         /*&sogl_cube_texcoords[j<<1]*/ct.get(j).getValueRead());
+          }
+        }
+      }
+      gl2.glVertex3fv(varray.get(iptr.get()).getValueRead(),0); iptr.plusPlus();
+    }
+  }
+  gl2.glEnd();
+
+  if (state != null) {
+    // always encourage auto caching for cubes
+    SoGLCacheContextElement.shouldAutoCache(state, SoGLCacheContextElement.AutoCache.DO_AUTO_CACHE.getValue());
+    SoGLCacheContextElement.incNumShapes(state);
+  }
+}
 
 
 }

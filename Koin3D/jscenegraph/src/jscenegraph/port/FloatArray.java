@@ -40,4 +40,14 @@ public class FloatArray {
 		three[2] = values[start+2];
 		return three;
 	}
+
+	public static FloatArray copyOf(FloatArray other) {
+		if(other == null)
+			return null;
+		return new FloatArray(other.start,other.values);
+	}
+
+	public void set(int index, float value) {
+		values[index+start] = value;
+	}
 }

@@ -291,7 +291,10 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
         // These three bits keep track of which view-volume planes we need
         // to test against; by default, all bits are 1.
         cullBits            = 7;
-    }
+
+        pimpl.smoothing = false;
+        pimpl.needglinit = true;
+     }
 
      @Override
 	public void destructor() {
@@ -431,6 +434,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            // Invalidate the state in the usual way
            super.invalidateState();
+           pimpl.needglinit = true;
 
            // Also invalidate what we think we know...
            whatChanged = flags.ALL.getValue();
@@ -510,6 +514,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            if (transpType != type) {
                transpType = type;
+               pimpl.needglinit = true;
                whatChanged |= flags.TRANSPARENCY_TYPE.getValue();
            }
        }
@@ -536,6 +541,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            if (doSmooth != smooth) {
                doSmooth = smooth;
+               pimpl.needglinit = true;
+               pimpl.smoothing = smooth;
                whatChanged |= flags.SMOOTHING.getValue();
            }
        }
@@ -760,14 +767,14 @@ handleTransparency(boolean isTransparent)
 
         // If transparency is not delayed, enable blending
         else {
-            enableBlending(true);
+            //enableBlending(true);
             ret = false;
         }
     }
 
     // Disable blending, otherwise
     else {
-        enableBlending(false);
+        //enableBlending(false);
         ret = false;
     }
 
@@ -803,13 +810,13 @@ addDelayedPath(SoPath path)
 //
 // Use: private
 
-private void
-enableBlending(boolean enable)
-//
-////////////////////////////////////////////////////////////////////////
-{
-    SoLazyElement.setBlending(state, enable);
-}
+//private void
+//enableBlending(boolean enable)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    SoLazyElement.setBlending(state, enable);
+//}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -830,6 +837,36 @@ beginTraversal(SoNode node)
     //       which OIV has a valid current OpenGL context (e.g. from SoQt or another window binding),
     //       so this is the right place to initialize OpenGL/GLEW:
     SbOpenGL.init();
+    
+    if (pimpl.needglinit) {
+        pimpl.needglinit = false;
+        
+        GL2 gl2 = new GL2() {};
+
+        // we are always using GL_COLOR_MATERIAL in Coin
+        gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
+        gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+        gl2.glEnable(GL2.GL_NORMALIZE);
+
+        // initialize the depth function to the default Coin/Inventor
+        // value.  SoGLDepthBufferElement doesn't check for this, it just
+        // assumes that the function is initialized to GL_LEQUAL, which is
+        // not correct (the OpenGL specification says the initial value is
+        // GL_LESS, but I've seen drivers that defaults to GL_LEQUAL as
+        // well).
+        gl2.glDepthFunc(GL2.GL_LEQUAL);
+
+        if (pimpl.smoothing) {
+          gl2.glEnable(GL_POINT_SMOOTH);
+          gl2.glEnable(GL_LINE_SMOOTH);
+        }
+        else {
+          gl2.glDisable(GL_POINT_SMOOTH);
+          gl2.glDisable(GL_LINE_SMOOTH);
+        }
+      }
+
+    
 
     // This is called either from the main call to apply() that is
     // used to render a graph OR from the apply() call made while
@@ -869,9 +906,9 @@ renderAllPasses(SoNode node)
                 // Blending has to be enabled for line smoothing to
                 // work properly
                 gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                enableBlending(true);
+                //enableBlending(true);
             } else {
-				enableBlending(false);
+				//enableBlending(false);
 			}
             break;
 
@@ -989,14 +1026,14 @@ renderPass(SoNode node, int pass)
 
         // Make sure blending is enabled if necessary
         if (transpType != TransparencyType.SCREEN_DOOR) {
-			enableBlending(true);
+			//enableBlending(true);
 		}
 
         renderTransparentObjs();
 
         // Disable blending for next pass
         if (transpType != TransparencyType.SCREEN_DOOR) {
-			enableBlending(false);
+			//enableBlending(false);
 		}
     }
 

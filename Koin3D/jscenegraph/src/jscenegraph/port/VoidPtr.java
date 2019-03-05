@@ -90,6 +90,9 @@ public class VoidPtr implements Destroyable {
 		if(object instanceof IntBuffer) {
 			buffer = (IntBuffer)object;
 		}
+		if(object instanceof SbVec3fArray) {
+			buffer = ((SbVec3fArray)object).toFloatBuffer();
+		}
 		return buffer;
 	}
 

@@ -198,6 +198,8 @@
 
 package jscenegraph.coin3d.inventor.nodes;
 
+import java.nio.IntBuffer;
+
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
@@ -624,16 +626,16 @@ public class SoVertexProperty extends SoNode {
 	          }
 	          else {
 	             int[] src = this.orderedRGBA.getValuesI(0);
-	            int[] dst = (int[]) 
+	            IntBuffer dst = (IntBuffer) 
 	              this.pimpl.colorvbo[0].allocBufferData(num*Integer.BYTES, 
-	                                                       this.getNodeId(),state).toIntBuffer().array();  // YB
+	                                                       this.getNodeId(),state).toIntBuffer();  // YB
 	            for (int i = 0; i < num; i++) {
 	              int tmp = src[i];
-	              dst[i] = 
+	              dst.put(i, 
 	                (tmp << 24) |
 	                ((tmp & 0xff00) << 8) |
 	                ((tmp & 0xff0000) >> 8) |
-	                (tmp >> 24);
+	                (tmp >> 24));
 	            }
 	          }
 	        }
