@@ -79,8 +79,10 @@ import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoGetMatrixAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
+import jscenegraph.database.inventor.elements.SoCullElement;
 import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoFocalDistanceElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
@@ -499,6 +501,42 @@ viewAll(SoPath path, final SbViewportRegion vpRegion, float slack)
          SoRayPickAction.enableElement(SoViewingMatrixElement.class);
          //SO_ENABLE(SoRayPickAction, SoViewportRegionElement);
          SoRayPickAction.enableElement(SoViewportRegionElement.class);
+
+         // COIN 3D
+         SO_ENABLE(SoGLRenderAction.class, SoFocalDistanceElement.class);
+         SO_ENABLE(SoGLRenderAction.class, SoGLProjectionMatrixElement.class);
+         SO_ENABLE(SoGLRenderAction.class, SoViewVolumeElement.class);
+         SO_ENABLE(SoGLRenderAction.class, SoGLViewingMatrixElement.class);
+         //SO_ENABLE(SoGLRenderAction.class, SoResetMatrixElement.class);
+         SO_ENABLE(SoGLRenderAction.class, SoCullElement.class);
+
+         SO_ENABLE(SoGetBoundingBoxAction.class, SoFocalDistanceElement.class);
+         SO_ENABLE(SoGetBoundingBoxAction.class, SoProjectionMatrixElement.class);
+         SO_ENABLE(SoGetBoundingBoxAction.class, SoViewVolumeElement.class);
+         SO_ENABLE(SoGetBoundingBoxAction.class, SoViewingMatrixElement.class);
+
+         SO_ENABLE(SoGetMatrixAction.class, SoViewVolumeElement.class);
+
+         SO_ENABLE(SoRayPickAction.class, SoFocalDistanceElement.class);
+         SO_ENABLE(SoRayPickAction.class, SoProjectionMatrixElement.class);
+         SO_ENABLE(SoRayPickAction.class, SoViewVolumeElement.class);
+         SO_ENABLE(SoRayPickAction.class, SoViewingMatrixElement.class);
+
+         SO_ENABLE(SoCallbackAction.class, SoFocalDistanceElement.class);
+         SO_ENABLE(SoCallbackAction.class, SoProjectionMatrixElement.class);
+         SO_ENABLE(SoCallbackAction.class, SoViewVolumeElement.class);
+         SO_ENABLE(SoCallbackAction.class, SoViewingMatrixElement.class);
+
+         SO_ENABLE(SoGetPrimitiveCountAction.class, SoFocalDistanceElement.class);
+         SO_ENABLE(SoGetPrimitiveCountAction.class, SoProjectionMatrixElement.class);
+         SO_ENABLE(SoGetPrimitiveCountAction.class, SoViewVolumeElement.class);
+         SO_ENABLE(SoGetPrimitiveCountAction.class, SoViewingMatrixElement.class);
+
+//         SO_ENABLE(SoAudioRenderAction.class, SoListenerPositionElement.class);
+//         SO_ENABLE(SoAudioRenderAction.class, SoListenerOrientationElement.class);
+//         SO_ENABLE(SoAudioRenderAction.class, SoListenerDopplerElement.class);
+//         SO_ENABLE(SoAudioRenderAction.class, SoListenerGainElement.class);
+         
      }
 
 ////////////////////////////////////////////////////////////////////////

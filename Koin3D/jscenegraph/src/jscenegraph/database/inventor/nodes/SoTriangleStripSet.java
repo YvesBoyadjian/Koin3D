@@ -64,6 +64,7 @@ import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
@@ -93,6 +94,8 @@ import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.SbVec3fArray;
 
 /**
  * @author Yves Boyadjian
@@ -191,7 +194,18 @@ public class SoTriangleStripSet extends SoNonIndexedShape {
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoTriangleStripSet.class); }    	  
+	        { return SoSubNode.getFieldDataPtr(SoTriangleStripSet.class); }
+	  
+	  
+	  private
+		  enum Binding {
+		    OVERALL /*= 0*/,
+		    PER_STRIP,
+		    PER_FACE,
+		    PER_VERTEX
+		  };
+
+	  
 	  
   public
     //! \name Fields
@@ -549,205 +563,384 @@ public void GLRender(SoGLRenderAction action)
 	 * @see jscenegraph.database.inventor.nodes.SoShape#generatePrimitives(jscenegraph.database.inventor.actions.SoAction)
 	 */
 	@Override
-	protected void generatePrimitives(SoAction action) {
-  SoState state = action.getState();
+	protected void
+	generatePrimitives(SoAction action)
+	{
+	  if (this.numVertices.getNum() == 1 &&
+	      this.numVertices.operator_square_bracketI(0) == 0) return;
 
-  // Put vertexProperty stuff into state:
-  SoVertexProperty vp = getVertexProperty();
-  state.push();
-  if (vp != null) {
-    vp.doAction(action);
-  }
+	  SoState state = action.getState();
 
-  // When generating primitives for picking, delay computing default
-  // texture coordinates
-  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
+	  if (this.vertexProperty.getValue() != null) {
+	    state.push();
+	    this.vertexProperty.getValue().doAction(action);
+	  }
 
-  final SoPrimitiveVertex[]           pvs = new SoPrimitiveVertex[3];
-  pvs[0] = new SoPrimitiveVertex();
-  pvs[1] = new SoPrimitiveVertex();
-  pvs[2] = new SoPrimitiveVertex();
-  final SoFaceDetail                detail = new SoFaceDetail();
-  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false, !forPicking);
-  SoCoordinateElement   ce;
-  int                         curVert, vert;
-  int                         curNormal, curMaterial;
-  int                         strip, numStrips;
+	  final SoCoordinateElement[] coords = new SoCoordinateElement[1]; //ptr
+	  final SbVec3fArray[] normals = new SbVec3fArray[1];
+	  boolean doTextures;
+	  boolean needNormals = true;
 
-  // Get bindings:
-  SoMaterialBindingElement.Binding mbind =
-    SoMaterialBindingElement.get(state);
-  SoNormalBindingElement.Binding nbind =
-    SoNormalBindingElement.get(state);
+	  SoVertexShape.getVertexData(action.getState(), coords, normals,
+	                               needNormals);
 
-  curVert = (int) startIndex.getValue();
+	  final SoTextureCoordinateBundle tb = new SoTextureCoordinateBundle(action, false, false);
+	  doTextures = tb.needCoordinates();
 
-  ce = SoCoordinateElement.getInstance(state);
+	  Binding mbind = this.findMaterialBinding(action.getState());
+	  Binding nbind = this.findNormalBinding(action.getState());
 
-  // Do auto-normal generation, if necessary:
-  SoNormalCache normCache = null;
-  SoNormalElement ne = SoNormalElement.getInstance(state);
-  if (ne.getNum() == 0) {
+	  SoNormalCache nc = null; //ptr
 
-    // See if there is a normal cache we can use. If not,
-    // generate normals and cache them.
-    normCache = getNormalCache();
-    if (normCache == null || ! normCache.isValid(state)) {
+	  if (needNormals && normals[0] == null) {
+	    nc = this.generateAndReadLockNormalCache(state);
+	    normals[0] = nc.getNormals();
+	  }
 
-      if (totalNumVertices < 0) {
-        int nstrips = numVertices.getNum();
-        totalNumVertices = 0;
-        for (int i = 0; i < nstrips; i++) 
-          totalNumVertices += numVertices.operator_square_bracketI(i);
-      }       
+	  int idx = startIndex.getValue();
+	  int[] dummyarray = new int[1];
+	  IntArrayPtr ptr = numVertices.getValuesIntArrayPtr(0);
+	  IntArrayPtr end = ptr.plus(numVertices.getNum());
+	  IntArrayPtr[] dptr = new IntArrayPtr[1]; dptr[0] = ptr;
+	  IntArrayPtr[] dend = new IntArrayPtr[1]; dend[0] = end;
+	  this.fixNumVerticesPointers(action.getState(), dptr, dend, dummyarray);
+	  ptr = dptr[0];
+	  end = dend[0];
 
-      final SoNormalBundle nb = new SoNormalBundle(action, false);
-      nb.initGenerator(totalNumVertices);
-      generateDefaultNormals(state, nb);
-      normCache = getNormalCache();
-    }
+	  int matnr = 0;
+	  int texnr = 0;
+	  int normnr = 0;
+	  int n;
 
-    nbind = SoNormalBindingElement.Binding.PER_VERTEX;
-  }
+	  final SbVec3fSingle dummynormal = new SbVec3fSingle(0.0f, 0.0f, 1.0f);
+	  SbVec3fArray currnormal = new SbVec3fArray(dummynormal);
+	  if (normals[0] != null) currnormal = normals[0];
 
-  curNormal = 0;
-  curMaterial = 0;
+	  final SoPrimitiveVertex vertex = new SoPrimitiveVertex();
+	  final SoFaceDetail faceDetail = new SoFaceDetail();
+	  final SoPointDetail pointDetail = new SoPointDetail();
 
-  if (forPicking) {
-    final SbVec4f tc = new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f);
-    pvs[0].setTextureCoords(tc);
-    pvs[1].setTextureCoords(tc);
-    pvs[2].setTextureCoords(tc);
-  }
+	  vertex.setNormal(currnormal.get(0));
+	  vertex.setDetail(pointDetail);
 
-  detail.setNumPoints(3);
-  SoPointDetail[] pd = detail.getPoints();
+	  while (ptr.lessThan(end)) {
+	    n = ptr.get() - 3; ptr.plusPlus();
+	    if (n < 0) continue; // triangle with < 3 vertices, try next one
 
-  pvs[0].setDetail(detail);
-  pvs[1].setDetail(detail);
-  pvs[2].setDetail(detail);
+	    faceDetail.setFaceIndex(0);
+	    this.beginShape(action, SoShape.TriangleShape.TRIANGLE_STRIP, faceDetail);
 
-  // Do OVERALL stuff:
-  if (mbind == SoMaterialBindingElement.Binding.OVERALL)
-    curMaterial = 0;
-  if (nbind == SoNormalBindingElement.Binding.OVERALL)
-    curNormal = 0;
+	    // first vertex
+	    if (nbind != Binding.OVERALL) {
+	      pointDetail.setNormalIndex(normnr);
+	      currnormal = normals[0].plus(normnr++);
+	      vertex.setNormal(currnormal.get(0));
+	    }
+	    if (mbind != Binding.OVERALL) {
+	      pointDetail.setMaterialIndex(matnr);
+	      vertex.setMaterialIndex(matnr++);
+	    }
+	    if (doTextures) {
+	      if (tb.isFunction()) {
+	        vertex.setTextureCoords(tb.get(coords[0].get3(idx), currnormal.get(0)));
+	        if (tb.needIndices()) pointDetail.setTextureCoordIndex(texnr++);
+	      }
+	      else {
+	        pointDetail.setTextureCoordIndex(texnr);
+	        vertex.setTextureCoords(tb.get(texnr++));
+	      }
+	    }
+	    pointDetail.setCoordinateIndex(idx);
+	    vertex.setPoint(coords[0].get3(idx++));
+	    this.shapeVertex(vertex);
 
-  numStrips = numVertices.getNum();
+	    // second vertex
+	    if (nbind == Binding.PER_VERTEX) {
+	      pointDetail.setNormalIndex(normnr);
+	      currnormal = normals[0].plus(normnr++);
+	      vertex.setNormal(currnormal.get(0));
+	    }
+	    if (mbind == Binding.PER_VERTEX) {
+	      pointDetail.setMaterialIndex(matnr);
+	      vertex.setMaterialIndex(matnr++);
+	    }
+	    if (doTextures) {
+	      if (tb.isFunction()) {
+	        vertex.setTextureCoords(tb.get(coords[0].get3(idx), currnormal.get(0)));
+	        if (tb.needIndices()) pointDetail.setTextureCoordIndex(texnr++);
+	      }
+	      else {
+	        pointDetail.setTextureCoordIndex(texnr);
+	        vertex.setTextureCoords(tb.get(texnr++));
+	      }
+	    }
+	    pointDetail.setCoordinateIndex(idx);
+	    vertex.setPoint(coords[0].get3(idx++));
+	    this.shapeVertex(vertex);
 
-  // Handle USE_REST_OF_VERTICES:
-  // If using USE_REST_OF_VERTICES (-1), need to figure out how
-  // many vertices there are every time:
-  boolean usingUSE_REST = false;
-  boolean nvNotifyEnabled = true;
-  if (numStrips != 0 && numVertices.operator_square_bracketI(numStrips-1) < 0) {
-    usingUSE_REST = true;
-    nvNotifyEnabled = numVertices.enableNotify(false);
-    int nv = 0;
-    for (int i = 0; i < numStrips-1; i++) nv += numVertices.operator_square_bracketI(i);
-    numVertices.set1Value(numStrips-1, ce.getNum() - nv);
-  }       
+	    // third vertex
+	    if (nbind == Binding.PER_VERTEX) {
+	      pointDetail.setNormalIndex(normnr);
+	      currnormal = normals[0].plus(normnr++);
+	      vertex.setNormal(currnormal.get(0));
+	    }
+	    if (mbind == Binding.PER_VERTEX) {
+	      pointDetail.setMaterialIndex(matnr);
+	      vertex.setMaterialIndex(matnr++);
+	    }
+	    if (doTextures) {
+	      if (tb.isFunction()) {
+	        vertex.setTextureCoords(tb.get(coords[0].get3(idx), currnormal.get(0)));
+	        if (tb.needIndices()) pointDetail.setTextureCoordIndex(texnr++);
+	      }
+	      else {
+	        pointDetail.setTextureCoordIndex(texnr);
+	        vertex.setTextureCoords(tb.get(texnr++));
+	      }
+	    }
+	    pointDetail.setCoordinateIndex(idx);
+	    vertex.setPoint(coords[0].get3(idx++));
+	    this.shapeVertex(vertex);
 
-  for (strip = 0; strip < numStrips; strip++) {
-    int vertsInStrip = numVertices.operator_square_bracketI(strip);
+	    // loop for vertices 4-n
+	    while (n-- != 0) {
+	      if (nbind == Binding.PER_FACE || nbind == Binding.PER_VERTEX) {
+	        pointDetail.setNormalIndex(normnr);
+	        currnormal = normals[0].plus(normnr++);
+	        vertex.setNormal(currnormal.get(0));
+	      }
+	      if (mbind == Binding.PER_FACE || mbind == Binding.PER_VERTEX) {
+	        pointDetail.setMaterialIndex(matnr);
+	        vertex.setMaterialIndex(matnr++);
+	      }
+	      if (doTextures) {
+	        if (tb.isFunction()) {
+	          vertex.setTextureCoords(tb.get(coords[0].get3(idx), currnormal.get(0)));
+	          if (tb.needIndices()) pointDetail.setTextureCoordIndex(texnr++);
+	        }
+	        else {
+	          pointDetail.setCoordinateIndex(texnr);
+	          vertex.setTextureCoords(tb.get(texnr++));
+	        }
+	      }
+	      pointDetail.setCoordinateIndex(idx);
+	      vertex.setPoint(coords[0].get3(idx++));
+	      this.shapeVertex(vertex);
+	      faceDetail.incFaceIndex();
+	    }
+	    this.endShape();
+	    faceDetail.incPartIndex();
+	  }
 
-    detail.setPartIndex(strip);
+	  if (nc != null) {
+	    this.readUnlockNormalCache();
+	  }
 
-    // Do PER_STRIP stuff:
-    if (mbind == SoMaterialBindingElement.Binding.PER_PART ||
-      mbind == SoMaterialBindingElement.Binding.PER_PART_INDEXED)
-      curMaterial = strip;
-    if (nbind == SoNormalBindingElement.Binding.PER_PART ||
-      nbind == SoNormalBindingElement.Binding.PER_PART_INDEXED)
-      curNormal = strip;
-
-    for (vert = 0; vert < vertsInStrip; vert++) {
-      // Do PER_VERTEX stuff
-      if (mbind == SoMaterialBindingElement.Binding.PER_VERTEX ||
-        mbind == SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED)
-        curMaterial = curVert;
-      if (nbind == SoNormalBindingElement.Binding.PER_VERTEX ||
-        nbind == SoNormalBindingElement.Binding.PER_VERTEX_INDEXED)
-        curNormal = curVert;
-
-      int thisVert = vert%3;
-
-      pd[thisVert].setMaterialIndex(curMaterial);
-      pd[thisVert].setNormalIndex(curNormal);
-      pd[thisVert].setTextureCoordIndex(curVert);
-      pd[thisVert].setCoordinateIndex(curVert);
-
-      detail.setFaceIndex(vert);
-
-      if (normCache != null)
-        pvs[thisVert].setNormal(normCache.getNormals().get(curNormal));
-      else
-        pvs[thisVert].setNormal(ne.get(curNormal));
-
-      pvs[thisVert].setPoint(ce.get3(curVert));
-      pvs[thisVert].setMaterialIndex(curMaterial);
-      if (tcb.isFunction()) {
-        if (! forPicking)
-          pvs[thisVert].setTextureCoords(
-          tcb.get(pvs[thisVert].getPoint(),
-          pvs[thisVert].getNormal()));
-      }
-      else
-        pvs[thisVert].setTextureCoords(tcb.get(curVert));
-
-      if (vert >= 2) {
-        // Must handle per-triangle normals or materials
-        // specially:
-        if (mbind == SoMaterialBindingElement.Binding.PER_FACE ||
-          mbind == SoMaterialBindingElement.Binding.PER_FACE_INDEXED) {
-            int v = (vert-1)%3;
-            pd[v].setMaterialIndex(curMaterial);
-            pvs[v].setMaterialIndex(curMaterial);
-            v = (vert-2)%3;
-            pd[v].setMaterialIndex(curMaterial);
-            pvs[v].setMaterialIndex(curMaterial);
-            ++curMaterial;
-        }
-        if (nbind == SoNormalBindingElement.Binding.PER_FACE ||
-          nbind == SoNormalBindingElement.Binding.PER_FACE_INDEXED) {
-            int v = (vert-1)%3;
-            pd[v].setNormalIndex(curNormal);
-            pvs[v].setNormal(ne.get(curNormal));
-            v = (vert-2)%3;
-            pd[v].setNormalIndex(curNormal);
-            pvs[v].setNormal(ne.get(curNormal));
-            ++curNormal;
-        }
-
-        // Do three vertices of the triangle, being careful to
-        // keep them oriented correctly (the orientation switches
-        // on every other triangle):
-        if ((vert & 1)!=0) {
-          invokeTriangleCallbacks(action, pvs[0], pvs[2],
-            pvs[1]);
-        } else {
-          invokeTriangleCallbacks(action, pvs[0], pvs[1],
-            pvs[2]);
-        }
-      }
-      curVert++;
-    }
-  }
-
-  // Restore USE_REST_OF_VERTICES (-1)
-  if (usingUSE_REST) {
-    numVertices.set1Value(numStrips-1, -1);
-    numVertices.enableNotify(nvNotifyEnabled);
-  }       
-
-  state.pop();
-  
-  pvs[0].destructor();
-  pvs[1].destructor();
-  pvs[2].destructor();
-  detail.destructor();
-  tcb.destructor();
+	  if (this.vertexProperty.getValue()!=null)
+	    state.pop();
+	  
+	  tb.destructor();
 	}
+	
+//	protected void generatePrimitives(SoAction action) {
+//  SoState state = action.getState();
+//
+//  // Put vertexProperty stuff into state:
+//  SoVertexProperty vp = getVertexProperty();
+//  state.push();
+//  if (vp != null) {
+//    vp.doAction(action);
+//  }
+//
+//  // When generating primitives for picking, delay computing default
+//  // texture coordinates
+//  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
+//
+//  final SoPrimitiveVertex[]           pvs = new SoPrimitiveVertex[3];
+//  pvs[0] = new SoPrimitiveVertex();
+//  pvs[1] = new SoPrimitiveVertex();
+//  pvs[2] = new SoPrimitiveVertex();
+//  final SoFaceDetail                detail = new SoFaceDetail();
+//  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false, !forPicking);
+//  SoCoordinateElement   ce;
+//  int                         curVert, vert;
+//  int                         curNormal, curMaterial;
+//  int                         strip, numStrips;
+//
+//  // Get bindings:
+//  SoMaterialBindingElement.Binding mbind =
+//    SoMaterialBindingElement.get(state);
+//  SoNormalBindingElement.Binding nbind =
+//    SoNormalBindingElement.get(state);
+//
+//  curVert = (int) startIndex.getValue();
+//
+//  ce = SoCoordinateElement.getInstance(state);
+//
+//  // Do auto-normal generation, if necessary:
+//  SoNormalCache normCache = null;
+//  SoNormalElement ne = SoNormalElement.getInstance(state);
+//  if (ne.getNum() == 0) {
+//
+//    // See if there is a normal cache we can use. If not,
+//    // generate normals and cache them.
+//    normCache = getNormalCache();
+//    if (normCache == null || ! normCache.isValid(state)) {
+//
+//      if (totalNumVertices < 0) {
+//        int nstrips = numVertices.getNum();
+//        totalNumVertices = 0;
+//        for (int i = 0; i < nstrips; i++) 
+//          totalNumVertices += numVertices.operator_square_bracketI(i);
+//      }       
+//
+//      final SoNormalBundle nb = new SoNormalBundle(action, false);
+//      nb.initGenerator(totalNumVertices);
+//      generateDefaultNormals(state, nb);
+//      normCache = getNormalCache();
+//    }
+//
+//    nbind = SoNormalBindingElement.Binding.PER_VERTEX;
+//  }
+//
+//  curNormal = 0;
+//  curMaterial = 0;
+//
+//  if (forPicking) {
+//    final SbVec4f tc = new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f);
+//    pvs[0].setTextureCoords(tc);
+//    pvs[1].setTextureCoords(tc);
+//    pvs[2].setTextureCoords(tc);
+//  }
+//
+//  detail.setNumPoints(3);
+//  SoPointDetail[] pd = detail.getPoints();
+//
+//  pvs[0].setDetail(detail);
+//  pvs[1].setDetail(detail);
+//  pvs[2].setDetail(detail);
+//
+//  // Do OVERALL stuff:
+//  if (mbind == SoMaterialBindingElement.Binding.OVERALL)
+//    curMaterial = 0;
+//  if (nbind == SoNormalBindingElement.Binding.OVERALL)
+//    curNormal = 0;
+//
+//  numStrips = numVertices.getNum();
+//
+//  // Handle USE_REST_OF_VERTICES:
+//  // If using USE_REST_OF_VERTICES (-1), need to figure out how
+//  // many vertices there are every time:
+//  boolean usingUSE_REST = false;
+//  boolean nvNotifyEnabled = true;
+//  if (numStrips != 0 && numVertices.operator_square_bracketI(numStrips-1) < 0) {
+//    usingUSE_REST = true;
+//    nvNotifyEnabled = numVertices.enableNotify(false);
+//    int nv = 0;
+//    for (int i = 0; i < numStrips-1; i++) nv += numVertices.operator_square_bracketI(i);
+//    numVertices.set1Value(numStrips-1, ce.getNum() - nv);
+//  }       
+//
+//  for (strip = 0; strip < numStrips; strip++) {
+//    int vertsInStrip = numVertices.operator_square_bracketI(strip);
+//
+//    detail.setPartIndex(strip);
+//
+//    // Do PER_STRIP stuff:
+//    if (mbind == SoMaterialBindingElement.Binding.PER_PART ||
+//      mbind == SoMaterialBindingElement.Binding.PER_PART_INDEXED)
+//      curMaterial = strip;
+//    if (nbind == SoNormalBindingElement.Binding.PER_PART ||
+//      nbind == SoNormalBindingElement.Binding.PER_PART_INDEXED)
+//      curNormal = strip;
+//
+//    for (vert = 0; vert < vertsInStrip; vert++) {
+//      // Do PER_VERTEX stuff
+//      if (mbind == SoMaterialBindingElement.Binding.PER_VERTEX ||
+//        mbind == SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED)
+//        curMaterial = curVert;
+//      if (nbind == SoNormalBindingElement.Binding.PER_VERTEX ||
+//        nbind == SoNormalBindingElement.Binding.PER_VERTEX_INDEXED)
+//        curNormal = curVert;
+//
+//      int thisVert = vert%3;
+//
+//      pd[thisVert].setMaterialIndex(curMaterial);
+//      pd[thisVert].setNormalIndex(curNormal);
+//      pd[thisVert].setTextureCoordIndex(curVert);
+//      pd[thisVert].setCoordinateIndex(curVert);
+//
+//      detail.setFaceIndex(vert);
+//
+//      if (normCache != null)
+//        pvs[thisVert].setNormal(normCache.getNormals().get(curNormal));
+//      else
+//        pvs[thisVert].setNormal(ne.get(curNormal));
+//
+//      pvs[thisVert].setPoint(ce.get3(curVert));
+//      pvs[thisVert].setMaterialIndex(curMaterial);
+//      if (tcb.isFunction()) {
+//        if (! forPicking)
+//          pvs[thisVert].setTextureCoords(
+//          tcb.get(pvs[thisVert].getPoint(),
+//          pvs[thisVert].getNormal()));
+//      }
+//      else
+//        pvs[thisVert].setTextureCoords(tcb.get(curVert));
+//
+//      if (vert >= 2) {
+//        // Must handle per-triangle normals or materials
+//        // specially:
+//        if (mbind == SoMaterialBindingElement.Binding.PER_FACE ||
+//          mbind == SoMaterialBindingElement.Binding.PER_FACE_INDEXED) {
+//            int v = (vert-1)%3;
+//            pd[v].setMaterialIndex(curMaterial);
+//            pvs[v].setMaterialIndex(curMaterial);
+//            v = (vert-2)%3;
+//            pd[v].setMaterialIndex(curMaterial);
+//            pvs[v].setMaterialIndex(curMaterial);
+//            ++curMaterial;
+//        }
+//        if (nbind == SoNormalBindingElement.Binding.PER_FACE ||
+//          nbind == SoNormalBindingElement.Binding.PER_FACE_INDEXED) {
+//            int v = (vert-1)%3;
+//            pd[v].setNormalIndex(curNormal);
+//            pvs[v].setNormal(ne.get(curNormal));
+//            v = (vert-2)%3;
+//            pd[v].setNormalIndex(curNormal);
+//            pvs[v].setNormal(ne.get(curNormal));
+//            ++curNormal;
+//        }
+//
+//        // Do three vertices of the triangle, being careful to
+//        // keep them oriented correctly (the orientation switches
+//        // on every other triangle):
+//        if ((vert & 1)!=0) {
+//          invokeTriangleCallbacks(action, pvs[0], pvs[2],
+//            pvs[1]);
+//        } else {
+//          invokeTriangleCallbacks(action, pvs[0], pvs[1],
+//            pvs[2]);
+//        }
+//      }
+//      curVert++;
+//    }
+//  }
+//
+//  // Restore USE_REST_OF_VERTICES (-1)
+//  if (usingUSE_REST) {
+//    numVertices.set1Value(numStrips-1, -1);
+//    numVertices.enableNotify(nvNotifyEnabled);
+//  }       
+//
+//  state.pop();
+//  
+//  pvs[0].destructor();
+//  pvs[1].destructor();
+//  pvs[2].destructor();
+//  detail.destructor();
+//  tcb.destructor();
+//}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -776,7 +969,7 @@ public void notify(SoNotList list)
 //
 // Description:
 //    Generates default normals using the given state and normal
-//    bundle. Returns TRUE if normals were generated.
+//    bundle. Returns true if normals were generated.
 //
 // Use: public
 
@@ -1081,5 +1274,80 @@ public static void initClass()
 
     SO_ENABLE(SoGLRenderAction.class,         SoShapeStyleElement.class);
 }
+
+/*!
+  \COININTERNAL
+*/
+private Binding
+findMaterialBinding(SoState state)
+{
+  SoMaterialBindingElement.Binding matbind =
+    SoMaterialBindingElement.get(state);
+
+  Binding binding;
+  switch (matbind) {
+  case /*SoMaterialBindingElement::*/OVERALL:
+    binding = Binding.OVERALL;
+    break;
+  case /*SoMaterialBindingElement::*/PER_VERTEX:
+  case /*SoMaterialBindingElement::*/PER_VERTEX_INDEXED:
+    binding = Binding.PER_VERTEX;
+    break;
+  case /*SoMaterialBindingElement::*/PER_PART:
+  case /*SoMaterialBindingElement::*/PER_PART_INDEXED:
+    binding = Binding.PER_STRIP;
+    break;
+  case /*SoMaterialBindingElement::*/PER_FACE:
+  case /*SoMaterialBindingElement::*/PER_FACE_INDEXED:
+    binding = Binding.PER_FACE;
+    break;
+  default:
+    binding = Binding.OVERALL;
+//#if COIN_DEBUG
+    SoDebugError.postWarning("SoTriangleStripSet::findMaterialBinding",
+                              "unknown material binding setting");
+//#endif // COIN_DEBUG
+    break;
+  }
+  return binding;
+}
+
+/*!
+  \COININTERNAL
+*/
+private Binding
+findNormalBinding(SoState state)
+{
+  SoNormalBindingElement.Binding normbind =
+    SoNormalBindingElement.get(state);
+
+  Binding binding;
+  switch (normbind) {
+  case /*SoMaterialBindingElement::*/OVERALL:
+    binding = Binding.OVERALL;
+    break;
+  case /*SoMaterialBindingElement::*/PER_VERTEX:
+  case /*SoMaterialBindingElement::*/PER_VERTEX_INDEXED:
+    binding = Binding.PER_VERTEX;
+    break;
+  case /*SoMaterialBindingElement::*/PER_PART:
+  case /*SoMaterialBindingElement::*/PER_PART_INDEXED:
+    binding = Binding.PER_STRIP;
+    break;
+  case /*SoMaterialBindingElement::*/PER_FACE:
+  case /*SoMaterialBindingElement::*/PER_FACE_INDEXED:
+    binding = Binding.PER_FACE;
+    break;
+  default:
+    binding = Binding.PER_VERTEX;
+//#if COIN_DEBUG
+    SoDebugError.postWarning("SoTriangleStripSet::findNormalBinding",
+                              "unknown normal binding setting");
+//#endif // COIN_DEBUG
+    break;
+  }
+  return binding;
+}
+
 
 }

@@ -87,7 +87,7 @@ static float dodecaedre3[][] =
 }
 
 public static SoNode createDemoSceneSoIndexedFaceSet() {
-	SoSeparator root = makeStellatedDodecahedron(false); 
+	SoSeparator root = makeStellatedDodecahedron(true); 
 	root.ref();
 	return root;
 }

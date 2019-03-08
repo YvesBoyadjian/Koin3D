@@ -223,4 +223,30 @@ public static void initClass()
 }
 
 
+/*!
+  Used internally from library client code setting up a SoFaceDetail
+  instance.
+
+  This function is specific for Coin, and is not present in SGI/TGS
+  Open Inventor.
+*/
+public void
+incFaceIndex()
+{
+  this.faceIndex++;
+}
+
+/*!
+  Used internally from library client code setting up a SoFaceDetail
+  instance.
+
+  This function is specific for Coin, and is not present in SGI/TGS
+  Open Inventor.
+*/
+public void
+incPartIndex()
+{
+  this.partIndex++;
+}
+
 }

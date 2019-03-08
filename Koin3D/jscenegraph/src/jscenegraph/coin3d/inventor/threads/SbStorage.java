@@ -44,12 +44,20 @@ import java.util.function.Supplier;
 public class SbStorage<T extends Object> {
 	
 	private Supplier<T> p;
+	private cc_storage storage;
 	
 	public SbStorage(Supplier<T> p) {
 		this.p = p;
 	}
+	
+	public SbStorage(Class size, cc_storage_f constr, cc_storage_f destr) {
+		 this.storage = cc_storage.cc_storage_construct_etc(size, constr, destr); 
+	}
 
 	public T get() {
+		if(storage != null) {			
+			return (T)cc_storage.cc_storage_get(storage);
+		}
 		return p.get();
 	}
 

@@ -501,6 +501,7 @@ generatePerFace(SbVec3fArray coords,
                                int nv,
                                boolean ccw)
 {
+	cind = IntArrayPtr.copyOf(cind); // java port : dont modify argument
 //#if NORMALCACHE_DEBUG && COIN_DEBUG
 //    SoDebugError::postInfo("SoNormalCache::generatePerFace", "generating normals");
 //#endif
@@ -650,6 +651,8 @@ generatePerFaceStrip(SbVec3fArray coords,
                                     int nv,
                                     boolean ccw)
 {
+	cind = IntArrayPtr.copyOf(cind); // java port : dont modifiy argument
+	
 //#if NORMALCACHE_DEBUG && COIN_DEBUG
   SoDebugError.postInfo("SoNormalCache::generatePerFaceStrip", "generating normals");
 //#endif

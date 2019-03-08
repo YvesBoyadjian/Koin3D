@@ -199,5 +199,25 @@ public static void initClass()
             new SbName("SoLineDetail"), null));
 }
 
+
+/*!
+  Convenience method for library client code when setting up a
+  SoLineDetail instance to use the line index as a counter.
+*/
+public void
+incLineIndex()
+{
+  this.lineIndex++;
+}
+
+/*!
+  Convenience method for library client code when setting up a
+  SoLineDetail instance to use the part index as a counter.
+*/
+public void
+incPartIndex()
+{
+  this.partIndex++;
+}
     
 }

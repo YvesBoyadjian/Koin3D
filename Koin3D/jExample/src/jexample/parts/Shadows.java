@@ -30,8 +30,9 @@ public class Shadows {
 		SoInput input = new SoInput();
 
 		//String str = "C:/Coin3D/test.iv";
-		//String str = "C:/Coin3D/shadow.iv";
-		String str = "C:/Coin3D/shadowSimple.iv";
+		String str = "C:/Coin3D/shadow.iv";
+		//String str = "C:/Coin3D/shadowStill.iv";
+		//String str = "C:/Coin3D/shadowSimple.iv";
 		//String str = "C:/Coin3D/shadowDirectionalLight.iv";
 		//String str = "C:/Coin3D/spotlight.iv";
 		//String str = "C:/Coin3D/texture.iv";

@@ -81,10 +81,14 @@ import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
+import jscenegraph.database.inventor.elements.SoGLLightIdElement;
 import jscenegraph.database.inventor.elements.SoGLRenderPassElement;
 import jscenegraph.database.inventor.elements.SoGLUpdateAreaElement;
+import jscenegraph.database.inventor.elements.SoGLViewportRegionElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
+import jscenegraph.database.inventor.elements.SoOverrideElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
+import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.elements.SoWindowElement;
 import jscenegraph.database.inventor.misc.SoCallbackListCB;
@@ -680,6 +684,19 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 
            //SO_ENABLE(SoGLRenderAction, SoWindowElement);
 	       SoGLRenderAction.enableElement(SoWindowElement.class);
+
+	       // COIN 3D
+	       //SO_ENABLE(SoGLRenderAction.class, SoDecimationPercentageElement.class);
+	       //SO_ENABLE(SoGLRenderAction.class, SoDecimationTypeElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLLightIdElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLRenderPassElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLUpdateAreaElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoLazyElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoOverrideElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoTextureOverrideElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoWindowElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLViewportRegionElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoGLCacheContextElement.class);
 
        }
 

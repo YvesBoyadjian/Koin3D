@@ -54,6 +54,9 @@
 
 package jscenegraph.database.inventor.actions;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoFullPath;
@@ -62,6 +65,7 @@ import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPathList;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoActionMethodList.SoActionMethod;
+import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.elements.SoOverrideElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoCompactPathList;
@@ -1041,6 +1045,27 @@ switchToNodeTraversal(SoNode node)
   this.currentpathcode = storedpathcode;
   this.pimpl.applieddata.copyFrom(storeddata);
   this.pimpl.appliedcode = storedcode;
+}
+
+protected static void SO_ENABLE(Class<? extends SoAction> actionClass, Class<? extends SoElement> elementClass) {
+
+	  Class<?>[] parameterTypes = new Class<?>[1];
+	  parameterTypes[0] = Class.class;
+
+	  try {
+		Method enableElement = actionClass.getMethod("enableElement", parameterTypes);
+		enableElement.invoke(actionClass, elementClass);
+	} catch (SecurityException e) {
+		throw new IllegalStateException(e);
+	} catch (NoSuchMethodException e) {
+		throw new IllegalStateException(e);
+	} catch (IllegalArgumentException e) {
+		throw new IllegalStateException(e);
+	} catch (IllegalAccessException e) {
+		throw new IllegalStateException(e);
+	} catch (InvocationTargetException e) {
+		throw new IllegalStateException(e);
+	}
 }
 
 	   }

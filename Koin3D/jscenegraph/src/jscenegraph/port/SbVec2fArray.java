@@ -5,6 +5,8 @@ package jscenegraph.port;
 
 import java.nio.FloatBuffer;
 
+import org.lwjgl.BufferUtils;
+
 import jscenegraph.database.inventor.SbVec2f;
 
 /**
@@ -49,6 +51,11 @@ public class SbVec2fArray implements FloatBufferAble {
 
 	@Override
 	public FloatBuffer toFloatBuffer() {
-		return FloatBuffer.wrap(valuesArray,delta*2,valuesArray.length - delta*2);
+		int offset = delta*2;
+		int length = valuesArray.length - offset;
+		FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(length);
+		floatBuffer.put(valuesArray, offset, length);
+		floatBuffer.flip();
+		return floatBuffer;//FloatBuffer.wrap(valuesArray,delta*2,valuesArray.length - delta*2);
 	}
 }

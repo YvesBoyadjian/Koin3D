@@ -274,6 +274,19 @@ public void setValues(int start, float[] xy) {
 	valueChanged();
 }
 
+public void setValues(int start, SbVec2f[] xy) {
+	int num = xy.length;
+	int newNum = start + num;
+	
+	if (newNum > getNum())
+		makeRoom(newNum);
+	
+	for(int i=0; i<num; i++) {
+		valuesArray[(start + i)*2] = xy[i].getX();
+		valuesArray[(start + i)*2+1] = xy[i].getY();		
+	}
+	valueChanged();
+}
 
 public void setValuesPointer(float[] userdata) {
 	makeRoom(0);

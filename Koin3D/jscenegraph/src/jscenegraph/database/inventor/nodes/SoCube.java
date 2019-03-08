@@ -59,6 +59,7 @@ import com.jogamp.opengl.GL2;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.misc.SoGenerate;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2f;
@@ -722,208 +723,228 @@ generatePrimitives(SoAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    boolean              materialPerFace;
-    int                 numDivisions, face, vert;
-    float               s;
-    final SbVec3fSingle             pt = new SbVec3fSingle(), norm = new SbVec3fSingle();
-    final float[]               w = new float[1], h = new float[1], d = new float[1];
-    final SbVec4fSingle             tex = new SbVec4fSingle();
-    boolean              genTexCoords = false;
-    final SoPrimitiveVertex   pv = new SoPrimitiveVertex();
-    final SoCubeDetail        detail = new SoCubeDetail();
-    SoMultiTextureCoordinateElement    tce = null;
+	  SoMaterialBindingElement.Binding binding =
+	    SoMaterialBindingElement.get(action.getState());
 
-    materialPerFace = isMaterialPerFace(action);
-    numDivisions    = computeNumDivisions(action);
+	  boolean materialPerPart =
+	    (binding == SoMaterialBindingElement.Binding.PER_PART ||
+	     binding == SoMaterialBindingElement.Binding.PER_PART_INDEXED ||
+	     binding == SoMaterialBindingElement.Binding.PER_FACE ||
+	     binding == SoMaterialBindingElement.Binding.PER_FACE_INDEXED);
 
-    pv.setDetail(detail);
-
-    // Determine whether we should generate our own texture coordinates
-    switch (SoMultiTextureCoordinateElement.getType(action.getState(),0)) {
-      case EXPLICIT:
-	genTexCoords = true;
-	break;
-      case FUNCTION:
-	genTexCoords = false;
-	break;
-    }
-
-    // If we're not generating our own coordinates, we'll need the
-    // texture coordinate element to get coords based on points/normals.
-    if (! genTexCoords)
-	tce = SoMultiTextureCoordinateElement.getInstance(action.getState());
-    else {
-	tex.getValue()[2] = 0.0f;
-	tex.getValue()[3] = 1.0f;
-    }
-
-    getSize(w, h, d);
-
-
-    for (face = 0; face < 6; face++) {
-
-	if (face == 0 || materialPerFace)
-	    pv.setMaterialIndex(face);
-	pv.setNormal(normals[face]);
-	detail.setPart(face);
-
-	// Simple case of one polygon per face 
-	if (numDivisions == 1) {
-	    beginShape(action, SoShape.TriangleShape.TRIANGLE_STRIP);
-	    vert = 3;
-	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
-			(verts[face][vert]).getValueRead()[1] * h[0],
-			(verts[face][vert]).getValueRead()[2] * d[0]);
-	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
-		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
-	    }
-	    else
-		tex.copyFrom( tce.get(pt, normals[face]));
-	    pv.setPoint(pt);
-	    pv.setTextureCoords(tex);
-	    shapeVertex(pv);
-	    vert = 0;
-	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
-			(verts[face][vert]).getValueRead()[1] * h[0],
-			(verts[face][vert]).getValueRead()[2] * d[0]);
-	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
-		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
-	    }
-	    else
-		tex.copyFrom( tce.get(pt, normals[face]));
-	    pv.setPoint(pt);
-	    pv.setTextureCoords(tex);
-	    shapeVertex(pv);
-	    vert = 2;
-	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
-			(verts[face][vert]).getValueRead()[1] * h[0],
-			(verts[face][vert]).getValueRead()[2] * d[0]);
-	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
-		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
-	    }
-	    else
-		tex.copyFrom( tce.get(pt, normals[face]));
-	    pv.setPoint(pt);
-	    pv.setTextureCoords(tex);
-	    shapeVertex(pv);
-	    vert = 1;
-	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
-			(verts[face][vert]).getValueRead()[1] * h[0],
-			(verts[face][vert]).getValueRead()[2] * d[0]);
-	    if (genTexCoords) {
-		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
-		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
-	    }
-	    else
-		tex.copyFrom( tce.get(pt, normals[face]));
-	    pv.setPoint(pt);
-	    pv.setTextureCoords(tex);
-	    shapeVertex(pv);
-	    endShape();
+	  int flags = 0;
+	  if (materialPerPart) flags |= SoGenerate.SOGEN_MATERIAL_PER_PART;
+	  SoGenerate.sogen_generate_cube(this.width.getValue(),
+	                      this.height.getValue(),
+	                      this.depth.getValue(),
+	                      flags,
+	                      this,
+	                      action);
 	}
 
-	// More than one polygon per face
-	else {
-	    float       di = 1.0f / numDivisions;
-	    final SbVec3f     topPoint = new SbVec3f(),    botPoint = new SbVec3f(),    nextBotPoint = new SbVec3f();
-	    final SbVec3f     horizSpace = new SbVec3f(), vertSpace = new SbVec3f();
-	    int         strip, rect;
-
-	    botPoint.copyFrom(verts[face][0]);
-
-	    // Compute spacing between adjacent points in both directions
-	    horizSpace.copyFrom( (verts[face][1].operator_minus(botPoint)).operator_mul(di));
-	    vertSpace.copyFrom( (verts[face][3].operator_minus(botPoint)).operator_mul(di));
-
-	    // For each horizontal strip
-	    for (strip = 0; strip < numDivisions; strip++) {
-
-		// Compute current top point. Save it to use as bottom
-		// of next strip
-		topPoint.copyFrom( botPoint.operator_add(vertSpace));
-		nextBotPoint.copyFrom(topPoint);
-
-		beginShape(action, SoShape.TriangleShape.TRIANGLE_STRIP);
-
-		// Send points at left end of strip
-		s = 0.0f;
-		pt.copyFrom( topPoint);
-		pt.getValue()[0] *= w[0];
-		pt.getValue()[1] *= h[0];
-		pt.getValue()[2] *= d[0];
-		if (genTexCoords) {
-		    tex.getValue()[0] = s;
-		    tex.getValue()[1] = (strip + 1) * di;
-		}
-		else
-		    tex.copyFrom( tce.get(pt, normals[face]));
-		pv.setPoint(pt);
-		pv.setTextureCoords(tex);
-		shapeVertex(pv);
-		pt.copyFrom( botPoint);
-		pt.getValue()[0] *= w[0];
-		pt.getValue()[1] *= h[0];
-		pt.getValue()[2] *= d[0];
-		if (genTexCoords) {
-		    tex.getValue()[0] = s;
-		    tex.getValue()[1] = strip * di;
-		}
-		else
-		    tex.copyFrom(tce.get(pt, normals[face]));
-		pv.setPoint(pt);
-		pv.setTextureCoords(tex);
-		shapeVertex(pv);
-
-		// For each rectangular piece of strip
-		for (rect = 0; rect < numDivisions; rect++) {
-
-		    // Go to next rect
-		    topPoint.operator_add_equal( horizSpace);
-		    botPoint.operator_add_equal( horizSpace);
-		    s += di;
-
-		    // Send points at right side of rect
-		    pt.copyFrom( topPoint);
-		    pt.getValue()[0] *= w[0];
-		    pt.getValue()[1] *= h[0];
-		    pt.getValue()[2] *= d[0];
-		    if (genTexCoords) {
-			tex.getValue()[0] = s;
-			tex.getValue()[1] = (strip + 1) * di;
-		    }
-		    else
-			tex.copyFrom( tce.get(pt, normals[face]));
-		    pv.setPoint(pt);
-		    pv.setTextureCoords(tex);
-		    shapeVertex(pv);
-		    pt.copyFrom( botPoint);
-		    pt.getValue()[0] *= w[0];
-		    pt.getValue()[1] *= h[0];
-		    pt.getValue()[2] *= d[0];
-		    if (genTexCoords) {
-			tex.getValue()[0] = s;
-			tex.getValue()[1] = strip * di;
-		    }
-		    else
-			tex.copyFrom( tce.get(pt, normals[face]));
-		    pv.setPoint(pt);
-		    pv.setTextureCoords(tex);
-		    shapeVertex(pv);
-		}
-
-		endShape();
-
-		// Get ready for next strip
-		botPoint.copyFrom(nextBotPoint);
-	    }
-	}
-    }
-    pv.destructor(); // java port
-    detail.destructor(); // java port
-}
+//{
+//    boolean              materialPerFace;
+//    int                 numDivisions, face, vert;
+//    float               s;
+//    final SbVec3fSingle             pt = new SbVec3fSingle(), norm = new SbVec3fSingle();
+//    final float[]               w = new float[1], h = new float[1], d = new float[1];
+//    final SbVec4fSingle             tex = new SbVec4fSingle();
+//    boolean              genTexCoords = true;
+//    final SoPrimitiveVertex   pv = new SoPrimitiveVertex();
+//    final SoCubeDetail        detail = new SoCubeDetail();
+//    SoMultiTextureCoordinateElement    tce = null;
+//
+//    materialPerFace = isMaterialPerFace(action);
+//    numDivisions    = computeNumDivisions(action);
+//
+//    pv.setDetail(detail);
+//
+//    // Determine whether we should generate our own texture coordinates
+//    switch (SoMultiTextureCoordinateElement.getType(action.getState(),0)) {
+//      case EXPLICIT:
+//	genTexCoords = true;
+//	break;
+//      case FUNCTION:
+//	genTexCoords = false;
+//	break;
+//    }
+//
+//    // If we're not generating our own coordinates, we'll need the
+//    // texture coordinate element to get coords based on points/normals.
+//    if (! genTexCoords)
+//	tce = SoMultiTextureCoordinateElement.getInstance(action.getState());
+//    else {
+//	tex.getValue()[2] = 0.0f;
+//	tex.getValue()[3] = 1.0f;
+//    }
+//
+//    getSize(w, h, d);
+//
+//
+//    for (face = 0; face < 6; face++) {
+//
+//	if (face == 0 || materialPerFace)
+//	    pv.setMaterialIndex(face);
+//	pv.setNormal(normals[face]);
+//	detail.setPart(face);
+//
+//	// Simple case of one polygon per face 
+//	if (numDivisions == 1) {
+//	    beginShape(action, SoShape.TriangleShape.TRIANGLE_STRIP);
+//	    vert = 3;
+//	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
+//			(verts[face][vert]).getValueRead()[1] * h[0],
+//			(verts[face][vert]).getValueRead()[2] * d[0]);
+//	    if (genTexCoords) {
+//		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+//		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
+//	    }
+//	    else
+//		tex.copyFrom( tce.get(pt, normals[face]));
+//	    pv.setPoint(pt);
+//	    pv.setTextureCoords(tex);
+//	    shapeVertex(pv);
+//	    vert = 0;
+//	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
+//			(verts[face][vert]).getValueRead()[1] * h[0],
+//			(verts[face][vert]).getValueRead()[2] * d[0]);
+//	    if (genTexCoords) {
+//		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+//		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
+//	    }
+//	    else
+//		tex.copyFrom( tce.get(pt, normals[face]));
+//	    pv.setPoint(pt);
+//	    pv.setTextureCoords(tex);
+//	    shapeVertex(pv);
+//	    vert = 2;
+//	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
+//			(verts[face][vert]).getValueRead()[1] * h[0],
+//			(verts[face][vert]).getValueRead()[2] * d[0]);
+//	    if (genTexCoords) {
+//		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+//		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
+//	    }
+//	    else
+//		tex.copyFrom( tce.get(pt, normals[face]));
+//	    pv.setPoint(pt);
+//	    pv.setTextureCoords(tex);
+//	    shapeVertex(pv);
+//	    vert = 1;
+//	    pt.setValue((verts[face][vert]).getValueRead()[0] * w[0],
+//			(verts[face][vert]).getValueRead()[1] * h[0],
+//			(verts[face][vert]).getValueRead()[2] * d[0]);
+//	    if (genTexCoords) {
+//		tex.getValue()[0] = texCoords[vert].getValueRead()[0];
+//		tex.getValue()[1] = texCoords[vert].getValueRead()[1];
+//	    }
+//	    else
+//		tex.copyFrom( tce.get(pt, normals[face]));
+//	    pv.setPoint(pt);
+//	    pv.setTextureCoords(tex);
+//	    shapeVertex(pv);
+//	    endShape();
+//	}
+//
+//	// More than one polygon per face
+//	else {
+//	    float       di = 1.0f / numDivisions;
+//	    final SbVec3f     topPoint = new SbVec3f(),    botPoint = new SbVec3f(),    nextBotPoint = new SbVec3f();
+//	    final SbVec3f     horizSpace = new SbVec3f(), vertSpace = new SbVec3f();
+//	    int         strip, rect;
+//
+//	    botPoint.copyFrom(verts[face][0]);
+//
+//	    // Compute spacing between adjacent points in both directions
+//	    horizSpace.copyFrom( (verts[face][1].operator_minus(botPoint)).operator_mul(di));
+//	    vertSpace.copyFrom( (verts[face][3].operator_minus(botPoint)).operator_mul(di));
+//
+//	    // For each horizontal strip
+//	    for (strip = 0; strip < numDivisions; strip++) {
+//
+//		// Compute current top point. Save it to use as bottom
+//		// of next strip
+//		topPoint.copyFrom( botPoint.operator_add(vertSpace));
+//		nextBotPoint.copyFrom(topPoint);
+//
+//		beginShape(action, SoShape.TriangleShape.TRIANGLE_STRIP);
+//
+//		// Send points at left end of strip
+//		s = 0.0f;
+//		pt.copyFrom( topPoint);
+//		pt.getValue()[0] *= w[0];
+//		pt.getValue()[1] *= h[0];
+//		pt.getValue()[2] *= d[0];
+//		if (genTexCoords) {
+//		    tex.getValue()[0] = s;
+//		    tex.getValue()[1] = (strip + 1) * di;
+//		}
+//		else
+//		    tex.copyFrom( tce.get(pt, normals[face]));
+//		pv.setPoint(pt);
+//		pv.setTextureCoords(tex);
+//		shapeVertex(pv);
+//		pt.copyFrom( botPoint);
+//		pt.getValue()[0] *= w[0];
+//		pt.getValue()[1] *= h[0];
+//		pt.getValue()[2] *= d[0];
+//		if (genTexCoords) {
+//		    tex.getValue()[0] = s;
+//		    tex.getValue()[1] = strip * di;
+//		}
+//		else
+//		    tex.copyFrom(tce.get(pt, normals[face]));
+//		pv.setPoint(pt);
+//		pv.setTextureCoords(tex);
+//		shapeVertex(pv);
+//
+//		// For each rectangular piece of strip
+//		for (rect = 0; rect < numDivisions; rect++) {
+//
+//		    // Go to next rect
+//		    topPoint.operator_add_equal( horizSpace);
+//		    botPoint.operator_add_equal( horizSpace);
+//		    s += di;
+//
+//		    // Send points at right side of rect
+//		    pt.copyFrom( topPoint);
+//		    pt.getValue()[0] *= w[0];
+//		    pt.getValue()[1] *= h[0];
+//		    pt.getValue()[2] *= d[0];
+//		    if (genTexCoords) {
+//			tex.getValue()[0] = s;
+//			tex.getValue()[1] = (strip + 1) * di;
+//		    }
+//		    else
+//			tex.copyFrom( tce.get(pt, normals[face]));
+//		    pv.setPoint(pt);
+//		    pv.setTextureCoords(tex);
+//		    shapeVertex(pv);
+//		    pt.copyFrom( botPoint);
+//		    pt.getValue()[0] *= w[0];
+//		    pt.getValue()[1] *= h[0];
+//		    pt.getValue()[2] *= d[0];
+//		    if (genTexCoords) {
+//			tex.getValue()[0] = s;
+//			tex.getValue()[1] = strip * di;
+//		    }
+//		    else
+//			tex.copyFrom( tce.get(pt, normals[face]));
+//		    pv.setPoint(pt);
+//		    pv.setTextureCoords(tex);
+//		    shapeVertex(pv);
+//		}
+//
+//		endShape();
+//
+//		// Get ready for next strip
+//		botPoint.copyFrom(nextBotPoint);
+//	    }
+//	}
+//    }
+//    pv.destructor(); // java port
+//    detail.destructor(); // java port
+//}
 
 ////////////////////////////////////////////////////////////////////////
 //

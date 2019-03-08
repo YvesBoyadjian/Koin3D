@@ -238,7 +238,10 @@ readBinaryValues(SoInput in, int numToRead)
 	float[] valsFloat = new float[3 * numToRead];
     if(in.readBinaryArray((float[] ) valsFloat, 3 * numToRead)) {
 	    for(int i=0; i< numToRead;i++) {	    	
-	    	((SbColor)values[i]).setValue(valsFloat[3*i],valsFloat[3*i+1],valsFloat[3*i+2]);
+	    	valuesArray[i*3] = valsFloat[3*i];
+	    	valuesArray[i*3+1] = valsFloat[3*i+1];
+	    	valuesArray[i*3+2] = valsFloat[3*i+2];
+	    	//((SbColor)values[i]).setValue(valsFloat[3*i],valsFloat[3*i+1],valsFloat[3*i+2]);
 	    }
 	    return true;
     }

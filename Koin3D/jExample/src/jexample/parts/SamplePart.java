@@ -96,25 +96,25 @@ public class SamplePart {
 	    }	    
 	    
 	    viewer.setSceneGraph(
-	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
+	    		SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
-	    		//createDemoScenePerformance()
-	    		//createDemoSceneSoMaterialShapebinding()
+	    		//createDemoScenePerformance() // TODO transparency
+	    		//createDemoSceneSoMaterialShapeBinding()
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
 	    		//createDemoSceneTimeWatch()
-	    		TextureCoordinatePlane.computeRoot()
+	    		//TextureCoordinatePlane.computeRoot()
 	    		//TextureCoordinates.createScene()
 	    		//Text2.createScene()
 	    		//Text3.createScene()
 	    		//FancyText3.createScene()
-	    		//Selection.createScene(viewer)
+	    		//Selection.createScene(viewer) //TODO
 	    		//Selection.createSceneSelection()
-	    		//Manips.createScene()
-	    		//new PickTrackball().createScene()
+	    		//Manips.createScene() //TODO SoCube
+	    		//(new PickTrackball()).createScene() // TODO
 	    		//FrolickingWords.createRoot()
-	    		//Balance.createScene(viewer)
+	    		//Balance.createScene(viewer)// TODO
 	    		//Obelisque.makeObeliskFaceSet()
 	    		//Drapeau.makePennant()
 	    		//Arche.makeArch()
@@ -1161,7 +1161,7 @@ SoSeparator createPlanet2(float radius, float distance,
 	return root;
 }
 	
-	SoNode createDemoSceneSoMaterialShapebinding() {
+	SoNode createDemoSceneSoMaterialShapeBinding() {
 		
 		float[][] rgb_ambient = {
 				{ 0.00714286f,0.00169011f,0 },

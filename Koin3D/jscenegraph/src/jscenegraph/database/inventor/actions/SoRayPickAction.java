@@ -72,7 +72,9 @@ import jscenegraph.database.inventor.actions.SoActionMethodList.SoActionMethod;
 import jscenegraph.database.inventor.elements.SoClipPlaneElement;
 import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
+import jscenegraph.database.inventor.elements.SoOverrideElement;
 import jscenegraph.database.inventor.elements.SoPickRayElement;
+import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -451,7 +453,11 @@ hasWorldSpaceRay()
 	                                           new SbName("SoRayPickAction"), null);	       
     	
      
-         SoRayPickAction.enableElement(SoPickRayElement.class);
+         //SoRayPickAction.enableElement(SoPickRayElement.class);
+         SO_ENABLE(SoRayPickAction.class, SoPickRayElement.class);
+         SO_ENABLE(SoRayPickAction.class, SoViewportRegionElement.class);
+         SO_ENABLE(SoRayPickAction.class, SoOverrideElement.class);
+         SO_ENABLE(SoRayPickAction.class, SoTextureOverrideElement.class);
      }
     
     

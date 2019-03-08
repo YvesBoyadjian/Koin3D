@@ -23,6 +23,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMFColor;
 import jscenegraph.database.inventor.fields.SoMFDouble;
 import jscenegraph.database.inventor.fields.SoMFFloat;
 import jscenegraph.database.inventor.fields.SoMFMatrix;
@@ -830,9 +831,16 @@ public class SoBuiltinFieldConverter extends SoFieldConverter {
 		}
 		else if (inOutType == CASE(SO__CONCATT("MF", typeIn), SO__CONCATT("MF", typeOut))) {
 			for (int i = 0; i < ((SoMField) input).getNum(); i++) {
+				Object obj = ((/* SO__CONCAT("SoMF",typeIn) */SoMField) input)
+						.operator_square_bracket(i);
+				
+				if (outField instanceof SoMFColor && obj instanceof SbVec3f) {
+					SbColor color = new SbColor();
+					color.copyFrom(obj);
+					obj = color;
+				}
 				((/* SO__CONCAT("SoMF",typeOut) */SoMField) outField).set1Value(i,
-						/* (valTypeOut) */ ((/* SO__CONCAT("SoMF",typeIn) */SoMField) input)
-								.operator_square_bracket(i));
+						/* (valTypeOut) */ obj);
 			}
 		}
 		else {

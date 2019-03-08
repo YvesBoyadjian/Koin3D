@@ -454,7 +454,7 @@ coul.diffuseColor.setValues(0,  rgb_diffuse);
 coul.specularColor.setValues(0,  rgb_specular);
 coul.shininess.setValues(0,  shininess);
 
-char c = 'v';
+char c = 'f';
 switch (c)
 {
 case 'p':

@@ -77,7 +77,10 @@ import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLVertexAttributeElement;
+import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
+import jscenegraph.coin3d.inventor.threads.SbStorage;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbBox2f;
 import jscenegraph.database.inventor.SbBox3f;
@@ -119,6 +122,9 @@ import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.shapenodes.soshape_bigtexture;
+import jscenegraph.database.inventor.shapenodes.soshape_primdata;
+import jscenegraph.database.inventor.shapenodes.soshape_trianglesort;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
@@ -375,6 +381,12 @@ public abstract class SoShape extends SoNode {
 	  ////////////////////////////////////////////////////////////////////////
 	  {
 	    SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(SoShape.class, "Shape", SoNode.class);
+	    
+	    soshape_staticstorage =
+	    	    new SbStorage(soshape_staticdata.class,
+	    	                  SoShape::soshape_construct_staticdata,
+	    	                  SoShape::soshape_destruct_staticdata);
+	    
 	  }
 	  
     //! Computes bounding box for subclass using information in the
@@ -799,7 +811,7 @@ invokeTriangleCallbacks(SoAction action,
 //
 // Use: protected
 
-protected void beginShape(SoAction action, TriangleShape shapeType) {
+public void beginShape(SoAction action, TriangleShape shapeType) {
 	beginShape(action, shapeType, null);
 }
 
@@ -865,7 +877,7 @@ beginShape(SoAction action, TriangleShape shapeType,
 //
 // Use: protected
 
-protected void
+public void
 shapeVertex(final SoPrimitiveVertex v)
 //
 ////////////////////////////////////////////////////////////////////////
@@ -1014,7 +1026,7 @@ allocateVerts()
 //
 // Use: protected
 
-protected void
+public void
 endShape()
 //
 ////////////////////////////////////////////////////////////////////////
@@ -1870,6 +1882,111 @@ finishVertexArray(SoGLRenderAction action,
   }
 
   SoGLVertexAttributeElement.getInstance(state).disableVBO(action);
+}
+
+/*!
+
+  This method is used to generate primitives for a shape. It's
+  typically called from a node's generatePrimitives() method. If you
+  have your own shape and want to write a generatePrimitives() method
+  for that shape, it's probably a good idea to take a peek in the
+  generatePrimitives() method for a similar shape in Coin.
+
+  generatePrimitives() can contain several beginShape()/endShape()
+  sequences. shapeVertex() is used for each vertex between
+  beginShape() and endShape(). For instance, to generate primitives
+  for a triangle you'd do something like this:
+
+  \verbatim
+  SoPrimitiveVertex vertex;
+
+  this->beginShape(action, SoShape::POLYGON);
+  vertex.setPoint(SbVec3f(0.0f, 0.0f, 0.0f));
+  this->shapeVertex(&vertex);
+  vertex.setPoint(SbVec3f(1.0f, 0.0f, 0.0f));
+  this->shapeVertex(&vertex);
+  vertex.setPoint(SbVec3f(1.0f, 1.0f, 0.0f));
+  this->shapeVertex(&vertex);
+  this->endShape();
+  \endverbatim
+
+  Note that the SoPrimitiveVertex instance can simply be placed on the
+  stack and not allocated. SoShape will copy the needed information
+  when you call shapeVertex().
+
+  Before calling shapeVertex(), you can set extra information for the
+  SoPrimitiveVertex, including normal, material index, and texture
+  coordinates.
+
+  This method is slightly different from its counterpart from the
+  original Open Inventor library, as this method has an SoDetail as
+  the last argument, and not an SoFaceDetail. This is because we
+  accept more TriangleShape types, and the detail might be a
+  SoFaceDetail or a SoLineDetail. There is no use sending in a
+  SoPointDetail, as nothing will be done with it.
+*/
+public void
+beginShape(SoAction action, TriangleShape shapetype,
+                    SoDetail detail)
+{
+  soshape_get_staticdata().primdata.beginShape(this, action, shapetype, detail);
+}
+
+private enum SoShapeRenderMode {
+	  NORMAL,
+	  BIGTEXTURE,
+	  SORTED_TRIANGLES,
+	  PVCACHE
+	};
+
+
+public static class soshape_staticdata {
+	  soshape_primdata primdata; // ptr
+	  SbList <soshape_bigtexture> bigtexturelist; //ptr
+	  SbListInt bigtexturecontext; //ptr
+	  soshape_trianglesort trianglesort; //ptr
+
+	  soshape_bigtexture currentbigtexture; //ptr
+	  // used in generatePrimitives() callbacks to set correct material
+	  SoMaterialBundle currentbundle; //ptr
+
+	  int rendermode;
+	} ;
+
+
+
+static void
+soshape_construct_staticdata(Object closure)
+{
+  soshape_staticdata data = (soshape_staticdata) closure;
+
+  data.bigtexturelist = new SbList <soshape_bigtexture>();
+  data.bigtexturecontext = new SbListInt();
+  data.primdata = new soshape_primdata();
+  data.trianglesort = new soshape_trianglesort();
+  data.rendermode = SoShapeRenderMode.NORMAL.ordinal();
+}
+
+static void
+soshape_destruct_staticdata(Object closure)
+{
+  soshape_staticdata data = (soshape_staticdata) closure;
+//  for (int i = 0; i < data->bigtexturelist->getLength(); i++) {
+//    delete (*(data.bigtexturelist))[i];
+//  }
+//  delete data.bigtexturelist;
+//  delete data.bigtexturecontext;
+//  delete data.primdata;
+//  delete data.trianglesort;
+}
+
+
+private static SbStorage soshape_staticstorage; //ptr
+
+private static soshape_staticdata
+soshape_get_staticdata()
+{
+  return (soshape_staticdata) soshape_staticstorage.get();
 }
 
 
