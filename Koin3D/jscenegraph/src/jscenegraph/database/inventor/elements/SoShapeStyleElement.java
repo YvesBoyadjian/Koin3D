@@ -465,6 +465,15 @@ setOverrides(SoState state, boolean value)
         SoVertexPropertyCache.BitMask.OVERRIDE_FROM_STATE_BIT.getValue();
     else elt.renderCaseMask &=
         (~SoVertexPropertyCache.BitMask.OVERRIDE_FROM_STATE_BIT.getValue());
+    
+    SoShapeStyleElement elem = getElement(state);
+    if (value) {
+      elem.flags |= Flags.OVERRIDE.getValue();
+    }
+    else {
+      elem.flags &= ~Flags.OVERRIDE.getValue();
+    }
+    
 }   
 
 

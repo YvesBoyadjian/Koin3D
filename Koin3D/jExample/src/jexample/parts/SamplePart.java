@@ -77,7 +77,8 @@ public class SamplePart {
 	    //viewer.setColorBitDepth (10);
 		//viewer.setAntialiasing(true, 16);
 		viewer.setHeadlight(true);
-		viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_ADD);
+		//viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_ADD);
+		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
 		
 	    viewer.buildWidget(style);
 	    
@@ -96,10 +97,10 @@ public class SamplePart {
 	    }	    
 	    
 	    viewer.setSceneGraph(
-	    		SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
+	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
-	    		//createDemoScenePerformance() // TODO transparency
+	    		createDemoScenePerformance() // TODO transparency
 	    		//createDemoSceneSoMaterialShapeBinding()
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
@@ -111,10 +112,10 @@ public class SamplePart {
 	    		//FancyText3.createScene()
 	    		//Selection.createScene(viewer) //TODO
 	    		//Selection.createSceneSelection()
-	    		//Manips.createScene() //TODO SoCube
-	    		//(new PickTrackball()).createScene() // TODO
+	    		//Manips.createScene()
+	    		//(new PickTrackball()).createScene()
 	    		//FrolickingWords.createRoot()
-	    		//Balance.createScene(viewer)// TODO
+	    		//Balance.createScene(viewer)
 	    		//Obelisque.makeObeliskFaceSet()
 	    		//Drapeau.makePennant()
 	    		//Arche.makeArch()

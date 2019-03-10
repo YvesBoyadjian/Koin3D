@@ -94,5 +94,24 @@ import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
  */
 public class SoShapeP {
 
+	  public enum Flags {
+		    SHOULD_BBOX_CACHE ( 0x1),
+		    NEED_SETUP_SHAPE_HINTS ( 0x2),
+		    DISABLE_VERTEX_ARRAY_CACHE ( 0x4);
+		    private int value;
+		    
+		    Flags(int value) {
+		    	this.value = value;
+		    }
+		    public int getValue() {
+		    	return value;
+		    }
+		  };
+		  
+		  public static double bboxcachetimelimit;
 	  public SoBoundingBoxCache bboxcache; //TODO
+	  public int flags;
+
+	  public void lock() { }
+	  public void unlock() { }
 }

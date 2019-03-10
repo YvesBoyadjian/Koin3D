@@ -61,6 +61,7 @@ import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.misc.SoGenerate;
 import jscenegraph.coin3d.misc.SoGL;
+import jscenegraph.coin3d.misc.SoPick;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
@@ -384,27 +385,44 @@ rayPick(SoRayPickAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  // First see if the object is pickable
-  if (! shouldRayPick(action))
-    return;
+	  if (!shouldRayPick(action)) return;
 
-  // Save the state so we don't affect the real complexity
-  action.getState().push();
+	  SoMaterialBindingElement.Binding binding =
+	    SoMaterialBindingElement.get(action.getState());
 
-  // Change the complexity
-  SoComplexityElement.set(action.getState(), 0.0f);
-  SoComplexityTypeElement.set(action.getState(),
-    SoComplexityTypeElement.Type.OBJECT_SPACE);
+	  boolean materialPerPart =
+	    (binding == SoMaterialBindingElement.Binding.PER_PART ||
+	     binding == SoMaterialBindingElement.Binding.PER_PART_INDEXED);
 
-  // Pick using primitive generation. Make sure we know that we are
-  // really picking on a real cube, not just a bounding box of
-  // another shape.
-  pickingBoundingBox = false;
-  super.rayPick(action);
+	  SoPick.sopick_pick_cube(this.width.getValue(),
+	                   this.height.getValue(),
+	                   this.depth.getValue(),
+	                   materialPerPart ? SoPick.SOPICK_MATERIAL_PER_PART : 0,
+	                   this, action);
+	}
 
-  // Restore the state
-  action.getState().pop();
-}
+//{
+//  // First see if the object is pickable
+//  if (! shouldRayPick(action))
+//    return;
+//
+//  // Save the state so we don't affect the real complexity
+//  action.getState().push();
+//
+//  // Change the complexity
+//  SoComplexityElement.set(action.getState(), 0.0f);
+//  SoComplexityTypeElement.set(action.getState(),
+//    SoComplexityTypeElement.Type.OBJECT_SPACE);
+//
+//  // Pick using primitive generation. Make sure we know that we are
+//  // really picking on a real cube, not just a bounding box of
+//  // another shape.
+//  pickingBoundingBox = false;
+//  super.rayPick(action);
+//
+//  // Restore the state
+//  action.getState().pop();
+//}
 
 
 	

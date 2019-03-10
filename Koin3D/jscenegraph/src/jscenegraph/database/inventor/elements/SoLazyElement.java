@@ -654,7 +654,7 @@ matches( SoElement element)
 	      
 	     public SbColorArray      getDiffusePointer()
 	              {
-	    	  return this.coinstate.diffusearray;
+	    	  return SbColorArray.copyOf(this.coinstate.diffusearray);
 	    	 }
 	      
 	     public int[]       getColorIndexPointer()
@@ -784,10 +784,10 @@ public void init(SoState state)
     coinstate.packeddiffuse = false;
     coinstate.numdiffuse = 1;
     coinstate.numtransp = 1;
-    coinstate.diffusearray = lazy_defaultdiffuse;
-    coinstate.packedarray = lazy_defaultpacked;
-    coinstate.transparray = lazy_defaulttransp;
-    coinstate.colorindexarray = lazy_defaultindex;
+    coinstate.diffusearray = SbColorArray.copyOf(lazy_defaultdiffuse);
+    coinstate.packedarray = IntArrayPtr.copyOf(lazy_defaultpacked);
+    coinstate.transparray = FloatArray.copyOf(lazy_defaulttransp);
+    coinstate.colorindexarray = IntArrayPtr.copyOf(lazy_defaultindex);
     coinstate.istransparent = false;
     coinstate.transptype = (int)(SoGLRenderAction.TransparencyType.BLEND.getValue());
     coinstate.diffusenodeid = 0;
@@ -1864,5 +1864,86 @@ if (lazy_defaultdiffuse == null) {
 }
 }
 
+
+public static void
+enableBlending(SoState state,  int sfactor, int dfactor)
+{
+  SoLazyElement.enableSeparateBlending(state, sfactor, dfactor, 0, 0);
+}
+
+public static void
+enableSeparateBlending(SoState state,
+                                      int sfactor, int dfactor,
+                                      int alpha_sfactor, int alpha_dfactor)
+{
+  SoLazyElement elem = SoLazyElement.getInstance(state);
+  if (elem.coinstate.blending == 0 ||
+      elem.coinstate.blend_sfactor != sfactor ||
+      elem.coinstate.blend_dfactor != dfactor ||
+      elem.coinstate.alpha_blend_sfactor != alpha_sfactor ||
+      elem.coinstate.alpha_blend_dfactor != alpha_dfactor) {
+    elem = getWInstance(state);
+    elem.enableBlendingElt(sfactor, dfactor, alpha_sfactor, alpha_dfactor);
+    if (state.isCacheOpen()) elem.lazyDidSet(masks.BLENDING_MASK.getValue());
+  }
+  else if (state.isCacheOpen()) {
+    elem.lazyDidntSet(masks.BLENDING_MASK.getValue());
+  }
+}
+
+// ! FIXME: write doc
+
+public static void
+disableBlending(SoState state)
+{
+  SoLazyElement elem = SoLazyElement.getInstance(state);
+  if (elem.coinstate.blending != 0) {
+    elem = getWInstance(state);
+    elem.disableBlendingElt();
+    if (state.isCacheOpen()) elem.lazyDidSet(masks.BLENDING_MASK.getValue());
+  }
+  else if (state.isCacheOpen()) {
+    elem.lazyDidntSet(masks.BLENDING_MASK.getValue());
+  }
+}
+
+
+public void
+enableBlendingElt(int sfactor, int dfactor, int alpha_sfactor, int alpha_dfactor)
+{
+  this.coinstate.blending = true ? 1 : 0;
+  this.coinstate.blend_sfactor = sfactor;
+  this.coinstate.blend_dfactor = dfactor;
+  this.coinstate.alpha_blend_sfactor = alpha_sfactor;
+  this.coinstate.alpha_blend_dfactor = alpha_dfactor;
+}
+
+public void
+disableBlendingElt()
+{
+  this.coinstate.blending = false ? 1 : 0;
+}
+
+
+public static void
+setBackfaceCulling(SoState state, boolean onoff)
+{
+  SoLazyElement elem = SoLazyElement.getInstance(state);
+  if (elem.coinstate.culling != (onoff ? 1 : 0)) {
+    elem = getWInstance(state);
+    elem.setBackfaceCullingElt(onoff);
+    if (state.isCacheOpen()) elem.lazyDidSet(masks.CULLING_MASK.getValue());
+  }
+  else if (state.isCacheOpen()) {
+    elem.lazyDidntSet(masks.CULLING_MASK.getValue());
+  }
+}
+
+
+public void
+setBackfaceCullingElt(boolean onoff)
+{
+  this.coinstate.culling = onoff ? 1 : 0;
+}
 
 }

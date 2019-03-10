@@ -354,4 +354,14 @@ return elem.faceType;
 }
 
 
+public static SoShapeHintsElement.ShapeType
+getShapeType(SoState state)
+{
+  SoShapeHintsElement elem = (SoShapeHintsElement)
+    (
+     SoElement.getConstElement(state, classStackIndexMap.get(SoShapeHintsElement.class))
+     );
+  return elem.shapeType;
+}
+
 }

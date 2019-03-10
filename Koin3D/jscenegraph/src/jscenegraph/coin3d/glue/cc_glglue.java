@@ -414,4 +414,8 @@ public void glBlendFuncSeparate(int rgbsrc, int rgbdst, int alphasrc, int alphad
 	gl2.glBlendFuncSeparate( rgbsrc, rgbdst, alphasrc, alphadst);
 }
 
+public void glMultiTexCoord2f(int target, float s, float t) {
+	gl2.glMultiTexCoord2f(target, s, t);
+}
+
 }

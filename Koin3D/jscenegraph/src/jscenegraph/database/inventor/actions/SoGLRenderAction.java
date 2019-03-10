@@ -67,8 +67,11 @@ import static com.jogamp.opengl.GL2ES1.GL_POINT_SMOOTH;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.glue.cc_glglue;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.nodes.SoTransparencyType;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec2f;
@@ -87,11 +90,14 @@ import jscenegraph.database.inventor.elements.SoGLUpdateAreaElement;
 import jscenegraph.database.inventor.elements.SoGLViewportRegionElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoOverrideElement;
+import jscenegraph.database.inventor.elements.SoProjectionMatrixElement;
+import jscenegraph.database.inventor.elements.SoShapeHintsElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.elements.SoWindowElement;
 import jscenegraph.database.inventor.misc.SoCallbackListCB;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.system.SbOpenGL;
 import jscenegraph.port.Ctx;
@@ -152,7 +158,11 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            BLEND,                  //!< Use GL alpha blending
            DELAYED_BLEND,          //!< Use GL alpha blending, do transp objs last
           SORTED_OBJECT_BLEND,     //!< Use GL alpha blending, sort objects by bbox
-          NONE; // COIN 3D
+          // The remaining are Coin extensions to the common Inventor API
+          SORTED_OBJECT_SORTED_TRIANGLE_ADD,
+          SORTED_OBJECT_SORTED_TRIANGLE_BLEND,
+          NONE, // COIN 3D
+          SORTED_LAYERS_BLEND; // COIN 3D
 
            public int getValue() {
         	   return ordinal();
@@ -163,6 +173,12 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 		}
       };
 
+      enum TransparentDelayedObjectRenderType {
+    	    ONE_PASS,
+    	    NONSOLID_SEPARATE_BACKFACE_PASS
+    	  };
+
+      
     //! Possible return codes from a render abort callback
       enum AbortCode {
           CONTINUE,               //!< Continue as usual
@@ -202,7 +218,6 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 	     private	       Object                abortData;     //!< User data for abort callback
 
 	       //! Variables for transparency, smoothing, and multi-pass rendering:
-	     private	       TransparencyType    transpType;     //!< Transparency quality type
 	     private	       boolean              doSmooth;       //!< Doing smoothing ?
 	     private	       int                 numPasses;      //!< Number of rendering passes
 	     private	       int                 curPass;        //!< Current pass
@@ -274,7 +289,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 
          abortCB             = null;
 
-         transpType          = TransparencyType.SCREEN_DOOR;
+         pimpl.transparencytype          = TransparencyType./*SCREEN_DOOR*/BLEND;
          doSmooth            = false;
          numPasses           = 1;
          passUpdate          = false;
@@ -516,8 +531,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        ////////////////////////////////////////////////////////////////////////
        {
-           if (transpType != type) {
-               transpType = type;
+           if (pimpl.transparencytype != type) {
+        	   pimpl.transparencytype = type;
                pimpl.needglinit = true;
                whatChanged |= flags.TRANSPARENCY_TYPE.getValue();
            }
@@ -527,7 +542,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            //! default is SCREEN_DOOR. (Note that SCREEN_DOOR transparency does not work
            //! in the case where transparency values are specified for each vertex
            //! of a shape. If this is the case, use one of the other transparency types.)
-      public TransparencyType    getTransparencyType() { return transpType; }
+      public TransparencyType    getTransparencyType() { return pimpl.transparencytype; }
 
 
       ////////////////////////////////////////////////////////////////////////
@@ -724,80 +739,188 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 // Use: extender
 
 public boolean
-handleTransparency(boolean isTransparent)
+handleTransparency(boolean istransparent)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    boolean      ret;
+	  SoState thestate = this.getState();
+	  cc_glglue glue = SoGL.sogl_glue_instance(thestate);
 
-    // Nothing special to do for screen-door blending
-    if (transpType == TransparencyType.SCREEN_DOOR) {
-		return false;
+	  SoGLRenderAction.TransparencyType transptype =
+	    SoGLRenderAction.TransparencyType.fromValue(
+	    SoShapeStyleElement.getTransparencyType(thestate)
+	    );
+
+
+	  if (pimpl.transparencytype == TransparencyType.SORTED_LAYERS_BLEND) {
+
+	    // Do not cache anything. We must have full control!
+	    SoCacheElement.invalidate(thestate);
+
+	    pimpl.sortedlayersblendprojectionmatrix.copyFrom(
+	      SoProjectionMatrixElement.get(thestate));
+
+//	    if (!SoMultiTextureEnabledElement.get(thestate, 0)) { FIXME YB
+//	      if (glue.has_arb_fragment_program && !pimpl.usenvidiaregistercombiners) {
+//	        pimpl.setupFragmentProgram();
+//	      }
+//	      else {
+//	        pimpl.setupRegisterCombinersNV();
+//	      }
+//	    }
+
+	    // Must always return false as everything must be rendered to the
+	    // RGBA layers (which are blended together at the end of each
+	    // frame).
+	    return false;
+	  }
+
+
+	  // check common cases first
+	  if (!istransparent || transptype == SoGLRenderAction.TransparencyType.NONE || transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR) {
+	    if (pimpl.smoothing) {
+	      SoLazyElement.enableBlending(thestate, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    }
+	    else SoLazyElement.disableBlending(thestate);
+	    return false;
+	  }
+
+	  // below this point, shape is transparent, and we know that
+	  // transparency type is not SCREEN_DOOR or NONE.
+
+	  // for the transparency render pass(es) we should always render when
+	  // we get here.
+	  if (pimpl.transparencyrender) {
+	    if (pimpl.transpdelayedrendertype == TransparentDelayedObjectRenderType.NONSOLID_SEPARATE_BACKFACE_PASS) {
+	      if (this.isRenderingTranspBackfaces()) {
+	        if (SoShapeHintsElement.getShapeType(this.state) == SoShapeHintsElement.ShapeType.SOLID) {
+	          // just delay this until the next pass
+	          return true;
+	        }
+	        else {
+	          SoLazyElement.setBackfaceCulling(this.state, true);
+	        }
+	      }
+	      else {
+	        if (SoShapeHintsElement.getShapeType(this.state) != SoShapeHintsElement.ShapeType.SOLID) {
+	          SoLazyElement.setBackfaceCulling(this.state, true);
+	        }
+	      }
+	    }
+	    pimpl.setupBlending(thestate, transptype);
+	    return false;
+	  }
+	  // check for special case when rendering delayed paths.  we don't
+	  // want to add these objects to the list of transparent objects, but
+	  // render right away.
+	  if (pimpl.delayedpathrender) {
+	    pimpl.setupBlending(thestate, transptype);
+	    return false;
+	  }
+	  switch (transptype) {
+	  case /*SoGLRenderAction.*/ADD:
+	    SoLazyElement.enableBlending(thestate, GL_SRC_ALPHA, GL_ONE);
+	    return false;
+	  case /*SoGLRenderAction.*/BLEND:
+	    SoLazyElement.enableBlending(thestate, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    return false;
+	  case /*SoGLRenderAction.*/DELAYED_ADD:
+	  case /*SoGLRenderAction.*/DELAYED_BLEND:
+	    pimpl.addTransPath(this.getCurPath().copy());
+	    SoCacheElement.setInvalid(true);
+	    if (thestate.isCacheOpen()) {
+	      SoCacheElement.invalidate(thestate);
+	    }
+	    return true; // delay render
+	  case /*SoGLRenderAction.*/SORTED_OBJECT_ADD:
+	  case /*SoGLRenderAction.*/SORTED_OBJECT_BLEND:
+	  case /*SoGLRenderAction.*/SORTED_OBJECT_SORTED_TRIANGLE_ADD:
+	  case /*SoGLRenderAction.*/SORTED_OBJECT_SORTED_TRIANGLE_BLEND:
+	    pimpl.addSortTransPath(this.getCurPath().copy());
+	    SoCacheElement.setInvalid(true);
+	    if (thestate.isCacheOpen()) {
+	      SoCacheElement.invalidate(thestate);
+	    }
+	    return true; // delay render
+	  default:
+	    throw new IllegalStateException( "should not get here");
+	    //break;
+	  }
+	  //return false;
 	}
 
-    // Determine if the object is likely to be transparent. This is
-    // true if: there are several transparency values in the state or
-    // the first one is non-zero; there is a texture map that affects
-    // transparency; or the diffuse colors are specified as packed
-    // values (which contain alpha).
-    if (isTransparent ||
-        (SoLazyElement.getInstance(getState()).isTransparent()) ||
-        (SoMultiTextureImageElement.containsTransparency(getState()))) {
 
-        // If transparency is delayed, add a path to this object to
-        // the list of transparent objects, and tell the shape not to
-        // render
-        if (delayObjs) {
-            SoPath        curPath = getCurPath();
-
-            // For some group nodes (such as Array and MultipleCopy),
-            // the children are traversed more than once. In this
-            // case, don't add the path if it is the same as any of
-            // the previous ones.
-            boolean      isCopy = false;
-            int         i;
-
-            for (i = 0; i < transpPaths.getLength(); i++) {
-                if (curPath.operator_equals(transpPaths.operator_square_bracket(i))) {
-                    isCopy = true;
-                    break;
-                }
-            }
-
-            // Add path if not already there
-            if (! isCopy)
-			 {
-				transpPaths.append(curPath.copy());    // Also refs the path
-			}
-
-            // We also need to make sure that any open caches are
-            // invalidated; if they aren't, they will skip this
-            // object and (since the cache replaces traversal),
-            // this object will not be rendered delayed at all.
-
-            if (getState().isCacheOpen()) {
-				SoCacheElement.invalidate(getState());
-			}
-
-            ret = true;
-        }
-
-        // If transparency is not delayed, enable blending
-        else {
-            //enableBlending(true);
-            ret = false;
-        }
-    }
-
-    // Disable blending, otherwise
-    else {
-        //enableBlending(false);
-        ret = false;
-    }
-
-    return ret;
-
-    }
+//{
+//    boolean      ret;
+//
+//    // Nothing special to do for screen-door blending
+//    if (transpType == TransparencyType.SCREEN_DOOR) {
+//		return false;
+//	}
+//
+//    // Determine if the object is likely to be transparent. This is
+//    // true if: there are several transparency values in the state or
+//    // the first one is non-zero; there is a texture map that affects
+//    // transparency; or the diffuse colors are specified as packed
+//    // values (which contain alpha).
+//    if (isTransparent ||
+//        (SoLazyElement.getInstance(getState()).isTransparent()) ||
+//        (SoMultiTextureImageElement.containsTransparency(getState()))) {
+//
+//        // If transparency is delayed, add a path to this object to
+//        // the list of transparent objects, and tell the shape not to
+//        // render
+//        if (delayObjs) {
+//            SoPath        curPath = getCurPath();
+//
+//            // For some group nodes (such as Array and MultipleCopy),
+//            // the children are traversed more than once. In this
+//            // case, don't add the path if it is the same as any of
+//            // the previous ones.
+//            boolean      isCopy = false;
+//            int         i;
+//
+//            for (i = 0; i < transpPaths.getLength(); i++) {
+//                if (curPath.operator_equals(transpPaths.operator_square_bracket(i))) {
+//                    isCopy = true;
+//                    break;
+//                }
+//            }
+//
+//            // Add path if not already there
+//            if (! isCopy)
+//			 {
+//				transpPaths.append(curPath.copy());    // Also refs the path
+//			}
+//
+//            // We also need to make sure that any open caches are
+//            // invalidated; if they aren't, they will skip this
+//            // object and (since the cache replaces traversal),
+//            // this object will not be rendered delayed at all.
+//
+//            if (getState().isCacheOpen()) {
+//				SoCacheElement.invalidate(getState());
+//			}
+//
+//            ret = true;
+//        }
+//
+//        // If transparency is not delayed, enable blending
+//        else {
+//            enableBlending(true);
+//            ret = false;
+//        }
+//    }
+//
+//    // Disable blending, otherwise
+//    else {
+//        enableBlending(false);
+//        ret = false;
+//    }
+//
+//    return ret;
+//
+//    }
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -827,13 +950,26 @@ addDelayedPath(SoPath path)
 //
 // Use: private
 
-//private void
-//enableBlending(boolean enable)
-////
-//////////////////////////////////////////////////////////////////////////
-//{
-//    SoLazyElement.setBlending(state, enable);
-//}
+private void
+enableBlending(boolean enable)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	  SoGLRenderAction.TransparencyType transptype =
+			    SoGLRenderAction.TransparencyType.fromValue(
+			    SoShapeStyleElement.getTransparencyType(state)
+			    );
+	  
+	  
+
+    //SoLazyElement.setBlending(state, enable);
+	if(enable) {
+		SoLazyElement.enableBlending(state, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+	else {
+		SoLazyElement.disableBlending(state);
+	}
+}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -917,15 +1053,15 @@ renderAllPasses(SoNode node)
     // applied, make sure it is set up correctly in GL.
     if (whatChanged != 0) {
 
-        switch (transpType) {
+        switch (pimpl.transparencytype) {
           case SCREEN_DOOR:
             if (doSmooth) {
                 // Blending has to be enabled for line smoothing to
                 // work properly
                 gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                //enableBlending(true);
+                enableBlending(true);
             } else {
-				//enableBlending(false);
+				enableBlending(false);
 			}
             break;
 
@@ -942,11 +1078,11 @@ renderAllPasses(SoNode node)
             break;
         }
 
-        sortObjs = (transpType == TransparencyType.SORTED_OBJECT_ADD ||
-                    transpType == TransparencyType.SORTED_OBJECT_BLEND);
+        sortObjs = (pimpl.transparencytype == TransparencyType.SORTED_OBJECT_ADD ||
+        		pimpl.transparencytype == TransparencyType.SORTED_OBJECT_BLEND);
         delayObjs = (sortObjs ||
-                     transpType == TransparencyType.DELAYED_ADD ||
-                     transpType == TransparencyType.DELAYED_BLEND);
+        		pimpl.transparencytype == TransparencyType.DELAYED_ADD ||
+        				pimpl.transparencytype == TransparencyType.DELAYED_BLEND);
 
         if (doSmooth) {
             gl2.glEnable(GL_POINT_SMOOTH);
@@ -967,8 +1103,8 @@ renderAllPasses(SoNode node)
 
     // Set the transparency bit in the ShapeStyle element
     // and the lazy element.
-    SoShapeStyleElement.setTransparencyType(state,transpType.getValue());
-    SoLazyElement.setTransparencyType(state, transpType.getValue());
+    SoShapeStyleElement.setTransparencyType(state,pimpl.transparencytype.getValue());
+    SoLazyElement.setTransparencyType(state, pimpl.transparencytype.getValue());
 
     // Simple case of one pass
     if (getNumPasses() == 1) {
@@ -1042,15 +1178,15 @@ renderPass(SoNode node, int pass)
     if (delayObjs && transpPaths.getLength() > 0 && ! hasTerminated()) {
 
         // Make sure blending is enabled if necessary
-        if (transpType != TransparencyType.SCREEN_DOOR) {
-			//enableBlending(true);
+        if (pimpl.transparencytype != TransparencyType.SCREEN_DOOR) {
+			enableBlending(true);
 		}
 
         renderTransparentObjs();
 
         // Disable blending for next pass
-        if (transpType != TransparencyType.SCREEN_DOOR) {
-			//enableBlending(false);
+        if (pimpl.transparencytype != TransparencyType.SCREEN_DOOR) {
+			enableBlending(false);
 		}
     }
 
@@ -1164,7 +1300,7 @@ renderTransparentObjs()
     renderingTranspObjs = false;
 }
 
-    //! Returns TRUE if currently rendering delayed paths
+    //! Returns true if currently rendering delayed paths
     public boolean              isRenderingDelayedPaths()
         { return renderingDelPaths; }
 
@@ -1176,7 +1312,7 @@ renderTransparentObjs()
 	/*
 	 * !
 	 *
-	 * Returns TRUE if the action is currently rendering delayed or sorted
+	 * Returns true if the action is currently rendering delayed or sorted
 	 * transparent objects.
 	 *
 	 * \since Coin 3.0
@@ -1201,7 +1337,7 @@ renderTransparentObjs()
   instance draw an image in the color buffer using this callback, you
   should make sure that the scene manager doesn't clear the buffer.
   This can be done either by calling SoSceneManager::render() with
-  both arguments FALSE, or, if you're using one of our GUI toolkits
+  both arguments false, or, if you're using one of our GUI toolkits
   (SoXt/SoQt/SoGtk/SoWin), call setClearBeforeRender() on the viewer.
 
   This method is an extension versus the Open Inventor API.
@@ -1232,6 +1368,19 @@ public void
 removePreRenderCallback(SoGLPreRenderCB func, Object userdata)
 {
   this.pimpl.precblist.removeCallback((SoCallbackListCB)(func), userdata);
+}
+
+
+/*!
+  Returns TRUE if the action is currently rendering backfacing polygons
+  in NONSOLID_SEPARATE_BACKFACE_PASS mode.
+
+  \since Coin 3.0
+*/
+public boolean
+isRenderingTranspBackfaces()
+{
+  return pimpl.renderingtranspbackfaces;
 }
 
 

@@ -82,15 +82,18 @@ import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.threads.SbStorage;
 import jscenegraph.coin3d.misc.SoGL;
+import jscenegraph.database.inventor.SbBasic;
 import jscenegraph.database.inventor.SbBox2f;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbMatrix;
+import jscenegraph.database.inventor.SbTime;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.database.inventor.SbXfBox3f;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
@@ -106,6 +109,7 @@ import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.details.SoFaceDetail;
 import jscenegraph.database.inventor.details.SoPointDetail;
 import jscenegraph.database.inventor.elements.SoCacheElement;
+import jscenegraph.database.inventor.elements.SoComplexityElement;
 import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoDrawStyleElement;
@@ -442,6 +446,50 @@ getBoundingBox(SoGetBoundingBoxAction action)
     protected abstract void generatePrimitives(SoAction action);
 
 
+/*!
+  Returns the complexity value to be used by subclasses. Considers
+  complexity type. For \c OBJECT_SPACE complexity this will be a
+  number between 0 and 1. For \c SCREEN_SPACE complexity it is a
+  number from 0 and up.
+*/
+public float
+getComplexityValue(SoAction action)
+{
+  SoState state = action.getState();
+  switch (SoComplexityTypeElement.get(state)) {
+  case /*SoComplexityTypeElement::*/SCREEN_SPACE:
+    {
+      final SbBox3f box = new SbBox3f();
+      final SbVec3f center = new SbVec3f();
+      this.getBBox(action, box, center);
+      final SbVec2s size = new SbVec2s();
+      SoShape.getScreenSize(state, box, size);
+      // FIXME: probably needs calibration.
+
+//#if 1 // testing new complexity code
+      // The cast within the sqrt() is done to avoid ambigouity error
+      // from HPUX aCC, as sqrt() can be either "long double sqrt(long
+      // double)" or "float sqrt(float)". mortene.
+      return (float)(Math.sqrt((float)SbBasic.SbMax(size.getValue()[0], size.getValue()[1]))) * 0.4f *
+        SoComplexityElement.get(state);
+//#else // first version
+//      float numPixels = float(size[0])* float(size[1]);
+//      return numPixels * 0.0001f * SoComplexityElement::get(state);
+//#endif
+    }
+  case /*SoComplexityTypeElement::*/OBJECT_SPACE:
+    return SoComplexityElement.get(state);
+  case /*SoComplexityTypeElement::*/BOUNDING_BOX:
+    // return default value. We might get here when generating
+    // primitives, not when rendering.
+    return 0.5f;
+  default:
+    throw new IllegalArgumentException( "unknown complexity type");
+    //return 0.5f;
+  }
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -479,7 +527,7 @@ shouldGLRender(SoGLRenderAction action)
 
     // If the shape is transparent and transparent objects are being
     // delayed, don't render now
-    if (action.handleTransparency())
+    if (action.handleTransparency(transparent))
         return false;
 
     // If the current complexity is BOUNDING_BOX, just render the
@@ -1508,6 +1556,80 @@ getBoundingBoxCache()
   return pimpl.bboxcache;
 }
 	  
+
+// return the bbox for this shape, using the cache if valid,
+// calculating it if not.
+public void
+getBBox(SoAction action, final SbBox3f box, final SbVec3f center)
+{
+  SoState state = action.getState();
+  boolean isvalid = pimpl.bboxcache != null && pimpl.bboxcache.isValid(state);
+  if (isvalid) {
+    box.copyFrom(pimpl.bboxcache.getProjectedBox());
+    // we know center will be set, so just fetch it from the cache
+    center.copyFrom(pimpl.bboxcache.getCenter());
+  }
+  if (isvalid) {
+    return;
+  }
+
+  // destroy the old cache if we have one
+  if (pimpl.bboxcache != null) {
+    pimpl.lock();
+    pimpl.bboxcache.unref();
+    pimpl.bboxcache = null;
+    pimpl.unlock();
+    // don't create bbox caches for shapes that change
+    pimpl.flags &= ~SoShapeP.Flags.SHOULD_BBOX_CACHE.getValue();
+  }
+
+  boolean shouldcache = (pimpl.flags & SoShapeP.Flags.SHOULD_BBOX_CACHE.getValue()) != 0;
+  boolean storedinvalid = false;
+  if (shouldcache) {
+    // must push state to make cache dependencies work
+    state.push();
+    storedinvalid = SoCacheElement.setInvalid(false);
+    assert(pimpl.bboxcache == null);
+    pimpl.lock();
+    pimpl.bboxcache = new SoBoundingBoxCache(state);
+    pimpl.bboxcache.ref();
+    pimpl.unlock();
+    SoCacheElement.set(state, pimpl.bboxcache);
+  }
+  SbTime begin = SbTime.getTimeOfDay();
+  this.computeBBox(action, box, center);
+  SbTime end = SbTime.getTimeOfDay();
+  if (shouldcache) {
+    pimpl.bboxcache.set(new SbXfBox3f(box), true, center);
+    // pop state since we pushed it
+    state.pop();
+    SoCacheElement.setInvalid(storedinvalid);
+  }
+  // only create cache if calculating it took longer than the limit
+  else if ((end.getValue() - begin.getValue()) >= SoShapeP.bboxcachetimelimit) {
+    pimpl.flags |= SoShapeP.Flags.SHOULD_BBOX_CACHE.getValue();
+    if (action.isOfType(SoGetBoundingBoxAction.getClassTypeId())) {
+      // just recalculate the bbox so that the cache is created at
+      // once. SoGLRenderAction and SoRayPickAction might need it.
+      state.push();
+      storedinvalid = SoCacheElement.setInvalid(false);
+      assert(pimpl.bboxcache == null);
+      pimpl.lock();
+      pimpl.bboxcache = new SoBoundingBoxCache(state);
+      pimpl.bboxcache.ref();
+      pimpl.unlock();
+      SoCacheElement.set(state, pimpl.bboxcache);
+      box.makeEmpty();
+      this.computeBBox(action, box, center);
+      pimpl.bboxcache.set(new SbXfBox3f(box), true, center);
+      // pop state since we pushed it
+      state.pop();
+      SoCacheElement.setInvalid(storedinvalid);
+    }
+  }
+}
+
+
 
 //
 // This macro is used by the rendering methods to follow:

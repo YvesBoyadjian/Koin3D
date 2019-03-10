@@ -61,6 +61,9 @@ import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
+import jscenegraph.coin3d.misc.SoGL;
+import jscenegraph.coin3d.misc.SoPick;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
@@ -72,6 +75,7 @@ import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.details.SoCylinderDetail;
 import jscenegraph.database.inventor.elements.SoComplexityElement;
@@ -178,6 +182,8 @@ public class SoCylinder extends SoShape {
 	        { return SoSubNode.getFieldDataPtr(SoCylinder.class); }    	  	
 	
 	
+	  private static final float CYL_SIDE_NUMTRIS =40.0f;
+
 
 	public enum Part {
 		SIDES(0x01),
@@ -193,6 +199,17 @@ public class SoCylinder extends SoShape {
 		
 		public int getValue() {
 			return value;
+		}
+
+		public static Part fromValue(int value2) {
+			switch(value2) {
+			case 0x01: return SIDES;
+			case 0x02: return TOP;
+			case 0x04: return BOTTOM;
+			case 0x07: return ALL;
+			default:
+				return null;
+			}
 		}
 	}
 	
@@ -324,35 +341,79 @@ GLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  // First see if the object is visible and should be rendered now
-  if (! shouldGLRender(action))
-    return;
+	  if (!shouldGLRender(action)) return;
 
-  // See if texturing is enabled
-  boolean doTextures = SoGLMultiTextureEnabledElement.get(action.getState(),0);
+	  SoState state = action.getState();
 
-  // Render the cylinder. The GLRenderGeneric() method handles any
-  // case. The GLRenderNvertTnone() handles the case where we are
-  // outputting normals but no texture coordinates. This case is
-  // handled separately since it occurs often and warrants its own
-  // method.
-  boolean sendNormals = (SoLightModelElement.get(action.getState()) !=
-    SoLightModelElement.Model.BASE_COLOR);
-  SoMaterialBindingElement.Binding mbe =
-    SoMaterialBindingElement.get(action.getState());
-  boolean materialPerPart =
-    (mbe == SoMaterialBindingElement.Binding.PER_PART_INDEXED ||
-    mbe == SoMaterialBindingElement.Binding.PER_PART);
+	  SoCylinder.Part p = SoCylinder.Part.fromValue( this.parts.getValue());
+	  final SoMaterialBundle mb = new SoMaterialBundle(action);
+	  mb.sendFirst();
 
-  if (!materialPerPart && SoVBO.isVertexArrayRenderingAllowed() && SoVBO.shouldUseVBO(action.getState(), SoVBO.getVboMinimumSizeLimit()+1 )) {
-    GLRenderVertexArray(action, sendNormals, doTextures);
-  } else {
-    if (! doTextures && sendNormals)
-      GLRenderNvertTnone(action);
-    else
-      GLRenderGeneric(action, sendNormals, doTextures);
-  }
-}
+	  boolean sendNormals = !mb.isColorOnly() ||
+	    (SoMultiTextureCoordinateElement.getType(state) == SoMultiTextureCoordinateElement.CoordType.FUNCTION);
+
+	  int flags = 0;
+	  if (sendNormals)
+	    flags |= SoGL.SOGL_NEED_NORMALS;
+	  if (SoGLMultiTextureEnabledElement.get(state, 0)) {
+	    if (SoGLMultiTextureEnabledElement.getMode(state, 0) ==
+	        SoMultiTextureEnabledElement.Mode.TEXTURE3D) {
+	      flags |= SoGL.SOGL_NEED_3DTEXCOORDS;
+	    }
+	    else {
+	      flags |= SoGL.SOGL_NEED_TEXCOORDS;
+	    }
+	  }
+	  if ((p.getValue() & Part.SIDES.getValue())!=0) flags |= SoGL.SOGL_RENDER_SIDE;
+	  if ((p.getValue() & Part.TOP.getValue())!=0) flags |= SoGL.SOGL_RENDER_TOP;
+	  if ((p.getValue() & Part.BOTTOM.getValue())!=0) flags |= SoGL.SOGL_RENDER_BOTTOM;
+
+	  SoMaterialBindingElement.Binding bind =
+	    SoMaterialBindingElement.get(state);
+	  if (bind == SoMaterialBindingElement.Binding.PER_PART ||
+	      bind == SoMaterialBindingElement.Binding.PER_PART_INDEXED)
+	    flags |= SoGL.SOGL_MATERIAL_PER_PART;
+
+	  float complexity = this.getComplexityValue(action);
+
+	  SoGL.sogl_render_cylinder(this.radius.getValue(),
+	                       this.height.getValue(),
+	                       (int)(CYL_SIDE_NUMTRIS * complexity),
+	                       mb,
+	                       flags, state);
+	  mb.destructor();
+	}
+
+//{
+//  // First see if the object is visible and should be rendered now
+//  if (! shouldGLRender(action))
+//    return;
+//
+//  // See if texturing is enabled
+//  boolean doTextures = SoGLMultiTextureEnabledElement.get(action.getState(),0);
+//
+//  // Render the cylinder. The GLRenderGeneric() method handles any
+//  // case. The GLRenderNvertTnone() handles the case where we are
+//  // outputting normals but no texture coordinates. This case is
+//  // handled separately since it occurs often and warrants its own
+//  // method.
+//  boolean sendNormals = (SoLightModelElement.get(action.getState()) !=
+//    SoLightModelElement.Model.BASE_COLOR);
+//  SoMaterialBindingElement.Binding mbe =
+//    SoMaterialBindingElement.get(action.getState());
+//  boolean materialPerPart =
+//    (mbe == SoMaterialBindingElement.Binding.PER_PART_INDEXED ||
+//    mbe == SoMaterialBindingElement.Binding.PER_PART);
+//
+//  if (!materialPerPart && SoVBO.isVertexArrayRenderingAllowed() && SoVBO.shouldUseVBO(action.getState(), SoVBO.getVboMinimumSizeLimit()+1 )) {
+//    GLRenderVertexArray(action, sendNormals, doTextures);
+//  } else {
+//    if (! doTextures && sendNormals)
+//      GLRenderNvertTnone(action);
+//    else
+//      GLRenderGeneric(action, sendNormals, doTextures);
+//  }
+//}
 
 	
 	
@@ -1935,6 +1996,32 @@ public static void initClass()
 ////////////////////////////////////////////////////////////////////////
 {
     SoSubNode.SO__NODE_INIT_CLASS(SoCylinder.class, "Cylinder", SoShape.class);
+}
+
+
+// Doc in parent.
+public void
+rayPick(SoRayPickAction action)
+{
+  if (!shouldRayPick(action)) return;
+
+
+  int flags = 0;
+  SoCylinder.Part p = SoCylinder.Part.fromValue( this.parts.getValue());
+  if ((p.getValue() & Part.SIDES.getValue())!=0) flags |= SoPick.SOPICK_SIDES;
+  if ((p.getValue() & Part.TOP.getValue())!=0) flags |= SoPick.SOPICK_TOP;
+  if ((p.getValue() & Part.BOTTOM.getValue())!=0) flags |= SoPick.SOPICK_BOTTOM;
+
+  SoMaterialBindingElement.Binding bind =
+    SoMaterialBindingElement.get(action.getState());
+  if (bind == SoMaterialBindingElement.Binding.PER_PART ||
+      bind == SoMaterialBindingElement.Binding.PER_PART_INDEXED)
+    flags |= SoPick.SOPICK_MATERIAL_PER_PART;
+
+  SoPick.sopick_pick_cylinder(this.radius.getValue(),
+                       this.height.getValue(),
+                       flags,
+                       this, action);
 }
 
 

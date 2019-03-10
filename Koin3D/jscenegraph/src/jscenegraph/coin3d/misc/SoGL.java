@@ -15,6 +15,7 @@ import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.bundles.SoTextureCoordinateBundle;
+import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLCoordinateElement;
 import jscenegraph.database.inventor.elements.SoShapeStyleElement;
@@ -63,7 +64,7 @@ sogl_glue_instance( SoState  state)
   // FIXME: disabled until we figure out why this doesn't work on some
   // Linux systems (gcc 3.2 systems, it seems). pederb, 2003-11-24
 //#if 0
-//  assert(action.isOfType(SoGLRenderAction::getClassTypeId()) &&
+//  assert(action.isOfType(SoGLRenderAction.getClassTypeId()) &&
 //         "must have state from SoGLRenderAction to get hold of GL wrapper");
 //  return cc_glglue_instance(action.getCacheContext());
 //#else // disabled
@@ -1161,7 +1162,7 @@ private static void SOGL_FACESET_GLRENDER_CALL_FUNC(SoGL.AttributeBinding normal
 			);
 }
 
-// This is the same code as in SoGLCoordinateElement::send().
+// This is the same code as in SoGLCoordinateElement.send().
 // It is inlined here for speed (~15% speed increase).
 private static void SEND_VERTEX(int _idx_, boolean is3d, SbVec3fArray coords3d, SbVec4fArray coords4d, GL2 gl2) {
 	if (is3d) gl2.glVertex3fv(coords3d.get(_idx_).getValueRead(),0);             
@@ -1249,7 +1250,7 @@ private static int current_errors = 0;
           v1 >= numverts || v2 >= numverts || v3 >= numverts) {
 
         if (current_errors < 1) {
-          SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+          SoDebugError.postWarning("[faceset].GLRender", "Erroneous polygon detected. "+
                                     "Ignoring (offset: "+(viptr.minus(vistartptr) - 3)+", ["+v1+" "+v2+" "+v3+"]). Should be within "+
                                     " [0, "+(numverts - 1)+"] This message will only be shown once, but "+
                                     "more errors might be present"
@@ -1265,7 +1266,7 @@ private static int current_errors = 0;
         newmode = GL2.GL_TRIANGLES;
 
         if (current_errors < 1) {
-          SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+          SoDebugError.postWarning("[faceset].GLRender", "Erroneous polygon detected. "+
                                     "(offset: "+(viptr.minus(vistartptr) - 4)+", ["+v1+" "+v2+" "+v3+" "+v4+"]). Should be within "+
                                     " [0, "+(numverts - 1)+"] This message will only be shown once, but "+
                                     "more errors might be present"
@@ -1281,7 +1282,7 @@ private static int current_errors = 0;
           newmode = GL2.GL_QUADS;
 
           if (current_errors < 1) {
-            SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+            SoDebugError.postWarning("[faceset].GLRender", "Erroneous polygon detected. "+
                                       "(offset: "+(viptr.minus(vistartptr) - 5)+", ["+v1+" "+v2+" "+v3+" "+v4+" "+v5+"]). Should be within "+
                                       " [0, "+(numverts - 1)+"] This message will only be shown once, but "+
                                       "more errors might be present"
@@ -1529,7 +1530,7 @@ private static int current_errors = 0;
             // For robustness upon buggy data sets
             if (v1 >= numverts) {
               if (current_errors < 1) {
-                SoDebugError.postWarning("[faceset]::GLRender", "Erroneous polygon detected. "+
+                SoDebugError.postWarning("[faceset].GLRender", "Erroneous polygon detected. "+
                                           "(offset: "+(viptr.minus(vistartptr) - 1)+", [... "+v1+"]). Should be within "+
                                           "[0, "+(numverts - 1)+"] This message will only be shown once, but "+
                                           "more errors might be present"
@@ -1744,6 +1745,226 @@ sogl_render_cube( float width,
     SoGLCacheContextElement.shouldAutoCache(state, SoGLCacheContextElement.AutoCache.DO_AUTO_CACHE.getValue());
     SoGLCacheContextElement.incNumShapes(state);
   }
+}
+
+public static void
+sogl_render_cylinder( float radius,
+                      float height,
+                      int numslices,
+                     SoMaterialBundle material,
+                     int flagsin,
+                     SoState state)
+{
+  boolean[] unitenabled = null;
+  final int[] maxunit = new int[1];
+  cc_glglue glue = null;
+
+  int flags = flagsin;
+
+  if (state != null) {
+    unitenabled =
+      SoMultiTextureEnabledElement.getEnabledUnits(state, maxunit);
+    if (unitenabled != null) {
+      glue = sogl_glue_instance(state);
+      flags |= SOGL_NEED_MULTITEXCOORDS;
+    }
+    else maxunit[0] = -1;
+  }
+
+  int i, u;
+  int slices = numslices;
+  if (slices > 128) slices = 128;
+  if (slices < 4) slices = 4;
+
+  float h2 = height * 0.5f;
+
+  final SbVec3fArray coords = new SbVec3fArray(new float[129*3]);
+  final SbVec3fArray normals = new SbVec3fArray(new float[130*3]);
+  final SbVec2fArray texcoords = new SbVec2fArray(new float[129*2]);
+
+  sogl_generate_3d_circle(coords, slices, radius, -h2);
+  coords.get(slices).copyFrom( coords.get(0));
+  if ((flags & SOGL_NEED_3DTEXCOORDS)!=0 ||
+      ((flags & SOGL_NEED_TEXCOORDS)!=0 &&
+       (flags & (SOGL_RENDER_BOTTOM | SOGL_RENDER_TOP))!=0)) {
+    sogl_generate_2d_circle(texcoords, slices, 0.5f);
+    texcoords.get(slices).copyFrom(texcoords.get(0));
+  }
+
+  if ((flags & SOGL_NEED_NORMALS)!=0) {
+    sogl_generate_3d_circle(normals, slices, 1.0f, 0.0f);
+    normals.get(slices).copyFrom( normals.get(0));
+    normals.get(slices+1).copyFrom( normals.get(1));
+  }
+
+  int matnr = 0;
+  
+  GL2 gl2;
+  if(state != null) {
+	  gl2 = state.getGL2();
+  }
+  else {
+	  gl2 = new GL2() {};
+  }
+
+  if ((flags & SOGL_RENDER_SIDE)!=0) {
+    gl2.glBegin(GL2.GL_QUAD_STRIP);
+    i = 0;
+
+    float t = 0.0f;
+    float inc = 1.0f / slices;
+
+    while (i <= slices) {
+      if ((flags & SOGL_NEED_TEXCOORDS)!=0) {
+    	  gl2.glTexCoord2f(t, 1.0f);
+      }
+      else if ((flags & SOGL_NEED_3DTEXCOORDS)!=0) {
+    	  gl2.glTexCoord3f(texcoords.get(i).getValueRead()[0]+0.5f, 1.0f, 1.0f - texcoords.get(i).getValueRead()[1]-0.5f);
+      }
+      if ((flags & SOGL_NEED_NORMALS)!=0) {
+    	  gl2.glNormal3fv(normals.get(i).getValueRead());
+      }
+      if ((flags & SOGL_NEED_MULTITEXCOORDS)!=0) {
+        for (u = 1; u <= maxunit[0]; u++) {
+          if (unitenabled[u]) {
+            SoGL.cc_glglue_glMultiTexCoord2f(glue, (int) (GL2.GL_TEXTURE0 + u),
+                                        t, 1.0f);
+          }
+        }
+      }
+
+      SbVec3f c = coords.get(i);
+      gl2.glVertex3f(c.getValueRead()[0], h2, c.getValueRead()[2]);
+      if ((flags & SOGL_NEED_TEXCOORDS)!=0) {
+    	  gl2.glTexCoord2f(t, 0.0f);
+      }
+      else if ((flags & SOGL_NEED_3DTEXCOORDS)!=0) {
+    	  gl2.glTexCoord3f(texcoords.get(i).getValueRead()[0]+0.5f, 0.0f, 1.0f - texcoords.get(i).getValueRead()[1]-0.5f);
+      }
+      if ((flags & SOGL_NEED_MULTITEXCOORDS)!=0) {
+        for (u = 1; u <= maxunit[0]; u++) {
+          if (unitenabled[u]) {
+            SoGL.cc_glglue_glMultiTexCoord2f(glue, (int) (GL2.GL_TEXTURE0 + u),
+                                        t, 0.0f);
+          }
+        }
+      }
+      gl2.glVertex3f(c.getValueRead()[0], c.getValueRead()[1], c.getValueRead()[2]);
+      i++;
+      t += inc;
+    }
+
+    matnr++;
+    gl2.glEnd();
+  }
+
+  if ((flags & (SOGL_NEED_TEXCOORDS|SOGL_NEED_3DTEXCOORDS|SOGL_NEED_MULTITEXCOORDS))!=0 &&
+      (flags & (SOGL_RENDER_BOTTOM | SOGL_RENDER_TOP))!=0) {
+    sogl_generate_2d_circle(texcoords, slices, 0.5f);
+    texcoords.get(slices).copyFrom(texcoords.get(0));
+  }
+
+  if ((flags & SOGL_RENDER_TOP)!=0) {
+    if ((flags & SOGL_MATERIAL_PER_PART)!=0) {
+      material.send(matnr, true);
+    }
+    gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+    gl2.glNormal3f(0.0f, 1.0f, 0.0f);
+
+    for (i = 0; i < slices; i++) {
+      if ((flags & SOGL_NEED_TEXCOORDS)!=0) {
+    	  gl2.glTexCoord2f(texcoords.get(i).getValueRead()[0]+0.5f, 1.0f - texcoords.get(i).getValueRead()[1]-0.5f);
+      }
+      else if ((flags & SOGL_NEED_3DTEXCOORDS)!=0) {
+    	  gl2.glTexCoord3f(texcoords.get(i).getValueRead()[0]+0.5f, 1.0f, 1.0f - texcoords.get(i).getValueRead()[1]-0.5f);
+      }
+      if ((flags & SOGL_NEED_MULTITEXCOORDS)!=0) {
+        for (u = 1; u <= maxunit[0]; u++) {
+          if (unitenabled[u]) {
+            SoGL.cc_glglue_glMultiTexCoord2f(glue, (int) (GL2.GL_TEXTURE0 + u),
+                                       texcoords.get(i).getValueRead()[0]+0.5f, 1.0f - texcoords.get(i).getValueRead()[1]-0.5f);
+          }
+        }
+      }
+      SbVec3f c = coords.get(i);
+      gl2.glVertex3f(c.getValueRead()[0], h2, c.getValueRead()[2]);
+    }
+    gl2.glEnd();
+    matnr++;
+  }
+  if ((flags & SOGL_RENDER_BOTTOM)!=0) {
+    if ((flags & SOGL_MATERIAL_PER_PART)!=0) {
+      material.send(matnr, true);
+    }
+    gl2.glBegin(GL2.GL_TRIANGLE_FAN);
+    gl2.glNormal3f(0.0f, -1.0f, 0.0f);
+
+    for (i = slices-1; i >= 0; i--) {
+      if ((flags & SOGL_NEED_TEXCOORDS)!=0) {
+    	  gl2.glTexCoord2f(texcoords.get(i).getValueRead()[0]+0.5f, texcoords.get(i).getValueRead()[1]+0.5f);
+      }
+      else if ((flags & SOGL_NEED_3DTEXCOORDS)!=0) {
+    	  gl2.glTexCoord3f(texcoords.get(i).getValueRead()[0]+0.5f, 0.0f, 1.0f - texcoords.get(i).getValueRead()[1]-0.5f);
+      }
+      if ((flags & SOGL_NEED_MULTITEXCOORDS)!=0) {
+        for (u = 1; u <= maxunit[0]; u++) {
+          if (unitenabled[u]) {
+            SoGL.cc_glglue_glMultiTexCoord2f(glue, (int) (GL2.GL_TEXTURE0 + u),
+                                        texcoords.get(i).getValueRead()[0]+0.5f, texcoords.get(i).getValueRead()[1]+0.5f);
+          }
+        }
+      }
+      gl2.glVertex3fv(coords.get(i).getValueRead());
+    }
+    gl2.glEnd();
+  }
+  if (state != null && (SoComplexityTypeElement.get(state) ==
+                SoComplexityTypeElement.Type.OBJECT_SPACE)) {
+    // encourage auto caching for object space
+    SoGLCacheContextElement.shouldAutoCache(state, SoGLCacheContextElement.AutoCache.DO_AUTO_CACHE.getValue());
+    SoGLCacheContextElement.incNumShapes(state);
+  }
+  else {
+    SoGLCacheContextElement.shouldAutoCache(state, SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
+  }
+}
+
+
+// generate a 3d circle in the x-z plane
+public static void
+sogl_generate_3d_circle(SbVec3fArray coords, int num, float radius, float y)
+{
+  float delta = 2.0f*(float)(Math.PI)/(float)(num);
+  float angle = 0.0f;
+  for (int i = 0; i < num; i++) {
+    coords.get(i).setX( -(float)(Math.sin(angle)) * radius);
+    coords.get(i).setY( y);
+    coords.get(i).setZ( -(float)(Math.cos(angle)) * radius);
+    angle += delta;
+  }
+}
+
+// generate a 2d circle
+public static void
+sogl_generate_2d_circle(SbVec2fArray coords, int num, float radius)
+{
+  float delta = 2.0f*(float)(Math.PI)/(float)(num);
+  float angle = 0.0f;
+  for (int i = 0; i < num; i++) {
+    coords.get(i).setX( -(float)(Math.sin(angle)) * radius);
+    coords.get(i).setY( -(float)(Math.cos(angle)) * radius);
+    angle += delta;
+  }
+}
+
+public static void
+cc_glglue_glMultiTexCoord2f( cc_glglue w,
+                            int target,
+                            float s,
+                            float t)
+{
+  //assert(w->glMultiTexCoord2f);
+  w.glMultiTexCoord2f(target, s, t);
 }
 
 

@@ -2875,6 +2875,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	default void glDisableVertexAttribArray(int arg) {
 		org.lwjgl.opengl.GL20.glDisableVertexAttribArray(arg);
 	}
+	
+	default void glVertex3fv(float[] arg) {
+		org.lwjgl.opengl.GL11.glVertex3fv( arg);		
+	}
 
 	default void glVertex3fv(float[] arg1, int arg2) {
 		if(arg2 == 0)
@@ -3494,6 +3498,18 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 
 	default void glTexCoord2fv(float[] v) {
 		org.lwjgl.opengl.GL11.glTexCoord2fv(v);
+	}
+
+	default void glTexCoord3f(float f, float g, float h) {
+		org.lwjgl.opengl.GL11.glTexCoord3f(f, g, h);
+	}
+
+	default void glVertex3f(float x, float y, float z) {
+		org.lwjgl.opengl.GL11.glVertex3f(x, y, z);
+	}
+
+	default void glMultiTexCoord2f(int target, float s, float t) {
+		org.lwjgl.opengl.GL13.glMultiTexCoord2f(target,s,t);
 	}
 
 }

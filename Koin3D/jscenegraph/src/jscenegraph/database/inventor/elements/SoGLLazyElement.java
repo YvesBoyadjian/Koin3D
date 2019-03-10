@@ -364,6 +364,11 @@ public void
 setDiffuseElt(SoNode node,  
     int numColors,   SbColorArray colors, SoColorPacker cPacker)
 {
+	// COIN 3D
+	  super.setDiffuseElt(node, numColors, colors, cPacker);
+	  this.colorpacker = cPacker;
+	
+	
     if (colorIndex) return;
     ivState.diffuseColors = colors;
     ivState.numDiffuseColors = numColors;        
@@ -601,7 +606,7 @@ setSpecularElt(  SbColor color)
     ivState.cacheLevelSetBits |= masks.SPECULAR_MASK.getValue(); 
 
     for(int i=0; i<3; i++){
-        if (ivState.specularColor.getValueRead()[i] != glState.GLSpecular[i]){
+        if (ivState.specularColor.getValueRead()[i] != glState.specular.getValueRead()[i]){
             invalidBits |= masks.SPECULAR_MASK.getValue();
             return;
         }
@@ -707,7 +712,7 @@ setBlendingElt(boolean value)
     ivState.cacheLevelSetBits |= masks.BLENDING_MASK.getValue(); 
  
     // set invalid bit based on value
-    if ((ivState.blending?1:0) != glState.GLBlending)
+    if ((ivState.blending?1:0) != glState.blending)
         invalidBits |= masks.BLENDING_MASK.getValue();
     else invalidBits &= ~masks.BLENDING_MASK.getValue();
 
@@ -776,7 +781,7 @@ setMaterialElt(SoNode node, int mask,
         ivState.ambientColor.copyFrom(ambient.operator_square_bracket(0));
         invalidBits &= ~masks.AMBIENT_MASK.getValue();
         for (int i=0; i<3; i++){
-            if (ivState.ambientColor.operator_square_bracket(i) != glState.GLAmbient[i]){
+            if (ivState.ambientColor.operator_square_bracket(i) != glState.ambient.getValueRead()[i]){
                 invalidBits |= masks.AMBIENT_MASK.getValue();
                 break;
             }
@@ -787,7 +792,7 @@ setMaterialElt(SoNode node, int mask,
         ivState.emissiveColor.copyFrom( emissive.operator_square_bracket(0));
         invalidBits &= ~masks.EMISSIVE_MASK.getValue();
         for (int i=0; i<3; i++){
-            if (ivState.emissiveColor.operator_square_bracket(i) != glState.GLEmissive[i]){
+            if (ivState.emissiveColor.operator_square_bracket(i) != glState.emissive.getValueRead()[i]){
                 invalidBits |= masks.EMISSIVE_MASK.getValue();
                 break;
             }
@@ -798,7 +803,7 @@ setMaterialElt(SoNode node, int mask,
         ivState.specularColor.copyFrom( specular.operator_square_bracket(0));
         invalidBits &= ~masks.SPECULAR_MASK.getValue();
         for (int i=0; i<3; i++){
-            if (ivState.specularColor.operator_square_bracket(i) != glState.GLSpecular[i]){
+            if (ivState.specularColor.operator_square_bracket(i) != glState.specular.getValueRead()[i]){
                 invalidBits |= masks.SPECULAR_MASK.getValue();
                 break;
             }
@@ -1363,43 +1368,43 @@ reallySend(final SoState state, int bitmask)
                 case AMBIENT_CASE :     
                     sendit = false;
                     for(i=0; i<3; i++){
-                        if (glState.GLAmbient[i] != ivState.ambientColor.operator_square_bracket(i)){ 
+                        if (glState.ambient.getValueRead()[i] != ivState.ambientColor.operator_square_bracket(i)){ 
                             sendit=true;
-                            glState.GLAmbient[i]=ivState.ambientColor.operator_square_bracket(i);
+                            glState.ambient.operator_square_bracket(i,ivState.ambientColor.operator_square_bracket(i));
                         }
                     }
                     if (!sendit) break;
                     realSendBits |= masks.AMBIENT_MASK.getValue();
                     gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT,
-                        glState.GLAmbient,0); 
+                        glState.ambient.getValueRead(),0); 
                     break;
 
                 case EMISSIVE_CASE :
                     sendit = false;
                     for(i=0; i<3; i++){
-                        if (glState.GLEmissive[i]!=ivState.emissiveColor.operator_square_bracket(i)){
+                        if (glState.emissive.getValueRead()[i]!=ivState.emissiveColor.operator_square_bracket(i)){
                             sendit = true;
-                            glState.GLEmissive[i]=ivState.emissiveColor.operator_square_bracket(i);
+                            glState.emissive.operator_square_bracket(i,ivState.emissiveColor.operator_square_bracket(i));
                         }
                     }
                     if (!sendit) break;
                     realSendBits |= masks.EMISSIVE_MASK.getValue();
                     gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_EMISSION,
-                        glState.GLEmissive,0); 
+                        glState.emissive.getValueRead(),0); 
                     break;
 
                 case SPECULAR_CASE :
                     sendit = false;
                     for(i=0; i<3; i++){
-                        if (glState.GLSpecular[i]!=ivState.specularColor.operator_square_bracket(i)){
+                        if (glState.specular.getValueRead()[i]!=ivState.specularColor.operator_square_bracket(i)){
                             sendit = true;
-                            glState.GLSpecular[i]=ivState.specularColor.operator_square_bracket(i);
+                            glState.specular.operator_square_bracket(i,ivState.specularColor.operator_square_bracket(i));
                         }
                     }
                     if (!sendit) break;
                     realSendBits |= masks.SPECULAR_MASK.getValue();
                     gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_SPECULAR,
-                        glState.GLSpecular,0); 
+                        glState.specular.getValueRead(),0); 
                     break;
 
                 case SHININESS_CASE :
@@ -1413,9 +1418,9 @@ reallySend(final SoState state, int bitmask)
                     
                 case BLENDING_CASE :
                                     
-                    if (glState.GLBlending == (ivState.blending?1:0)) break;
+                    if (glState.blending == (ivState.blending?1:0)) break;
                     realSendBits |= masks.BLENDING_MASK.getValue();              
-                    glState.GLBlending = (ivState.blending?1:0);
+                    glState.blending = (ivState.blending?1:0);
                     if (ivState.blending == true){
                         gl2.glEnable(GL2.GL_BLEND);                     
                     }
@@ -1448,10 +1453,10 @@ reallySend(final SoState state, int bitmask)
                     break;
                     
                 case TWOSIDE_CASE:
-                    if (this.glState.twoside != (this.coinstate.twoside ? 1:0)) {
+                    if (this.glState.twoside != this.coinstate.twoside) {
                       /*SoGLShaderProgram*/ prog = SoGLShaderProgramElement.get((SoState) state);
-                      if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside ? 1:0);
-                      this.sendTwosideLighting(this.coinstate.twoside);
+                      if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside);
+                      this.sendTwosideLighting(this.coinstate.twoside != 0);
                     }
                     break;
                     
@@ -2091,20 +2096,20 @@ reallyCopyBackGL(int bitmask,
 
                 case AMBIENT_CASE :
                     for(i=0; i<3; i++)
-                        glState.GLAmbient[i] = 
-                            cacheGLState.GLAmbient[i];
+                        glState.ambient.operator_square_bracket(i, 
+                            cacheGLState.ambient.getValueRead()[i]);
                     break;
 
                 case EMISSIVE_CASE :
                     for(i=0; i<3; i++)
-                        glState.GLEmissive[i] = 
-                            cacheGLState.GLEmissive[i];
+                        glState.emissive.operator_square_bracket(i, 
+                            cacheGLState.emissive.getValueRead()[i]);
                     break;
 
                 case SPECULAR_CASE :
                     for(i=0; i<3; i++)
-                        glState.GLSpecular[i] = 
-                            cacheGLState.GLSpecular[i];
+                        glState.specular.operator_square_bracket(i, 
+                            cacheGLState.specular.getValueRead()[i]);
                     break;
 
                 case SHININESS_CASE :
@@ -2113,8 +2118,8 @@ reallyCopyBackGL(int bitmask,
                     break;
    
                 case BLENDING_CASE :
-                    glState.GLBlending = 
-                        cacheGLState.GLBlending;
+                    glState.blending = 
+                        cacheGLState.blending;
                     break;
                   
                 case TRANSPARENCY_CASE :                                
@@ -2256,17 +2261,17 @@ copyGLValues(int bitmask,SoGLLazyElement lazyElt)
 
                 case AMBIENT_CASE :
                     for(i=0; i<3; i++)
-                        lazyElt.glState.GLAmbient[i]=glState.GLAmbient[i];
+                        lazyElt.glState.ambient.operator_square_bracket(i,glState.ambient.getValueRead()[i]);
                     break;
 
                 case EMISSIVE_CASE :
                     for(i=0; i<3; i++)
-                        lazyElt.glState.GLEmissive[i]=glState.GLEmissive[i];
+                        lazyElt.glState.emissive.operator_square_bracket(i,glState.emissive.getValueRead()[i]);
                     break;
 
                 case SPECULAR_CASE :
                     for(i=0; i<3; i++)
-                        lazyElt.glState.GLSpecular[i]=glState.GLSpecular[i];
+                        lazyElt.glState.specular.operator_square_bracket(i,glState.specular.getValueRead()[i]);
                     break;
 
                 case SHININESS_CASE :
@@ -2274,7 +2279,7 @@ copyGLValues(int bitmask,SoGLLazyElement lazyElt)
                     break;
                     
                 case BLENDING_CASE :
-                    lazyElt.glState.GLBlending = glState.GLBlending;
+                    lazyElt.glState.blending = glState.blending;
                     break;
                                     
                 case TRANSPARENCY_CASE :                  
