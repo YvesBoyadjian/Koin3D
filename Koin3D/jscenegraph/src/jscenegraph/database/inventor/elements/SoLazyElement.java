@@ -282,7 +282,7 @@ public class SoLazyElement extends SoElement {
 		       class  ivStateStructName{
 		                //!Keep nodeID to compare diffuse GL and diffuse inventor state:
 		                //!0 is initial value, 1 is invalid    
-		                int            diffuseNodeId;
+		                //int            diffuseNodeId;
 		        
 		                //! for transparency, keep either nodeid, or 0 if opaque.  Value of
 		                //! 1 indicates invalid.
@@ -295,7 +295,7 @@ public class SoLazyElement extends SoElement {
 		                final SbColor             specularColor = new SbColor();
 		                float               shininess;
 		                boolean              colorMaterial;
-		                boolean              blending;
+		                //boolean              blending;
 		                int             lightModel;
 		                int             stippleNum;
 		        
@@ -305,9 +305,9 @@ public class SoLazyElement extends SoElement {
 		                boolean              packedTransparent;
 		                int             numDiffuseColors;
 		                int             numTransparencies;
-		                SbColorArray       diffuseColors;
+		                //SbColorArray       diffuseColors;
 		                float[]         transparencies;
-		                int[]      packedColors;
+		                //int[]      packedColors;
 		                int[]      colorIndices;
 		                int              transpType;
 		                int            cacheLevelSetBits;
@@ -324,7 +324,7 @@ public class SoLazyElement extends SoElement {
 		                public void copyFrom(ivStateStructName other) {
 			                //!Keep nodeID to compare diffuse GL and diffuse inventor state:
 			                //!0 is initial value, 1 is invalid    
-			                           diffuseNodeId = other.diffuseNodeId;
+			                           //diffuseNodeId = other.diffuseNodeId;
 			        
 			                //! for transparency, keep either nodeid, or 0 if opaque.  Value of
 			                //! 1 indicates invalid.
@@ -337,7 +337,7 @@ public class SoLazyElement extends SoElement {
 			                specularColor.copyFrom(other.specularColor);
 			                               shininess = other.shininess;
 			                              colorMaterial = other.colorMaterial;
-			                              blending = other.blending;
+			                              //blending = other.blending;
 			                            lightModel = other.lightModel;
 			                             stippleNum = other.stippleNum;
 			        
@@ -347,9 +347,9 @@ public class SoLazyElement extends SoElement {
 			                              packedTransparent = other.packedTransparent;
 			                             numDiffuseColors = other.numDiffuseColors;
 			                             numTransparencies = other.numTransparencies;
-			                       diffuseColors = other.diffuseColors;
+			                       //diffuseColors = other.diffuseColors;
 			                         transparencies = other.transparencies;
-			                      packedColors = other.packedColors;
+			                      //packedColors = other.packedColors;
 			                      colorIndices = other.colorIndices;
 			                              transpType = other.transpType;
 			                            cacheLevelSetBits = other.cacheLevelSetBits;
@@ -822,11 +822,11 @@ getDiffuse(SoState state, int index)
         return(new SbColor(defaultDiffuseColor.get(0)));
     }
 //#endif
-    if (!curElt.ivState.packed) return (curElt.ivState.diffuseColors.get(index));
+    if (!curElt.ivState.packed) return (curElt.coinstate.diffusearray.get(index));
     unpacker.copyFrom( new SbColor( 
-       ((curElt.ivState.packedColors[index] & 0xff000000) >> 24) * 1.0f/255,  
-       ((curElt.ivState.packedColors[index] & 0xff0000) >> 16) * 1.0f/255,              
-       ((curElt.ivState.packedColors[index] & 0xff00)>> 8) * 1.0f/255)); 
+       ((curElt.coinstate.packedarray.get(index) & 0xff000000) >> 24) * 1.0f/255,  
+       ((curElt.coinstate.packedarray.get(index) & 0xff0000) >> 16) * 1.0f/255,              
+       ((curElt.coinstate.packedarray.get(index) & 0xff00)>> 8) * 1.0f/255)); 
     return unpacker;
       
 }
@@ -850,7 +850,7 @@ getTransparency(SoState state, int index)
     }
 //#endif
     if (!curElt.ivState.packed) return (curElt.ivState.transparencies[index]);
-    return( 1.0f - ((curElt.ivState.packedColors[index] & 0xff) * 1.0f/255));
+    return( 1.0f - ((curElt.coinstate.packedarray.get(index) & 0xff) * 1.0f/255));
              
 }
 ////////////////////////////////////////////////////////////////////////
@@ -983,13 +983,17 @@ getColorMaterial(SoState state)
 //
 // Use: public, static
 ////////////////////////////////////////////////////////////////////////
+// ! FIXME: write doc
+
 public static boolean
-getBlending(SoState state) 
-{   
-    SoLazyElement curElt = getInstance(state);
-    if(state.isCacheOpen()) curElt.registerGetDependence(state, masks.BLENDING_MASK.getValue());  
-    return curElt.ivState.blending;
-}  
+getBlending(SoState state, int[] sfactor, int[] dfactor)
+{
+  SoLazyElement elem = getInstance(state);
+  sfactor[0] = elem.coinstate.blend_sfactor;
+  dfactor[0] = elem.coinstate.blend_dfactor;
+  return elem.coinstate.blending != 0;
+}
+
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -1012,7 +1016,7 @@ setDiffuse(SoState state, SoNode node, int numColors,
     //Because we are getting the transparency value from state, there
     //is a get-dependence
     if(state.isCacheOpen())curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
-    if (curElt.ivState.diffuseNodeId !=  node.getNodeId() ||
+    if (curElt.coinstate.diffusenodeid !=  node.getNodeId() ||
          (!cPacker.transpMatch(curElt.ivState.transpNodeId))){
         getWInstance(state).setDiffuseElt(node,  numColors, colors, cPacker);
     }
@@ -1047,7 +1051,7 @@ setTransparency(SoState state, SoNode node, int numTransp,
     else testNodeId = node.getNodeId();
     
     if ((curElt.ivState.transpNodeId != testNodeId) || 
-        (!cPacker.diffuseMatch(curElt.ivState.diffuseNodeId)))
+        (!cPacker.diffuseMatch(curElt.coinstate.diffusenodeid)))
         getWInstance(state).setTranspElt(node, numTransp, transp, cPacker);
     else if (state.isCacheOpen()) 
         curElt.registerRedundantSet(state, masks.TRANSPARENCY_MASK.getValue()|masks.DIFFUSE_MASK.getValue()); 
@@ -1072,9 +1076,9 @@ setPacked(SoState state, SoNode node,
       }
    
     SoLazyElement curElt = SoLazyElement.getInstance(state);
-    if (curElt.ivState.diffuseNodeId != (node.getNodeId()) ||     
+    if (curElt.coinstate.diffusenodeid != (node.getNodeId()) ||     
             (!(curElt.ivState.packed)) || 
-            (curElt.ivState.packedColors != colors)){
+            (curElt.coinstate.packedarray.getValues() != colors)){
         getWInstance(state).setPackedElt( node, numColors, colors);
     } 
     else if (state.isCacheOpen()) 
@@ -1100,7 +1104,7 @@ setColorIndices(SoState state, SoNode node, int numIndices,
 //      }
 
     SoLazyElement curElt = SoLazyElement.getInstance(state);
-    if (curElt.ivState.diffuseNodeId !=  node.getNodeId())
+    if (curElt.coinstate.diffusenodeid !=  node.getNodeId())
         getWInstance(state).setColorIndexElt(node, numIndices, indices);
     else if (state.isCacheOpen()) 
         curElt.registerRedundantSet(state, masks.DIFFUSE_MASK.getValue()); 
@@ -1248,7 +1252,7 @@ setMaterials(SoState state,  SoNode node,
             
     int nodeId = node.getNodeId();
     if ((bitmask & masks.DIFFUSE_MASK.getValue()) != 0 && 
-        nodeId != curElt.ivState.diffuseNodeId) realSet |= masks.DIFFUSE_MASK.getValue();
+        nodeId != curElt.coinstate.diffusenodeid) realSet |= masks.DIFFUSE_MASK.getValue();
 
     //For transparency nodeid, opaque nodes are identified as nodeId = 0:       
     if(transp.getNum() == 1 && transp.operator_square_bracket(0) == 0.0) nodeId = 0;
@@ -1356,8 +1360,8 @@ setDiffuseElt(SoNode  node,  int numColors,
         SbColorArray colors, SoColorPacker packer)
 {
 
-    ivState.diffuseNodeId = node.getNodeId();
-    ivState.diffuseColors = colors;
+	coinstate.diffusenodeid = node.getNodeId();
+    coinstate.diffusearray = colors;
     ivState.numDiffuseColors = numColors;
   
     ivState.packed=false;
@@ -1425,7 +1429,7 @@ setColorIndexElt( SoNode node,  int numIndices,
         int[] indices)
 {
 
-    ivState.diffuseNodeId = node.getNodeId();
+	coinstate.diffusenodeid = node.getNodeId();
     ivState.numDiffuseColors = numIndices;
     ivState.colorIndices = indices;
     ivState.packed=false;
@@ -1473,7 +1477,7 @@ protected void
 setPackedElt( SoNode node,  int numColors,  
         final int[] colors, boolean packedtransparency)
 {
-    ivState.diffuseNodeId   = node.getNodeId();
+	coinstate.diffusenodeid   = node.getNodeId();
     ivState.numDiffuseColors = numColors;
     ivState.numTransparencies = numColors;
     ivState.stippleNum = 0;     
@@ -1482,7 +1486,7 @@ setPackedElt( SoNode node,  int numColors,
         ivState.stippleNum = (int)(getNumPatterns()*
                 (1.-(colors[0] & 0xff)*(1./255.)));         
     }   
-    ivState.packedColors = colors;
+    //ivState.packedColors = colors;
     ivState.packed = true;
     ivState.packedTransparent = ((SoPackedColor)node).isTransparent();
 
@@ -1569,22 +1573,6 @@ setShininessElt(float value )
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    set the blending enablement in the element 
-//    virtual, to be overridden 
-//
-// Use: protected
-////////////////////////////////////////////////////////////////////////
-
-public void
-setBlendingElt(boolean value )
-
-{
-    ivState.blending = value;
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
 //    set all materials in the element 
 //    virtual, to be overridden 
 //
@@ -1598,8 +1586,8 @@ setMaterialElt(SoNode node, int mask, SoColorPacker packer,
     final SoMFColor specular, final SoMFFloat shininess)
 {
     if ((mask & masks.DIFFUSE_MASK.getValue()) != 0){
-        ivState.diffuseNodeId = node.getNodeId();
-        ivState.diffuseColors = diffuse.getValuesSbColorArray();
+    	coinstate.diffusenodeid = node.getNodeId();
+        coinstate.diffusearray = diffuse.getValuesSbColorArray();
         ivState.numDiffuseColors = diffuse.getNum(); 
         ivState.packed=false;
         ivState.packedTransparent = false;

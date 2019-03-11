@@ -341,15 +341,31 @@ setDrawStyle(SoState state, int value)
 public static void
 setTransparencyType(SoState state, int value) 
 {
-    SoShapeStyleElement elt = (SoShapeStyleElement )
-        getElement(state, classStackIndexMap.get(SoShapeStyleElement.class));
+	  SoShapeStyleElement elem = getElement(state);
 
-    if (value == (int)SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()) {
-        elt.delayFlags &= ~DELAY_TRANSP_BIT;
-    } else {
-        elt.delayFlags |= DELAY_TRANSP_BIT;
-    }
-}
+	  elem.flags &= ~TRANSPTYPE_MASK;
+	  assert(value <= TRANSPTYPE_MASK);
+	  elem.flags |= (value & TRANSPTYPE_MASK);
+
+	  if ((value == (int)(SoGLRenderAction.TransparencyType.SORTED_OBJECT_SORTED_TRIANGLE_BLEND.getValue())) ||
+	      (value == (int)(SoGLRenderAction.TransparencyType.SORTED_OBJECT_SORTED_TRIANGLE_ADD.getValue()))) {
+	    elem.flags |= Flags.TRANSP_SORTED_TRIANGLES.getValue();
+	  }
+	  else {
+	    elem.flags &= ~Flags.TRANSP_SORTED_TRIANGLES.getValue();
+	  }
+	}
+
+//{
+//    SoShapeStyleElement elt = (SoShapeStyleElement )
+//        getElement(state, classStackIndexMap.get(SoShapeStyleElement.class));
+//
+//    if (value == (int)SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()) {
+//        elt.delayFlags &= ~DELAY_TRANSP_BIT;
+//    } else {
+//        elt.delayFlags |= DELAY_TRANSP_BIT;
+//    }
+//}
 
 
 

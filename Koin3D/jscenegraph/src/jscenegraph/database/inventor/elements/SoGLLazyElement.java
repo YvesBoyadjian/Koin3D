@@ -370,23 +370,23 @@ setDiffuseElt(SoNode node,
 	
 	
     if (colorIndex) return;
-    ivState.diffuseColors = colors;
+    coinstate.diffusearray = colors;
     ivState.numDiffuseColors = numColors;        
-    ivState.diffuseNodeId = (node.getNodeId()); 
+    coinstate.diffusenodeid = (node.getNodeId()); 
     ivState.packed = false;
     ivState.packedTransparent = false;
 
     //Pack the colors and transparencies, if necessary:
-    if(!cPacker.diffuseMatch(ivState.diffuseNodeId) ||
+    if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
             (!cPacker.transpMatch(ivState.transpNodeId)))
         packColors(cPacker);
             
-    ivState.packedColors = cPacker.getPackedColors();
+    coinstate.packedarray = new IntArrayPtr(cPacker.getPackedColors());
                            
     // for open caches,  record the fact that set was called:
     ivState.cacheLevelSetBits |= masks.DIFFUSE_MASK.getValue();
 
-    if (ivState.diffuseNodeId != glState.GLDiffuseNodeId)
+    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId)
         invalidBits |= masks.DIFFUSE_MASK.getValue();
 
   }
@@ -440,11 +440,11 @@ setTranspElt(SoNode node,
     else ivState.transpNodeId = node.getNodeId();
     ivState.packed = false;
     ivState.packedTransparent = false;
-    if(!cPacker.diffuseMatch(ivState.diffuseNodeId) ||
+    if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
             (!cPacker.transpMatch(ivState.transpNodeId)))
         packColors(cPacker);
             
-    ivState.packedColors = cPacker.getPackedColors();
+    coinstate.packedarray = new IntArrayPtr(cPacker.getPackedColors());
                            
     // for open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= (masks.TRANSPARENCY_MASK.getValue()|masks.DIFFUSE_MASK.getValue());
@@ -473,14 +473,14 @@ setColorIndexElt(SoNode node,
     ivState.numDiffuseColors = numIndices;
     ivState.colorIndices = indices;
       
-    ivState.diffuseNodeId = (node.getNodeId()); 
+    coinstate.diffusenodeid = (node.getNodeId()); 
     ivState.packed = false;
     ivState.packedTransparent = false;
 
     // for open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= masks.DIFFUSE_MASK.getValue();
 
-    if (ivState.diffuseNodeId != glState.GLDiffuseNodeId)
+    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId)
         invalidBits |= masks.DIFFUSE_MASK.getValue();
     else invalidBits &= ~masks.DIFFUSE_MASK.getValue();
 
@@ -500,10 +500,10 @@ setPackedElt(SoNode node, int numColors,
       int[] colors)
 {
     if (colorIndex) return;
-    ivState.packedColors        = colors;
+    coinstate.packedarray        = new IntArrayPtr(colors);
     ivState.numDiffuseColors    = numColors;
     ivState.numTransparencies   = numColors;
-    ivState.diffuseNodeId       = node.getNodeId();
+    coinstate.diffusenodeid       = node.getNodeId();
     ivState.transpNodeId        = node.getNodeId();
     
     ivState.stippleNum = 0;     
@@ -522,7 +522,7 @@ setPackedElt(SoNode node, int numColors,
  
     if ((invalidBits & (masks.DIFFUSE_MASK.getValue()|masks.TRANSPARENCY_MASK.getValue()))!=0) return;
 
-    if (ivState.diffuseNodeId != glState.GLDiffuseNodeId ||
+    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId ||
         ivState.transpNodeId != glState.GLTranspNodeId)
         invalidBits |= masks.DIFFUSE_MASK.getValue();
     else invalidBits &= ~masks.DIFFUSE_MASK.getValue();
@@ -694,30 +694,6 @@ setLightModelElt(SoState stateptr, int model)
 //        setColorMaterialElt(false);
 //    return;
 }
-/////////////////////////////////////////////////////////////////////////
-//
-// Description:  set blending in element
-// virtual method for GL rendering
-//
-// Use: private, virtual
-//
-/////////////////////////////////////////////////////////////////////////
-public void
-setBlendingElt(boolean value)
-{
-
-    ivState.blending = value;
-
-    // For open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= masks.BLENDING_MASK.getValue(); 
- 
-    // set invalid bit based on value
-    if ((ivState.blending?1:0) != glState.blending)
-        invalidBits |= masks.BLENDING_MASK.getValue();
-    else invalidBits &= ~masks.BLENDING_MASK.getValue();
-
-    return;
-}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -736,9 +712,9 @@ setMaterialElt(SoNode node, int mask,
       final SoMFColor specular, final   SoMFFloat shininess)
 {
     if ((mask & masks.DIFFUSE_MASK.getValue())!=0 && !colorIndex ){
-        ivState.diffuseColors = diffuse.getValuesSbColorArray(/*0*/);
+        coinstate.diffusearray = diffuse.getValuesSbColorArray(/*0*/);
         ivState.numDiffuseColors = diffuse.getNum();        
-        ivState.diffuseNodeId = (node.getNodeId()); 
+        coinstate.diffusenodeid = (node.getNodeId()); 
         ivState.packed = false;
         ivState.packedTransparent = false;      
     }
@@ -765,16 +741,16 @@ setMaterialElt(SoNode node, int mask,
     
     // do combined packed color/transparency work:
     if ((mask & (masks.DIFFUSE_MASK.getValue()|masks.TRANSPARENCY_MASK.getValue()))!=0){
-        if(!cPacker.diffuseMatch(ivState.diffuseNodeId) ||
+        if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
                 (!cPacker.transpMatch(ivState.transpNodeId)))
             packColors(cPacker);
          
-        if (ivState.diffuseNodeId != glState.GLDiffuseNodeId ||
+        if (coinstate.diffusenodeid != glState.GLDiffuseNodeId ||
                 ivState.transpNodeId != glState.GLTranspNodeId)
             invalidBits |= masks.DIFFUSE_MASK.getValue();
         else invalidBits &= ~masks.DIFFUSE_MASK.getValue();      
             
-        ivState.packedColors = cPacker.getPackedColors(); 
+        coinstate.packedarray = new IntArrayPtr(cPacker.getPackedColors()); 
     }
        
     if ((mask & masks.AMBIENT_MASK.getValue())!=0){
@@ -1330,11 +1306,11 @@ reallySend(final SoState state, int bitmask)
             
                 case DIFFUSE_CASE :              
                     // in this case, always send color[0]
-                    if (glState.GLDiffuseNodeId == ivState.diffuseNodeId &&
+                    if (glState.GLDiffuseNodeId == coinstate.diffusenodeid &&
                         glState.GLTranspNodeId == ivState.transpNodeId)
                         break;
                     realSendBits |= masks.DIFFUSE_MASK.getValue();
-                    glState.GLDiffuseNodeId = ivState.diffuseNodeId;
+                    glState.GLDiffuseNodeId = coinstate.diffusenodeid;
                     glState.GLTranspNodeId = ivState.transpNodeId;
                     
                     if(colorIndex){
@@ -1350,16 +1326,16 @@ reallySend(final SoState state, int bitmask)
                     final float[] col4 = new float[4];                  
                  
                     final byte[] pColors = new byte[4];
-                    SoMachine.DGL_HTON_INT32(pColors, /*Util.toIntArray(*/ivState.packedColors/*)*/);
+                    SoMachine.DGL_HTON_INT32(pColors, /*Util.toIntArray(*/coinstate.packedarray.getValues()/*)*/);
                     gl2.glColor4ubv(pColors,0);
                     if (!(glState.GLColorMaterial != 0 || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
-                        col4[3] =  (ivState.packedColors[0] & 
+                        col4[3] =  (coinstate.packedarray.get(0) & 
                             0xff)   * 1.0f/255;
-                        col4[2] = ((ivState.packedColors[0] & 
+                        col4[2] = ((coinstate.packedarray.get(0) & 
                             0xff00) >>>  8) * 1.0f/255;
-                        col4[1] = ((ivState.packedColors[0] & 
+                        col4[1] = ((coinstate.packedarray.get(0) & 
                             0xff0000)>>> 16) * 1.0f/255;
-                        col4[0] = ((ivState.packedColors[0] & 
+                        col4[0] = ((coinstate.packedarray.get(0) & 
                             0xff000000)>>>24) * 1.0f/255;
                         gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, col4,0);
                     }             
@@ -1418,10 +1394,10 @@ reallySend(final SoState state, int bitmask)
                     
                 case BLENDING_CASE :
                                     
-                    if (glState.blending == (ivState.blending?1:0)) break;
+                    if (glState.blending == coinstate.blending) break;
                     realSendBits |= masks.BLENDING_MASK.getValue();              
-                    glState.blending = (ivState.blending?1:0);
-                    if (ivState.blending == true){
+                    glState.blending = coinstate.blending;
+                    if (coinstate.blending != 0){
                         gl2.glEnable(GL2.GL_BLEND);                     
                     }
                     // blend is being turned off:
@@ -1623,15 +1599,15 @@ fullLazyMatches(int checkGL, int checkIV,
                     break;
                     
                 case DIFFUSE_CASE :
-                    if (ivState.diffuseNodeId != 
-                        stateLazyElt.ivState.diffuseNodeId ||
+                    if (coinstate.diffusenodeid != 
+                        stateLazyElt.coinstate.diffusenodeid ||
                         ivState.transpNodeId !=
                         stateLazyElt.ivState.transpNodeId){
 //#ifdef DEBUG
                         if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                             System.err.print( "CACHE DEBUG: cache not valid\n");       
                             System.err.print( "diffuse&trans match failed,\n");
-                            System.err.print( "prev,  current "+ivState.diffuseNodeId+" "+ivState.transpNodeId+", "+stateLazyElt.ivState.diffuseNodeId+" "+stateLazyElt.ivState.transpNodeId+"\n");
+                            System.err.print( "prev,  current "+coinstate.diffusenodeid+" "+ivState.transpNodeId+", "+stateLazyElt.coinstate.diffusenodeid+" "+stateLazyElt.ivState.transpNodeId+"\n");
                         }
 //#endif /*DEBUG*/                            
                         return (false);
@@ -1700,12 +1676,12 @@ fullLazyMatches(int checkGL, int checkIV,
                     break;
                      
                 case BLENDING_CASE :
-                    if (ivState.blending != stateLazyElt.ivState.blending){
+                    if (coinstate.blending != stateLazyElt.coinstate.blending){
 //#ifdef DEBUG
                         if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                             System.err.print( "CACHE DEBUG: cache not valid\n");       
                             System.err.print( "blend match failed,\n");
-                            System.err.print( "prev,  current "+ivState.blending+" "+stateLazyElt.ivState.blending+"\n");
+                            System.err.print( "prev,  current "+coinstate.blending+" "+stateLazyElt.coinstate.blending+"\n");
                         }
 //#endif /*DEBUG*/                    
                         return false;
@@ -2317,7 +2293,7 @@ copyIVValues(int bitmask,SoGLLazyElement lazyElt)
                     break;
                     
                 case DIFFUSE_CASE :
-                    lazyElt.ivState.diffuseNodeId = ivState.diffuseNodeId;
+                    lazyElt.coinstate.diffusenodeid = coinstate.diffusenodeid;
                     lazyElt.ivState.transpNodeId = ivState.transpNodeId;
                     break;
                     
@@ -2344,7 +2320,7 @@ copyIVValues(int bitmask,SoGLLazyElement lazyElt)
                     break;
                     
                 case BLENDING_CASE :
-                    lazyElt.ivState.blending = ivState.blending;
+                    lazyElt.coinstate.blending = coinstate.blending;
                     break;
 
                 case TRANSPARENCY_CASE :                
@@ -2451,12 +2427,12 @@ private static int PAT_INDEX(int x, int y) {
 
 public void updateColorVBO( SoState state, SoVBO vbo ) // FIXME YB not in synchro with Coin3D
 {
-  int maxId = ivState.diffuseNodeId;
+  int maxId = coinstate.diffusenodeid;
   if (ivState.transpNodeId > maxId) {
     maxId = ivState.transpNodeId;
   }
   if (vbo.getDataId()!=maxId) {
-    vbo.setData((int)(ivState.numDiffuseColors * (long)Integer.SIZE/Byte.SIZE), VoidPtr.create(/*Util.toByteBuffer(*/ivState.packedColors/*)*/), maxId, state);
+    vbo.setData((int)(ivState.numDiffuseColors * (long)Integer.SIZE/Byte.SIZE), VoidPtr.create(/*Util.toByteBuffer(*/coinstate.packedarray/*)*/), maxId, state);
   }
 }
 

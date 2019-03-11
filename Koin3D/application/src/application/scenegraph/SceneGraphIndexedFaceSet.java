@@ -49,7 +49,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private static final float SUN_RADIUS = 7e8f;
 	
-	private static final SbColor SUN_COLOR = new SbColor(1f, 0.9f, 0.7f);
+	private static final SbColor SUN_COLOR = new SbColor(1f, 0.87f, 0.7f);
 	
 	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
@@ -121,6 +121,15 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		int[] coordIndices = new int[nbCoordIndices];
 		
 		Color snow = new Color(0.97f,1.0f,1.0f);
+
+		
+		Color colorStone = STONE;
+		int redStone = colorStone.getRed()*colorStone.getRed()/255;
+		int greenStone = colorStone.getGreen()*colorStone.getGreen()/255;
+		int blueStone = colorStone.getBlue()*colorStone.getBlue()/255;
+		
+		final int rgbaStone = (colorStone.getAlpha() << 0) | (redStone << 24)| (greenStone << 16)|(blueStone<<8); 
+		
 		
 		float delta = 0;
 		int nb = 0;
@@ -164,9 +173,10 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 					color = new Color((float)random.nextDouble()*GRASS_LUMINOSITY, 1.0f*GRASS_LUMINOSITY, (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
 				}
 				int red = color.getRed()*color.getRed()/255;
+				int green = color.getGreen()*color.getGreen()/255;
 				int blue = color.getBlue()*color.getBlue()/255;
 				
-				int rgba = (color.getAlpha() << 0) | (red << 24)| (color.getGreen() << 16)|(blue<<8); 
+				int rgba = (color.getAlpha() << 0) | (red << 24)| (green << 16)|(blue<<8); 
 				colors[index] = rgba;
 			}
 		}
@@ -200,9 +210,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 			normals[index*3+2] = n.getZ();
 
 			if((n.getZ()<0.45 && vertices[index*3+2] < ALPINE_HEIGHT) || n.getZ()<0.35) {
-				Color color = STONE;
-				int rgba = (color.getAlpha() << 0) | (color.getRed() << 24)| (color.getGreen() << 16)|(color.getBlue()<<8); 
-				colors[index] = rgba;
+				colors[index] = rgbaStone;
 			}
 		}
 		}
