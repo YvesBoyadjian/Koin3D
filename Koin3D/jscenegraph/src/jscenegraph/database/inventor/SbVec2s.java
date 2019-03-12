@@ -251,5 +251,10 @@ operator_mul(double d)
 	public boolean operator_not_equal(SbVec2s other) {
 		return !operator_equal_equal(other);
 	}
+
+	public void operator_add_equal(SbVec2s other) {
+		vec[0] += other.getX();
+		vec[1] += other.getY();
+	}
 }
 

@@ -28,6 +28,8 @@ import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.events.SoKeyboardEvent;
 import jscenegraph.database.inventor.events.SoLocation2Event;
 import jscenegraph.database.inventor.nodes.SoCamera;
+import jscenegraph.database.inventor.sensors.SoIdleSensor;
+import jscenegraph.database.inventor.sensors.SoSensor;
 import jsceneviewer.inventor.qt.SoQtCameraController;
 import jsceneviewer.inventor.qt.SoQtCameraController.Type;
 import jsceneviewer.inventor.qt.viewers.SoQtConstrainedViewer;
@@ -60,6 +62,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private List<Consumer<SoQtWalkViewer>> idleListeners = new ArrayList<>();
 	
+	//private SoIdleSensor idleSensor = new SoIdleSensor(SoQtWalkViewer::idleCB,this);
+	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
 	}
@@ -72,26 +76,39 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
 			@Override
 			public void mouseMove(MouseEvent e) {
-				processMouseMoveEvent(e);
+				if(focus)
+					processMouseMoveEvent(/*e*/);
 			}
 			
 		});
 		old_position.copyFrom(getCursorPosition());
 
+		
 	}
 	
-	protected void processMouseMoveEvent(MouseEvent e) {
+	final SbVec2s diff = new SbVec2s();
+	
+	protected void processMouseMoveEvent(/*MouseEvent e*/) {
 		
-		  SoCamera  camera = getCameraController().getCamera();
-
 		  /* Zjisteni zmeny pozice kurzoru. */
 		  final SbVec2s position = getCursorPosition();
 
-		  final SbVec2s diff = old_position.operator_minus(position);
+		  diff.operator_add_equal(old_position.operator_minus(position));
+		  
+		  old_position.copyFrom( getPosition().operator_add( getCenter()));
+		  setCursorPosition(old_position); //YB
+		  //idle();
+	}
+	
+	protected void moveCamera() {
+
+		  SoCamera  camera = getCameraController().getCamera();
 
 		  float rotation_x = sensitivity * 0.001f * diff.getValue()[1];
 		  rotation_x = invert ? -rotation_x : rotation_x;
 		  float rotation_z = sensitivity * 0.001f * diff.getValue()[0];
+		  
+		  diff.setValue((short)0, (short)0);
 
 		  /* Rotace v X ose. */
 		  camera.orientation.setValue( new SbRotation(new SbVec3f(1.0f, 0.0f, 0.0f), rotation_x).operator_mul(
@@ -100,10 +117,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  /* Rotace v Z ose. */
 		  camera.orientation.setValue( camera.orientation.getValue().operator_mul(
 		    new SbRotation(new SbVec3f(0.0f, 0.0f, 1.0f), rotation_z)));
-
-		  old_position.copyFrom( getPosition().operator_add( getCenter()));
-		  setCursorPosition(old_position); //YB
-		  //idle();
+		
+		  
 	}
 	
 	private SbVec2s getCenter()
@@ -166,19 +181,28 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.S))
 		  {
 			  //lastTimeSec = System.nanoTime()/1.0e9;
-			  keysDown.add(SoKeyboardEvent.Key.S);
+			  if(!keysDown.contains(SoKeyboardEvent.Key.S)) {
+				  lastTimeSec = System.nanoTime()/1.0e9;
+				  keysDown.add(SoKeyboardEvent.Key.S);
+			  }
 			  return true;
 		  }
 		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.Q))
 		  {
 			  //lastTimeSec = System.nanoTime()/1.0e9;
-			  keysDown.add(SoKeyboardEvent.Key.Q);
+			  if(!keysDown.contains(SoKeyboardEvent.Key.Q)) {
+				  lastTimeSec = System.nanoTime()/1.0e9;
+				  keysDown.add(SoKeyboardEvent.Key.Q);
+			  }
 			  return true;
 		  }
 		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.D))
 		  {
 			  //lastTimeSec = System.nanoTime()/1.0e9;
-			  keysDown.add(SoKeyboardEvent.Key.D);
+			  if(!keysDown.contains(SoKeyboardEvent.Key.D)) {
+				  lastTimeSec = System.nanoTime()/1.0e9;
+				  keysDown.add(SoKeyboardEvent.Key.D);
+			  }
 			  return true;
 		  }
 		  else if (SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.Z)) {
@@ -221,6 +245,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	protected boolean processSoLocation2Event( SoLocation2Event _event)
 	{
+		focus = true;
 	//  SoCamera  camera = getCameraController().getCamera();
 	  
 //	  System.out.println("locationmouse");
@@ -253,8 +278,17 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
 	  return result;
 	}
+	
+//	public static void idleCB(Object data, SoSensor sensor) {
+//		SoQtWalkViewer viewer = (SoQtWalkViewer)data;
+//		//viewer.idle();
+//		viewer.getSceneHandler().getSceneGraph().touch();
+//		sensor.schedule();
+//	}
 
 	public void idle() {
+		  
+		  moveCamera();
 
 		double currentTimeSec = System.nanoTime()/1.0e9;
 		
@@ -298,11 +332,15 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  idleListeners.forEach((item)->item.accept(this));
 	}
 	
+	boolean focus;
+	
 	public boolean setFocus() {
+		super.setFocus();
 		return getGLWidget().setFocus();
 	}
 
     protected void paintGL(GL2 gl2) {
+    	
     	idle();
     	super.paintGL(gl2);
     }
@@ -316,4 +354,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     public void addIdleListener(Consumer listener) {
     	idleListeners.add(listener);
     }
+
+//	public void start() {
+//		//idleSensor.schedule();
+//	}
 }

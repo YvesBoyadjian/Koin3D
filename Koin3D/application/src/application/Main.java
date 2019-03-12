@@ -110,6 +110,8 @@ public class Main {
 	    viewer.setCursor(cursor);
 	    boolean success = viewer.setFocus();
 	    
+	    //viewer.start();
+	    
 		// run the event loop as long as the window is open
 		while (!shell.isDisposed()) {
 		    // read the next OS event queue and transfer it to a SWT event

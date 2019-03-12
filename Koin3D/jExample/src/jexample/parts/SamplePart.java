@@ -97,10 +97,10 @@ public class SamplePart {
 	    }	    
 	    
 	    viewer.setSceneGraph(
-	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
+	    		SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
-	    		createDemoScenePerformance() // TODO transparency
+	    		//createDemoScenePerformance()
 	    		//createDemoSceneSoMaterialShapeBinding()
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
@@ -110,7 +110,7 @@ public class SamplePart {
 	    		//Text2.createScene()
 	    		//Text3.createScene()
 	    		//FancyText3.createScene()
-	    		//Selection.createScene(viewer) //TODO
+	    		//Selection.createScene(viewer)
 	    		//Selection.createSceneSelection()
 	    		//Manips.createScene()
 	    		//(new PickTrackball()).createScene()
