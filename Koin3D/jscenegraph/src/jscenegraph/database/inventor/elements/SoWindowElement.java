@@ -55,8 +55,6 @@
 package jscenegraph.database.inventor.elements;
 
 //import org.eclipse.swt.opengl.GLCanvas;
-import org.eclipse.swt.widgets.Display;
-import org.lwjgl.opengl.swt.GLCanvas;
 
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -82,9 +80,9 @@ import jscenegraph.port.GLXContext;
  */
 public class SoWindowElement extends SoElement {
 
-	   protected        GLCanvas            window;
+	   protected        Object/*GLCanvas*/            window;   // was Window
 	   protected        GLXContext          context;
-	   protected        Display             display;
+	   protected        Object/*Display*/             display;// was Display *
 	   protected        SoGLRenderAction    glRenderAction;
 		    	
 	   
@@ -115,8 +113,8 @@ init(SoState state)
 // Use: public, static
 
 public static void
-set(SoState state, GLCanvas w, GLXContext ctx, 
-    Display d, SoGLRenderAction glAc)
+set(SoState state, Object w, GLXContext ctx, 
+    Object d, SoGLRenderAction glAc)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -139,8 +137,8 @@ set(SoState state, GLCanvas w, GLXContext ctx,
 // Use: public, static
 
 public static void
-get(SoState state, final GLCanvas[] w, final GLXContext[] ctx, 
-    final Display[] d, final SoGLRenderAction[] glAc)
+get(SoState state, final Object[] w, final GLXContext[] ctx, 
+    final Object[] d, final SoGLRenderAction[] glAc)
 //
 ////////////////////////////////////////////////////////////////////////
 {

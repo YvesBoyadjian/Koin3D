@@ -62,8 +62,6 @@
 package jscenegraph.database.inventor.nodes;
 
 //import org.eclipse.swt.opengl.GLCanvas;
-import org.eclipse.swt.widgets.Display;
-import org.lwjgl.opengl.swt.GLCanvas;
 
 import com.jogamp.opengl.GL2;
 
@@ -521,9 +519,9 @@ redrawHighlighted(
     
     SoState state = action.getState();
     
-    final GLCanvas[] window = new GLCanvas[1];
+    final Object[] window = new Object[1];
     final GLXContext[] context = new GLXContext[1];
-    final Display[] display = new Display[1];
+    final Object[] display = new Object[1];
     final SoGLRenderAction[] glAction = new SoGLRenderAction[1];
     SoWindowElement.get(state, window, context, display, glAction);
     

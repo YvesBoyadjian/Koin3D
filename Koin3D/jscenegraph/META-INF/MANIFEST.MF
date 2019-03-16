@@ -4,18 +4,12 @@ Bundle-Name: Jscenegraph
 Bundle-SymbolicName: jscenegraph
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: jscenegraph.Activator
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- lwjgl;bundle-version="1.0.0";visibility:=reexport,
- org.eclipse.swt,
- org.lwjglx;bundle-version="1.0.0",
- lwjgl3-swt;bundle-version="1.0.0"
+Require-Bundle: lwjgl;bundle-version="1.0.0";visibility:=reexport,
+ org.lwjglx;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ActivationPolicy: lazy
 Export-Package: com.jogamp.common.nio,
  com.jogamp.opengl,
  com.jogamp.opengl.fixedfunc,
- jscenegraph,
  jscenegraph.coin3d.inventor,
  jscenegraph.coin3d.inventor.elements,
  jscenegraph.coin3d.inventor.lists,
