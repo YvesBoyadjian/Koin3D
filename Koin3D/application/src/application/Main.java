@@ -110,7 +110,7 @@ public class Main {
 	    viewer.setCursor(cursor);
 	    boolean success = viewer.setFocus();
 	    
-	    //viewer.start();
+	    viewer.start();
 	    
 		// run the event loop as long as the window is open
 		while (!shell.isDisposed()) {
@@ -119,7 +119,7 @@ public class Main {
 		     {
 		    // if there are currently no other OS event to process
 		    // sleep until the next OS event is available
-			  viewer.getSceneHandler().getSceneGraph().touch();
+			  //viewer.getSceneHandler().getSceneGraph().touch();
 		        display.sleep();
 		    	//viewer.idle();
 		     }

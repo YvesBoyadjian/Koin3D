@@ -62,7 +62,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private List<Consumer<SoQtWalkViewer>> idleListeners = new ArrayList<>();
 	
-	//private SoIdleSensor idleSensor = new SoIdleSensor(SoQtWalkViewer::idleCB,this);
+	private SoIdleSensor idleSensor = new SoIdleSensor(SoQtWalkViewer::idleCB,this);
 	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
@@ -164,6 +164,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		//if(deltaT > 1.0f) {
 			//deltaT = 1.0f;
 		//}
+		//System.out.println("processSoKeyboardEvent");
 		
 		  if (SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.ESCAPE))
 		  {
@@ -246,12 +247,13 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	protected boolean processSoLocation2Event( SoLocation2Event _event)
 	{
 		focus = true;
+		//processMouseMoveEvent(/*e*/);
 	//  SoCamera  camera = getCameraController().getCamera();
 	  
 //	  System.out.println("locationmouse");
 		//getDeviceWidget().setFocus();
 
-	  return false;
+	  return true;
 	}
 	
 	protected boolean processSoEvent( SoEvent event)
@@ -279,12 +281,12 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	  return result;
 	}
 	
-//	public static void idleCB(Object data, SoSensor sensor) {
-//		SoQtWalkViewer viewer = (SoQtWalkViewer)data;
-//		//viewer.idle();
-//		viewer.getSceneHandler().getSceneGraph().touch();
-//		sensor.schedule();
-//	}
+	public static void idleCB(Object data, SoSensor sensor) {
+		SoQtWalkViewer viewer = (SoQtWalkViewer)data;
+		//viewer.idle();
+		viewer.getSceneHandler().getSceneGraph().touch();
+		sensor.schedule();
+	}
 
 	public void idle() {
 		  
@@ -355,7 +357,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	idleListeners.add(listener);
     }
 
-//	public void start() {
-//		//idleSensor.schedule();
-//	}
+	public void start() {
+		idleSensor.schedule();
+	}
 }
