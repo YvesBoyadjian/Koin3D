@@ -550,8 +550,8 @@ void synthesizeButtonState (int newButtons,
         int buttonNumber = 0;
         switch(button) {
         case SWT.BUTTON1: buttonNumber = 1; break;
-        case SWT.BUTTON2: buttonNumber = 1; break;
-        case SWT.BUTTON3: buttonNumber = 1; break;
+        case SWT.BUTTON2: buttonNumber = 2; break;
+        case SWT.BUTTON3: buttonNumber = 3; break;
         }
         e.button = buttonNumber;
         e.stateMask = storedButtonState + (me.stateMask & SWT.MODIFIER_MASK);
