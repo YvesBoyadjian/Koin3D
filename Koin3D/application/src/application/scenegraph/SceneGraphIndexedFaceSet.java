@@ -49,7 +49,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private static final float SUN_RADIUS = 7e8f;
 	
-	private static final SbColor SUN_COLOR = new SbColor(1f, 0.85f, 0.7f);
+	private static final SbColor SUN_COLOR = new SbColor(1f, 0.85f, 0.8f);
 	
 	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
@@ -120,7 +120,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		int nbCoordIndices = (w-1)*(h-1)*5;
 		int[] coordIndices = new int[nbCoordIndices];
 		
-		Color snow = new Color(0.97f,1.0f,1.0f);
+		Color snow = new Color(1.0f,1.0f,1.0f);
 
 		
 		Color colorStone = STONE;

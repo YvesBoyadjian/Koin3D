@@ -5,40 +5,44 @@ package application;
 
 import java.awt.image.Raster;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
-import org.eclipse.swt.graphics.ImageData;
-import org.eclipse.swt.graphics.PaletteData;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+//import org.eclipse.swt.SWT;
+//import org.eclipse.swt.graphics.Color;
+//import org.eclipse.swt.graphics.Cursor;
+//import org.eclipse.swt.graphics.ImageData;
+//import org.eclipse.swt.graphics.PaletteData;
+//import org.eclipse.swt.graphics.RGB;
+//import org.eclipse.swt.layout.FillLayout;
+//import org.eclipse.swt.widgets.Display;
+//import org.eclipse.swt.widgets.Shell;
 
 import application.scenegraph.SceneGraph;
 import application.scenegraph.SceneGraphIndexedFaceSet;
-import application.scenegraph.SceneGraphQuadMesh;
 import application.scenegraph.Soleil;
-import application.viewer.SoQtWalkViewer;
+import application.viewer.glfw.SoQtWalkViewer;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.nodes.SoCamera;
-import jsceneviewer.inventor.qt.SoQt;
-import jsceneviewer.inventor.qt.SoQtCameraController;
-import jsceneviewer.inventor.qt.viewers.SoQtConstrainedViewer;
-import jsceneviewer.inventor.qt.viewers.SoQtFullViewer;
+import jsceneviewerglfw.inventor.qt.SoQt;
+import jsceneviewerglfw.inventor.qt.SoQtCameraController;
+import jsceneviewerglfw.inventor.qt.viewers.SoQtFullViewer;
+import jsceneviewerglfw.Cursor;
+import jsceneviewerglfw.Display;
+import jsceneviewerglfw.SWT;
 import loader.TerrainLoader;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class Main {
-	
+public class MainGLFW {
+
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Display display = new Display();
-		Shell shell = new Shell(display);
-		shell.setLayout(new FillLayout());
+		//Shell shell = new Shell(display);
+		//shell.setLayout(new FillLayout());
 		
 		TerrainLoader l = new TerrainLoader();
 		Raster rw = l.load("ned19_n47x00_w122x00_wa_mounttrainier_2008\\ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
@@ -46,9 +50,9 @@ public class Main {
 		
 		SoQt.init("demo");
 		
-		int style = SWT.NO_BACKGROUND;
+		int style = 0;//SWT.NO_BACKGROUND;
 		
-		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,shell,style);
+		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style);
 
 		viewer.buildWidget(style);
 		viewer.setHeadlight(false);
@@ -84,44 +88,49 @@ public class Main {
 		});		
 		
 		
-		shell.open();
+		//shell.open();
 		
 	    // create a cursor with a transparent image
-	    Color white = display.getSystemColor(SWT.COLOR_WHITE);
-	    Color black = display.getSystemColor(SWT.COLOR_BLACK);
-	    PaletteData palette = new PaletteData(new RGB[] { white.getRGB(), black.getRGB() });
-	    ImageData sourceData = new ImageData(16, 16, 1, palette);
-	    sourceData.transparentPixel = 0;
-	    Cursor cursor = new Cursor(display, sourceData, 0, 0);
+//	    Color white = display.getSystemColor(SWT.COLOR_WHITE);
+//	    Color black = display.getSystemColor(SWT.COLOR_BLACK);
+//	    PaletteData palette = new PaletteData(new RGB[] { white.getRGB(), black.getRGB() });
+//	    ImageData sourceData = new ImageData(16, 16, 1, palette);
+//	    sourceData.transparentPixel = 0;
+	    Cursor cursor = new Cursor();//display, /*sourceData*/null, 0, 0);
 	    
-	    shell.getDisplay().asyncExec(new Runnable() {
-	        public void run() {
-	    		shell.setFullScreen(true);
-	            shell.forceActive();
-	        }
-	    });
-	    shell.forceActive();
-	    shell.forceFocus();
+//	    shell.getDisplay().asyncExec(new Runnable() {
+//	        public void run() {
+//	    		shell.setFullScreen(true);
+//	            shell.forceActive();
+//	        }
+//	    });
+//	    shell.forceActive();
+//	    shell.forceFocus();
 		
 	    viewer.setCursor(cursor);
 	    boolean success = viewer.setFocus();
 	    
 	    viewer.start();
 	    
+	    //viewer.getGLWidget().maximize();
+	    
 		// run the event loop as long as the window is open
-		while (!shell.isDisposed()) {
-		    // read the next OS event queue and transfer it to a SWT event
-		    if (!display.readAndDispatch())
-		     {
-		    // if there are currently no other OS event to process
-		    // sleep until the next OS event is available
-			  //viewer.getSceneHandler().getSceneGraph().touch();
-		        display.sleep();
-		    	//viewer.idle();
-		     }
-		}
+//		while (!shell.isDisposed()) {
+//		    // read the next OS event queue and transfer it to a SWT event
+//		    if (!display.readAndDispatch())
+//		     {
+//		    // if there are currently no other OS event to process
+//		    // sleep until the next OS event is available
+//			  //viewer.getSceneHandler().getSceneGraph().touch();
+//		        display.sleep();
+//		    	//viewer.idle();
+//		     }
+//		}
+	    
+	    display.loop();
 
 		// disposes all associated windows and their components
 		display.dispose();		
 	}
+
 }

@@ -7,5 +7,9 @@ Automatic-Module-Name: jsceneviewer-glfw
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: lwjgl;bundle-version="1.0.0",
  lwjgl-glfw;bundle-version="1.0.0",
- jscenegraph
-Import-Package: org.lwjgl.util
+ jscenegraph,
+ lwjgl-utils;bundle-version="1.0.0"
+Export-Package: jsceneviewerglfw,
+ jsceneviewerglfw.inventor.qt,
+ jsceneviewerglfw.inventor.qt.devices,
+ jsceneviewerglfw.inventor.qt.viewers
