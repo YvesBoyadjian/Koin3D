@@ -109,12 +109,18 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	protected void processMouseMoveEvent(/*MouseEvent e*/) {
 		
 		  /* Zjisteni zmeny pozice kurzoru. */
-		  final SbVec2s position = getCursorPosition();
-
+		  SbVec2s position = getCursorPosition();
+		  
 		  diff.operator_add_equal(old_position.operator_minus(position));
 		  
 		  old_position.copyFrom( getPosition().operator_add( getCenter()));
+		  
 		  setCursorPosition(old_position); //YB
+
+		  position = getCursorPosition();
+		  
+		  old_position.setValue(position.getX(), position.getY());
+		  
 		  //idle();
 	}
 	
@@ -138,7 +144,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
 		  /* Rotace v Z ose. */
 		  camera.orientation.setValue( camera.orientation.getValue().operator_mul(
-		    new SbRotation(new SbVec3f(0.0f, 0.0f, 1.0f), rotation_z)));				  
+		    new SbRotation(new SbVec3f(0.0f, 0.0f, 1.0f), rotation_z)));
 	}
 	
 	private SbVec2s getCenter()
@@ -308,7 +314,14 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	  return result;
 	}
 	
+	private boolean idleActive = true;
+	
 	public static void idleCB(Object data, SoSensor sensor) {
+		
+		SoQtWalkViewer v = (SoQtWalkViewer) data;
+		if(!v.idleActive) {
+			return;
+		}
 		SoQtWalkViewer viewer = (SoQtWalkViewer)data;
 		//viewer.idle();
 		viewer.getSceneHandler().getSceneGraph().touch();
@@ -387,4 +400,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	public void start() {
 		idleSensor.schedule();
 	}
+
+	public void destructor() {
+		idleActive = false;
+		super.destructor();
+	}
+
 }

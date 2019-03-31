@@ -283,8 +283,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	public static void idleCB(Object data, SoSensor sensor) {
 		SoQtWalkViewer viewer = (SoQtWalkViewer)data;
-		//viewer.idle();
-		viewer.getSceneHandler().getSceneGraph().touch();
+		viewer.idle();
+		//System.out.println("idle");
+		//viewer.getSceneHandler().getSceneGraph().touch();
+		//Display.getCurrent().asyncExec(()->sensor.schedule());
 		sensor.schedule();
 	}
 
@@ -343,7 +345,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
     protected void paintGL(GL2 gl2) {
     	
-    	idle();
+    	//idle();
     	super.paintGL(gl2);
     }
     

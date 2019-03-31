@@ -10,6 +10,8 @@ import java.nio.IntBuffer;
 
 import org.lwjgl.BufferUtils;
 
+import jscenegraph.port.IntArrayPtr;
+
 /**
  * @author Yves Boyadjian
  *
@@ -20,6 +22,14 @@ public class Buffers {
 		ByteBuffer buffer = BufferUtils.createByteBuffer(array.length);
 		buffer.put(array);
 		buffer.flip();
+		return buffer;
+	}
+
+	public static ByteBuffer newDirectByteBuffer(IntArrayPtr array) {
+		int size = array.size();
+		ByteBuffer buffer = BufferUtils.createByteBuffer(size*Integer.BYTES);
+		buffer.asIntBuffer().put(array.getValues(),array.getStart(),size);
+		buffer.clear();
 		return buffer;
 	}
 

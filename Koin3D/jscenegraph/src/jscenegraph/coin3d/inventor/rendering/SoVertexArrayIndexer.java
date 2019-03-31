@@ -93,7 +93,9 @@ public class SoVertexArrayIndexer implements Destroyable {
 	public void 
 	addIndex(int i) 
 	{
-	  if (i >= 65536) this.use_shorts = false;
+	  if (i >= 65536) {
+		  this.use_shorts = false;
+	  }
 	  this.indexarray.append((int) (i));
 	}
 

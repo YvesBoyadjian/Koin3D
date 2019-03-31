@@ -1277,7 +1277,7 @@ SoSeparator createPlanet2(float radius, float distance,
 		
 	    viewer.buildWidget(style);
 	    
-	    viewer.setSceneGraph(/*createDemoScene()*//*Orbits*/Shadows.main());
+	    viewer.setSceneGraph(/*createDemoScene()*//*Orbits*//*Shadows.main()*/ShadowTest.create());
 	    
 	    shell.pack();
 		shell.setSize(700, 700);

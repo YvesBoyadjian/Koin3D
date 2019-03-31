@@ -98,8 +98,8 @@ public class SoShadowLightCache implements Destroyable {
   {
     cc_glglue glue = SoGL.cc_glglue_instance(SoGLCacheContextElement.get(state));
 
-    int maxsize = 2048;
-    int maxtexsize = 2048;
+    int maxsize = 2048*16;
+    int maxtexsize = 2048*16;
 
     // Testing for maximum proxy texture size doesn't seem to work, so
     // we just have to hardcode the maximum size to 2048 for now.  We
@@ -365,7 +365,7 @@ shadowmap_post_glcallback(Object closure, SoAction action)
 {
   if (action.isOfType(SoGLRenderAction.getClassTypeId())) {
     // for debugging the shadow map
-    ((SoShadowLightCache)closure).dumpBitmap("D:/shadowj.rgb");
+    //((SoShadowLightCache)closure).dumpBitmap("D:/shadowj.rgb");
     // nothing to do yet
   }
 }

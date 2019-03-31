@@ -62,6 +62,7 @@ import jscenegraph.coin3d.fxviz.nodes.SoShadowSpotLight;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate4;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
+import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoSceneTexture2;
 import jscenegraph.coin3d.inventor.nodes.SoShuttle;
 import jscenegraph.coin3d.inventor.nodes.SoTexture;
@@ -556,7 +557,7 @@ doAction(SoAction action)
 		       SoInfo.initClass();
 		       SoLabel.initClass();
 //		       SoLevelOfDetail.initClass();
-//		       SoLOD.initClass();
+		       SoLOD.initClass();
 		       SoLocateHighlight.initClass();
 		       SoLightModel.initClass();
 		       SoLineSet.initClass();

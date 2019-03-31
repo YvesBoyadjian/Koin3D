@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.SbSphere;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 
@@ -205,48 +206,110 @@ public SoPerspectiveCamera()
 	   // 
 	   // Use: protected
 	   	
-	@Override
-	protected void viewBoundingBox(SbBox3f box, float aspect, float slack) {
-	     final SbSphere    bSphere = new SbSphere();
-	          float       distToCenter;
-	          final SbMatrix    rotation = new SbMatrix();
-	          final SbVec3f     pos = new SbVec3f();
-	      
-	          // if the bounding box is not empty, create the bounding sphere
-	          if (! box.isEmpty())
-	              bSphere.circumscribe(box);
-	          else {
-	              pos.setValue(0.f, 0.f, 0.f);
-	              bSphere.setValue(pos, 1.0f);
-	          }
-	      
-	          // Find the angle necessary to fit the object completely in the
-	          // window.  We don't need any slack, because the bounding sphere
-	          // is already bigger than the bounding box.
-	          //      h = height (radius of sphere)
-	          //      d = distance to eye
-	          //      tan(alpha) gives us h/d
-	          float hOverD = (float)Math.tan(heightAngle.getValue()  / 2.0f);
-	          if (viewportMapping.getValue()!=ViewportMapping.ADJUST_CAMERA.getValue() &&
-	            viewportMapping.getValue()!=ViewportMapping.LEAVE_ALONE.getValue() &&
-	            aspect < 1.0) {
-	              hOverD *= aspect;
-	          }
-	      
-	          distToCenter = bSphere.getRadius() / hOverD;  //   h / (h/d) gives us d
-	      
-	          rotation .operator_assign( orientation.getValue());
-	          rotation.multVecMatrix(new SbVec3f(0.0f, 0.0f, distToCenter), pos);
-	      
-	          position     .operator_assign( pos.operator_add(bSphere.getCenter()));
-	          nearDistance .operator_assign( distToCenter - slack * bSphere.getRadius());
-	          if (nearDistance.getValue() < 0.0 ||
-	              nearDistance.getValue() < (MINIMUM_NEAR_PLANE * distToCenter))
-	              nearDistance .operator_assign( MINIMUM_NEAR_PLANE * distToCenter);
-	          farDistance   .operator_assign(distToCenter + slack * bSphere.getRadius());
-	          focalDistance.operator_assign(distToCenter);
-	     }
+//	@Override
+//	protected void viewBoundingBox(SbBox3f box, float aspect, float slack) {
+//	     final SbSphere    bSphere = new SbSphere();
+//	          float       distToCenter;
+//	          final SbMatrix    rotation = new SbMatrix();
+//	          final SbVec3f     pos = new SbVec3f();
+//	      
+//	          // if the bounding box is not empty, create the bounding sphere
+//	          if (! box.isEmpty())
+//	              bSphere.circumscribe(box);
+//	          else {
+//	              pos.setValue(0.f, 0.f, 0.f);
+//	              bSphere.setValue(pos, 1.0f);
+//	          }
+//	      
+//	          // Find the angle necessary to fit the object completely in the
+//	          // window.  We don't need any slack, because the bounding sphere
+//	          // is already bigger than the bounding box.
+//	          //      h = height (radius of sphere)
+//	          //      d = distance to eye
+//	          //      tan(alpha) gives us h/d
+//	          float hOverD = (float)Math.tan(heightAngle.getValue()  / 2.0f);
+//	          if (viewportMapping.getValue()!=ViewportMapping.ADJUST_CAMERA.getValue() &&
+//	            viewportMapping.getValue()!=ViewportMapping.LEAVE_ALONE.getValue() &&
+//	            aspect < 1.0) {
+//	              hOverD *= aspect;
+//	          }
+//	      
+//	          distToCenter = bSphere.getRadius() / hOverD;  //   h / (h/d) gives us d
+//	      
+//	          rotation .operator_assign( orientation.getValue());
+//	          rotation.multVecMatrix(new SbVec3f(0.0f, 0.0f, distToCenter), pos);
+//	      
+//	          position     .operator_assign( pos.operator_add(bSphere.getCenter()));
+//	          nearDistance .operator_assign( distToCenter - slack * bSphere.getRadius());
+//	          if (nearDistance.getValue() < 0.0 ||
+//	              nearDistance.getValue() < (MINIMUM_NEAR_PLANE * distToCenter))
+//	              nearDistance .operator_assign( MINIMUM_NEAR_PLANE * distToCenter);
+//	          farDistance   .operator_assign(distToCenter + slack * bSphere.getRadius());
+//	          focalDistance.operator_assign(distToCenter);
+//	     }
 
+	// Doc in superclass.
+	protected void
+	viewBoundingBox(final SbBox3f box, float aspect,
+	                                     float slack)
+	{
+	//#if COIN_DEBUG
+	  // Only check for "flagged" emptiness, and don't use
+	  // SbBox3f::hasVolume(), as we *can* handle flat boxes.
+	  if (box.isEmpty()) {
+	    SoDebugError.postWarning("SoPerspectiveCamera::viewBoundingBox",
+	                              "bounding box is empty");
+	    return;
+	  }
+	//#endif // COIN_DEBUG
+
+	  // First, we want to move the camera in such a way that it is
+	  // pointing straight at the center of the scene bounding box -- but
+	  // without modifiying the rotation value (so we can't use
+	  // SoCamera::pointAt()).
+	  final SbVec3f cameradirection = new SbVec3f();
+	  this.orientation.getValue().multVec(new SbVec3f(0, 0, -1), cameradirection);
+	  this.position.setValue(box.getCenter().operator_add(cameradirection.operator_minus()));
+
+
+	  // Get the radius of the bounding sphere.
+	  final SbSphere bs = new SbSphere();
+	  bs.circumscribe(box);
+	  float radius = bs.getRadius();
+
+	  // Make sure that everything will still be inside the viewing volume
+	  // even if the aspect ratio "favorizes" width over height.
+	  float aspectradius = radius / (aspect < 1.0f ? aspect : 1.0f);
+
+	  // Move the camera to the edge of the bounding sphere, while still
+	  // pointing at the scene.
+	  final SbVec3f direction = this.position.getValue().operator_minus(box.getCenter());
+	  direction.normalize(); // we know this is not a null vector
+
+	  // There's a small chance that the frustum will intersect the
+	  // bounding box when we calculate the movelength like this, but for
+	  // all normal heightAngles it will yield a much better fit than
+	  // the 100% safe version which also adds radius to movelength
+	  float movelength = aspectradius/(float)(Math.tan(this.heightAngle.getValue() / 2.0));
+	  this.position.setValue(box.getCenter().operator_add(direction.operator_mul(movelength)));
+
+	  // Set up the clipping planes according to the slack value (a value
+	  // of 1.0 will yield clipping planes that are tangent to the
+	  // bounding sphere of the scene).
+	  float distance_to_midpoint =
+	    (this.position.getValue().operator_minus(box.getCenter())).length();
+	  // make sure nearDistance isn't 0.0 (or too close to 0.0)
+	  final float EPS = 0.001f;
+	  this.nearDistance.setValue(SbBasic.SbMax(distance_to_midpoint*EPS, distance_to_midpoint - radius * slack));
+	  this.farDistance.setValue( distance_to_midpoint + radius * slack);
+
+	  // The focal distance is simply the distance from the camera to the
+	  // scene midpoint. This field is not used in rendering, its just
+	  // provided to make it easier for the user to do calculations based
+	  // on the distance between the camera and the scene.
+	  this.focalDistance.setValue( distance_to_midpoint);
+	}
+	
 	 ////////////////////////////////////////////////////////////////////////
 	  //
 	  // Description:

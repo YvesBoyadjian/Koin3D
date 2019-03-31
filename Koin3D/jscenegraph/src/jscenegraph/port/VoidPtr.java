@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import com.jogamp.common.nio.Buffers;
+
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
@@ -131,6 +133,9 @@ public class VoidPtr implements Destroyable {
 	public ByteBuffer toByteBuffer() {
 		if(object instanceof ByteBuffer) {
 			return (ByteBuffer) object;
+		}
+		else if( object instanceof IntArrayPtr) {			
+			return Buffers.newDirectByteBuffer((IntArrayPtr)object);
 		}
 		return null;
 	}

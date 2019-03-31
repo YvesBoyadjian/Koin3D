@@ -17,6 +17,7 @@ import java.awt.image.Raster;
 
 import application.scenegraph.SceneGraph;
 import application.scenegraph.SceneGraphIndexedFaceSet;
+import application.scenegraph.ShadowTestSceneGraph;
 import application.scenegraph.Soleil;
 import application.viewer.glfw.SoQtWalkViewer;
 import jscenegraph.database.inventor.SbColor;
@@ -35,6 +36,10 @@ import loader.TerrainLoader;
  *
  */
 public class MainGLFW {
+	
+	public static final float MINIMUM_VIEW_DISTANCE = 1.0f;
+
+	public static final float MAXIMUM_VIEW_DISTANCE = SceneGraphIndexedFaceSet.SUN_FAKE_DISTANCE * 1.5f;
 
 	/**
 	 * @param args
@@ -52,20 +57,27 @@ public class MainGLFW {
 		
 		int style = 0;//SWT.NO_BACKGROUND;
 		
+		//SceneGraph sg = new SceneGraphQuadMesh(r);
+		int overlap = 13;		
+		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap);
+		//SceneGraph sg = new ShadowTestSceneGraph();
+		
 		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style);
 
 		viewer.buildWidget(style);
 		viewer.setHeadlight(false);
 		
-		//SceneGraph sg = new SceneGraphQuadMesh(r);
-		int overlap = 13;		
-		
-		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap);
 		
 		viewer.setSceneGraph(sg.getSceneGraph());
 
 		viewer.setUpDirection(new SbVec3f(0,0,1));
+
+		viewer.getCameraController().setAutoClipping(false);
+		
 		SoCamera camera = viewer.getCameraController().getCamera();
+		
+		camera.nearDistance.setValue(MINIMUM_VIEW_DISTANCE);
+		camera.farDistance.setValue(MAXIMUM_VIEW_DISTANCE);
 		
 		camera.position.setValue(0,0,0);
 		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
@@ -81,7 +93,7 @@ public class MainGLFW {
 			double nowSec = nanoTime / 1e9;
 			double nowDay = 80;//nowSec * 60 * 60 * 24; // always summer
 			double nowHour = nowSec / 60 / 60;
-			double nowGame = nowHour * TimeConstants.JMEMBA_TIME_ACCELERATION;
+			double nowGame = nowHour * TimeConstants.JMEMBA_TIME_ACCELERATION/*GTA_SA_TIME_ACCELERATION*/;
 			double Phi = 47;
 			SbVec3f sunPosition = Soleil.soleil_xyz((float)nowDay, (float)nowGame, (float)Phi);
 			sg.setSunPosition(new SbVec3f(sunPosition.y(),-sunPosition.x(),sunPosition.z()));
@@ -128,6 +140,8 @@ public class MainGLFW {
 //		}
 	    
 	    display.loop();
+	    
+	    viewer.destructor();
 
 		// disposes all associated windows and their components
 		display.dispose();		

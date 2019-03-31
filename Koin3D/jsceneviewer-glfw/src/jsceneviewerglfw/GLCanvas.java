@@ -38,7 +38,12 @@ public class GLCanvas extends Composite {
 		  
 	      int  width = vidMode.width();
 	      int  height = vidMode.height();
-	        
+	      
+	      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
+			
 		// Create the window
 		window = glfwCreateWindow(width, height, "Hello World!", glfwGetPrimaryMonitor(), NULL);
 		if ( window == NULL )

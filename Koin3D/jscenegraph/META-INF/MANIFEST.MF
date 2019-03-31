@@ -10,6 +10,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.jogamp.common.nio,
  com.jogamp.opengl,
  com.jogamp.opengl.fixedfunc,
+ jscenegraph.coin3d.fxviz.nodes,
  jscenegraph.coin3d.inventor,
  jscenegraph.coin3d.inventor.elements,
  jscenegraph.coin3d.inventor.lists,

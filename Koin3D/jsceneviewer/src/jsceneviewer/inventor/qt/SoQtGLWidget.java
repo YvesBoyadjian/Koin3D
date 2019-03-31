@@ -396,19 +396,19 @@ public GLData format()
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 				event(e, EventType.MOUSE_EVENT_DOUBLE_CLICK);
-				mainWidget.redraw();//display();
+				//mainWidget.redraw();//display();
 			}
 
 			@Override
 			public void mouseDown(MouseEvent e) {
 				event(e, EventType.MOUSE_EVENT_MOUSE_DOWN);
-				mainWidget.redraw();//display();
+				//mainWidget.redraw();//display();
 			}
 
 			@Override
 			public void mouseUp(MouseEvent e) {
 				event(e, EventType.MOUSE_EVENT_MOUSE_UP);
-				mainWidget.redraw();//display();
+				//mainWidget.redraw();//display();
 			}
 			
 		});
@@ -428,7 +428,7 @@ public GLData format()
 			@Override
 			public void mouseScrolled(MouseEvent e) {
 				event(e, EventType.MOUSE_EVENT_MOUSE_SCROLLED);				
-				mainWidget.redraw();//display();
+				//mainWidget.redraw();//display();
 			}
 			
 		});
@@ -438,13 +438,13 @@ public GLData format()
 			@Override
 			public void keyPressed(KeyEvent e) {
 				event(e, EventType.KEY_EVENT_KEY_PRESSED);				
-				mainWidget.redraw();//display();
+				//mainWidget.redraw();//display();
 			}
 
 			@Override
 			public void keyReleased(KeyEvent e) {
 				event(e, EventType.KEY_EVENT_KEY_RELEASED);				
-				mainWidget.redraw();//display();
+				//mainWidget.redraw();//display();
 			}
 			
 		});	

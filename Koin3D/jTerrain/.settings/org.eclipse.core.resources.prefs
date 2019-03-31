@@ -1,0 +1,14 @@
+eclipse.preferences.version=1
+encoding//src/jterrain/SoQtFreeViewer.java=UTF-8
+encoding//src/jterrain/SoTerrainTest.java=UTF-8
+encoding//src/jterrain/Utils.java=UTF-8
+encoding//src/jterrain/geomipmapping/SbGeoMipmapTile.java=UTF-8
+encoding//src/jterrain/geomipmapping/SbGeoMipmapTileLevel.java=UTF-8
+encoding//src/jterrain/geomipmapping/SbGeoMipmapTileTree.java=UTF-8
+encoding//src/jterrain/geomipmapping/SoSimpleGeoMipmapTerrain.java=UTF-8
+encoding//src/roam/SbROAMMergeQueue.java=UTF-8
+encoding//src/roam/SbROAMMergeQueueDiamond.java=UTF-8
+encoding//src/roam/SbROAMSplitQueue.java=UTF-8
+encoding//src/roam/SbROAMSplitQueueTriangle.java=UTF-8
+encoding//src/roam/SbROAMTriangle.java=UTF-8
+encoding//src/roam/SoSimpleROAMTerrain.java=UTF-8

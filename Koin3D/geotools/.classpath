@@ -9,8 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/gt-api-20-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gt-coverage-20-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gt-data-20-SNAPSHOT.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/gt-main-20-SNAPSHOT.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/gt-metadata-20-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gt-opengis-20-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/gt-referencing-20-SNAPSHOT.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/imageio-ext-geocore-1.1.21.jar"/>
@@ -26,5 +24,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/unit-api-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/uom-lib-common-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/uom-se-1.0.8.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gt-main-20.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gt-geotiff-20.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gt-render-20.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gt-swing-20.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gt-metadata-20.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

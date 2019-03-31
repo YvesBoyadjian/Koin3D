@@ -22,7 +22,7 @@ public class UShortPtr {
 		sb = data.asShortBuffer();
 	}
 
-	public void set(int value, int index) {
+	public void set(int index, int value) {
 		sb.put(index,(short)value);
 	}
 

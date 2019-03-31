@@ -1196,7 +1196,7 @@ private static int current_errors = 0;
 	    if (normalindices_ == null) normalindices_ = vertexindices_;
 
 	  IntArrayPtr vertexindices = new IntArrayPtr(vertexindices_);
-	  MutableSbVec3fArray normals = new MutableSbVec3fArray(normals_);
+	  MutableSbVec3fArray normals = normals_ != null ? new MutableSbVec3fArray(normals_) : null;
 	  IntArrayPtr normalindices = new IntArrayPtr(normalindices_);
 	  IntArrayPtr matindices = new IntArrayPtr(matindices_);
 	  IntArrayPtr texindices = texindices_ != null ? new IntArrayPtr(texindices_) : null;
