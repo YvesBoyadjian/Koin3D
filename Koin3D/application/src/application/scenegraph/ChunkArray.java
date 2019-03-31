@@ -216,9 +216,21 @@ public class ChunkArray {
 				SoLOD lod = new SoLOD();
 				lod.center.setValue(chunks[i][j].getCenter());
 				lod.range.setValues(0, distances);
-				for(int l=0; l< chunks[i][j].NB_LOD;l++)
+				for(int l=0; l< Chunk.NB_LOD;l++)
 					lod.addChild(chunks[i][j].getIndexedFaceSet(l));
 				group.addChild(lod);
+			}
+		}
+		
+		return group;
+	}
+
+	public SoNode getShadowGroup() {
+		
+		SoGroup group = new SoGroup();
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				group.addChild(chunks[i][j].getIndexedFaceSet(Math.min(3,Chunk.NB_LOD-1)));
 			}
 		}
 		

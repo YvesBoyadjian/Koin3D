@@ -374,11 +374,11 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		
 		sep.addChild(shadowGroup);
 		
-//		SoSeparator castingShadowScene = new SoSeparator();
+		SoSeparator castingShadowScene = new SoSeparator();
 		
 		//castingShadowScene.addChild(inverseSunTransl);
 		
-//		addWater(castingShadowScene,5150 ,0.0f);
+		addWater(castingShadowScene,5185 ,0.0f);
 		
 //	    SoVertexProperty vertexPropertyGeom = new SoVertexProperty();
 //	    vertexPropertyGeom.vertex.setValuesPointer(/*0,*/ vertices);
@@ -393,7 +393,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 //	    indexedFaceSetGeom.vertexProperty.setValue(vertexPropertyGeom);
 //	    indexedFaceSetGeom.coordIndex.setValues(0, coordIndices);
 //	    
-//	    castingShadowScene.addChild(transl);
+	    //castingShadowScene.addChild(transl);
 //	    
 //	    SoMaterial shadowMat = new SoMaterial();
 //	    shadowMat.diffuseColor.setValue(0, 0, 0);
@@ -402,10 +402,20 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 //	    
 //	    castingShadowScene.addChild(indexedFaceSetGeom);
 		
+	    SoSeparator shadowLandSep = new SoSeparator();
+	    
+	    SoMaterial shadowMat = new SoMaterial();
+	    shadowMat.ambientColor.setValue(0, 0, 0); // no ambient
+	    
+	    shadowLandSep.addChild(shadowMat);
+	    
+	    shadowLandSep.addChild(transl);
+	    
+	    shadowLandSep.addChild(chunks.getShadowGroup());
 		
-		//castingShadowScene.addChild(landSep);
+		castingShadowScene.addChild(shadowLandSep);
 		
-		//sun.shadowMapScene.setValue(castingShadowScene);
+		sun.shadowMapScene.setValue(castingShadowScene);
 		
 		//sep.ref();
 	}
