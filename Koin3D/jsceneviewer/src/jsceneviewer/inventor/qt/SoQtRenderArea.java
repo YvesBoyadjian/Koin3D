@@ -133,7 +133,7 @@ public class SoQtRenderArea extends SoQtGLWidget {
 	    glf.depthSize = 24;
 	    glf.doubleBuffer = true;
 	    glf.majorVersion = 4;
-	    glf.minorVersion = 5;
+	    glf.minorVersion = 0;
 	    glf.api = GLData.API.GL;
 	    glf.profile = GLData.Profile.COMPATIBILITY;
 	    glf.debug = true;

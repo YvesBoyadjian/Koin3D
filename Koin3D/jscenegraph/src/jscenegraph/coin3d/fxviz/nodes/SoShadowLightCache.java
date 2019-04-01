@@ -98,8 +98,8 @@ public class SoShadowLightCache implements Destroyable {
   {
     cc_glglue glue = SoGL.cc_glglue_instance(SoGLCacheContextElement.get(state));
 
-    int maxsize = 2048*16;
-    int maxtexsize = 2048*16;
+    int maxsize = 2048*8;
+    int maxtexsize = 2048*8;
 
     // Testing for maximum proxy texture size doesn't seem to work, so
     // we just have to hardcode the maximum size to 2048 for now.  We

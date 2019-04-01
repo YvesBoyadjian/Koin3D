@@ -72,11 +72,13 @@ public class Main {
 		
 		sg.setPosition(/*sg.getCenterX()/2*/0,sg.getCenterY(),5000);
 		
+		final double startDate = (double)System.nanoTime()/ 1e9 - 60*60*4.5 / TimeConstants.JMEMBA_TIME_ACCELERATION;
+		
 		viewer.addIdleListener((viewer1)->{
 			double nanoTime = System.nanoTime();
-			double nowSec = nanoTime / 1e9;
-			double nowDay = 80;//nowSec * 60 * 60 * 24; // always summer
+			double nowSec = nanoTime / 1e9 - startDate;
 			double nowHour = nowSec / 60 / 60;
+			double nowDay = 80;//nowHour / 24; // always summer
 			double nowGame = nowHour * TimeConstants.JMEMBA_TIME_ACCELERATION;
 			double Phi = 47;
 			SbVec3f sunPosition = Soleil.soleil_xyz((float)nowDay, (float)nowGame, (float)Phi);
