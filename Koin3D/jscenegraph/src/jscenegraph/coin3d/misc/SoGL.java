@@ -599,7 +599,7 @@ cc_glglue_glDrawArrays(cc_glglue glue,
 public static void
 cc_glglue_glDrawElements(cc_glglue glue,
                          /*GLenum*/int mode, /*GLsizei*/int count, /*GLenum*/int type,
-                         VoidPtr indices)
+                         /*VoidPtr*/IntArrayPtr indices)
 {
   //assert(glue.glDrawElements);
   glue.glDrawElements(mode, count, type, indices);

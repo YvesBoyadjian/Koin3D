@@ -298,7 +298,7 @@ public class SoVertexArrayIndexer implements Destroyable {
 	                               this.target,
 	                               this.indexarray.getLength(),
 	                               GL2.GL_UNSIGNED_INT,
-	                               VoidPtr.create(idxptr));
+	                               idxptr);
 	    }
 	    break;
 	  default:
@@ -318,7 +318,7 @@ public class SoVertexArrayIndexer implements Destroyable {
 	                                 this.target,
 	                                 cnt,
 	                                 GL2.GL_UNSIGNED_INT,
-	                                 VoidPtr.create(ptr));
+	                                 ptr);
 	      }
 	    }
 	    break;

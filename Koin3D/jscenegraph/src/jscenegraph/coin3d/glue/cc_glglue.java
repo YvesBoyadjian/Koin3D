@@ -397,7 +397,7 @@ public void glDisableClientState(int array) {
 	gl2.glDisableClientState(array);
 }
 
-public void glDrawElements(int mode, int count, int type, VoidPtr indices) {
+public void glDrawElements(int mode, int count, int type, /*VoidPtr*/IntArrayPtr indices) {
 	if(indices == null) {
 		gl2.glDrawElements(mode, count, type, 0);		
 	}

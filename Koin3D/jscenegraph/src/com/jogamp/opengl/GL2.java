@@ -3466,6 +3466,11 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glDrawElements(mode,type,bb);
 	}
 
+	default void glDrawElements(int mode, int count, int type, IntArrayPtr indices) {
+		ByteBuffer bb = Buffers.newDirectByteBuffer((IntArrayPtr)indices);
+		org.lwjgl.opengl.GL11.glDrawElements(mode,type,bb);
+	}
+
 	default void glDrawElements(int mode, int count, int type, long indices) {
 		org.lwjgl.opengl.GL11.glDrawElements(mode,count,type,indices);
 	}
