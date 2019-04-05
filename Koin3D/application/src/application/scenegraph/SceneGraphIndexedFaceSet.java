@@ -200,9 +200,9 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 				int red = color.getRed()*color.getRed()/255;
 				int green = color.getGreen()*color.getGreen()/255;
 				int blue = color.getBlue()*color.getBlue()/255;
+				int alpha = color.getAlpha();
 				
-				int rgba = (color.getAlpha() << 0) | (red << 24)| (green << 16)|(blue<<8); 
-				chunks.colorsPut(index, rgba);
+				chunks.colorsPut(index, red, green, blue, alpha);
 			}
 		}
 		
@@ -235,7 +235,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 			chunks.normalsPut(index*3+2, n.getZ());
 
 			if((n.getZ()<0.45 && chunks.verticesGet(index*3+2) < ALPINE_HEIGHT) || n.getZ()<0.35) {
-				chunks.colorsPut(index, rgbaStone);
+				chunks.colorsPut(index, redStone, greenStone, blueStone, 255);
 			}
 		}
 		}

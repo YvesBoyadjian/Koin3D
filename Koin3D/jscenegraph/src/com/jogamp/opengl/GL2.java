@@ -3517,4 +3517,9 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL13.glMultiTexCoord2f(target,s,t);
 	}
 
+	default void glDeleteBuffers(int n, int[] buffers) {
+		assert( n == buffers.length);
+		org.lwjgl.opengl.GL15.glDeleteBuffers(buffers);
+	}
+
 }

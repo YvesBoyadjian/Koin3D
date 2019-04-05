@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.Destroyable;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -117,10 +118,15 @@ private class extInfo {
     final SbPList support = new SbPList();
 };
 
-	private static class so_scheduledeletecb_info {
+	private static class so_scheduledeletecb_info implements Destroyable {
 	  public int contextid;
 	  public SoScheduleDeleteCB cb;
 	  public Object closure;
+	@Override
+	public void destructor() {
+		// TODO Auto-generated method stub
+		
+	}
 	} ;
 
 
@@ -445,6 +451,9 @@ set(SoState state, int ctx,
             dl.destructor();//delete dl;
         }
     }
+    
+    // really delete GL resources scheduled for destruction
+    SoGLCacheContextElement.cleanupContext((int) ctx, null);
 }
 
 
@@ -517,6 +526,48 @@ incNumShapes(SoState state)
     state.getElementNoPush(classStackIndexMap.get(SoGLCacheContextElement.class));
 
   elem.numshapes++;
+}
+
+
+//
+// Used both as a callback from SoContextHandler and called directly
+// from inside this class every time ::set() is called.
+//
+public static void
+cleanupContext(int contextid, Object userdata)
+{
+  int context = (int) contextid;
+
+  //CC_MUTEX_LOCK(glcache_mutex);
+
+  int i = 0;
+//  int n = scheduledeletelist.getLength(); TODO
+//
+//  while (i < n) {
+//    SoGLDisplayList dl = (scheduledeletelist)[i];
+//    if (dl->getContext() == context) {
+//      scheduledeletelist.removeFast(i);
+//      n--;
+//      delete dl;
+//    }
+//    else i++;
+//  }
+
+  i = 0;
+  int n = scheduledeletecblist.getLength();
+  while (i < n) {
+    so_scheduledeletecb_info info = (scheduledeletecblist).operator_square_bracket(i);
+    if (info.contextid == contextid) {
+      info.cb.invoke(info.closure, info.contextid);
+      scheduledeletecblist.removeFast(i);
+      n--;
+      Destroyable.delete( info);
+    }
+    else i++;
+  }
+
+  //CC_MUTEX_UNLOCK(glcache_mutex);
+
 }
 
 

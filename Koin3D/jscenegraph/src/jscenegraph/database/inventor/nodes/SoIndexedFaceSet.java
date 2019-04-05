@@ -538,6 +538,11 @@ public void destructor()
 {
   Destroyable.delete(_triangleIndexer);
   Destroyable.delete(_quadIndexer);
+
+  Destroyable.delete(pimpl.vaindexer);
+  if (pimpl.convexCache != null) pimpl.convexCache.unref();
+  Destroyable.delete(pimpl);
+  
   super.destructor();
 }
 
@@ -665,10 +670,10 @@ public void GLRender(SoGLRenderAction action)
 	  boolean dova =
 	    SoVBO.shouldRenderAsVertexArrays(state, contextid, numindices[0]) &&
 	    !convexcacheused && !normalCacheUsed[0] &&
-	    ((nbind == Binding.OVERALL) || ((nbind == Binding.PER_VERTEX_INDEXED) && ((nindices == cindices) || (nindices[0] == null)))) &&
+	    ((nbind == Binding.OVERALL) || ((nbind == Binding.PER_VERTEX_INDEXED) && ((nindices[0] == cindices[0]) || (nindices[0] == null)))) &&
 	    ((tbind == Binding./*NONE*/OVERALL && !tb.needCoordinates()) || // no 
-	     ((tbind == Binding.PER_VERTEX_INDEXED) && ((tindices == cindices) || (tindices[0] == null)))) &&
-	    ((mbind == Binding./*NONE*/OVERALL) || ((mbind == Binding.PER_VERTEX_INDEXED) && ((mindices == cindices) || (mindices[0] == null)))) &&
+	     ((tbind == Binding.PER_VERTEX_INDEXED) && ((tindices[0] == cindices[0]) || (tindices[0] == null)))) &&
+	    ((mbind == Binding./*NONE*/OVERALL) || ((mbind == Binding.PER_VERTEX_INDEXED) && ((mindices[0] == cindices[0]) || (mindices[0] == null)))) &&
 	    SoGLDriverDatabase.isSupported(SoGL.sogl_glue_instance(state), SoGLDriverDatabase.SO_GL_VERTEX_ARRAY);
 
 	  SoGLVBOElement vboelem = SoGLVBOElement.getInstance(state);

@@ -16,9 +16,9 @@ import jscenegraph.database.inventor.nodes.SoNode;
  */
 public class Chunk {
 	
-	public static final int CHUNK_WIDTH = (1 << 8) + 1;
+	public static final int CHUNK_WIDTH = 3 * 3 * 3 * 3 * 3 + 1;
 	
-	public static final int NB_LOD = 5;
+	public static final int NB_LOD = 4;
 	
 	private int chunkWidth;
 	
@@ -29,7 +29,7 @@ public class Chunk {
 	
 	float[] vertices;
 	float[] normals;
-	int[] colors;
+	byte[] colors;
 	int[] coordIndices;	
 
 	SoIndexedFaceSet[] LODindexedFaceSets;
@@ -46,7 +46,7 @@ public class Chunk {
 		int nbVertices = chunkWidth *chunkWidth;
 		vertices = new float[nbVertices*3];
 		normals = new float[nbVertices*3];
-		colors = new int[nbVertices];
+		colors = new byte[nbVertices*4];
 		
 		int nbCoordIndices = (chunkWidth-1)*(chunkWidth-1)*5;
 		coordIndices = new int[nbCoordIndices];
@@ -67,13 +67,13 @@ public class Chunk {
 
 	public void initIndexedFaceSet() {
 		
-	    SoVertexProperty vertexProperty = new SoVertexProperty();
-	    
-	    vertexProperty.vertex.setValuesPointer(/*0,*/ vertices);
-	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ normals);
-	    vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.orderedRGBA.setValues(0, colors);
+//	    SoVertexProperty vertexProperty = new SoVertexProperty();
+//	    
+//	    vertexProperty.vertex.setValuesPointer(/*0,*/ vertices);
+//	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+//	    vertexProperty.normal.setValuesPointer(/*0,*/ normals);
+//	    vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+//	    vertexProperty.orderedRGBA.setValues(0, colors);
 	    
 	    int nbVertices = vertices.length /3;
 	    final SbVec3f ptV = new SbVec3f();
@@ -85,25 +85,26 @@ public class Chunk {
 	    
 	    LODindexedFaceSets = new SoIndexedFaceSet[NB_LOD];
 	    
-	    LODindexedFaceSets[0] = new SoIndexedFaceSet() {
-	    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
-	    		box.copyFrom(sceneBox);
-	    		center.copyFrom(sceneCenter);
-	    	}
-	    };
+//	    LODindexedFaceSets[0] = new SoIndexedFaceSet() {
+//	    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+//	    		box.copyFrom(sceneBox);
+//	    		center.copyFrom(sceneCenter);
+//	    	}
+//	    };
+//	    
+//	    LODindexedFaceSets[0].vertexProperty.setValue(vertexProperty);
+//	    LODindexedFaceSets[0].coordIndex.setValues(0, coordIndices);
 	    
-	    LODindexedFaceSets[0].vertexProperty.setValue(vertexProperty);
-	    LODindexedFaceSets[0].coordIndex.setValues(0, coordIndices);
-	    
-	    for(int l=1;l<NB_LOD;l++) {
+	    for(int l=0;l<NB_LOD;l++) {
 	    	
-		    vertexProperty = new SoVertexProperty();
+	    	SoVertexProperty vertexProperty = new SoVertexProperty();
 		    
 		    vertexProperty.vertex.setValuesPointer(/*0,*/ getDecimatedVertices(l));
 		    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
 		    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(l));
-		    vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-		    vertexProperty.orderedRGBA.setValues(0, getDecimatedColors(l));
+		    //vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+		    //vertexProperty.orderedRGBA.setValues(0, getDecimatedColors(l));
+		    vertexProperty.texCoord.setValues(0, getDecimatedTexCoords(l));
 		    
 		    LODindexedFaceSets[l] = new SoIndexedFaceSet() {
 		    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
@@ -117,8 +118,26 @@ public class Chunk {
 	    }
 	}
 	
-	private int getDecimatedChunkWidth(int i) {
-		int decimatedChunkWidth = ((chunkWidth -1) >> i) + 1;
+	private float[] getDecimatedTexCoords(int l) {
+		int decimatedChunkWidth = getDecimatedChunkWidth(l);
+		float[] array = new float[decimatedChunkWidth*decimatedChunkWidth*2];
+		for(int i=0;i<decimatedChunkWidth;i++) {
+			for(int j=0; j<decimatedChunkWidth; j++) {
+				int index = i*decimatedChunkWidth+j;
+				array[index*2+1] = i/(decimatedChunkWidth-1.0f);
+				array[index*2] = j/(decimatedChunkWidth-1.0f);
+			}
+		}
+		return array;
+	}
+
+	public static int getDecimatedChunkWidth(int i) {
+		
+		int mul = 3 * 3 * 3 * 3 * 3;
+		for( int ii=0;ii<i;ii++) {
+			mul /= 3;
+		}
+		int decimatedChunkWidth = mul + 1;
 		return decimatedChunkWidth;
 	}
 
@@ -138,20 +157,78 @@ public class Chunk {
 		}
 		return decimatedCoordIndices;
 	}
+	
+	private int fromSonToSource(int indice, int l) {
+		for(int i=0;i<l;i++) {
+			indice *= 3;
+		}
+		return indice;
+	}
+	
+	int byteToInt(byte value) {
+		int val = value;
+		if(val < 0) {
+			val += 256;
+		}
+		return val;
+	}
 
 	private int[] getDecimatedColors(int l) {
+		int sourceChunkWidth = getDecimatedChunkWidth(0);
 		int decimatedChunkWidth = getDecimatedChunkWidth(l);
 		int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
 
 		int[] decimatedColors = new int[nbVertices];
 				
+		int delta = ((l==0) ? 0 : 1);
+		
 		int indice = 0; 
 		for(int i =0 ; i< decimatedChunkWidth; i++) {
 			for(int j =0 ; j< decimatedChunkWidth; j++) {
-				int i0 = i << l;
-				int j0 = j << l;
-				int indice0 = i0*chunkWidth+j0;
-				decimatedColors[indice] = colors[indice0];
+				int i0 = fromSonToSource(i,l);
+				int j0 = fromSonToSource(j,l);
+
+				float red = 0;
+				float green = 0;
+				float blue = 0;
+				float alpha = 0;
+				int nb = 0;
+				for(int di = -delta; di<=delta; di++) {
+					for( int dj = -delta; dj<= delta; dj++) {
+						
+						int i1 = i0 + di;
+						int j1 = j0 + dj;
+						
+						if(i1 < 0) {
+							i1 = 0;
+						}
+						if(j1 < 0) {
+							j1 = 0;
+						}
+						if(i1 >= sourceChunkWidth) {
+							i1 = sourceChunkWidth - 1;
+						}
+						if(j1 >= sourceChunkWidth) {
+							j1 = sourceChunkWidth - 1;
+						}
+						int indice0 = i1*chunkWidth+j1;
+						red += byteToInt(colors[indice0*4]);
+						green += byteToInt(colors[indice0*4+1]);
+						blue += byteToInt(colors[indice0*4+2]);
+						alpha += byteToInt(colors[indice0*4+3]);
+						nb++;
+					}
+				}
+				float rf = red/(float)nb;
+				float rg = green/(float)nb;
+				float rb = blue/(float)nb;
+				float ra = alpha/(float)nb;
+				int redi = (int)( rf );
+				int greeni = (int)( rg);
+				int bluei = (int)( rb);
+				int alphai = (int)( ra);
+				int rgba = (alphai << 0) | (redi << 24)| (greeni << 16)|(bluei<<8);
+				decimatedColors[indice] = rgba;//colors[indice0];
 				indice++;
 			}
 		}
@@ -167,8 +244,8 @@ public class Chunk {
 		int indice = 0; 
 		for(int i =0 ; i< decimatedChunkWidth; i++) {
 			for(int j =0 ; j< decimatedChunkWidth; j++) {
-				int i0 = i << l;
-				int j0 = j << l;
+				int i0 = fromSonToSource(i,l);
+				int j0 = fromSonToSource(j,l);
 				int indice0 = i0*chunkWidth+j0;
 				decimatedNormals[indice*3] = normals[indice0*3];
 				decimatedNormals[indice*3+1] = normals[indice0*3+1];
@@ -197,8 +274,8 @@ public class Chunk {
 		
 		for(int i =0 ; i< decimatedChunkWidth; i++) {
 			for(int j =0 ; j<decimatedChunkWidth ; j++) {
-				int i0 = i << l;
-				int j0 = j << l;//chunkWidth -1 - ((decimatedChunkWidth -1 -j) << l);
+				int i0 = fromSonToSource(i,l);
+				int j0 = fromSonToSource(j,l);//chunkWidth -1 - ((decimatedChunkWidth -1 -j) << l);
 				int indice0 = i0*chunkWidth+j0;
 				int indice = i*decimatedChunkWidth+j;
 				decimatedVertices[indice*3] = vertices[indice0*3];
@@ -233,6 +310,25 @@ public class Chunk {
 
 	public SbVec3f getCenter() {
 		return sceneCenter;
+	}
+	
+	public short getImageSize() {
+		int size = Chunk.getDecimatedChunkWidth(0);
+		return (short)size;
+	}
+
+	public byte[] getImage() {
+		int size = Chunk.getDecimatedChunkWidth(0);
+		byte[] image = new byte[size*size*3];
+		for(int i=0;i<size;i++) {
+			for(int j=0;j<size;j++) {
+				int index = i*size+j;
+				image[index*3] = colors[index*4];
+				image[index*3+1] = colors[index*4+1];
+				image[index*3+2] = colors[index*4+2];
+			}
+		}
+		return image;
 	}
 
 }

@@ -198,6 +198,8 @@ unref(SoState state)
     if (refCount <= 0) {
         // Let the CacheContextElement delete us:
         SoGLCacheContextElement.freeList(state, this);
+//        // Let SoGLCacheContext delete this instance the next time context is current.
+//        SoGLCacheContextElement.scheduleDelete(state, this);
     }
 }
 

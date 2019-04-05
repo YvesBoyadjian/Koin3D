@@ -112,7 +112,7 @@ public class SoGLMultiTextureMatrixElement extends SoMultiTextureMatrixElement {
 	      (i < prev.getNumUnits()) ? 
 	      prev.getUnitData(i).textureMatrix : identity;
 	    
-	    if (thism != prevm) {
+	    if (thism.operator_not_equal(prevm)) {
 	      this.updategl(i);
 	    }
 	  }

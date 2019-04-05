@@ -514,7 +514,7 @@ public class SoVertexProperty extends SoNode {
 	          if ((numperunit == numvertex) && vbo) {
 	            boolean dirty = false;
 	            setvbo = true;
-	            if (this.pimpl.texcoordvbo.operator_square_bracket(i) == null) {
+	            if (this.pimpl.texcoordvbo.operator_square_bracket(i)[0] == null) {
 	              this.pimpl.texcoordvbo.operator_square_bracket(i)[0]= new SoVBO(GL2.GL_ARRAY_BUFFER/*, GL2.GL_STATIC_DRAW*/); 
 	              dirty =  true;
 	            }

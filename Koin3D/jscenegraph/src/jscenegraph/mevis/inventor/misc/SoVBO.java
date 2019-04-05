@@ -81,13 +81,16 @@ package jscenegraph.mevis.inventor.misc;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
+import jscenegraph.coin3d.inventor.misc.SoContextHandler;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
@@ -187,12 +190,62 @@ public SoVBO( int type )
   _hadGLError = false;
 }
 
+
+//
+// Callback from SoGLCacheContextElement
+//
+public static void
+vbo_delete(Object closure, int contextid)
+{
+  cc_glglue glue = SoGL.cc_glglue_instance((int) contextid);
+  int id = (int) ((int) closure);
+  final int[] ids = new int[1];
+  ids[0] = id;
+  SoGL.cc_glglue_glDeleteBuffers(glue, 1, ids);
+}
+
+
 // java port
 public void destructor()
 {
+	  SoContextHandler.removeContextDestructionCallback(SoVBO::context_destruction_cb, this);
+	  // schedule delete for all allocated GL resources
+	  for(
+	      Iterator<Entry<Integer, Integer>> iter =
+	       this.vbohash.entrySet().iterator();
+	      iter.hasNext();
+	      )
+	    {
+		  Entry<Integer, Integer> entry = iter.next();
+	      Object ptr = ((int) entry.getValue());
+	      SoGLCacheContextElement.scheduleDeleteCallback(entry.getKey(), SoVBO::vbo_delete, ptr);
+	  }
+
+	
   clearData();
   freeGL();
 }
+
+
+//
+// Callback from SoContextHandler
+//
+public static void
+context_destruction_cb(int context, Object userdata)
+{
+  Integer buffer;
+  SoVBO thisp = (SoVBO) userdata;
+
+  if ((buffer = thisp.vbohash.get(context))!=null) {
+    cc_glglue glue = SoGL.cc_glglue_instance((int) context);
+    final int[] buffers = new int [1]; buffers[0] = buffer;
+    SoGL.cc_glglue_glDeleteBuffers(glue, 1, buffers);
+    thisp.vbohash.remove(context);
+  }
+}
+
+
+
 
 public void setData(int numBytes, final /*Buffer*/VoidPtr data, int nodeId, SoState state)
 {
@@ -234,6 +287,22 @@ the buffer data. In Coin it's possible to use the node id
 */
 public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // COIN 3D
 {
+	  // schedule delete for all allocated GL resources
+	  for(
+		      Iterator<Entry<Integer, Integer>> iter =
+		       this.vbohash.entrySet().iterator();
+		      iter.hasNext();
+		      )
+		    {
+			  Entry<Integer, Integer> entry = iter.next();
+		      Object ptr = ((int) entry.getValue());
+	    SoGLCacheContextElement.scheduleDeleteCallback(entry.getKey(), SoVBO::vbo_delete, ptr);
+	  }
+
+
+	  // clear hash table
+	  this.vbohash.clear();
+
 	  // free previous data if it was owned
 	  if (_ownsData && (_data != null)) {
 	    _data = null;//free((void*)_data);
@@ -282,6 +351,24 @@ public VoidPtr allocBufferData(int size, int dataid) {
  * @return
  */
 public VoidPtr allocBufferData(int size, int dataid, SoState state) {
+	
+	  // schedule delete for all allocated GL resources
+	  for(
+		      Iterator<Entry<Integer, Integer>> iter =
+		       this.vbohash.entrySet().iterator();
+		      iter.hasNext();
+		      )
+		    {
+			  Entry<Integer, Integer> entry = iter.next();
+		      Object ptr = ((int) entry.getValue());
+	    SoGLCacheContextElement.scheduleDeleteCallback(entry.getKey(), SoVBO::vbo_delete, ptr);
+	  }
+
+	  // clear hash table
+	  this.vbohash.clear();
+
+	
+	
 	allocateData(size, dataid, state);
 	return _data;
 }

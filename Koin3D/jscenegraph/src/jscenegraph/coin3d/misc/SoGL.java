@@ -1967,5 +1967,10 @@ cc_glglue_glMultiTexCoord2f( cc_glglue w,
   w.glMultiTexCoord2f(target, s, t);
 }
 
+public static void cc_glglue_glDeleteBuffers(cc_glglue glue, int n, int[] buffers) {
+	  //assert(glue.glDeleteBuffers);
+	  glue.glDeleteBuffers(n, buffers);
+}
+
 
 }

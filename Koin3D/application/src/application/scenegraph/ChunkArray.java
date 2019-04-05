@@ -9,8 +9,12 @@ import java.util.Map;
 import java.util.Set;
 
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
+import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoSeparator;
+import jscenegraph.database.inventor.nodes.SoTextureCoordinate2;
 
 /**
  * @author Yves Boyadjian
@@ -176,7 +180,7 @@ public class ChunkArray {
 		return null;
 	}
 
-	public void colorsPut(int index, int rgba) {
+	public void colorsPut(int index, int r, int g, int b, int a) {
 		int vertexIndex = index;
 		int i = vertexIndex/h;
 		int j = vertexIndex - i*h;
@@ -185,7 +189,10 @@ public class ChunkArray {
 		
 		relevantChunks.forEach((c)-> {
 			int chunkIndice = getInChunkIndice(c, i,j);
-			c.colors[chunkIndice] = rgba;
+			c.colors[chunkIndice*4] = (byte)r;
+			c.colors[chunkIndice*4+1] = (byte)g;
+			c.colors[chunkIndice*4+2] = (byte)b;
+			c.colors[chunkIndice*4+3] = (byte)a;
 		});
 	}
 	
@@ -207,18 +214,32 @@ public class ChunkArray {
 		
 		float[] distances = new float[Chunk.NB_LOD-1];
 		for(int l=0;l<Chunk.NB_LOD-1;l++) {
-			int decimatedChunkWidth = ((Chunk.CHUNK_WIDTH -1) >> l) + 1;
-			distances[l] = /*Chunk.CHUNK_WIDTH * 1.5f +*/ DEFINITION * Chunk.CHUNK_WIDTH *0.5f/** 1.5f*/ / decimatedChunkWidth;
+			int decimatedChunkWidth =  Chunk.getDecimatedChunkWidth(l);//((Chunk.CHUNK_WIDTH -1) >> l) + 1;
+			distances[l] = Chunk.CHUNK_WIDTH + DEFINITION * Chunk.CHUNK_WIDTH / decimatedChunkWidth;
 		}
 		SoGroup group = new SoGroup();
+		//SoTextureCoordinate2 coords = new SoTextureCoordinate2();
+		//group.addChild(coords);
+		
+//		SoTexture2 texture = new SoTexture2();
+//		texture.filename.setValue("D:/screen.tif");
+		
 		for(int i=0;i<nbChunkWidth;i++) {
 			for(int j=0;j<nbChunkHeight;j++) {
+				SoSeparator sep = new SoSeparator();
+				
 				SoLOD lod = new SoLOD();
 				lod.center.setValue(chunks[i][j].getCenter());
 				lod.range.setValues(0, distances);
-				for(int l=0; l< Chunk.NB_LOD;l++)
+				for(int l=0; l< Chunk.NB_LOD;l++) {
 					lod.addChild(chunks[i][j].getIndexedFaceSet(l));
-				group.addChild(lod);
+				}
+				SoTexture2 texture = new SoTexture2();
+				texture.image.setValue(new SbVec2s((short)Chunk.getDecimatedChunkWidth(0),(short)Chunk.getDecimatedChunkWidth(0)),3, chunks[i][j].getImage());
+				
+				sep.addChild(texture);
+				sep.addChild(lod);
+				group.addChild(sep);
 			}
 		}
 		

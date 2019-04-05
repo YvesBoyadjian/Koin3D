@@ -213,7 +213,7 @@ destroy(SoState state)
     // be freed when the cache context is valid (this destructor may
     // be called when it is illegal to issue any GL commands!)
     if (list != null) {
-        list.unref();
+        list.unref(state);
         list = null;
     }
 

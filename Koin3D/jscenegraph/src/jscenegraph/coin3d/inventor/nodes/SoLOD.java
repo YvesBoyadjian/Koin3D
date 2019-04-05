@@ -414,7 +414,7 @@ getPrimitiveCount(SoGetPrimitiveCountAction action)
   method will return -1 if no child should be traversed.  This will
   only happen if the node has no children though.
 */
-private int
+protected int
 whichToTraverse(SoAction action)
 {
   SoState state = action.getState();

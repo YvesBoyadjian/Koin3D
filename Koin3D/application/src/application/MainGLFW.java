@@ -23,6 +23,7 @@ import application.viewer.glfw.SoQtWalkViewer;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.nodes.SoCamera;
+import jscenegraph.database.inventor.nodes.SoSeparator;
 import jsceneviewerglfw.inventor.qt.SoQt;
 import jsceneviewerglfw.inventor.qt.SoQtCameraController;
 import jsceneviewerglfw.inventor.qt.viewers.SoQtFullViewer;
@@ -57,6 +58,7 @@ public class MainGLFW {
 		
 		int style = 0;//SWT.NO_BACKGROUND;
 		
+		//SoSeparator.setNumRenderCaches(0);
 		//SceneGraph sg = new SceneGraphQuadMesh(r);
 		int overlap = 13;		
 		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap);
@@ -140,6 +142,8 @@ public class MainGLFW {
 //		    	//viewer.idle();
 //		     }
 //		}
+	    System.gc();
+	    System.runFinalization();
 	    
 	    display.loop();
 	    

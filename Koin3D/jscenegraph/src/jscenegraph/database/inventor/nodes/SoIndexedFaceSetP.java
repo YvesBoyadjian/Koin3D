@@ -6,12 +6,13 @@ package jscenegraph.database.inventor.nodes;
 import jscenegraph.coin3d.inventor.threads.SbRWMutex;
 import jscenegraph.database.inventor.caches.SoConvexDataCache;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoIndexedFaceSetP {
+public class SoIndexedFaceSetP implements Destroyable {
 
 	  public jscenegraph.coin3d.inventor.rendering.SoVertexArrayIndexer vaindexer; //ptr
 	  public SoConvexDataCache convexCache; //ptr
@@ -46,4 +47,9 @@ public class SoIndexedFaceSetP {
 	    this.convexmutex.writeUnlock();
 	//#endif // COIN_THREADSAFE
 	  }
+	@Override
+	public void destructor() {
+		// TODO Auto-generated method stub
+		
+	}
 }

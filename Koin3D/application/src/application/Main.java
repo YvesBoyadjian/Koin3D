@@ -123,6 +123,9 @@ public class Main {
 		     }
 		}
 
+	    viewer.destructor();
+
+		
 		// disposes all associated windows and their components
 		display.dispose();		
 	}

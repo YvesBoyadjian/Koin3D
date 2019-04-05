@@ -328,7 +328,12 @@ public void glClientActiveTexture(int texture) {
 }
 
 public void glTexCoordPointer(int size, int type, int stride, FloatBufferAble pointer) {
-	gl2.glTexCoordPointer(size,type,stride,pointer.toFloatBuffer());
+	if(pointer == null) {
+		gl2.glTexCoordPointer(size,type,stride, 0);		
+	}
+	else {
+		gl2.glTexCoordPointer(size,type,stride,pointer.toFloatBuffer());
+	}
 }
 
 public void glNormalPointer(int type, int stride, FloatBufferAble pointer) {
@@ -416,6 +421,10 @@ public void glBlendFuncSeparate(int rgbsrc, int rgbdst, int alphasrc, int alphad
 
 public void glMultiTexCoord2f(int target, float s, float t) {
 	gl2.glMultiTexCoord2f(target, s, t);
+}
+
+public void glDeleteBuffers(int n, int[] buffers) {
+	gl2.glDeleteBuffers(n,buffers);
 }
 
 }
