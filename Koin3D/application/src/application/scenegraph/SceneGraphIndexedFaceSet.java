@@ -329,7 +329,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    SoShadowGroup shadowGroup = new SoShadowGroup();
 	    //SoGroup shadowGroup = new SoGroup();
 	    shadowGroup.quality.setValue(1.0f);
-	    shadowGroup.precision.setValue(1.0f);
+	    shadowGroup.precision.setValue(0.5f);
 	    //shadowGroup.visibilityRadius.setValue(10000f);
 	    
 	    
@@ -338,7 +338,8 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    sun.color.setValue(SUN_COLOR);
 	    
 	    //sun.maxShadowDistance.setValue(SUN_FAKE_DISTANCE*1.5f);
-	    sun.bboxSize.setValue(SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE);
+	    //sun.bboxSize.setValue(SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE);
+	    sun.bboxSize.setValue(50000, 50000, 5000);
 	    
 	    shadowGroup.addChild(sun);
 	    
@@ -439,7 +440,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    
 	    SoTranslation waterTranslation = new SoTranslation();
 	    
-	    waterTranslation.translation.setValue( 14000 + WATER_HORIZON/2, /*-8000*/0, - /*transl.translation.getValue().getZ()*/z);	    
+	    waterTranslation.translation.setValue( /*14000*/- 4000 + WATER_HORIZON/2, /*-8000*/0, - /*transl.translation.getValue().getZ()*/z);	    
 	    
 	    waterSeparator.addChild(waterTranslation);
 	    

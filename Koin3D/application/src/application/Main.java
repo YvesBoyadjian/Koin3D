@@ -110,6 +110,9 @@ public class Main {
 	    
 	    viewer.start();
 	    
+	    System.gc();
+	    System.runFinalization();
+	    
 		// run the event loop as long as the window is open
 		while (!shell.isDisposed()) {
 		    // read the next OS event queue and transfer it to a SWT event
