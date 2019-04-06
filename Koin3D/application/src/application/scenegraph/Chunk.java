@@ -124,8 +124,8 @@ public class Chunk {
 		for(int i=0;i<decimatedChunkWidth;i++) {
 			for(int j=0; j<decimatedChunkWidth; j++) {
 				int index = i*decimatedChunkWidth+j;
-				array[index*2+1] = i/(decimatedChunkWidth-1.0f);
-				array[index*2] = j/(decimatedChunkWidth-1.0f);
+				array[index*2+1] = (i+0.5f)/decimatedChunkWidth;
+				array[index*2] = (j+0.5f)/decimatedChunkWidth;
 			}
 		}
 		return array;

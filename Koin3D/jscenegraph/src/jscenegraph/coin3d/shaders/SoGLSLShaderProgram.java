@@ -74,7 +74,7 @@ deleteProgram( cc_glglue g)
 {
   /*COIN_GLhandle*/Integer glhandle;
   if ((glhandle = this.programHandles.get(g.contextid))!= null) {
-    long tmp = (long) glhandle;
+    int tmp = (int) glhandle;
     SoGLCacheContextElement.scheduleDeleteCallback(g.contextid,
     		SoGLSLShaderProgram::really_delete_object, (Object) tmp);
     this.programHandles.remove(g.contextid);
@@ -89,7 +89,7 @@ deletePrograms()
   for (/*int i = 0; i < keylist.getLength(); i++*/Map.Entry<Integer,Integer> entry : this.programHandles.entrySet()) {
     /*COIN_GLhandle*/Integer glhandle;
      glhandle = entry.getValue();//this.programHandles.get(keylist.operator_square_bracket(i));
-    long tmp = (long) glhandle;
+    int tmp = (int) glhandle;
     SoGLCacheContextElement.scheduleDeleteCallback(/*keylist.operator_square_bracket(i)*/entry.getKey(),
     		SoGLSLShaderProgram::really_delete_object, (Object) tmp);
     this.programHandles.remove(entry.getKey()/*keylist.operator_square_bracket(i)*/);

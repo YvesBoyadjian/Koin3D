@@ -17,6 +17,7 @@ import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
@@ -82,7 +83,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private float centerY;
 	
-	private SoShadowDirectionalLight sun;
+	private SoShadowDirectionalLight[] sun = new SoShadowDirectionalLight[4];
 	//private SoDirectionalLight sun;
 	
 	private SoDirectionalLight[] sky;
@@ -95,6 +96,10 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private SoSphere sunView;
 	
+	private SbRotation r1 = new SbRotation();
+	private SbRotation r2 = new SbRotation();
+	private SbRotation r3 = new SbRotation();
+	private SbRotation r4 = new SbRotation();
 	
 	public SceneGraphIndexedFaceSet(Raster rw, Raster re, int overlap) {
 		super();
@@ -329,20 +334,23 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    SoShadowGroup shadowGroup = new SoShadowGroup();
 	    //SoGroup shadowGroup = new SoGroup();
 	    shadowGroup.quality.setValue(1.0f);
-	    shadowGroup.precision.setValue(0.5f);
+	    shadowGroup.precision.setValue(0.2f);
 	    //shadowGroup.visibilityRadius.setValue(10000f);
+	    //shadowGroup.smoothBorder.setValue(0.0f);
 	    
-	    
-	    sun = new SoShadowDirectionalLight();
+for(int is=0;is<4;is++) {	    
+	    sun[is] = new SoShadowDirectionalLight();
 	    //sun = new SoDirectionalLight();
-	    sun.color.setValue(SUN_COLOR);
+	    sun[is].color.setValue(SUN_COLOR);
 	    
 	    //sun.maxShadowDistance.setValue(SUN_FAKE_DISTANCE*1.5f);
 	    //sun.bboxSize.setValue(SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE);
-	    sun.bboxSize.setValue(50000, 50000, 5000);
+	    sun[is].bboxSize.setValue(1e5f, 1e5f, 1e4f);
 	    
-	    shadowGroup.addChild(sun);
+	    sun[is].intensity.setValue(1.0F/4.0f);
 	    
+	    shadowGroup.addChild(sun[is]);
+}
 //	    SoShadowStyle shadowStyle = new SoShadowStyle();	    
 //	    shadowStyle.style.setValue(SoShadowStyle.Style.CASTS_SHADOW_AND_SHADOWED);	    
 //	    shadowGroup.addChild(shadowStyle);
@@ -416,7 +424,10 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		
 		castingShadowScene.addChild(shadowLandSep);
 		
-		sun.shadowMapScene.setValue(castingShadowScene);
+		sun[0].shadowMapScene.setValue(castingShadowScene);
+		sun[1].shadowMapScene.setValue(castingShadowScene);
+		sun[2].shadowMapScene.setValue(castingShadowScene);
+		sun[3].shadowMapScene.setValue(castingShadowScene);
 		
 		//sep.ref();
 	}
@@ -472,7 +483,52 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	@Override
 	public void setSunPosition(SbVec3f sunPosition) {
 		SbVec3f dir = sunPosition.operator_minus();
-		sun.direction.setValue(dir);
+		
+		SbVec3f p1 = null;
+		float a = dir.getX();
+		float b = dir.getY();
+		float c = dir.getZ();
+		
+		float aa = Math.abs(a);
+		float ba = Math.abs(b);
+		float ca = Math.abs(c);
+		
+		int max = 0;
+		if( ba > aa) {
+			max = 1;
+			if(ca > ba) {
+				max = 2;
+			}
+		}
+		else {
+			if( ca > aa) {
+				max = 2;
+			}
+		}
+		if(max == 2) {
+			p1 = new SbVec3f(1,1,-(a+b)/c);
+		}
+		else if(max == 1) {
+			p1 = new SbVec3f(1,-(a+c)/b,1);
+		}
+		else if( max == 0) {
+			p1 = new SbVec3f(-(c+b)/a,1,1);
+		}
+		p1.normalize();
+		SbVec3f p2 = dir.cross(p1);
+		
+		float angle = SUN_RADIUS / SUN_REAL_DISTANCE * 0.8f;
+		
+	    r1.setValue(p1, angle);
+	    r2.setValue(p2, angle);
+	    r3.setValue(p1, -angle);
+	    r4.setValue(p2, -angle);
+	    
+		
+		sun[1].direction.setValue(r1.multVec(dir));
+		sun[2].direction.setValue(r2.multVec(dir));
+		sun[0].direction.setValue(r3.multVec(dir));
+		sun[3].direction.setValue(r4.multVec(dir));
 		sunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE));
 		//inverseSunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE).operator_minus());
 	}
