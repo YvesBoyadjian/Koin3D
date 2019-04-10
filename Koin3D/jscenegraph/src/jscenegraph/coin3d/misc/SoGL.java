@@ -1,6 +1,8 @@
 package jscenegraph.coin3d.misc;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.jogamp.opengl.GL2;
 
@@ -83,9 +85,17 @@ sogl_glue_instance( SoState  state)
 //#endif // workaround version
 }
 
+static Map<Integer, cc_glglue> glues = new HashMap<>();
+
 // java port
 public static cc_glglue cc_glglue_instance(int cacheContext) {
-	return new cc_glglue(cacheContext);
+	
+	cc_glglue glue = glues.get(cacheContext);
+	if(glue == null) {
+		glue = new cc_glglue(cacheContext);
+		glues.put(cacheContext, glue);
+	}
+	return glue;
 }
 
 

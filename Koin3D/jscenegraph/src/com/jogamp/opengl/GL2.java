@@ -11,6 +11,10 @@ import java.nio.ShortBuffer;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
+import org.lwjgl.system.MemoryStack;
+
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 import com.jogamp.common.nio.Buffers;
 
@@ -3467,8 +3471,14 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	}
 
 	default void glDrawElements(int mode, int count, int type, IntArrayPtr indices) {
-		ByteBuffer bb = Buffers.newDirectByteBuffer((IntArrayPtr)indices);
-		org.lwjgl.opengl.GL11.glDrawElements(mode,type,bb);
+		
+		try ( MemoryStack stack = stackPush() ) {
+			ByteBuffer bb = stack.malloc(indices.size()*Integer.BYTES);
+			bb.asIntBuffer().put(indices.getValues(),indices.getStart(),indices.size());
+			bb.clear();
+			//ByteBuffer bb = Buffers.newDirectByteBuffer((IntArrayPtr)indices);
+			org.lwjgl.opengl.GL11.glDrawElements(mode,type,bb);
+		}
 	}
 
 	default void glDrawElements(int mode, int count, int type, long indices) {

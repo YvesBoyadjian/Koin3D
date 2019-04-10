@@ -147,13 +147,14 @@ public class Util {
 		
 		ByteBuffer retVal = null;
 		
-			int nbBytes = (int)(arrayLength * (long)Integer.SIZE / Byte.SIZE);
+			int nbBytes = (int)(arrayLength * Integer.BYTES);
 			retVal = Buffers.newDirectByteBuffer(nbBytes);
-			for(int i=0; i< arrayLength;i++) {
-				retVal.putInt(objArray.get(i));
-			}
+			retVal.asIntBuffer().put(objArray.getValues(),objArray.getStart(),arrayLength);
+//			for(int i=0; i< arrayLength;i++) {
+//				retVal.putInt(objArray.get(i));
+//			}
 		
-		retVal.rewind();
+		//retVal.rewind();
 		return retVal;
 	}
 

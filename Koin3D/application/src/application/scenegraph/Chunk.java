@@ -7,6 +7,7 @@ import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoNode;
 
@@ -16,7 +17,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
  */
 public class Chunk {
 	
-	public static final int CHUNK_WIDTH = 3 * 3 * 3 * 3 * 3 + 1;
+	public static final int CHUNK_WIDTH = /*2 * 3 **/4 * 3 * 3 * 3 * 3 + 1; //325
 	
 	public static final int NB_LOD = 4;
 	
@@ -33,6 +34,7 @@ public class Chunk {
 	int[] coordIndices;	
 
 	SoIndexedFaceSet[] LODindexedFaceSets;
+	SoIndexedFaceSet shadowIndexedFaceSet;
 	
 	SbBox3f sceneBox = new SbBox3f();
 	SbVec3f sceneCenter = new SbVec3f();
@@ -96,26 +98,47 @@ public class Chunk {
 //	    LODindexedFaceSets[0].coordIndex.setValues(0, coordIndices);
 	    
 	    for(int l=0;l<NB_LOD;l++) {
+	    	LODindexedFaceSets[l] = buildIndexedFaceSet(l);
+	    }
+	    //shadowIndexedFaceSet = buildIndexedFaceSet(NB_LOD -1);
+	}
+	
+	private SoIndexedFaceSet buildIndexedFaceSet(int l) {
 	    	
-	    	SoVertexProperty vertexProperty = new SoVertexProperty();
-		    
-		    vertexProperty.vertex.setValuesPointer(/*0,*/ getDecimatedVertices(l));
-		    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-		    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(l));
-		    //vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-		    //vertexProperty.orderedRGBA.setValues(0, getDecimatedColors(l));
-		    vertexProperty.texCoord.setValues(0, getDecimatedTexCoords(l));
-		    
-		    LODindexedFaceSets[l] = new SoIndexedFaceSet() {
+    	SoVertexProperty vertexProperty = new SoVertexProperty();
+	    
+	    vertexProperty.vertex.setValuesPointer(/*0,*/ getDecimatedVertices(l));
+	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(l));
+	    //vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+	    //vertexProperty.orderedRGBA.setValues(0, getDecimatedColors(l));
+	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(l));
+	    
+	    SoIndexedFaceSet LODindexedFaceSets;
+	    if( l==0) {
+		    LODindexedFaceSets = new SoIndexedFaceSet() {
 		    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
 		    		box.copyFrom(sceneBox);
 		    		center.copyFrom(sceneCenter);
 		    	}
+		    	public void GLRender(SoGLRenderAction action)
+		    	{
+		    		super.GLRender(action);
+		    	}
 		    };
-		    
-		    LODindexedFaceSets[l].vertexProperty.setValue(vertexProperty);
-		    LODindexedFaceSets[l].coordIndex.setValues(0, getDecimatedCoordIndices(l));
+	    	
 	    }
+	    else {
+	    LODindexedFaceSets = new SoIndexedFaceSet() {
+	    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+	    		box.copyFrom(sceneBox);
+	    		center.copyFrom(sceneCenter);
+	    	}
+	    };
+	    }
+	    LODindexedFaceSets.vertexProperty.setValue(vertexProperty);
+	    LODindexedFaceSets.coordIndex.setValues(0, getDecimatedCoordIndices(l));
+	    return LODindexedFaceSets;
 	}
 	
 	private float[] getDecimatedTexCoords(int l) {
@@ -133,7 +156,7 @@ public class Chunk {
 
 	public static int getDecimatedChunkWidth(int i) {
 		
-		int mul = 3 * 3 * 3 * 3 * 3;
+		int mul = CHUNK_WIDTH - 1;
 		for( int ii=0;ii<i;ii++) {
 			mul /= 3;
 		}
@@ -236,20 +259,53 @@ public class Chunk {
 	}
 
 	private float[] getDecimatedNormals(int l) {
+		int sourceChunkWidth = getDecimatedChunkWidth(0);
 		int decimatedChunkWidth = getDecimatedChunkWidth(l);
 		int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
 
 		float[] decimatedNormals = new float[nbVertices*3];
+		
+		int nb = 1;
+		for(int i=0;i<l;i++) {
+			nb *= 3;
+		}
+		int delta = (nb - 1)/2;
 		
 		int indice = 0; 
 		for(int i =0 ; i< decimatedChunkWidth; i++) {
 			for(int j =0 ; j< decimatedChunkWidth; j++) {
 				int i0 = fromSonToSource(i,l);
 				int j0 = fromSonToSource(j,l);
-				int indice0 = i0*chunkWidth+j0;
-				decimatedNormals[indice*3] = normals[indice0*3];
-				decimatedNormals[indice*3+1] = normals[indice0*3+1];
-				decimatedNormals[indice*3+2] = normals[indice0*3+2];
+				int nbc = 0;
+				for(int di = -delta; di<=delta; di++) {
+					for( int dj = -delta; dj<= delta; dj++) {
+						
+						int i1 = i0 + di;
+						int j1 = j0 + dj;
+						
+						if(i1 < 0) {
+							i1 = 0;
+						}
+						if(j1 < 0) {
+							j1 = 0;
+						}
+						if(i1 >= sourceChunkWidth) {
+							i1 = sourceChunkWidth - 1;
+						}
+						if(j1 >= sourceChunkWidth) {
+							j1 = sourceChunkWidth - 1;
+						}
+						//int indice0 = i0*chunkWidth+j0;
+						int indice0 = i1*chunkWidth+j1;
+						decimatedNormals[indice*3] += normals[indice0*3];
+						decimatedNormals[indice*3+1] += normals[indice0*3+1];
+						decimatedNormals[indice*3+2] += normals[indice0*3+2];
+						nbc++;
+					}
+				}
+				decimatedNormals[indice*3] /= nbc;
+				decimatedNormals[indice*3+1] /= nbc;
+				decimatedNormals[indice*3+2] /= nbc;
 				indice++;
 			}
 		}
@@ -288,6 +344,10 @@ public class Chunk {
 
 	public SoNode getIndexedFaceSet(int i) {
 		return LODindexedFaceSets[i];
+	}
+	
+	public SoNode getShadowIndexedFaceSet() {
+		return shadowIndexedFaceSet;
 	}
 
 	public int getChunkIndice(int iInChunk, int jInChunk) {

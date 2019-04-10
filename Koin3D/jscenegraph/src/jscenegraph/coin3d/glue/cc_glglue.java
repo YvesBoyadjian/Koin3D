@@ -8,6 +8,10 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.EXTGeometryShader4;
+import org.lwjgl.system.MemoryStack;
+
+import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
@@ -17,6 +21,7 @@ import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatBufferAble;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbColorArray;
+import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.ShortBufferAble;
 import jscenegraph.port.VoidPtr;
 
@@ -350,7 +355,18 @@ public void glVertexPointer(int size, int type, int stride, FloatBufferAble poin
 		gl2.glVertexPointer(size,type,stride,0);
 	}
 	else {
-		gl2.glVertexPointer(size,type,stride,pointer.toFloatBuffer());
+//		if( pointer instanceof SbVec3fArray) {
+//			SbVec3fArray array = (SbVec3fArray)pointer;
+//			try ( MemoryStack stack = stackPush() ) {
+//				int sizeArray = array.getSizeFloat();
+//				FloatBuffer buf = stack.malloc(sizeArray*Float.BYTES).asFloatBuffer();
+//				array.copyIn(buf);
+//				gl2.glVertexPointer(size,type,stride,buf);
+//			}
+//		}
+//		else {
+			gl2.glVertexPointer(size,type,stride,pointer.toFloatBuffer());
+//		}
 	}
 }
 

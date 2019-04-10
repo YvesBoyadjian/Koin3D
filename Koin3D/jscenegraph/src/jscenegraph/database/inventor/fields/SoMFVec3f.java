@@ -54,7 +54,10 @@
 package jscenegraph.database.inventor.fields;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.function.DoubleConsumer;
+
+import org.lwjgl.BufferUtils;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
@@ -94,6 +97,8 @@ example:
 public class SoMFVec3f extends SoMField<SbVec3f> {
 	
 	private float[] valuesArray;
+	
+	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
 
 	/**
 	 * Sets the field to contain the given value and only the given value (if
@@ -224,6 +229,10 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		makeRoom(0);
 		  if (userdata != null) { 
 			    valuesArray = userdata;
+			    valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
+			    valuesBuffer[0].clear();
+			    valuesBuffer[0].put(valuesArray, 0, userdata.length);
+			    valuesBuffer[0].flip();
 			    // userDataIsUsed = true; COIN3D 
 			    num = maxNum = userdata.length/3; 
 			    valueChanged(); 
@@ -395,7 +404,7 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
     public SbVec3fArray getValuesSbVec3fArray() {
 		evaluate();
 
-		return new SbVec3fArray(valuesArray); 		
+		return new SbVec3fArray(valuesArray, valuesBuffer); 		
     }
 }
 

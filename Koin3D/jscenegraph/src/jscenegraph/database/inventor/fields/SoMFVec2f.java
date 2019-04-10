@@ -55,7 +55,10 @@
 package jscenegraph.database.inventor.fields;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.function.DoubleConsumer;
+
+import org.lwjgl.BufferUtils;
 
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
@@ -96,6 +99,8 @@ example:
 public class SoMFVec2f extends SoMField<SbVec2f> {
 
 	private float[] valuesArray;
+	
+	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
 
 	@Override
 	protected SbVec2f constructor() {
@@ -292,6 +297,10 @@ public void setValuesPointer(float[] userdata) {
 	makeRoom(0);
 	  if (userdata != null) { 
 		    valuesArray = userdata;
+		    valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
+		    valuesBuffer[0].clear();
+		    valuesBuffer[0].put(valuesArray, 0, userdata.length);
+		    valuesBuffer[0].flip();
 		    // userDataIsUsed = true; COIN3D 
 		    num = maxNum = userdata.length/2; 
 		    valueChanged(); 
@@ -393,7 +402,7 @@ public SbVec2fArray startEditingFast()
 public SbVec2fArray getValuesSbVec2fArray() {
 	evaluate();
 
-	return new SbVec2fArray(valuesArray); 		
+	return new SbVec2fArray(valuesArray, valuesBuffer); 		
 }
 
 }

@@ -20,9 +20,12 @@ public class SbVec3fArray implements FloatBufferAble {
 
 	private int delta;
 	
+	private FloatBuffer[] floatBuffer = new FloatBuffer[1];
+	
 	public SbVec3fArray(SbVec3fArray other, int delta) {
 		valuesArray = other.valuesArray;
 		this.delta = other.delta + delta;
+		this.floatBuffer = other.floatBuffer;
 	}
 
 	public SbVec3fArray(float[] valuesArray) {
@@ -43,12 +46,21 @@ public class SbVec3fArray implements FloatBufferAble {
 		this.delta = other.getDelta()+ delta;
 	}
 
+	public SbVec3fArray(float[] valuesArray, FloatBuffer[] valuesBuffer) {
+		this.valuesArray = valuesArray;
+		this.floatBuffer = valuesBuffer;
+	}
+
 	public static SbVec3fArray copyOf(SbVec3fArray other) {
 		if(other == null) {
 			return null;
 		}
 		SbVec3fArray copy = new SbVec3fArray(other,0);
 		return copy;
+	}
+	
+	public int getSizeFloat() {
+		return valuesArray.length - delta*3;
 	}
 
 	public SbVec3f get(int index) {
@@ -71,10 +83,14 @@ public class SbVec3fArray implements FloatBufferAble {
 	public FloatBuffer toFloatBuffer() { //FIXME poor performance
 		int offset = delta*3;
 		int length = valuesArray.length - offset;
-		FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(length);
-		floatBuffer.put(valuesArray, offset, length);
-		floatBuffer.flip();
-		return floatBuffer;//FloatBuffer.wrap(valuesArray,offset, length);
+		if(floatBuffer[0] == null || floatBuffer[0].capacity() != length) {
+			floatBuffer[0] = BufferUtils.createFloatBuffer(length);
+		//}
+		floatBuffer[0].clear();
+		floatBuffer[0].put(valuesArray, offset, length);
+		floatBuffer[0].flip();
+		}
+		return floatBuffer[0];//FloatBuffer.wrap(valuesArray,offset, length);
 	}
 	
 	float[] getValuesArray() {
@@ -96,5 +112,12 @@ public class SbVec3fArray implements FloatBufferAble {
 		}
 		SbVec3fArray retVal = new SbVec3fArray(valuesArray);
 		return retVal;
+	}
+
+	public void copyIn(FloatBuffer floatBuffer) {
+		int offset = delta*3;
+		int length = valuesArray.length - offset;
+		floatBuffer.put(valuesArray, offset, length);
+		floatBuffer.flip();
 	}
 }

@@ -42,8 +42,8 @@ public class IntArrayPtr {
 		return array == other.array && intOffset == other.intOffset;
 	}
 
-	int [] array;	
-	int intOffset;
+	private int [] array;	
+	private int intOffset;
 
 	public IntArrayPtr(int start, int[] values) {
 		this.array = values;

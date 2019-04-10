@@ -215,7 +215,7 @@ public class ChunkArray {
 		float[] distances = new float[Chunk.NB_LOD-1];
 		for(int l=0;l<Chunk.NB_LOD-1;l++) {
 			int decimatedChunkWidth =  Chunk.getDecimatedChunkWidth(l);//((Chunk.CHUNK_WIDTH -1) >> l) + 1;
-			distances[l] = Chunk.CHUNK_WIDTH + DEFINITION * Chunk.CHUNK_WIDTH / decimatedChunkWidth;
+			distances[l] = Chunk.CHUNK_WIDTH *2.0f + DEFINITION * Chunk.CHUNK_WIDTH * 3.0f / decimatedChunkWidth;
 		}
 		SoGroup group = new SoGroup();
 		//SoTextureCoordinate2 coords = new SoTextureCoordinate2();
@@ -226,7 +226,8 @@ public class ChunkArray {
 		
 		for(int i=0;i<nbChunkWidth;i++) {
 			for(int j=0;j<nbChunkHeight;j++) {
-				SoSeparator sep = new SoSeparator();
+				//SoSeparator sep = new SoSeparator();
+				SoGroup sep = new SoGroup();
 				
 				SoLOD lod = new SoLOD();
 				lod.center.setValue(chunks[i][j].getCenter());
@@ -251,7 +252,7 @@ public class ChunkArray {
 		SoGroup group = new SoGroup();
 		for(int i=0;i<nbChunkWidth;i++) {
 			for(int j=0;j<nbChunkHeight;j++) {
-				group.addChild(chunks[i][j].getIndexedFaceSet(Math.min(3,Chunk.NB_LOD-1)));
+				group.addChild(chunks[i][j].getIndexedFaceSet(Chunk.NB_LOD-1));//getShadowIndexedFaceSet());
 			}
 		}
 		

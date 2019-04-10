@@ -19,13 +19,21 @@ public class SbVec2fArray implements FloatBufferAble {
 	
 	private int delta;
 	
+	private FloatBuffer[] floatBuffer = new FloatBuffer[1];
+	
 	public SbVec2fArray(SbVec2fArray other, int delta) {
 		valuesArray = other.valuesArray;
 		this.delta = other.delta + delta;
+		this.floatBuffer = other.floatBuffer;
 	}
 
 	public SbVec2fArray(float[] valuesArray) {
 		this.valuesArray = valuesArray;
+	}
+
+	public SbVec2fArray(float[] valuesArray, FloatBuffer[] valuesBuffer) {
+		this.valuesArray = valuesArray;
+		this.floatBuffer = valuesBuffer;
 	}
 
 	public SbVec2f get(int index) {
@@ -53,9 +61,12 @@ public class SbVec2fArray implements FloatBufferAble {
 	public FloatBuffer toFloatBuffer() {
 		int offset = delta*2;
 		int length = valuesArray.length - offset;
-		FloatBuffer floatBuffer = BufferUtils.createFloatBuffer(length);
-		floatBuffer.put(valuesArray, offset, length);
-		floatBuffer.flip();
-		return floatBuffer;//FloatBuffer.wrap(valuesArray,delta*2,valuesArray.length - delta*2);
+		if(floatBuffer[0] == null || floatBuffer[0].capacity() != length) {
+			floatBuffer[0] = BufferUtils.createFloatBuffer(length);
+			floatBuffer[0].clear();
+			floatBuffer[0].put(valuesArray, offset, length);
+			floatBuffer[0].flip();
+		}
+		return floatBuffer[0];//FloatBuffer.wrap(valuesArray,delta*2,valuesArray.length - delta*2);
 	}
 }

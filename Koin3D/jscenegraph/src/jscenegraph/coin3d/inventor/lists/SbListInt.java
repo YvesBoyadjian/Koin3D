@@ -3,6 +3,8 @@
  */
 package jscenegraph.coin3d.inventor.lists;
 
+import java.util.Arrays;
+
 import jscenegraph.port.IntArrayPtr;
 
 /**
@@ -66,9 +68,14 @@ public class SbListInt {
 
 		    if (items < this.itembuffersize) {
 		      int[] newitembuffer = this.builtinbuffer;
-		      if (items > DEFAULTSIZE) newitembuffer = new int[items];
+		      boolean copyDone = false;
+		      if (items > DEFAULTSIZE) {
+		    	  //newitembuffer = new int[items];
+		    	  newitembuffer = Arrays.copyOf(this.itembuffer, items);
+		    	  copyDone = true;
+		      }
 
-		      if (newitembuffer != this.itembuffer) {
+		      if (newitembuffer != this.itembuffer && !copyDone) {
 		        for (int i = 0; i < items; i++) newitembuffer[i] = this.itembuffer[i];
 		      }
 
@@ -92,9 +99,10 @@ public class SbListInt {
 	    else if (size <= this.itembuffersize) return;
 	    else { this.itembuffersize = size; }
 
-	    int[] newbuffer = new int[this.itembuffersize];
+	    //int[] newbuffer = new int[this.itembuffersize];
+	    int[] newbuffer = Arrays.copyOf(this.itembuffer,this.itembuffersize);
 	    int n = this.numitems;
-	    for (int i = 0; i < n; i++) newbuffer[i] = this.itembuffer[i];
+	    //for (int i = 0; i < n; i++) newbuffer[i] = this.itembuffer[i];
 	    // if (this.itembuffer != this.builtinbuffer) delete[] this.itembuffer; java magic !
 	    this.itembuffer = newbuffer;
 	}
