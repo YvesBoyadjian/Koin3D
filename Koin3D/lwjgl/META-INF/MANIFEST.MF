@@ -4,10 +4,7 @@ Bundle-Name: Lwjgl
 Bundle-SymbolicName: lwjgl;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.lwjgl.Activator
-Require-Bundle: org.eclipse.ui,
-  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Bundle-ActivationPolicy: lazy
 Export-Package: org.lwjgl,
  org.lwjgl.opengl,
  org.lwjgl.system,

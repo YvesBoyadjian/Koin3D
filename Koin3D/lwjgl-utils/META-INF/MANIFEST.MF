@@ -3,14 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Lwjgl-utils
 Bundle-SymbolicName: lwjgl-utils
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: lwjgl_utils.Activator
-Require-Bundle: org.eclipse.ui,
-  org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: lwjgl-utils
-Bundle-ActivationPolicy: lazy
-Export-Package: lwjgl_utils,
- org.lwjgl,
+Export-Package: org.lwjgl,
  org.lwjgl.util,
  org.lwjgl.util.applet,
  org.lwjgl.util.generator,
