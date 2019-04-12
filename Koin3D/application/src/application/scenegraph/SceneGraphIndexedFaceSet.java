@@ -211,6 +211,9 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 			}
 		}
 		
+		rw = null;
+		re = null;
+		
 		sceneCenter.setValue(sceneBox.getCenter());
 		
 		SbVec3f p0 = new SbVec3f();
@@ -245,7 +248,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		}
 		}
 		
-		chunks.initIndices();
+		//chunks.initIndices();
 //		int indice=0;
 //		for(int i=1;i<w;i++) {
 //		for(int j=1; j<h;j++) {

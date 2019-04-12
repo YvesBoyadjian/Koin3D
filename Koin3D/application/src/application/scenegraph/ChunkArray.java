@@ -71,13 +71,13 @@ public class ChunkArray {
 		}
 	}
 	
-	public void initIndices() {
-		for(int i=0;i<nbChunkWidth;i++) {
-			for(int j=0;j<nbChunkHeight;j++) {
-				chunks[i][j].initIndices();
-			}
-		}
-	}
+//	public void initIndices() {
+//		for(int i=0;i<nbChunkWidth;i++) {
+//			for(int j=0;j<nbChunkHeight;j++) {
+//				chunks[i][j].initIndices();
+//			}
+//		}
+//	}
 	
 	public void initIndexedFaceSets() {
 		for(int i=0;i<nbChunkWidth;i++) {
@@ -236,7 +236,7 @@ public class ChunkArray {
 					lod.addChild(chunks[i][j].getIndexedFaceSet(l));
 				}
 				SoTexture2 texture = new SoTexture2();
-				texture.image.setValue(new SbVec2s((short)Chunk.getDecimatedChunkWidth(0),(short)Chunk.getDecimatedChunkWidth(0)),3, chunks[i][j].getImage());
+				texture.image.setValue(new SbVec2s((short)Chunk.getDecimatedChunkWidth(0),(short)Chunk.getDecimatedChunkWidth(0)),3, chunks[i][j].getImage(), true);
 				
 				sep.addChild(texture);
 				sep.addChild(lod);

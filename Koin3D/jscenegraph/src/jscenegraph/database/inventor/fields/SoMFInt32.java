@@ -238,6 +238,15 @@ public void setValues(int start, int[] newValues) {
 
 }
 
+public void setValuesPointer(int[] newValues) {
+	makeRoom(0);
+	if(newValues != null) {
+		values = newValues;
+		num = maxNum = newValues.length;
+		valueChanged();
+	}
+}
+
 /* Set 1 value at given index */
 public void set1Value(int index, int newValue) {
 	if (index >= getNum())

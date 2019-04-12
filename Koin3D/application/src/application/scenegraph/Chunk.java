@@ -35,7 +35,7 @@ public class Chunk {
 	float[] vertices;
 	float[] normals;
 	byte[] colors;
-	int[] coordIndices;	
+	//int[] coordIndices;	
 
 	SoIndexedFaceSet[] LODindexedFaceSets;
 	SoIndexedFaceSet shadowIndexedFaceSet;
@@ -54,22 +54,22 @@ public class Chunk {
 		normals = new float[nbVertices*3];
 		colors = new byte[nbVertices*4];
 		
-		int nbCoordIndices = (chunkWidth-1)*(chunkWidth-1)*5;
-		coordIndices = new int[nbCoordIndices];
+//		int nbCoordIndices = (chunkWidth-1)*(chunkWidth-1)*5;
+//		coordIndices = new int[nbCoordIndices];
 	}
 
-	public void initIndices() {
-		int indice=0;
-		for(int i=1;i<chunkWidth;i++) {
-		for(int j=1; j<chunkWidth;j++) {
-			coordIndices[indice++] = (i-1)*chunkWidth+(j-1); //1
-			coordIndices[indice++] = (i)*chunkWidth+(j-1); //2
-			coordIndices[indice++] = (i)*chunkWidth+(j); //3
-			coordIndices[indice++] = (i-1)*chunkWidth+(j); //4
-			coordIndices[indice++] = -1; 
-		}
-		}
-	}
+//	public void initIndices() {
+//		int indice=0;
+//		for(int i=1;i<chunkWidth;i++) {
+//		for(int j=1; j<chunkWidth;j++) {
+//			coordIndices[indice++] = (i-1)*chunkWidth+(j-1); //1
+//			coordIndices[indice++] = (i)*chunkWidth+(j-1); //2
+//			coordIndices[indice++] = (i)*chunkWidth+(j); //3
+//			coordIndices[indice++] = (i-1)*chunkWidth+(j); //4
+//			coordIndices[indice++] = -1; 
+//		}
+//		}
+//	}
 
 	public void initIndexedFaceSet() {
 		
@@ -134,7 +134,7 @@ public class Chunk {
 	    };
 	    }
 	    LODindexedFaceSets.vertexProperty.setValue(vertexProperty);
-	    LODindexedFaceSets.coordIndex.setValues(0, getDecimatedCoordIndices(l));
+	    LODindexedFaceSets.coordIndex.setValuesPointer(/*0,*/ getDecimatedCoordIndices(l));
 	    return LODindexedFaceSets;
 	}
 	
@@ -300,6 +300,11 @@ public class Chunk {
 	private float[] getDecimatedNormals(int l) {
 		
 		if(decimatedNormals[l] == null) {
+			
+			if(l==0) {
+				decimatedNormals[l] = normals;
+			}
+			else {
 		
 		int sourceChunkWidth = getDecimatedChunkWidth(0);
 		int decimatedChunkWidth = getDecimatedChunkWidth(l);
@@ -352,6 +357,7 @@ public class Chunk {
 			}
 		}
 		this.decimatedNormals[l] = decimatedNormals;
+			}
 		}
 		return decimatedNormals[l];
 	}
@@ -370,6 +376,11 @@ public class Chunk {
 	private float[] getDecimatedVertices(int l) {
 		
 		if(decimatedVertices[l] == null) {
+			
+			if(l==0) {
+				decimatedVertices[l] = vertices;
+			}
+			else {
 		
 			int decimatedChunkWidth = getDecimatedChunkWidth(l);
 			int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
@@ -398,7 +409,7 @@ public class Chunk {
 				}
 			}
 			this.decimatedVertices[l] = decimatedVertices;
-		
+			}
 		}
 		return decimatedVertices[l];
 	}

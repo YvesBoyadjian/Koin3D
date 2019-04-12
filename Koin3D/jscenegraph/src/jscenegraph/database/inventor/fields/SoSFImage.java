@@ -169,7 +169,11 @@ public void destructor()
 // Use: public
 
 public void
-setValue(final SbVec2s s, int nc, byte[] b)
+setValue(final SbVec2s s, int nc, byte[] b) {
+	setValue(s,nc,b,false);
+}
+public void
+setValue(final SbVec2s s, int nc, byte[] b, boolean dontCopy)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -184,8 +188,16 @@ setValue(final SbVec2s s, int nc, byte[] b)
     int numBytes = size.getValue()[0]*size.getValue()[1]*numComponents;
 
     if (numBytes != 0) {
-        bytes = new byte[numBytes];
-        Util.memcpy(bytes, b, numBytes);
+    	if(dontCopy) {
+    		if(numBytes != b.length) {
+    			throw new IllegalArgumentException("wrong array size");
+    		}
+    		bytes = b;
+    	}
+    	else {
+    		bytes = new byte[numBytes];
+    		Util.memcpy(bytes, b, numBytes);
+    	}
     }
     else
         bytes = null;
