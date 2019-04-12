@@ -3,6 +3,10 @@
  */
 package application.scenegraph;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
+
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
@@ -105,14 +109,7 @@ public class Chunk {
 	
 	private SoIndexedFaceSet buildIndexedFaceSet(int l) {
 	    	
-    	SoVertexProperty vertexProperty = new SoVertexProperty();
-	    
-	    vertexProperty.vertex.setValuesPointer(/*0,*/ getDecimatedVertices(l));
-	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(l));
-	    //vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    //vertexProperty.orderedRGBA.setValues(0, getDecimatedColors(l));
-	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(l));
+    	SoVertexProperty vertexProperty = getVertexProperty(l);
 	    
 	    SoIndexedFaceSet LODindexedFaceSets;
 	    if( l==0) {
@@ -141,7 +138,26 @@ public class Chunk {
 	    return LODindexedFaceSets;
 	}
 	
+	public SoVertexProperty getVertexProperty(int l) {
+		
+    	SoVertexProperty vertexProperty = new SoVertexProperty();
+	    
+	    vertexProperty.vertex.setValuesPointer(/*0,*/ getDecimatedVertices(l),getDecimatedVerticesBuffer(l));
+	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(l),getDecimatedNormalsBuffer(l));
+	    //vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+	    //vertexProperty.orderedRGBA.setValues(0, getDecimatedColors(l));
+	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(l), getDecimatedTexCoordsBuffer(l));
+
+	    return vertexProperty;
+	}
+	
+	private float[][] decimatedTextCoords = new float[NB_LOD][];
+	
 	private float[] getDecimatedTexCoords(int l) {
+		
+		if(decimatedTextCoords[l] == null) {
+		
 		int decimatedChunkWidth = getDecimatedChunkWidth(l);
 		float[] array = new float[decimatedChunkWidth*decimatedChunkWidth*2];
 		for(int i=0;i<decimatedChunkWidth;i++) {
@@ -151,7 +167,19 @@ public class Chunk {
 				array[index*2] = (j+0.5f)/decimatedChunkWidth;
 			}
 		}
-		return array;
+		this.decimatedTextCoords[l] = array;
+		
+		}
+		return decimatedTextCoords[l];
+	}
+	
+	private FloatBuffer[] decimatedTextCoordsBuffer = new FloatBuffer[NB_LOD];
+	
+	private FloatBuffer getDecimatedTexCoordsBuffer(int l) {
+		if(decimatedTextCoordsBuffer[l] == null) {
+			decimatedTextCoordsBuffer[l] = BufferUtils.createFloatBuffer(getDecimatedTexCoords(l).length);
+		}
+		return decimatedTextCoordsBuffer[l];
 	}
 
 	public static int getDecimatedChunkWidth(int i) {
@@ -258,7 +286,21 @@ public class Chunk {
 		return decimatedColors;
 	}
 
+	private FloatBuffer[] decimatedNormalsBuffers = new FloatBuffer[NB_LOD];
+
+	private FloatBuffer getDecimatedNormalsBuffer(int l) {
+		if(decimatedNormalsBuffers[l] == null) {
+			decimatedNormalsBuffers[l] = BufferUtils.createFloatBuffer(getDecimatedNormals(l).length);
+		}
+		return decimatedNormalsBuffers[l];
+	}	
+	
+	private float[][] decimatedNormals = new float[NB_LOD][];
+
 	private float[] getDecimatedNormals(int l) {
+		
+		if(decimatedNormals[l] == null) {
+		
 		int sourceChunkWidth = getDecimatedChunkWidth(0);
 		int decimatedChunkWidth = getDecimatedChunkWidth(l);
 		int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
@@ -309,37 +351,56 @@ public class Chunk {
 				indice++;
 			}
 		}
-		return decimatedNormals;
+		this.decimatedNormals[l] = decimatedNormals;
+		}
+		return decimatedNormals[l];
 	}
+	
+	private FloatBuffer[] decimatedVerticesBuffers = new FloatBuffer[NB_LOD];
+
+	private FloatBuffer getDecimatedVerticesBuffer(int l) {
+		if(decimatedVerticesBuffers[l] == null) {
+			decimatedVerticesBuffers[l] = BufferUtils.createFloatBuffer(getDecimatedVertices(l).length);
+		}
+		return decimatedVerticesBuffers[l];
+	}	
+	
+	private float[][] decimatedVertices = new float[NB_LOD][];
 
 	private float[] getDecimatedVertices(int l) {
-		int decimatedChunkWidth = getDecimatedChunkWidth(l);
-		int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
-		float[] decimatedVertices = new float[nbVertices*3];
 		
-//		float delta_x_decimated = delta_x * (chunkWidth-1)/(decimatedChunkWidth-1);
-//		float delta_y_decimated = delta_y * (chunkWidth-1)/(decimatedChunkWidth-1);
-//		
-//		for(int i=0;i<decimatedChunkWidth;i++) {
-//		for(int j=0; j<decimatedChunkWidth;j++) {
-//				int index = i*decimatedChunkWidth+j;
-//				decimatedVertices[index*3+0] = i * delta_x_decimated +x0;
-//				decimatedVertices[index*3+1] = (decimatedChunkWidth - j -1) * delta_y_decimated + y0;
-//		}
-//		}
+		if(decimatedVertices[l] == null) {
 		
-		for(int i =0 ; i< decimatedChunkWidth; i++) {
-			for(int j =0 ; j<decimatedChunkWidth ; j++) {
-				int i0 = fromSonToSource(i,l);
-				int j0 = fromSonToSource(j,l);//chunkWidth -1 - ((decimatedChunkWidth -1 -j) << l);
-				int indice0 = i0*chunkWidth+j0;
-				int indice = i*decimatedChunkWidth+j;
-				decimatedVertices[indice*3] = vertices[indice0*3];
-				decimatedVertices[indice*3+1] = vertices[indice0*3+1];
-				decimatedVertices[indice*3+2] = vertices[indice0*3+2];
+			int decimatedChunkWidth = getDecimatedChunkWidth(l);
+			int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
+			float[] decimatedVertices = new float[nbVertices*3];
+			
+	//		float delta_x_decimated = delta_x * (chunkWidth-1)/(decimatedChunkWidth-1);
+	//		float delta_y_decimated = delta_y * (chunkWidth-1)/(decimatedChunkWidth-1);
+	//		
+	//		for(int i=0;i<decimatedChunkWidth;i++) {
+	//		for(int j=0; j<decimatedChunkWidth;j++) {
+	//				int index = i*decimatedChunkWidth+j;
+	//				decimatedVertices[index*3+0] = i * delta_x_decimated +x0;
+	//				decimatedVertices[index*3+1] = (decimatedChunkWidth - j -1) * delta_y_decimated + y0;
+	//		}
+	//		}
+			
+			for(int i =0 ; i< decimatedChunkWidth; i++) {
+				for(int j =0 ; j<decimatedChunkWidth ; j++) {
+					int i0 = fromSonToSource(i,l);
+					int j0 = fromSonToSource(j,l);//chunkWidth -1 - ((decimatedChunkWidth -1 -j) << l);
+					int indice0 = i0*chunkWidth+j0;
+					int indice = i*decimatedChunkWidth+j;
+					decimatedVertices[indice*3] = vertices[indice0*3];
+					decimatedVertices[indice*3+1] = vertices[indice0*3+1];
+					decimatedVertices[indice*3+2] = vertices[indice0*3+2];
+				}
 			}
+			this.decimatedVertices[l] = decimatedVertices;
+		
 		}
-		return decimatedVertices;
+		return decimatedVertices[l];
 	}
 
 	public SoNode getIndexedFaceSet(int i) {

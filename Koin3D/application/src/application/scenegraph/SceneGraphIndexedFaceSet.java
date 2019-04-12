@@ -335,7 +335,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    //SoGroup shadowGroup = new SoGroup();
 	    shadowGroup.quality.setValue(1.0f);
 	    shadowGroup.precision.setValue(0.2f);
-	    shadowGroup.shadowCachingEnabled.setValue(false);
+	    //shadowGroup.shadowCachingEnabled.setValue(false);
 	    shadowGroup.intensity.setValue(1.0f);
 	    //shadowGroup.visibilityRadius.setValue(10000f);
 	    //shadowGroup.smoothBorder.setValue(0.0f);

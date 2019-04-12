@@ -226,10 +226,19 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	}
 
 	public void setValuesPointer(float[] userdata) {
+		setValuesPointer(userdata, null);
+	}
+	
+	public void setValuesPointer(float[] userdata, FloatBuffer buffer) {
 		makeRoom(0);
 		  if (userdata != null) { 
 			    valuesArray = userdata;
-			    valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
+			    if(buffer != null && buffer.capacity() == userdata.length) {
+			    	valuesBuffer[0] = buffer;
+			    }
+			    else {
+			    	valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
+			    }
 			    valuesBuffer[0].clear();
 			    valuesBuffer[0].put(valuesArray, 0, userdata.length);
 			    valuesBuffer[0].flip();

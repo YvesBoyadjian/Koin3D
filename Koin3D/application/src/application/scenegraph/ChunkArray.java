@@ -229,7 +229,7 @@ public class ChunkArray {
 				//SoSeparator sep = new SoSeparator();
 				SoGroup sep = new SoGroup();
 				
-				SoLOD lod = new SoLOD();
+				SoLOD lod = new SoTouchLOD(chunks[i][j]);
 				lod.center.setValue(chunks[i][j].getCenter());
 				lod.range.setValues(0, distances);
 				for(int l=0; l< Chunk.NB_LOD;l++) {
