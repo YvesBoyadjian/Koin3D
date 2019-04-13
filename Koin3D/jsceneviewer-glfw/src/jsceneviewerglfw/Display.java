@@ -11,6 +11,7 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ public class Display {
 	}
 
 	public void timerExec(int msec, Runnable object) {
-		long currentTimeMillis = System.currentTimeMillis();
+		long currentTimeMillis = Instant.now().toEpochMilli();
 		long startTime = currentTimeMillis + msec;
 		
 		List<Runnable> runnablesForTime = timers.get(startTime);
@@ -110,7 +111,7 @@ public class Display {
 		})) {
 			glfwPollEvents();
 			
-			long currentTimeMillis = System.currentTimeMillis();
+			long currentTimeMillis = Instant.now().toEpochMilli();
 			
 			boolean treated;
 			do {
@@ -127,6 +128,15 @@ public class Display {
 			} while(treated);
 			
 			composites.forEach(Composite::loop);
+			
+//		    Thread t = new Thread(()->  {
+//		    	System.gc();
+//		    });
+//		    t.start();
+		    
+			
+//			System.gc();
+//			System.runFinalization();
 		}
 	}
 

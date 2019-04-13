@@ -23,7 +23,7 @@ public class Chunk {
 	
 	public static final int CHUNK_WIDTH = /*2 * 3 **/4 * 3 * 3 * 3 * 3 + 1; //325
 	
-	public static final int NB_LOD = 4;
+	public static final int NB_LOD = 5;
 	
 	private int chunkWidth;
 	
@@ -104,7 +104,7 @@ public class Chunk {
 	    for(int l=0;l<NB_LOD;l++) {
 	    	LODindexedFaceSets[l] = buildIndexedFaceSet(l);
 	    }
-	    //shadowIndexedFaceSet = buildIndexedFaceSet(NB_LOD -1);
+	    //shadowIndexedFaceSet = buildIndexedFaceSet(Math.min(3,NB_LOD -1));
 	}
 	
 	private SoIndexedFaceSet buildIndexedFaceSet(int l) {
@@ -191,22 +191,28 @@ public class Chunk {
 		int decimatedChunkWidth = mul + 1;
 		return decimatedChunkWidth;
 	}
+	
+	private int[][] decimatedCoordIndices = new int [NB_LOD][];
 
-	private int[] getDecimatedCoordIndices(int l) {
-		int decimatedChunkWidth = getDecimatedChunkWidth(l);
-		int nbCoordIndices = (decimatedChunkWidth-1)*(decimatedChunkWidth-1)*5;
-		int[] decimatedCoordIndices = new int[nbCoordIndices];
-		int indice=0;
-		for(int i=1;i<decimatedChunkWidth;i++) {
-		for(int j=1; j<decimatedChunkWidth;j++) {
-			decimatedCoordIndices[indice++] = (i-1)*decimatedChunkWidth+(j-1); //1
-			decimatedCoordIndices[indice++] = (i)*decimatedChunkWidth+(j-1); //2
-			decimatedCoordIndices[indice++] = (i)*decimatedChunkWidth+(j); //3
-			decimatedCoordIndices[indice++] = (i-1)*decimatedChunkWidth+(j); //4
-			decimatedCoordIndices[indice++] = -1; 
+	public int[] getDecimatedCoordIndices(int l) {
+		
+		if(decimatedCoordIndices[l] == null) {
+			int decimatedChunkWidth = getDecimatedChunkWidth(l);
+			int nbCoordIndices = (decimatedChunkWidth-1)*(decimatedChunkWidth-1)*5;
+			int[] decimatedCoordIndices = new int[nbCoordIndices];
+			int indice=0;
+			for(int i=1;i<decimatedChunkWidth;i++) {
+			for(int j=1; j<decimatedChunkWidth;j++) {
+				decimatedCoordIndices[indice++] = (i-1)*decimatedChunkWidth+(j-1); //1
+				decimatedCoordIndices[indice++] = (i)*decimatedChunkWidth+(j-1); //2
+				decimatedCoordIndices[indice++] = (i)*decimatedChunkWidth+(j); //3
+				decimatedCoordIndices[indice++] = (i-1)*decimatedChunkWidth+(j); //4
+				decimatedCoordIndices[indice++] = -1; 
+			}
+			}
+			this.decimatedCoordIndices[l] = decimatedCoordIndices;
 		}
-		}
-		return decimatedCoordIndices;
+		return decimatedCoordIndices[l];
 	}
 	
 	private int fromSonToSource(int indice, int l) {

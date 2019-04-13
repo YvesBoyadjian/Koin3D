@@ -3,8 +3,12 @@
  */
 package jscenegraph.port;
 
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.Objects;
+
+import org.lwjgl.BufferUtils;
 
 /**
  * @author Yves Boyadjian
@@ -45,6 +49,8 @@ public class IntArrayPtr {
 	private int [] array;	
 	private int intOffset;
 
+	private IntBuffer[] intBuffer = new IntBuffer[1];
+		
 	public IntArrayPtr(int start, int[] values) {
 		this.array = values;
 		intOffset = start;
@@ -58,11 +64,13 @@ public class IntArrayPtr {
 	public IntArrayPtr(IntArrayPtr intArrayPtr) {
 		this.array = intArrayPtr.array;
 		this.intOffset = intArrayPtr.intOffset;
+		this.intBuffer = intArrayPtr.intBuffer;
 	}
 
 	public IntArrayPtr(int offset, IntArrayPtr intArrayPtr) {
 		this.array = intArrayPtr.array;
 		this.intOffset = intArrayPtr.intOffset + offset;
+		this.intBuffer = intArrayPtr.intBuffer;
 	}
 
 	public void plusPlus() {
@@ -128,5 +136,18 @@ public class IntArrayPtr {
 		if(other == null)
 			return null;
 		return new IntArrayPtr(other);
+	}
+	
+	public IntBuffer toIntBuffer() {
+		int offset = intOffset;
+		int length = array.length - offset;
+		if(intBuffer[0] == null || intBuffer[0].capacity() != length) {
+			intBuffer[0] = BufferUtils.createIntBuffer(length);
+		//}
+		intBuffer[0].clear();
+		intBuffer[0].put(array, offset, length);
+		intBuffer[0].flip();
+		}
+		return intBuffer[0];		
 	}
 }

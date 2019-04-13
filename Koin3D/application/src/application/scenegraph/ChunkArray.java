@@ -10,8 +10,15 @@ import java.util.Set;
 
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoTexture2;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
+import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2s;
+import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.nodes.SoCallback;
 import jscenegraph.database.inventor.nodes.SoGroup;
+import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoTextureCoordinate2;
@@ -215,7 +222,7 @@ public class ChunkArray {
 		float[] distances = new float[Chunk.NB_LOD-1];
 		for(int l=0;l<Chunk.NB_LOD-1;l++) {
 			int decimatedChunkWidth =  Chunk.getDecimatedChunkWidth(l);//((Chunk.CHUNK_WIDTH -1) >> l) + 1;
-			distances[l] = Chunk.CHUNK_WIDTH *2.0f + DEFINITION * Chunk.CHUNK_WIDTH * 3.0f / decimatedChunkWidth;
+			distances[l] = Chunk.CHUNK_WIDTH *2.0f + DEFINITION * Chunk.CHUNK_WIDTH * 2.0f / decimatedChunkWidth;
 		}
 		SoGroup group = new SoGroup();
 		//SoTextureCoordinate2 coords = new SoTextureCoordinate2();
@@ -224,12 +231,20 @@ public class ChunkArray {
 //		SoTexture2 texture = new SoTexture2();
 //		texture.filename.setValue("D:/screen.tif");
 		
+		SoTouchLODMaster master = new SoTouchLODMaster();
+		
+		SoCallback cbn = new SoCallback();
+		
+		cbn.setCallback((action)->master.reset());
+		
+		group.addChild(cbn);
+		
 		for(int i=0;i<nbChunkWidth;i++) {
 			for(int j=0;j<nbChunkHeight;j++) {
 				//SoSeparator sep = new SoSeparator();
 				SoGroup sep = new SoGroup();
 				
-				SoLOD lod = new SoTouchLOD(chunks[i][j]);
+				SoLOD lod = new SoTouchLOD(chunks[i][j],master);
 				lod.center.setValue(chunks[i][j].getCenter());
 				lod.range.setValues(0, distances);
 				for(int l=0; l< Chunk.NB_LOD;l++) {
@@ -249,14 +264,16 @@ public class ChunkArray {
 
 	public SoNode getShadowGroup() {
 		
-		SoGroup group = new SoGroup();
-		for(int i=0;i<nbChunkWidth;i++) {
-			for(int j=0;j<nbChunkHeight;j++) {
-				group.addChild(chunks[i][j].getIndexedFaceSet(Chunk.NB_LOD-1));//getShadowIndexedFaceSet());
-			}
-		}
+//		SoGroup group = new SoGroup();
+//		for(int i=0;i<nbChunkWidth;i++) {
+//			for(int j=0;j<nbChunkHeight;j++) {
+//				group.addChild(chunks[i][j].getShadowIndexedFaceSet());
+//			}
+//		}
+//		
+//		return group;
 		
-		return group;
+		return getShadowIndexedFaceSet();
 	}
 
 	public void initXY(float delta_x, float delta_y) {
@@ -267,6 +284,72 @@ public class ChunkArray {
 				chunks[i][j].initXY(delta_x,delta_y,x0,y0);
 			}
 		}
+		
+	}
+	
+	SbBox3f sceneBox = new SbBox3f();
+	SbVec3f sceneCenter = new SbVec3f();
+
+	public SoNode getShadowIndexedFaceSet() {
+		SoIndexedFaceSet shadowIndexedFaceSet;
+
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				SbBox3f csb = chunks[i][j].sceneBox;
+				sceneBox.extendBy(csb);
+			}
+		}
+		sceneCenter.setValue(sceneBox.getCenter());
+		
+		shadowIndexedFaceSet = new SoIndexedFaceSet() {
+	    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+	    		box.copyFrom(sceneBox);
+	    		center.copyFrom(sceneCenter);
+	    	}
+	    };
+	    
+	    final int SHADOW_LOD = 27;
+	
+	    int shadowWidth = w / SHADOW_LOD;
+	    int shadowHeight = h / SHADOW_LOD;
+	    int nbCoordIndices = (shadowWidth-1)*(shadowHeight-1)*5;
+	    int[] decimatedCoordIndices = new int[nbCoordIndices];
+		int indice=0;
+		for(int i=1;i<shadowWidth;i++) {
+		for(int j=1; j<shadowHeight;j++) {
+			decimatedCoordIndices[indice++] = (i-1)*shadowHeight+(j-1); //1
+			decimatedCoordIndices[indice++] = (i)*shadowHeight+(j-1); //2
+			decimatedCoordIndices[indice++] = (i)*shadowHeight+(j); //3
+			decimatedCoordIndices[indice++] = (i-1)*shadowHeight+(j); //4
+			decimatedCoordIndices[indice++] = -1; 
+		}
+		}
+	    
+	    
+	    shadowIndexedFaceSet.coordIndex.setValuesPointer(/*0,*/ decimatedCoordIndices);
+	    
+		SoVertexProperty vertexProperty = new SoVertexProperty();
+		
+		int nbVertices = shadowWidth *shadowHeight;
+		float[] decimatedVertices = new float[nbVertices*3];
+
+		indice = 0;
+		for(int i =0 ; i< shadowWidth; i++) {
+			for(int j =0 ; j<shadowHeight ; j++) {
+				int i0 = i*SHADOW_LOD;
+				int j0 = j*SHADOW_LOD;
+				int index = i0 * h + j0;
+				decimatedVertices[indice*3] = verticesGet(index*3);
+				decimatedVertices[indice*3+1] = verticesGet(index*3+1);
+				decimatedVertices[indice*3+2] = verticesGet(index*3+2);
+				indice++;
+			}
+		}
+		vertexProperty.vertex.setValuesPointer(decimatedVertices);
+		
+		shadowIndexedFaceSet.vertexProperty.setValue(vertexProperty);
+		    	    
+	    return shadowIndexedFaceSet;
 		
 	}
 }

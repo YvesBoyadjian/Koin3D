@@ -376,7 +376,7 @@ public VoidPtr allocBufferData(int size, int dataid, SoState state) {
 public void clearData()
 {
   if (_ownsData && (_data!= null)) {
-    _data = null;//free((void*)_data);
+    Destroyable.delete(_data);//free((void*)_data);
   }
   _data = null;
   _numBytes = 0;

@@ -17,6 +17,7 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.nio.*;
+import java.time.Instant;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
@@ -323,8 +324,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			return;
 		}
 		SoQtWalkViewer viewer = (SoQtWalkViewer)data;
-		//viewer.idle();
-		viewer.getSceneHandler().getSceneGraph().touch();
+		viewer.idle();
+		//viewer.getSceneHandler().getSceneGraph().touch();
 		sensor.schedule();
 	}
 
@@ -372,6 +373,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  }
 		  
 		  idleListeners.forEach((item)->item.accept(this));
+		  
+		  if(keysDown.isEmpty()) {
+			  //System.gc();
+		  }
 	}
 	
 	boolean focus;
@@ -383,7 +388,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
     protected void paintGL(GL2 gl2) {
     	
-    	idle();
+    	//idle();
     	super.paintGL(gl2);
     }
     
@@ -405,5 +410,26 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		idleActive = false;
 		super.destructor();
 	}
+	
+	public static final float MAX_FPS = 60.0f;
+	
+	private long lastTime = Instant.now().toEpochMilli();
 
+    public void swapBuffers() {
+    	
+    	long present = Instant.now().toEpochMilli();
+    	long deltaMilli = present - lastTime;
+    	long deltaMinMilli = 1000 / (int)MAX_FPS;
+    	if(deltaMinMilli > deltaMilli) {
+    		try {
+				Thread.sleep(deltaMinMilli - deltaMilli);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	
+    	lastTime = Instant.now().toEpochMilli();
+    	super.swapBuffers();
+    }
 }

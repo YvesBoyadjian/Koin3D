@@ -102,11 +102,11 @@ public class Main {
 	            shell.forceActive();
 	        }
 	    });
-	    shell.forceActive();
-	    shell.forceFocus();
+//	    shell.forceActive();
+//	    shell.forceFocus();
 		
 	    viewer.setCursor(cursor);
-	    boolean success = viewer.setFocus();
+	    //boolean success = viewer.setFocus();
 	    
 	    viewer.start();
 	    
