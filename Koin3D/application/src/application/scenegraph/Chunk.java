@@ -230,67 +230,67 @@ public class Chunk {
 		return val;
 	}
 
-	private int[] getDecimatedColors(int l) {
-		int sourceChunkWidth = getDecimatedChunkWidth(0);
-		int decimatedChunkWidth = getDecimatedChunkWidth(l);
-		int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
-
-		int[] decimatedColors = new int[nbVertices];
-				
-		int delta = ((l==0) ? 0 : 1);
-		
-		int indice = 0; 
-		for(int i =0 ; i< decimatedChunkWidth; i++) {
-			for(int j =0 ; j< decimatedChunkWidth; j++) {
-				int i0 = fromSonToSource(i,l);
-				int j0 = fromSonToSource(j,l);
-
-				float red = 0;
-				float green = 0;
-				float blue = 0;
-				float alpha = 0;
-				int nb = 0;
-				for(int di = -delta; di<=delta; di++) {
-					for( int dj = -delta; dj<= delta; dj++) {
-						
-						int i1 = i0 + di;
-						int j1 = j0 + dj;
-						
-						if(i1 < 0) {
-							i1 = 0;
-						}
-						if(j1 < 0) {
-							j1 = 0;
-						}
-						if(i1 >= sourceChunkWidth) {
-							i1 = sourceChunkWidth - 1;
-						}
-						if(j1 >= sourceChunkWidth) {
-							j1 = sourceChunkWidth - 1;
-						}
-						int indice0 = i1*chunkWidth+j1;
-						red += byteToInt(colors[indice0*4]);
-						green += byteToInt(colors[indice0*4+1]);
-						blue += byteToInt(colors[indice0*4+2]);
-						alpha += byteToInt(colors[indice0*4+3]);
-						nb++;
-					}
-				}
-				float rf = red/(float)nb;
-				float rg = green/(float)nb;
-				float rb = blue/(float)nb;
-				float ra = alpha/(float)nb;
-				int redi = (int)( rf );
-				int greeni = (int)( rg);
-				int bluei = (int)( rb);
-				int alphai = (int)( ra);
-				int rgba = (alphai << 0) | (redi << 24)| (greeni << 16)|(bluei<<8);
-				decimatedColors[indice] = rgba;//colors[indice0];
-				indice++;
-			}
-		}
-		return decimatedColors;
-	}
+//	private int[] getDecimatedColors(int l) {
+//		int sourceChunkWidth = getDecimatedChunkWidth(0);
+//		int decimatedChunkWidth = getDecimatedChunkWidth(l);
+//		int nbVertices = decimatedChunkWidth *decimatedChunkWidth;
+//
+//		int[] decimatedColors = new int[nbVertices];
+//				
+//		int delta = ((l==0) ? 0 : 1);
+//		
+//		int indice = 0; 
+//		for(int i =0 ; i< decimatedChunkWidth; i++) {
+//			for(int j =0 ; j< decimatedChunkWidth; j++) {
+//				int i0 = fromSonToSource(i,l);
+//				int j0 = fromSonToSource(j,l);
+//
+//				float red = 0;
+//				float green = 0;
+//				float blue = 0;
+//				float alpha = 0;
+//				int nb = 0;
+//				for(int di = -delta; di<=delta; di++) {
+//					for( int dj = -delta; dj<= delta; dj++) {
+//						
+//						int i1 = i0 + di;
+//						int j1 = j0 + dj;
+//						
+//						if(i1 < 0) {
+//							i1 = 0;
+//						}
+//						if(j1 < 0) {
+//							j1 = 0;
+//						}
+//						if(i1 >= sourceChunkWidth) {
+//							i1 = sourceChunkWidth - 1;
+//						}
+//						if(j1 >= sourceChunkWidth) {
+//							j1 = sourceChunkWidth - 1;
+//						}
+//						int indice0 = i1*chunkWidth+j1;
+//						red += byteToInt(colors[indice0*4]);
+//						green += byteToInt(colors[indice0*4+1]);
+//						blue += byteToInt(colors[indice0*4+2]);
+//						alpha += byteToInt(colors[indice0*4+3]);
+//						nb++;
+//					}
+//				}
+//				float rf = red/(float)nb;
+//				float rg = green/(float)nb;
+//				float rb = blue/(float)nb;
+//				float ra = alpha/(float)nb;
+//				int redi = (int)( rf );
+//				int greeni = (int)( rg);
+//				int bluei = (int)( rb);
+//				int alphai = (int)( ra);
+//				int rgba = (alphai << 0) | (redi << 24)| (greeni << 16)|(bluei<<8);
+//				decimatedColors[indice] = rgba;//colors[indice0];
+//				indice++;
+//			}
+//		}
+//		return decimatedColors;
+//	}
 
 	private FloatBuffer[] decimatedNormalsBuffers = new FloatBuffer[NB_LOD];
 

@@ -369,7 +369,15 @@ for(int is=0;is<4;is++) {
 	    
 	    landSep.addChild(transl);
 	    
-		landSep.addChild(chunks.getGroup());
+	    OverallTexture ot = chunks.getOverallTexture();
+	    
+	    landSep.addChild(ot.getTexture());
+	    
+	    RecursiveChunk rc = chunks.getRecursiveChunk();
+	    
+	    landSep.addChild(rc.getGroup());
+	    
+		//landSep.addChild(chunks.getGroup());
 		
 		//shadowGroup.addChild(landSep);
 

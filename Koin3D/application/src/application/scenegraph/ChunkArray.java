@@ -162,6 +162,30 @@ public class ChunkArray {
 		return c.vertices[chunkIndice*3+coord];
 	}
 	
+	public float normalsGet(int index) {
+		int vertexIndex = index/3;
+		int i = vertexIndex/h;
+		int j = vertexIndex - i*h;
+		int coord = index - vertexIndex * 3;
+		
+		Chunk c = getOneChunk(i,j);
+		int chunkIndice = getInChunkIndice(c, i,j);
+		
+		return c.normals[chunkIndice*3+coord];
+	}
+	
+	public byte colorsGet(int index) {
+		int vertexIndex = index/4;
+		int i = vertexIndex/h;
+		int j = vertexIndex - i*h;
+		int coord = index - vertexIndex * 4;
+		
+		Chunk c = getOneChunk(i,j);
+		int chunkIndice = getInChunkIndice(c, i,j);
+		
+		return c.colors[chunkIndice*4+coord];
+	}
+	
 	private Chunk getOneChunk(int i, int j) {
 		
 		int ic = lowChunkFromIndice(i); int jc = lowChunkFromIndice(j);
@@ -351,5 +375,23 @@ public class ChunkArray {
 		    	    
 	    return shadowIndexedFaceSet;
 		
+	}
+	
+	public RecursiveChunk getRecursiveChunk() {
+		RecursiveChunk rc = new RecursiveChunk(this,null,0,0,w,h);
+		return rc;
+	}
+
+	public int getW() {
+		return w;
+	}
+
+	public int getH() {
+		return h;
+	}
+
+	public OverallTexture getOverallTexture() {
+		OverallTexture ot  = new OverallTexture(this);
+		return ot;
 	}
 }
