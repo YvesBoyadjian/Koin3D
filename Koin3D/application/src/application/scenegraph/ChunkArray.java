@@ -119,9 +119,11 @@ public class ChunkArray {
 		return c.getChunkIndice(iInChunk,jInChunk);
 	}
 	
+	Set<Chunk> relevantChunks = new HashSet<>();
+	
 	private Set<Chunk> getChunks(int i, int j) {
 		
-		Set<Chunk> relevantChunks = new HashSet<>();
+		relevantChunks.clear();
 		
 		int ic = lowChunkFromIndice(i); int jc = lowChunkFromIndice(j);
 		if(isInside(ic,jc)) {

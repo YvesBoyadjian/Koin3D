@@ -65,7 +65,7 @@ public class RecursiveChunk {
 			return getIndexedFaceSet();
 		}
 		else {
-			SoLOD lod = new SoLOD();
+			SoLOD lod = new SoTouchLOD2();
 			lod.center.setValue(getCenter());
 			lod.range.setValue(ChunkArray.DEFINITION * ni / 100.0f);
 			SoGroup subChunkGroup = new SoGroup();
@@ -80,7 +80,7 @@ public class RecursiveChunk {
 	}
 
 	private SoNode getIndexedFaceSet() {
-		SoIndexedFaceSet indexedFaceSet = new SoIndexedFaceSet();
+		SoIndexedFaceSet indexedFaceSet = new SoRecursiveIndexedFaceSet(this);
 		
 		SoVertexProperty vertexProperty = new SoVertexProperty();
 		vertexProperty.vertex.setValuesPointer(getDecimatedVertices());
@@ -263,5 +263,15 @@ public class RecursiveChunk {
 		xyz[1] = yc;
 		xyz[2] = zc;
 		return xyz;
+	}
+
+	public SoNode getVertexProperty() {
+		SoVertexProperty vertexProperty = new SoVertexProperty();
+		vertexProperty.vertex.setValuesPointer(getDecimatedVertices());
+	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals());
+	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords());
+		
+		return vertexProperty;
 	}
 }

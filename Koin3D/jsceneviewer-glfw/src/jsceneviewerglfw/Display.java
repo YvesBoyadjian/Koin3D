@@ -114,7 +114,7 @@ public class Display {
 			long currentTimeMillis = Instant.now().toEpochMilli();
 			
 			boolean treated;
-			do {
+			//do {
 				treated = false;
 				for(Long timerStartTime : timers.keySet()) {
 					if(timerStartTime <= currentTimeMillis) {
@@ -125,7 +125,7 @@ public class Display {
 						break;
 					}
 				}
-			} while(treated);
+			//} while(treated);
 			
 			composites.forEach(Composite::loop);
 			
