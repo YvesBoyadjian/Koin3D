@@ -35,6 +35,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 //import org.lwjgl.opengl.swt.GLCanvas;
 import com.jogamp.opengl.GL2;
 
+import application.scenegraph.HeightProvider;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
@@ -68,7 +69,9 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float USAIN_BOLT_RUN = 10;
 	
-	private final static float SPEED = GOD;
+	private final static float SPEED = /*GOD*/USAIN_BOLT_RUN;
+	
+	private final static float EYES_HEIGHT = 1.7f;
 
 	final SbVec2s old_position = new SbVec2s();
 
@@ -82,6 +85,15 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	private List<Consumer<SoQtWalkViewer>> idleListeners = new ArrayList<>();
 	
 	private SoIdleSensor idleSensor = new SoIdleSensor(SoQtWalkViewer::idleCB,this);
+	
+	private HeightProvider heightProvider = new HeightProvider() {
+
+		@Override
+		public float getZ(float x, float y, float z) {
+			return z;
+		}
+		
+	};
 	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
@@ -271,11 +283,16 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  SbVec3f old_position = camera.position.getValue();
 		  SbRotation orientation = camera.orientation.getValue();
 		  orientation.multVec(diff_position, diff_position);
-		  camera.position.setValue( old_position.operator_add( diff_position));
+		  SbVec3f new_position = old_position.operator_add( diff_position);
+		  new_position.setZ(EYES_HEIGHT + heightProvider.getZ(new_position.getX(), new_position.getY(), new_position.getZ()));
+		  camera.position.setValue( new_position );
 		  getCameraController().changeCameraValues(camera);
 
 		  lastTimeSec = currentTimeSec;
 
+//		  System.out.println("x = "+ camera.position.getValue().getX());
+//		  System.out.println("y = "+ camera.position.getValue().getY());
+//		  System.out.println("z = "+ camera.position.getValue().getZ());
 	}
 	
 	protected boolean processSoLocation2Event( SoLocation2Event _event)
@@ -431,5 +448,9 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	
     	lastTime = Instant.now().toEpochMilli();
     	super.swapBuffers();
+    }
+    
+    public void setHeightProvider(HeightProvider hp) {
+    	this.heightProvider = hp;
     }
 }

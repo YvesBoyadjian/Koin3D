@@ -89,7 +89,7 @@ public class SceneGraphQuadMesh implements SceneGraph {
 	}
 
 	@Override
-	public void setPosition(float x, float y, float z) {
+	public void setPosition(float x, float y) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -98,5 +98,9 @@ public class SceneGraphQuadMesh implements SceneGraph {
 	public void setSunPosition(SbVec3f sunPosition) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	public float getZ(float x, float y, float z) {
+		return 0;
 	}
 }

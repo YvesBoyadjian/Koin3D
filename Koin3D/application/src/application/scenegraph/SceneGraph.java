@@ -10,7 +10,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
  * @author Yves Boyadjian
  *
  */
-public interface SceneGraph {
+public interface SceneGraph extends HeightProvider {
 
 	SoNode getSceneGraph();
 
@@ -18,7 +18,7 @@ public interface SceneGraph {
 
 	float getCenterX();
 	
-	void setPosition(float x, float y, float z);
+	void setPosition(float x, float y);
 
 	void setSunPosition(SbVec3f sunPosition);
 }

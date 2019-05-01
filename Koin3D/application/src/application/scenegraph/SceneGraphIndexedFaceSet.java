@@ -76,6 +76,8 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	private SoSeparator sep = new SoSeparator();
 	
 	private SoTranslation transl = new SoTranslation();
+	
+	private float zTranslation;
 
 	private ChunkArray chunks;
 	
@@ -101,8 +103,16 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	private SbRotation r3 = new SbRotation();
 	private SbRotation r4 = new SbRotation();
 	
-	public SceneGraphIndexedFaceSet(Raster rw, Raster re, int overlap) {
+	float delta_y;
+	float delta_x;
+	int h;
+	int w;
+	
+	int jstart;
+	
+	public SceneGraphIndexedFaceSet(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
+		this.zTranslation = zTranslation;
 		
 		int hImageW = rw.getHeight();
 		int wImageW = rw.getWidth();
@@ -110,8 +120,8 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		int hImageE = re.getHeight();
 		int wImageE = re.getWidth();
 		
-		int h = Math.min(hImageW, MAX_J);// 8112
-		int w = Math.min(wImageW+wImageE-I_START-overlap, MAX_I);// 13711
+		h = Math.min(hImageW, MAX_J);// 8112
+		w = Math.min(wImageW+wImageE-I_START-overlap, MAX_I);// 13711
 		
 		chunks = new ChunkArray(w,h);
 		
@@ -126,8 +136,8 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	      float earth_radius = 6371e3f;
 	      float earth_circumference = earth_radius * 2 * (float)Math.PI;
 	      
-	      float delta_y = earth_circumference * delta_y_deg / 360.0f; // 3.43
-	      float delta_x = earth_circumference * delta_x_deg / 360.0f * (float)Math.cos(South_Bounding_Coordinate*Math.PI/180);// 2.35
+	      delta_y = earth_circumference * delta_y_deg / 360.0f; // 3.432
+	      delta_x = earth_circumference * delta_x_deg / 360.0f * (float)Math.cos(South_Bounding_Coordinate*Math.PI/180);// 2.35
 	      
 	      float width = delta_x * w;// 32241
 	      float height = delta_y * h;// 27840
@@ -179,6 +189,12 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		
 		chunks.initXY(delta_x,delta_y);
 		
+		jstart = (int)(Math.ceil((float)(h-1)/(Chunk.CHUNK_WIDTH-1)))*(Chunk.CHUNK_WIDTH-1) - h + 1;
+		
+		int red_,green_,blue_;
+		
+		float[] xyz = new float[3];
+		
 		for(int i=0;i<w;i++) {
 		for(int j=0; j<h;j++) {
 				int index = i*h+j;
@@ -194,18 +210,26 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 				}
 				chunks.verticesPut(index*3+2, z);
 				
-				ptV.setValue(chunks.verticesGet(index*3+0),chunks.verticesGet(index*3+1), chunks.verticesGet(index*3+2));
+				ptV.setValue(chunks.verticesGet(index,xyz));
 				sceneBox.extendBy(ptV);
 				
-				Color color = snow;
+				//Color color = snow;
+				
+				red_ = snow.getRed();
+				green_ = snow.getGreen();
+				blue_ = snow.getBlue();
 				
 				if(z < ALPINE_HEIGHT + 400 * (random.nextDouble()-0.3)) {
-					color = new Color((float)random.nextDouble()*GRASS_LUMINOSITY, 1.0f*GRASS_LUMINOSITY, (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
+					//color = new Color((float)random.nextDouble()*GRASS_LUMINOSITY, 1.0f*GRASS_LUMINOSITY, (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
+					
+					red_ = (int)(255.99f * (float)random.nextDouble()*GRASS_LUMINOSITY);
+					green_ = (int)(255.99f *  1.0f*GRASS_LUMINOSITY);
+					blue_ = (int)(255.99f * (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
 				}
-				int red = color.getRed()*color.getRed()/255;
-				int green = color.getGreen()*color.getGreen()/255;
-				int blue = color.getBlue()*color.getBlue()/255;
-				int alpha = color.getAlpha();
+				int red = /*color.getRed()*color.getRed()*/red_*red_/255;
+				int green = /*color.getGreen()*color.getGreen()*/green_*green_/255;
+				int blue = /*color.getBlue()*color.getBlue()*/blue_*blue_/255;
+				int alpha = 255;//color.getAlpha();
 				
 				chunks.colorsPut(index, red, green, blue, alpha);
 			}
@@ -230,19 +254,17 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 			int index1 = i*h+j+1;
 			int index2 = (i+1)*h+j;
 			int index3 = i*h+j-1;
-			p0.setValue(chunks.verticesGet(index0*3),chunks.verticesGet(index0*3+1),chunks.verticesGet(index0*3+2));
-			p1.setValue(chunks.verticesGet(index1*3),chunks.verticesGet(index1*3+1),chunks.verticesGet(index1*3+2));
-			p2.setValue(chunks.verticesGet(index2*3),chunks.verticesGet(index2*3+1),chunks.verticesGet(index2*3+2));
-			p3.setValue(chunks.verticesGet(index3*3),chunks.verticesGet(index3*3+1),chunks.verticesGet(index3*3+2));
+			p0.setValue(chunks.verticesGet(index0,xyz));
+			p1.setValue(chunks.verticesGet(index1,xyz));
+			p2.setValue(chunks.verticesGet(index2,xyz));
+			p3.setValue(chunks.verticesGet(index3,xyz));
 			v0.setValue(p0.operator_minus_equal(p2));
 			v1.setValue(p1.operator_minus_equal(p3));
 			n.setValue(v0.operator_cross_equal(v1));
 			n.normalize();
-			chunks.normalsPut(index*3+0, n.getX());
-			chunks.normalsPut(index*3+1, n.getY());
-			chunks.normalsPut(index*3+2, n.getZ());
+			chunks.normalsPut(index, n.getX(), n.getY(), n.getZ());
 
-			if((n.getZ()<0.45 && chunks.verticesGet(index*3+2) < ALPINE_HEIGHT) || n.getZ()<0.35) {
+			if((n.getZ()<0.45 && chunks.verticesGet(index,xyz)[2] < ALPINE_HEIGHT) || n.getZ()<0.35) {
 				chunks.colorsPut(index, redStone, greenStone, blueStone, 255);
 			}
 		}
@@ -387,12 +409,12 @@ for(int is=0;is<4;is++) {
 		
 		shadowGroup.addChild(landSep);
 
-		addWater(shadowGroup,5185, 0.0f);
-		addWater(shadowGroup,5175, 0.2f);
-		addWater(shadowGroup,5165, 0.4f);
-		addWater(shadowGroup,5160, 0.5f);
-		addWater(shadowGroup,5155, 0.6f);
-		addWater(shadowGroup,5150, 0.7f);		
+		addWater(shadowGroup,185 + zTranslation, 0.0f);
+		addWater(shadowGroup,175 + zTranslation, 0.2f);
+		addWater(shadowGroup,165 + zTranslation, 0.4f);
+		addWater(shadowGroup,160 + zTranslation, 0.5f);
+		addWater(shadowGroup,155 + zTranslation, 0.6f);
+		addWater(shadowGroup,150 + zTranslation, 0.7f);		
 		
 		sep.addChild(shadowGroup);
 		
@@ -400,7 +422,7 @@ for(int is=0;is<4;is++) {
 		
 		//castingShadowScene.addChild(inverseSunTransl);
 		
-		addWater(castingShadowScene,5185 ,0.0f);
+		addWater(castingShadowScene,185 + zTranslation,0.0f);
 		
 //	    SoVertexProperty vertexPropertyGeom = new SoVertexProperty();
 //	    vertexPropertyGeom.vertex.setValuesPointer(/*0,*/ vertices);
@@ -489,8 +511,8 @@ for(int is=0;is<4;is++) {
 	}
 
 	@Override
-	public void setPosition(float x, float y, float z) {
-		transl.translation.setValue(-x,-y,-z);
+	public void setPosition(float x, float y) {
+		transl.translation.setValue(-x,-y,-zTranslation);
 	}
 
 	@Override
@@ -545,4 +567,75 @@ for(int is=0;is<4;is++) {
 		sunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE));
 		//inverseSunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE).operator_minus());
 	}
+	
+	
+	public float getZ(float x, float y, float z) {
+		
+		float ifloat = (x - transl.translation.getValue().getX())/delta_x;
+		float jfloat = (delta_y*(h-1) -(y - transl.translation.getValue().getY() - jstart * delta_y))/delta_y;
+		
+		int i = Math.round(ifloat);
+		//int j = Math.round((y - transl.translation.getValue().getY() - 3298)/delta_y);
+		int j = Math.round(jfloat);
+		
+		i = Math.max(0,i);
+		j = Math.max(0,j);
+		i = Math.min(w-1,i);
+		j = Math.min(h-1,j);
+		
+		int imin = (int)Math.floor(ifloat);
+		int imax = (int)Math.ceil(ifloat);
+		int jmin = (int)Math.floor(jfloat);
+		int jmax = (int)Math.ceil(jfloat);
+		
+		imin = Math.max(0,imin);
+		jmin = Math.max(0,jmin);
+		imin = Math.min(w-1,imin);
+		jmin = Math.min(h-1,jmin);
+		
+		imax = Math.max(0,imax);
+		jmax = Math.max(0,jmax);
+		imax = Math.min(w-1,imax);
+		jmax = Math.min(h-1,jmax);
+		
+		int index0 = imin*h + jmin;
+		int index1 = imax*h + jmin;
+		int index2 = imax*h + jmax;
+		int index3 = imin*h + jmax;
+		
+		float[] xyz = new float[3];
+ 		
+		float z0 = chunks.verticesGet(index0,xyz)[2] - zTranslation;
+		float z1 = chunks.verticesGet(index1,xyz)[2] - zTranslation;
+		float z2 = chunks.verticesGet(index2,xyz)[2] - zTranslation;
+		float z3 = chunks.verticesGet(index3,xyz)[2] - zTranslation;
+		
+		float alpha = ifloat - imin;
+		float beta = jfloat - jmin;
+		
+		//int index = i*h+ h - j -1;
+		int index = i*h+ j;
+		
+		//z = chunks.verticesGet(index*3+2) - zTranslation;
+		
+		if(alpha + beta < 1) {
+			z = z0 + (z1 - z0)*alpha + (z3 - z0)*beta;
+		}
+		else {
+			z = z2 + (z3 - z2)*(1-alpha) + (z1 - z2)*(1-beta);			
+		}
+		
+//		float xx = chunks.verticesGet(index*3+0);
+//		float yy = chunks.verticesGet(index*3+1);
+//		
+//		System.out.println("i = "+i+" j = "+j);
+//		
+//		System.out.println("y ="+(y - transl.translation.getValue().getY())+ " yy = "+yy);
+//		
+//		float delta = yy - (y - transl.translation.getValue().getY());
+//		
+//		System.out.println("delta = " +delta);
+		return z;
+	}
+
 }

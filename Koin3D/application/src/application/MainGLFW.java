@@ -41,6 +41,10 @@ public class MainGLFW {
 	public static final float MINIMUM_VIEW_DISTANCE = 1.0f;
 
 	public static final float MAXIMUM_VIEW_DISTANCE = SceneGraphIndexedFaceSet.SUN_FAKE_DISTANCE * 1.5f;
+	
+	public static final float Z_TRANSLATION = 2000;
+	
+	public static SbVec3f SCENE_POSITION;
 
 	/**
 	 * @param args
@@ -60,8 +64,9 @@ public class MainGLFW {
 		
 		//SoSeparator.setNumRenderCaches(0);
 		//SceneGraph sg = new SceneGraphQuadMesh(r);
+		
 		int overlap = 13;		
-		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap);
+		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap,Z_TRANSLATION);
 		//SceneGraph sg = new ShadowTestSceneGraph();
 		
 		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style);
@@ -71,6 +76,10 @@ public class MainGLFW {
 		
 		
 		viewer.setSceneGraph(sg.getSceneGraph());
+		
+		viewer.setHeightProvider(sg);
+		
+		SCENE_POSITION = new SbVec3f(/*sg.getCenterX()/2*/0,sg.getCenterY(),Z_TRANSLATION);
 
 		viewer.setUpDirection(new SbVec3f(0,0,1));
 
@@ -84,20 +93,22 @@ public class MainGLFW {
 		camera.position.setValue(0,0,0);
 		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
 		
+		camera.position.setValue(250, 305, 1279 - SCENE_POSITION.getZ());
+		
 		viewer.getCameraController().changeCameraValues(camera);
 		
 		viewer.getSceneHandler().setBackgroundColor(new SbColor(0,0,1));
 		
-		sg.setPosition(/*sg.getCenterX()/2*/0,sg.getCenterY(),5000);
+		sg.setPosition(SCENE_POSITION.getX(),SCENE_POSITION.getY()/*,SCENE_POSITION.getZ()*/);
 		
-		final double startDate = (double)System.nanoTime() /1e9 - 60*60*4.5 / TimeConstants.JMEMBA_TIME_ACCELERATION;
+		final double startDate = (double)System.nanoTime() /1e9 - 60*60*4.5 / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
 		
 		viewer.addIdleListener((viewer1)->{
 			double nanoTime = System.nanoTime();
 			double nowSec = nanoTime / 1e9 - startDate;
 			double nowHour = nowSec / 60 / 60;
-			double nowDay = 80;//nowHour / 24; // always summer
-			double nowGame = nowHour * TimeConstants.JMEMBA_TIME_ACCELERATION/*GTA_SA_TIME_ACCELERATION*/;
+			double nowDay = 100;//nowHour / 24; // always summer
+			double nowGame = nowHour * TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
 			double Phi = 47;
 			SbVec3f sunPosition = Soleil.soleil_xyz((float)nowDay, (float)nowGame, (float)Phi);
 			sg.setSunPosition(new SbVec3f(sunPosition.y(),-sunPosition.x(),sunPosition.z()));

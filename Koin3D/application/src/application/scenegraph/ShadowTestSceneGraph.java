@@ -179,7 +179,7 @@ public class ShadowTestSceneGraph implements SceneGraph {
 	 * @see application.scenegraph.SceneGraph#setPosition(float, float, float)
 	 */
 	@Override
-	public void setPosition(float x, float y, float z) {
+	public void setPosition(float x, float y) {
 		// TODO Auto-generated method stub
 
 	}
@@ -195,4 +195,9 @@ public class ShadowTestSceneGraph implements SceneGraph {
 		//System.out.println( dir.getX()+" "+dir.getY()+" "+dir.getZ());
 	}
 
+	
+	public float getZ(float x, float y, float z) {
+		return 0;
+	}
+	
 }

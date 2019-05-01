@@ -37,6 +37,9 @@ public class TerrainLoader {
         //File tiffFile = new File("..\\loader\\ressource\\ned19_n47x00_w122x00_wa_mounttrainier_2008\\ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
         //File tiffFile = new File("..\\loader\\ressource\\ned19_n47x00_w121x75_wa_mounttrainier_2008\\ned19_n47x00_w121x75_wa_mounttrainier_2008.tif");
         File tiffFile = new File("..\\loader\\ressource\\"+fileName);
+        if(!tiffFile.exists()) {
+        	tiffFile = new File("ressource\\"+fileName);
+        }
         try {
 			GeoTiffReader reader = new GeoTiffReader(tiffFile);
 			GridCoverage2D grid = reader.read(null);

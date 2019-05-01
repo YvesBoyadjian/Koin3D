@@ -102,7 +102,7 @@ public class Chunk {
 //	    LODindexedFaceSets[0].coordIndex.setValues(0, coordIndices);
 	    
 	    for(int l=0;l<NB_LOD;l++) {
-	    	LODindexedFaceSets[l] = buildIndexedFaceSet(l);
+	    	//LODindexedFaceSets[l] = buildIndexedFaceSet(l);
 	    }
 	    //shadowIndexedFaceSet = buildIndexedFaceSet(Math.min(3,NB_LOD -1));
 	}

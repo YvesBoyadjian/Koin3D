@@ -599,14 +599,14 @@ public
 //	    }
 	    if (widget == null) {
 	    	
-	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_FALSE);
 	    	
 	    	// we didn't find any widget for this share group, so lets
 	        // just create a new one without sharing
 	        widget = new GLCanvas (parent,style /*| SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE*/,format);	        
-	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_FALSE);
 	        widget.setCurrent();
-	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_TRUE);
+	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_FALSE);
 	        GLCapabilities swtCapabilities = GL.createCapabilities();	        
 	        parent.initialized = false; // have to reinitialize
 	    }

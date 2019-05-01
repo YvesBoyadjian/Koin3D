@@ -4,7 +4,11 @@
 package application.scenegraph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
@@ -69,6 +73,16 @@ public class RecursiveChunk {
 			lod.center.setValue(getCenter());
 			lod.range.setValue(ChunkArray.DEFINITION * ni / 100.0f);
 			SoGroup subChunkGroup = new SoGroup();
+			
+//			int[] array = { 0,1,2,3};
+//			IntStream is = Arrays.stream(array);
+//			List<SoNode> nodes = is.
+//			sequential().
+//			mapToObj((i) -> childs.get(i).getGroup()).
+//			collect(Collectors.toList());
+			
+//			nodes.forEach((o)->subChunkGroup.addChild(o));
+			
 			subChunkGroup.addChild(childs.get(0).getGroup());
 			subChunkGroup.addChild(childs.get(1).getGroup());
 			subChunkGroup.addChild(childs.get(2).getGroup());
@@ -105,10 +119,10 @@ public class RecursiveChunk {
 		for(int i=0;i<decimatedChunkWidth;i++) {
 			for(int j=0; j<decimatedChunkHeight; j++) {
 				int index = i*decimatedChunkHeight+j;
-				float alpha = (i+0.5f)/decimatedChunkWidth;
+				float alpha = (i/*+0.5f*/)/(decimatedChunkWidth-1.0f);
 				float imin = (float)(i0)/(ca.getW()-1.0f);
 				float imax = (float)(i0+ni-1)/(ca.getW()-1.0f);
-				float beta = (j+0.5f)/decimatedChunkHeight;
+				float beta = (j/*+0.5f*/)/(decimatedChunkHeight-1.0f);
 				float jmin = (float)(j0)/(ca.getH()-1.0f);
 				float jmax = (float)(j0+nj-1)/(ca.getH()-1.0f);
 				array[index*2] = imin + alpha*(imax -imin);
@@ -127,15 +141,19 @@ public class RecursiveChunk {
 			int decimatedChunkHeight = getDecimatedChunkHeight();
 			int nbVertices = decimatedChunkWidth * decimatedChunkHeight;
 			decimatedVertices = new float[nbVertices*3];
+			
+			float[] xyz = new float[3];
+			
 			for(int i =0 ; i< decimatedChunkWidth; i++) {
 				for(int j =0 ; j<decimatedChunkHeight ; j++) {
 					int i0 = fromSonToSourceI(i);
 					int j0 = fromSonToSourceJ(j);//chunkWidth -1 - ((decimatedChunkWidth -1 -j) << l);
 					int indice0 = i0*ca.getH()+j0;
 					int indice = i*decimatedChunkHeight+j;
-					decimatedVertices[indice*3] = ca.verticesGet(indice0*3);
-					decimatedVertices[indice*3+1] = ca.verticesGet(indice0*3+1);
-					decimatedVertices[indice*3+2] = ca.verticesGet(indice0*3+2);
+					ca.verticesGet(indice0, xyz);
+					decimatedVertices[indice*3] = xyz[0];
+					decimatedVertices[indice*3+1] = xyz[1];
+					decimatedVertices[indice*3+2] = xyz[2];
 				}
 			}
 		}
@@ -239,30 +257,38 @@ public class RecursiveChunk {
 	private float[] decimatedTextCoords;
 	
 	private int[] decimatedCoordIndices;
+	
+	private float[] center;
 
 	private float[] getCenter() {
-		float xc = 0,yc = 0,zc = 0;
-		int count = 0;
-		for(int i=i0;i<i0+ni;i++) {
-			for(int j=j0;j<j0+nj;j++) {
-				int index = i*ca.getH()+j;
-				float x = ca.verticesGet(index*3);
-				float y = ca.verticesGet(index*3+1);
-				float z = ca.verticesGet(index*3+2);
-				xc += x;
-				yc += y;
-				zc += z;
-				count++;
+		
+		if(center == null) {
+		
+			float xc = 0,yc = 0,zc = 0;
+			int count = 0;
+			
+			float[] xyz = new float[3];
+			
+			for(int i=i0;i<i0+ni;i++) {
+				for(int j=j0;j<j0+nj;j++) {
+					int index = i*ca.getH()+j;
+					ca.verticesGet(index,xyz);
+					xc += xyz[0];
+					yc += xyz[1];
+					zc += xyz[2];
+					count++;
+				}
 			}
+			xc /= count;
+			yc /= count;
+			zc /= count;
+			//float[] xyz = new float[3];
+			xyz[0] = xc;
+			xyz[1] = yc;
+			xyz[2] = zc;
+			center = xyz;
 		}
-		xc /= count;
-		yc /= count;
-		zc /= count;
-		float[] xyz = new float[3];
-		xyz[0] = xc;
-		xyz[1] = yc;
-		xyz[2] = zc;
-		return xyz;
+		return center;
 	}
 
 	public SoNode getVertexProperty() {
@@ -273,5 +299,15 @@ public class RecursiveChunk {
 	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords());
 		
 		return vertexProperty;
+	}
+
+	public void prepare() {
+		getDecimatedVertices();
+		getDecimatedNormals();
+		getDecimatedTexCoords();
+		getDecimatedCoordIndices();
+		getCenter();
+		
+		childs.parallelStream().forEach((c)-> c.prepare());
 	}
 }

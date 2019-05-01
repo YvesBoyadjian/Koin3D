@@ -3,6 +3,8 @@
  */
 package application.scenegraph;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -100,7 +102,7 @@ public class ChunkArray {
 		int j = vertexIndex - i*h;
 		int coord = index - vertexIndex * 3;
 				
-		Set<Chunk> relevantChunks = getChunks(i,j);
+		Collection<Chunk> relevantChunks = getChunks(i,j);
 		
 		relevantChunks.forEach((c)-> {
 			int chunkIndice = getInChunkIndice(c, i,j);
@@ -119,9 +121,9 @@ public class ChunkArray {
 		return c.getChunkIndice(iInChunk,jInChunk);
 	}
 	
-	Set<Chunk> relevantChunks = new HashSet<>();
+	Collection<Chunk> relevantChunks = new ArrayList<>();
 	
-	private Set<Chunk> getChunks(int i, int j) {
+	private Collection<Chunk> getChunks(int i, int j) {
 		
 		relevantChunks.clear();
 		
@@ -152,16 +154,24 @@ public class ChunkArray {
 		return i0>0 && i0<=nbChunkWidth && j0 >0 && j0 <=nbChunkHeight;
 	}
 
-	public float verticesGet(int index) {
-		int vertexIndex = index/3;
+	public float[] verticesGet(int index, float[] ret) {
+		
+		if(ret == null) {
+			ret = new float[3];
+		}
+		
+		int vertexIndex = index;
 		int i = vertexIndex/h;
 		int j = vertexIndex - i*h;
-		int coord = index - vertexIndex * 3;
+		//int coord = index - vertexIndex * 3;
 		
 		Chunk c = getOneChunk(i,j);
 		int chunkIndice = getInChunkIndice(c, i,j);
 		
-		return c.vertices[chunkIndice*3+coord];
+		ret[0] = c.vertices[chunkIndice*3+0];
+		ret[1] = c.vertices[chunkIndice*3+1];
+		ret[2] = c.vertices[chunkIndice*3+2];
+		return ret;
 	}
 	
 	public float normalsGet(int index) {
@@ -218,7 +228,7 @@ public class ChunkArray {
 		int i = vertexIndex/h;
 		int j = vertexIndex - i*h;
 		
-		Set<Chunk> relevantChunks = getChunks(i,j);
+		Collection<Chunk> relevantChunks = getChunks(i,j);
 		
 		relevantChunks.forEach((c)-> {
 			int chunkIndice = getInChunkIndice(c, i,j);
@@ -229,17 +239,19 @@ public class ChunkArray {
 		});
 	}
 	
-	public void normalsPut(int index, float value) {
-		int vertexIndex = index/3;
+	public void normalsPut(int index, float valueX, float valueY, float valueZ) {
+		int vertexIndex = index;
 		int i = vertexIndex/h;
 		int j = vertexIndex - i*h;
-		int coord = index - vertexIndex * 3;
+		//int coord = index - vertexIndex * 3;
 		
-		Set<Chunk> relevantChunks = getChunks(i,j);
+		Collection<Chunk> relevantChunks = getChunks(i,j);
 		
 		relevantChunks.forEach((c)-> {
 			int chunkIndice = getInChunkIndice(c, i,j);
-			c.normals[chunkIndice*3+coord] = value;
+			c.normals[chunkIndice*3+0] = valueX;
+			c.normals[chunkIndice*3+1] = valueY;
+			c.normals[chunkIndice*3+2] = valueZ;
 		});
 	}
 
@@ -359,15 +371,18 @@ public class ChunkArray {
 		int nbVertices = shadowWidth *shadowHeight;
 		float[] decimatedVertices = new float[nbVertices*3];
 
+		float[] xyz = new float[3];
+		
 		indice = 0;
 		for(int i =0 ; i< shadowWidth; i++) {
 			for(int j =0 ; j<shadowHeight ; j++) {
 				int i0 = i*SHADOW_LOD;
 				int j0 = j*SHADOW_LOD;
 				int index = i0 * h + j0;
-				decimatedVertices[indice*3] = verticesGet(index*3);
-				decimatedVertices[indice*3+1] = verticesGet(index*3+1);
-				decimatedVertices[indice*3+2] = verticesGet(index*3+2);
+				verticesGet(index,xyz);
+				decimatedVertices[indice*3] = xyz[0];
+				decimatedVertices[indice*3+1] = xyz[1];
+				decimatedVertices[indice*3+2] = xyz[2];
 				indice++;
 			}
 		}
@@ -381,6 +396,9 @@ public class ChunkArray {
 	
 	public RecursiveChunk getRecursiveChunk() {
 		RecursiveChunk rc = new RecursiveChunk(this,null,0,0,w,h);
+		
+		rc.prepare();
+		
 		return rc;
 	}
 

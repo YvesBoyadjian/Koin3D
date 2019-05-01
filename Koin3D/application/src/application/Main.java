@@ -56,7 +56,7 @@ public class Main {
 		//SceneGraph sg = new SceneGraphQuadMesh(r);
 		int overlap = 13;		
 		
-		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap);
+		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap,5000);
 		
 		viewer.setSceneGraph(sg.getSceneGraph());
 
@@ -70,7 +70,7 @@ public class Main {
 		
 		viewer.getSceneHandler().setBackgroundColor(new SbColor(0,0,1));
 		
-		sg.setPosition(/*sg.getCenterX()/2*/0,sg.getCenterY(),5000);
+		sg.setPosition(/*sg.getCenterX()/2*/0,sg.getCenterY()/*,5000*/);
 		
 		final double startDate = (double)System.nanoTime()/ 1e9 - 60*60*4.5 / TimeConstants.JMEMBA_TIME_ACCELERATION;
 		
