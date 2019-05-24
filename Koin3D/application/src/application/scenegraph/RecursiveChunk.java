@@ -3,12 +3,15 @@
  */
 package application.scenegraph;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import org.lwjgl.BufferUtils;
 
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
@@ -71,7 +74,7 @@ public class RecursiveChunk {
 		else {
 			SoLOD lod = new SoTouchLOD2();
 			lod.center.setValue(getCenter());
-			lod.range.setValue(ChunkArray.DEFINITION * ni / 100.0f);
+			lod.range.setValue(ChunkArray.DEFINITION * ni / 200.0f);
 			SoGroup subChunkGroup = new SoGroup();
 			
 //			int[] array = { 0,1,2,3};
@@ -158,6 +161,42 @@ public class RecursiveChunk {
 			}
 		}
 		return decimatedVertices;
+	}
+	
+	private FloatBuffer getDecimatedVerticesBuffer() {
+		if(decimatedVerticesBuffer == null) {
+			
+			int length = getDecimatedVertices().length;
+			decimatedVerticesBuffer = BufferUtils.createFloatBuffer(length);
+			decimatedVerticesBuffer.clear();
+			decimatedVerticesBuffer.put(getDecimatedVertices(), 0, length);
+			decimatedVerticesBuffer.flip();
+		}
+		return decimatedVerticesBuffer;
+	}
+	
+	private FloatBuffer getDecimatedNormalsBuffer() {
+		if(decimatedNormalsBuffer == null) {
+			
+			int length = getDecimatedNormals().length;
+			decimatedNormalsBuffer = BufferUtils.createFloatBuffer(length);
+			decimatedNormalsBuffer.clear();
+			decimatedNormalsBuffer.put(getDecimatedNormals(), 0, length);
+			decimatedNormalsBuffer.flip();
+		}
+		return decimatedNormalsBuffer;
+	}
+	
+	private FloatBuffer getDecimatedTexCoordsBuffer() {
+		if(decimatedTexCoordsBuffer == null) {
+			
+			int length = getDecimatedTexCoords().length;
+			decimatedTexCoordsBuffer = BufferUtils.createFloatBuffer(length);
+			decimatedTexCoordsBuffer.clear();
+			decimatedTexCoordsBuffer.put(getDecimatedTexCoords(), 0, length);
+			decimatedTexCoordsBuffer.flip();
+		}
+		return decimatedTexCoordsBuffer;
 	}
 	
 	private float[] getDecimatedNormals() {
@@ -252,9 +291,15 @@ public class RecursiveChunk {
 
 	private float[] decimatedVertices;
 	
+	private FloatBuffer decimatedVerticesBuffer;
+	
 	private float[] decimatedNormals;
 	
+	private FloatBuffer decimatedNormalsBuffer;
+	
 	private float[] decimatedTextCoords;
+	
+	private FloatBuffer decimatedTexCoordsBuffer;
 	
 	private int[] decimatedCoordIndices;
 	
@@ -293,10 +338,10 @@ public class RecursiveChunk {
 
 	public SoNode getVertexProperty() {
 		SoVertexProperty vertexProperty = new SoVertexProperty();
-		vertexProperty.vertex.setValuesPointer(getDecimatedVertices());
+		vertexProperty.vertex.setValuesPointer(getDecimatedVertices(),getDecimatedVerticesBuffer());
 	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals());
-	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords());
+	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(),getDecimatedNormalsBuffer());
+	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(),getDecimatedTexCoordsBuffer());
 		
 		return vertexProperty;
 	}

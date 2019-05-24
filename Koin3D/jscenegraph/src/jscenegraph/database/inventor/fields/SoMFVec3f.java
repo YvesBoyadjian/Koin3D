@@ -229,6 +229,11 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		setValuesPointer(userdata, null);
 	}
 	
+	/**
+	 * Values in buffer must be already initialized
+	 * @param userdata
+	 * @param buffer
+	 */
 	public void setValuesPointer(float[] userdata, FloatBuffer buffer) {
 		makeRoom(0);
 		  if (userdata != null) { 
@@ -238,10 +243,10 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 			    }
 			    else {
 			    	valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
+				    valuesBuffer[0].clear();
+				    valuesBuffer[0].put(valuesArray, 0, userdata.length);
+				    valuesBuffer[0].flip();
 			    }
-			    valuesBuffer[0].clear();
-			    valuesBuffer[0].put(valuesArray, 0, userdata.length);
-			    valuesBuffer[0].flip();
 			    // userDataIsUsed = true; COIN3D 
 			    num = maxNum = userdata.length/3; 
 			    valueChanged(); 

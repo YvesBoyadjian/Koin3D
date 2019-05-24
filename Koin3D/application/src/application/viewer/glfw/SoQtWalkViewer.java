@@ -442,11 +442,24 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		super.setFocus();
 		return getGLWidget().setFocus();
 	}
+	
+	int nbFrames = 0;
+	
+	long lastFrameTime = System.nanoTime();
 
     protected void paintGL(GL2 gl2) {
     	
     	//idle();
     	super.paintGL(gl2);
+    	
+    	nbFrames++;
+    	if(nbFrames == 200) {
+    		long newFrameTime = System.nanoTime();
+    		float fps = 1.0e9f/(newFrameTime - lastFrameTime)*200;
+    		System.out.println("fps = "+fps);
+    		nbFrames = 0;
+    		lastFrameTime = newFrameTime;
+    	}
     }
     
 //    public void actualRedraw()
