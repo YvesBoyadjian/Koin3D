@@ -15,6 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+
+import jscenegraph.coin3d.inventor.lists.SbListInt;
+import jscenegraph.database.inventor.SbIntList;
 
 /**
  * @author Yves Boyadjian
@@ -32,9 +37,17 @@ public class FILE {
 
 	
 	PushbackInputStream in;
+	
+	SbListInt rl = new SbListInt();
+	
+	long position_indicator;
 
 	public FILE(InputStream in) {
 		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE));
+	}
+
+	public FILE(InputStream in, long length) {
+		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE),(int)length);
 	}
 
 	public static void fclose(FILE fp) {
@@ -67,7 +80,8 @@ public class FILE {
 	    
 	    try {
 			InputStream inputStream = Files.newInputStream(fileNamePath, option);
-			return new FILE(inputStream);
+			long length = fileNamePath.toFile().length();
+			return new FILE(inputStream, length);
 		} catch (IOException e) {
 			return null;
 		}
@@ -81,7 +95,6 @@ public class FILE {
 		try {
 			fp.in.unread(c);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -141,9 +154,21 @@ public class FILE {
 		return EOF;
 	}
 
-	public static long fread(char[] c, int i, int j, FILE fp) {
-		// TODO Auto-generated method stub
-		return 0;
+	public static long fread(char[] cc, int sizeof, int length, FILE fp) {
+		
+		int i;
+		for(i=0;i<length*sizeof;i++) {
+			try {
+				int b1;
+				b1 = fp.in.read();
+				if(b1 == -1) break;
+				cc[i] = (char)b1;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}		
+		
+		return i/sizeof;
 	}
 
 	public static int fread(byte[] c, int sizeof, int length, FILE fp) {
@@ -205,13 +230,54 @@ public class FILE {
 		    long  _Offset,
 		    int   _Origin
 		    ) {
+		if(_Origin == FILE.SEEK_END && _Offset == 0) {
+			try {
+				int r;
+				do {
+					r = _Stream.in.read();
+					_Stream.rl.append(r);
+				} while( r != -1);
+				_Stream.rl.truncate(_Stream.rl.getLength()-1);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return 0;
+		}
+		else if(_Origin == FILE.SEEK_SET) {
+			int pos = ftell(_Stream);
+			if(pos > _Offset) {
+				long back = pos - _Offset;
+				for(int i=0;i<back;i++) {
+					int b = _Stream.rl.operator_square_bracket(_Stream.rl.getLength()-1);
+					try {
+						_Stream.in.unread(b);
+						_Stream.rl.truncate(_Stream.rl.getLength()-1);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				return 0;
+			}
+			else if ( pos == _Offset) {
+				return 0;
+			}
+		}
 		return -1; // TODO
 	}
 
 	public static int ftell(
 		    FILE _Stream
 		    ) {
-		return -1; // TODO
+		if(_Stream.rl.getLength()==0) {
+			return 0;
+		}
+		int delta = 0;
+		if(_Stream.rl.operator_square_bracket(_Stream.rl.getLength()-1)== -1) {
+			delta = -1;
+		}
+		return _Stream.rl.getLength() + delta;
 	}
 
 	

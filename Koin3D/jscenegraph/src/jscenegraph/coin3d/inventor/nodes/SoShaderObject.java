@@ -432,23 +432,23 @@ checkType()
   int len = fileName.length();
   if (len > 5) {
     String subStr = fileName.substring(len-5);
-    if (subStr == ".glsl" || subStr == ".vert" || subStr == ".frag") {
+    if (subStr.equals(".glsl") || subStr.equals(".vert") || subStr.equals(".frag")) {
       this.cachedSourceType = SoShaderObject.SourceType.GLSL_PROGRAM;
       return;
     }
   }
   if (len > 3) {
     String subStr = fileName.substring(len-3);
-    if (subStr == ".cg") {
+    if (subStr.equals(".cg")) {
       this.cachedSourceType = SoShaderObject.SourceType.CG_PROGRAM;
       return;
     }
-    if (subStr == ".fp") {
+    if (subStr.equals(".fp")) {
       this.cachedSourceType = this.owner.isOfType(SoVertexShader.getClassTypeId())
         ? SoShaderObject.SourceType.FILENAME : SoShaderObject.SourceType.ARB_PROGRAM;
       return;
     }
-    if (subStr==".vp") {
+    if (subStr.equals(".vp")) {
       this.cachedSourceType = this.owner.isOfType(SoVertexShader.getClassTypeId())
         ? SoShaderObject.SourceType.ARB_PROGRAM : SoShaderObject.SourceType.FILENAME;
       return;
