@@ -101,7 +101,7 @@ public class SoTextureCombine extends SoNode {
 
 			public static Operation fromValue(Integer value2) {
 				for(Operation o: values()) {
-					if(o.getValue() == value2) {
+					if(o.getValue() == (int)value2) {
 						return o;
 					}
 				}

@@ -66,6 +66,8 @@
 
 package jscenegraph.nodekits.inventor.nodekits;
 
+import java.util.Objects;
+
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
@@ -315,7 +317,7 @@ readInstance( SoInput in, short flags )
 	    	           return;
 	    	       }
 	    	       
-	    	       if ( newContainerType == getContainerType() )
+	    	       if ( Objects.equals(newContainerType, getContainerType()) )
 	    	           return;
 	    	   
 	    	       if ( !newContainerType.isDerivedFrom( SoGroup.getClassTypeId() ) )

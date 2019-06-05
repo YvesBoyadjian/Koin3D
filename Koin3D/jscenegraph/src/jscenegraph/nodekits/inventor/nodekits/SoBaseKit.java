@@ -56,6 +56,7 @@
 package jscenegraph.nodekits.inventor.nodekits;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec3f;
@@ -1421,7 +1422,7 @@ public void setDefaultOnNonWritingFields()
         if ( cat.isLeaf(partNum) && node != null ) {
 
             // [Leaf SoGroup with no children]
-            if ( node.getTypeId() == grpType 
+            if ( Objects.equals(node.getTypeId(), grpType) 
                  && ((SoGroup )node).getNumChildren() == 0) {
                 pFields[partNum].setDefault(true);
                 continue;
@@ -1437,7 +1438,7 @@ public void setDefaultOnNonWritingFields()
 
             // Or:
             // [Leaf ListPart with no kids and a group or sep container]
-            if ( node.getTypeId() == SoNodeKitListPart.getClassTypeId() 
+            if ( Objects.equals(node.getTypeId(), SoNodeKitListPart.getClassTypeId()) 
                  && ((SoNodeKitListPart )node).getNumChildren() == 0 ) {
                  SoGroup cn = ((SoNodeKitListPart )node).getContainerNode();
                  if (cn.getTypeId().operator_equal_equal(sepType) || cn.getTypeId().operator_equal_equal(grpType)) {

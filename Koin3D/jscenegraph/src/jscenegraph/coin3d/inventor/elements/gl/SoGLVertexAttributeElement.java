@@ -106,30 +106,30 @@ private static void send_attribs( String key,
   }
 //#endif
 
-  if (data.type == SoMFFloat.getClassTypeId(SoMFFloat.class)) {
+  if (data.type.equals(SoMFFloat.getClassTypeId(SoMFFloat.class))) {
     SoMFFloat mfield = (SoMFFloat)(data.data);
     float[] attribs = mfield.getValuesFloat(0);
     glue.glVertexAttrib1fARB(data.index, attribs[dataindex]);
 
-  } else if (data.type == SoMFVec2f.getClassTypeId(SoMFVec2f.class)) {
+  } else if (data.type.equals(SoMFVec2f.getClassTypeId(SoMFVec2f.class))) {
 
     SoMFVec2f mfield = (SoMFVec2f)(data.data);
     SbVec2f[] attribs = mfield.getValues(0);
     glue.glVertexAttrib2fvARB(data.index, attribs[dataindex].getValueRead());
 
-  } else if (data.type == SoMFVec3f.getClassTypeId(SoMFVec3f.class)) {
+  } else if (data.type.equals(SoMFVec3f.getClassTypeId(SoMFVec3f.class))) {
 
     SoMFVec3f mfield = (SoMFVec3f)(data.data);
     SbVec3f[] attribs = mfield.getValues(0);
     glue.glVertexAttrib3fvARB(data.index, attribs[dataindex].getValueRead());
 
-  } else if (data.type == SoMFVec4f.getClassTypeId(SoMFVec4f.class)) {
+  } else if (data.type.equals(SoMFVec4f.getClassTypeId(SoMFVec4f.class))) {
 
     SoMFVec4f mfield = (SoMFVec4f)(data.data);
     SbVec4f[] attribs = mfield.getValues(0);
     glue.glVertexAttrib4fvARB(data.index, attribs[dataindex].getValueRead());
 
-  } else if (data.type == SoMFShort.getClassTypeId(SoMFShort.class)) {
+  } else if (data.type.equals(SoMFShort.getClassTypeId(SoMFShort.class))) {
 
     SoMFShort mfield = (SoMFShort)(data.data);
     Short[] attribs = mfield.getValues(0);

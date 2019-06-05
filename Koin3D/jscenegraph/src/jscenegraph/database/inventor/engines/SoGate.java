@@ -56,6 +56,8 @@ package jscenegraph.database.inventor.engines;
 
 import static jscenegraph.database.inventor.misc.SoBasic.SO__CONCAT;
 
+import java.util.Objects;
+
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
 //import jscenegraph.database.inventor.SoOutput;
@@ -273,7 +275,7 @@ public void destructor()
 
 private boolean DECIDE(SoType inputType, String klass) {
      try {
-		if(inputType == SoType.getClassTypeId(SO__CONCAT("SoMF",klass))) { 
+		if(Objects.equals(inputType,SoType.getClassTypeId(SO__CONCAT("SoMF",klass)))) { 
 		      conversionCase = TypeConst.valueOf(klass).ordinal(); 
 		      return true;
 		 }

@@ -14,7 +14,7 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
  * @author Yves Boyadjian
  *
  */
-public class SoVertexAttribute extends SoNode {
+public class SoVertexAttribute extends SoNode { //TODO
 
 	// java port
 	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoVertexAttribute.class,this);

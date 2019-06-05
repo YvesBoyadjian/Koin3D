@@ -3,6 +3,7 @@
  */
 package jscenegraph.nodekits.inventor.nodekits;
 
+import java.util.Objects;
 import java.util.StringTokenizer;
 
 import jscenegraph.database.inventor.SbName;
@@ -1783,7 +1784,7 @@ partIsNonLeafAndMayBeDeleted( int partNum )
         return false;
 
     // [e1] an SoGroup with no children 
-    if (part.getTypeId() == SoGroup.getClassTypeId() ) {
+    if ( Objects.equals(part.getTypeId(), SoGroup.getClassTypeId()) ) {
         if ( ((SoGroup )part).getNumChildren() == 0 )
             return true;
         else
@@ -1792,7 +1793,7 @@ partIsNonLeafAndMayBeDeleted( int partNum )
 
     // OR 
     // [e2] an SoSeparator with no children and default field values.
-    if ( part.getTypeId() == SoSeparator.getClassTypeId()) {
+    if ( Objects.equals(part.getTypeId(), SoSeparator.getClassTypeId())) {
         SoSeparator sep = (SoSeparator ) part;
         if ( sep.getNumChildren() != 0 )
             return false;
