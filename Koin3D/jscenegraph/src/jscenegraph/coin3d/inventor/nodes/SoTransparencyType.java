@@ -61,7 +61,7 @@ public class SoTransparencyType extends SoNode {
 	  public static void
 	  initClass()
 	  {
-	    SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(SoTransparencyType.class, "TransparencyType", SoNode.class);
+	    SoSubNode.SO__NODE_INIT_CLASS(SoTransparencyType.class, "TransparencyType", SoNode.class);
 	  }
 
 	  /*!

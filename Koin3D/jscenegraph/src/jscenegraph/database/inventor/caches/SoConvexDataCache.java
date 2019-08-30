@@ -363,9 +363,9 @@ do_triangle(Object v0, Object v1, Object v2, Object data)
 {
   tTessData tessdata = (tTessData)(data);
   tessdata.firstvertex = true;
-  vertex_tri((tVertexInfo)(v0), tessdata);
-  vertex_tri((tVertexInfo)(v1), tessdata);
-  vertex_tri((tVertexInfo)(v2), tessdata);
+  vertex_tri((((Array<tVertexInfo>)v0).get(0)), tessdata);
+  vertex_tri((((Array<tVertexInfo>)v1).get(0)), tessdata);
+  vertex_tri((((Array<tVertexInfo>)v2).get(0)), tessdata);
 
   tessdata.vertexIndex.append(-1);
   if (tessdata.matIndex != null &&

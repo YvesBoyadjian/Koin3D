@@ -224,6 +224,7 @@ public class SoShadowGroupP implements Destroyable {
 
 	        	error_post = gl2.glGetError();
 	        }
+	        
 	        SoGL.cc_glglue_glActiveTexture(glue, GL2.GL_TEXTURE0);
 	      }
 	    }
@@ -235,7 +236,7 @@ public class SoShadowGroupP implements Destroyable {
 	  GLRender(SoGLRenderAction action, final boolean inpath)
 	  {
 	    SoState state = action.getState();
-	    final cc_glglue glue = SoGL.cc_glglue_instance(SoGLCacheContextElement.get(state));
+	    //final cc_glglue glue = SoGL.cc_glglue_instance(SoGLCacheContextElement.get(state));
 
 	    // FIXME: should store results in a "context -> supported" map.  -mortene.
 	    String reason;

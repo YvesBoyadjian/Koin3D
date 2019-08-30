@@ -10,6 +10,8 @@ import jscenegraph.database.inventor.SbVec3f;
  *
  */
 public class SbTesselator {
+	
+	public static final boolean IMPLEMENTED = false;
 
 	public interface SbTesselatorCB {
 		void invoke(Object v0, Object v1, Object v2, Object data);

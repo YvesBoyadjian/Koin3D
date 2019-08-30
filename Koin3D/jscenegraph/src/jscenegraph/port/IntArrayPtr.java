@@ -97,6 +97,17 @@ public class IntArrayPtr {
 		return array[i+intOffset];
 	}
 
+	public static IntArrayPtr plus( IntArrayPtr other, int num) {
+		if( other == null) {
+			if (num != 0) {
+				throw new IllegalArgumentException("adding value to null pointer");
+			}
+			return null;
+		}
+		else {
+			return other.plus(num);
+		}
+	}
 	public IntArrayPtr plus(int num) {
 		return new IntArrayPtr(intOffset+num,array);
 	}

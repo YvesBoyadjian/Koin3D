@@ -10,6 +10,7 @@ import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
 import jscenegraph.coin3d.TidBits;
 import jscenegraph.coin3d.glue.GLUWrapper;
 import jscenegraph.coin3d.glue.GLUWrapper_t;
+import jscenegraph.coin3d.inventor.SbTesselator;
 import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.caches.tTessData;
@@ -177,6 +178,10 @@ cb_error(int err, Object obj)
 	public static boolean
 	preferred()
 	{
+		if( !SbTesselator.IMPLEMENTED ) {
+			return true; // YB
+		}
+		
 	  if (v == -1) {
 	    String e = TidBits.coin_getenv("COIN_PREFER_GLU_TESSELLATOR");
 	    v = (e != null && (Util.atoi(e) > 0)) ? 1 : 0;

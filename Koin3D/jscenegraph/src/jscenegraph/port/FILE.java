@@ -132,7 +132,7 @@ public class FILE {
 			boolean isSpace = false;
 			do {
 					int c = fp.in.read();
-				if( c == -1 || Character.isSpace((char)c) || c == ',') {
+				if( c == -1 || Character.isSpace((char)c) || c == ',' || c == '}' ) {
 					isSpace = true;
 					if( c != -1) {
 						fp.in.unread(c);

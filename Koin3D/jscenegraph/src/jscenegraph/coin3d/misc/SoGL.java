@@ -1205,10 +1205,10 @@ private static int current_errors = 0;
 	    if (matindices_ == null) matindices_ = vertexindices_;
 	    if (normalindices_ == null) normalindices_ = vertexindices_;
 
-	  IntArrayPtr vertexindices = new IntArrayPtr(vertexindices_);
+	  IntArrayPtr vertexindices = IntArrayPtr.copyOf(vertexindices_);
 	  MutableSbVec3fArray normals = normals_ != null ? new MutableSbVec3fArray(normals_) : null;
-	  IntArrayPtr normalindices = new IntArrayPtr(normalindices_);
-	  IntArrayPtr matindices = new IntArrayPtr(matindices_);
+	  IntArrayPtr normalindices = IntArrayPtr.copyOf(normalindices_);
+	  IntArrayPtr matindices = IntArrayPtr.copyOf(matindices_);
 	  IntArrayPtr texindices = texindices_ != null ? new IntArrayPtr(texindices_) : null;
 
     int texidx = 0;
@@ -1225,9 +1225,9 @@ private static int current_errors = 0;
 
     int mode = GL2.GL_POLYGON; // ...to save a test
     int newmode;
-    IntArrayPtr viptr = new IntArrayPtr(vertexindices);
-    IntArrayPtr vistartptr = new IntArrayPtr(vertexindices);
-    IntArrayPtr viendptr = viptr.plus(numindices);
+    IntArrayPtr viptr = IntArrayPtr.copyOf(vertexindices);
+    IntArrayPtr vistartptr = IntArrayPtr.copyOf(vertexindices);
+    IntArrayPtr viendptr = IntArrayPtr.plus(viptr,numindices);
     int v1, v2, v3, v4, v5 = 0; // v5 init unnecessary, but kills a compiler warning.
     int numverts = vertexlist.getNum();
 
@@ -1250,7 +1250,7 @@ private static int current_errors = 0;
 
     GL2 gl2 = new GL2() {};
     
-    while (viptr.plus(2).lessThan(viendptr)) {
+    while (viendptr != null && viptr.plus(2).lessThan(viendptr)) {
       v1 = viptr.get(); viptr.plusPlus();
       v2 = viptr.get(); viptr.plusPlus();
       v3 = viptr.get(); viptr.plusPlus();
