@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.nio.charset.Charset;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBVertexBufferObject;
@@ -2916,7 +2917,14 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.ARBShaderObjects.glAttachObjectARB((int)arg1, (int)arg2);
 	}
 
+	default void glGetIntegerv(int arg1, int[] arg2) {
+		org.lwjgl.opengl.GL11.glGetIntegerv(arg1,arg2);
+	}
+
 	default void glGetIntegerv(int arg1, int[] arg2, int arg3) {
+		if( arg3 != 0) {
+			throw new IllegalArgumentException();
+		}
 		org.lwjgl.opengl.GL11.glGetIntegerv(arg1,arg2);
 	}
 
@@ -3113,7 +3121,25 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glTexImage2D(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
 	}
 
+	default void glTexImage2D(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7,
+			int arg8, short[] array) {
+		Buffers.newDirectShortBuffer(array);
+		org.lwjgl.opengl.GL11.glTexImage2D(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,array);
+	}
+
+	default void glTexImage2D(int arg1, int arg2, int arg3, int arg4, int arg5, int arg6, int arg7,
+			int arg8, long arg9) {
+		org.lwjgl.opengl.GL11.glTexImage2D(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+	}
+
 	default void glTexGenfv(int arg1, int arg2, float[] arg3, int arg4) {
+		if( arg4 != 0 ) {
+			throw new IllegalArgumentException();
+		}
+		org.lwjgl.opengl.GL11.glTexGenfv(arg1,arg2,arg3);
+	}
+
+	default void glTexGenfv(int arg1, int arg2, float[] arg3) {
 		org.lwjgl.opengl.GL11.glTexGenfv(arg1,arg2,arg3);
 	}
 
@@ -3532,4 +3558,49 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL15.glDeleteBuffers(buffers);
 	}
 
+	default void glGenProgramsARB(int n, int[] ids) {
+		assert( n == ids.length );
+		org.lwjgl.opengl.ARBVertexProgram.glGenProgramsARB(ids);
+	}
+
+	default void glBindProgramARB(int code, int id) {
+		org.lwjgl.opengl.ARBVertexProgram.glBindProgramARB(code,id);
+	}
+	
+	default void glProgramStringARB( int a, int b, int len, String str) {
+		assert ( len == str.length());
+		Charset charset = Charset.forName("UTF-8");
+		byte[] array = str.getBytes(charset);
+		ByteBuffer buffer = Buffers.newDirectByteBuffer(array);
+		org.lwjgl.opengl.ARBVertexProgram.glProgramStringARB(a,b, buffer);
+	}
+	
+	default void glGenTextures(int n, int[] ids) {
+		assert( n == ids.length);
+		org.lwjgl.opengl.GL11.glGenTextures(ids);
+	}
+
+	default void glGenTextures( int[] ids) {
+		org.lwjgl.opengl.GL11.glGenTextures(ids);
+	}
+
+	default void glVertex2f(float x, float y) {
+		org.lwjgl.opengl.GL11.glVertex2f(x, y);
+	}
+
+	default void glCopyTexImage2D(int glTextureRectangle, int i, int glRgba8, int j, int k, short s, short t, int l) {
+		org.lwjgl.opengl.GL11.glCopyTexImage2D(glTextureRectangle, i, glRgba8, j, k, s, t, l);
+	}
+
+	default void glCullFace(int glFront) {
+		org.lwjgl.opengl.GL11.glCullFace(glFront);
+	}
+
+	default void glScalef(float arg0, float arg1, float arg2) {
+		org.lwjgl.opengl.GL11.glScalef(arg0, arg1, arg2);
+	}
+
+	default void glMultMatrixf(float[] fs) {
+		org.lwjgl.opengl.GL11.glMultMatrixf(fs);
+	}
 }

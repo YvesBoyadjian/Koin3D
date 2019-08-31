@@ -427,10 +427,10 @@ set(SoState state, int ctx,
 ////////////////////////////////////////////////////////////////////////
 {
 //#ifdef DEBUG
-    if (state.getDepth() != 1) {
-        SoDebugError.post("SoGLCacheContextElement::set",
-                           "must not be set during traversal");
-    }
+//    if (state.getDepth() != 1) { COIN3D
+//        SoDebugError.post("SoGLCacheContextElement::set",
+//                           "must not be set during traversal");
+//    }
 //#endif
 
     SoGLCacheContextElement elt = (SoGLCacheContextElement )

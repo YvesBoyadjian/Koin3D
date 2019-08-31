@@ -96,8 +96,10 @@ import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.elements.SoWindowElement;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoCallbackListCB;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.system.SbOpenGL;
 import jscenegraph.port.Ctx;
@@ -148,6 +150,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
     protected  static SoEnabledElementsList enabledElements;
     protected  static SoActionMethodList   methods;
     private static SoType               classTypeId	;
+
+    static int COIN_GLBBOX = 0;
 
     //! Various levels of transparency rendering quality
        public enum TransparencyType {
@@ -311,6 +315,47 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
         // to test against; by default, all bits are 1.
         cullBits            = 7;
 
+        pimpl.action = this;
+        
+        // Can't just push this on the SoViewportRegionElement stack, as the
+        // state hasn't been made yet.
+        pimpl.viewport.copyFrom(viewportRegion);
+
+        pimpl.passcallback = null;
+        pimpl.passcallbackdata = null;
+        pimpl.smoothing = false;
+        pimpl.currentpass = 0;
+        pimpl.numpasses = 1;
+        pimpl.internal_multipass = false;
+        pimpl.transparencytype = SoGLRenderAction.TransparencyType.BLEND;
+        pimpl.delayedpathrender = false;
+        pimpl.transparencyrender = false;
+        pimpl.isrendering = false;
+        pimpl.isrenderingoverlay = false;
+        pimpl.passupdate = false;
+        pimpl.bboxaction = new SoGetBoundingBoxAction(viewportRegion);
+        pimpl.updateorigin.setValue(0.0f, 0.0f);
+        pimpl.updatesize.setValue(1.0f, 1.0f);
+        pimpl.rendering = SoGLRenderActionP.Rendering.RENDERING_UNSET;
+        pimpl.abortcallback = null;
+        pimpl.cachecontext = 0;
+        pimpl.needglinit = true;
+        pimpl.sortedlayersblendpasses = 4;
+        pimpl.viewportheight = 0;
+        pimpl.viewportwidth = 0;
+        pimpl.sortedlayersblendinitialized = false;
+        pimpl.sortedlayersblendcounter = 0;
+        pimpl.usenvidiaregistercombiners = false;
+        pimpl.cachedprofilingsg = null;
+        pimpl.transpobjdepthwrite = false;
+        pimpl.transpdelayedrendertype = TransparentDelayedObjectRenderType.ONE_PASS;
+        pimpl.renderingtranspbackfaces = false;
+
+//        pimpl.sortedobjectstrategy = BBOX_CENTER; TODO
+//        pimpl.sortedobjectcb = null;
+//        pimpl.sortedobjectclosure = null;
+        
+        
         pimpl.smoothing = false;
         pimpl.needglinit = true;
      }
@@ -338,6 +383,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
      //
      ////////////////////////////////////////////////////////////////////////
      {
+    	  pimpl.viewport.copyFrom(newRegion);
+    	  pimpl.bboxaction.setViewportRegion(newRegion);
          vpRegion.copyFrom(newRegion);
      }
 
@@ -591,7 +638,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 
 
       //! Sets a callback function to invoke between passes when antialiasing.
-           //! Passing NULL (which is the default state) will cause a clear of the color
+           //! Passing null (which is the default state) will cause a clear of the color
            //! and depth buffers to be performed.
       public     void                setPassCallback(SoGLRenderPassCB funcArg, Object userData)
                { passCB = funcArg; passData = userData; }
@@ -629,7 +676,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        // Description:
        //    Returns true if render action should abort based on calling
-       //    callback. This assumes the callback is not NULL.
+       //    callback. This assumes the callback is not null.
        //
        // Use: private
 
@@ -760,14 +807,14 @@ handleTransparency(boolean istransparent)
 	    pimpl.sortedlayersblendprojectionmatrix.copyFrom(
 	      SoProjectionMatrixElement.get(thestate));
 
-//	    if (!SoMultiTextureEnabledElement.get(thestate, 0)) { FIXME YB
-//	      if (glue.has_arb_fragment_program && !pimpl.usenvidiaregistercombiners) {
-//	        pimpl.setupFragmentProgram();
-//	      }
-//	      else {
-//	        pimpl.setupRegisterCombinersNV();
-//	      }
-//	    }
+	    if (!SoMultiTextureEnabledElement.get(thestate, 0)) {
+	      if (glue.has_arb_fragment_program && !pimpl.usenvidiaregistercombiners) {
+	        pimpl.setupFragmentProgram();
+	      }
+	      else {
+	        pimpl.setupRegisterCombinersNV();
+	      }
+	    }
 
 	    // Must always return false as everything must be rendered to the
 	    // RGBA layers (which are blended together at the end of each
@@ -979,61 +1026,199 @@ enableBlending(boolean enable)
 //
 // Use: protected
 
-@Override
+//@Override
+//public void
+//beginTraversal(SoNode node)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    // Init OpenGL if needed (this is only done once)
+//    // NOTE: The SoGLRenderAction.apply() is the only scope in
+//    //       which OIV has a valid current OpenGL context (e.g. from SoQt or another window binding),
+//    //       so this is the right place to initialize OpenGL/GLEW:
+//    SbOpenGL.init();
+//    
+//    if (pimpl.needglinit) {
+//        pimpl.needglinit = false;
+//        
+//        GL2 gl2 = new GL2() {};
+//
+//        // we are always using GL_COLOR_MATERIAL in Coin
+//        gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
+//        gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+//        gl2.glEnable(GL2.GL_NORMALIZE);
+//
+//        // initialize the depth function to the default Coin/Inventor
+//        // value.  SoGLDepthBufferElement doesn't check for this, it just
+//        // assumes that the function is initialized to GL_LEQUAL, which is
+//        // not correct (the OpenGL specification says the initial value is
+//        // GL_LESS, but I've seen drivers that defaults to GL_LEQUAL as
+//        // well).
+//        gl2.glDepthFunc(GL2.GL_LEQUAL);
+//
+//        if (pimpl.smoothing) {
+//          gl2.glEnable(GL_POINT_SMOOTH);
+//          gl2.glEnable(GL_LINE_SMOOTH);
+//        }
+//        else {
+//          gl2.glDisable(GL_POINT_SMOOTH);
+//          gl2.glDisable(GL_LINE_SMOOTH);
+//        }
+//      }
+//
+//    
+//
+//    // This is called either from the main call to apply() that is
+//    // used to render a graph OR from the apply() call made while
+//    // rendering transparent objects or delayed objects. In the first
+//    // case, we want to render all passes. In the second and third
+//    // cases, we want to render only the current pass. We can tell
+//    // these cases apart by examining the flags.
+//
+//    if (renderingTranspObjs || renderingDelPaths) {
+//		traverse(node);
+//	} else {
+//		renderAllPasses(node);
+//	}
+//}
+
+
+
+// Documented in superclass. Overridden from parent class to
+// initialize the OpenGL state.
 public void
 beginTraversal(SoNode node)
-//
-////////////////////////////////////////////////////////////////////////
 {
-    // Init OpenGL if needed (this is only done once)
-    // NOTE: The SoGLRenderAction.apply() is the only scope in
-    //       which OIV has a valid current OpenGL context (e.g. from SoQt or another window binding),
-    //       so this is the right place to initialize OpenGL/GLEW:
-    SbOpenGL.init();
-    
-    if (pimpl.needglinit) {
-        pimpl.needglinit = false;
-        
-        GL2 gl2 = new GL2() {};
+  if (pimpl.cachedprofilingsg == null) {
+    if (node.isOfType(SoGroup.getClassTypeId()) &&
+        ((SoGroup)(node)).getNumChildren() > 0) {
+      pimpl.cachedprofilingsg = node;
 
-        // we are always using GL_COLOR_MATERIAL in Coin
-        gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
-        gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-        gl2.glEnable(GL2.GL_NORMALIZE);
+//#ifdef HAVE_NODEKITS TODO
+//      SoNode * kit = SoActionP::getProfilerOverlay();
+//      if (kit) {
+//        SoSearchAction sa;
+//        sa.setType(SoProfilerVisualizeKit::getClassTypeId());
+//        sa.setSearchingAll(TRUE);
+//        sa.setInterest(SoSearchAction::ALL);
+//        SbBool oldchildsearch = SoBaseKit::isSearchingChildren();
+//        SoBaseKit::setSearchingChildren(TRUE);
+//        sa.apply(kit);
+//        SoBaseKit::setSearchingChildren(oldchildsearch);
+//        SoPathList plist = sa.getPaths();
+//        for (int i = 0, n = plist.getLength(); i < n; ++i) {
+//          SoFullPath * path = reclassify_cast<SoFullPath *>(plist[i]);
+//          SoNode * tail = path->getTail();
+//          if ((tail != null) &&
+//              (tail->isOfType(SoProfilerVisualizeKit::getClassTypeId()))) {
+//            SoProfilerVisualizeKit * viskit = coin_assert_cast<SoProfilerVisualizeKit *>(tail);
+//            viskit->root.setValue(node);
+//          }
+//        }
+//      }
+//#endif // HAVE_NODEKITS
+    }
+  }
 
-        // initialize the depth function to the default Coin/Inventor
-        // value.  SoGLDepthBufferElement doesn't check for this, it just
-        // assumes that the function is initialized to GL_LEQUAL, which is
-        // not correct (the OpenGL specification says the initial value is
-        // GL_LESS, but I've seen drivers that defaults to GL_LEQUAL as
-        // well).
-        gl2.glDepthFunc(GL2.GL_LEQUAL);
+  if (pimpl.isrendering) {
+    if (pimpl.isrenderingoverlay)
+      this.traverse(node);
+    else
+      super.beginTraversal(node);
+    return;
+  }
 
-        if (pimpl.smoothing) {
-          gl2.glEnable(GL_POINT_SMOOTH);
-          gl2.glEnable(GL_LINE_SMOOTH);
-        }
-        else {
-          gl2.glDisable(GL_POINT_SMOOTH);
-          gl2.glDisable(GL_LINE_SMOOTH);
-        }
-      }
+  // If the environment variable COIN_GLBBOX is set to 1, apply a bbox
+  // action before rendering.  This will make sure bounding box caches
+  // are updated (needed for view frustum culling). The default
+  // SoQt/SoWin/SoXt viewers will also apply a SoGetBoundingBoxAction
+  // so we don't do this by default yet.
+  if (COIN_GLBBOX != 0) {
+    pimpl.bboxaction.apply(node);
+  }
+  int err_before_init = GL2.GL_NO_ERROR;
 
-    
+  SoState thestate = this.getState(); // java port
+  GL2 gl2 = thestate.getGL2();
+  
+  if (SoGL.sogl_glerror_debugging()) {
+    err_before_init = gl2.glGetError();
+  }
+  if (pimpl.needglinit) {
+    pimpl.needglinit = false;
 
-    // This is called either from the main call to apply() that is
-    // used to render a graph OR from the apply() call made while
-    // rendering transparent objects or delayed objects. In the first
-    // case, we want to render all passes. In the second and third
-    // cases, we want to render only the current pass. We can tell
-    // these cases apart by examining the flags.
+    // we are always using GL_COLOR_MATERIAL in Coin
+    gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
+    gl2.glEnable(GL2.GL_COLOR_MATERIAL);
+    gl2.glEnable(GL2.GL_NORMALIZE);
 
-    if (renderingTranspObjs || renderingDelPaths) {
-		traverse(node);
-	} else {
-		renderAllPasses(node);
-	}
+    // initialize the depth function to the default Coin/Inventor
+    // value.  SoGLDepthBufferElement doesn't check for this, it just
+    // assumes that the function is initialized to GL_LEQUAL, which is
+    // not correct (the OpenGL specification says the initial value is
+    // GL_LESS, but I've seen drivers that defaults to GL_LEQUAL as
+    // well).
+    gl2.glDepthFunc(GL2.GL_LEQUAL);
+
+    if (pimpl.smoothing) {
+      gl2.glEnable(GL_POINT_SMOOTH);
+      gl2.glEnable(GL_LINE_SMOOTH);
+    }
+    else {
+      gl2.glDisable(GL_POINT_SMOOTH);
+      gl2.glDisable(GL_LINE_SMOOTH);
+    }
+  }
+
+  int err_after_init = GL2.GL_NO_ERROR;
+
+  if (SoGL.sogl_glerror_debugging()) {
+    err_after_init = gl2.glGetError();
+  }
+
+  if (/*COIN_DEBUG &&*/ ((err_before_init != GL2.GL_NO_ERROR) || (err_after_init != GL2.GL_NO_ERROR))) {
+    int err = (err_before_init != GL2.GL_NO_ERROR) ? err_before_init : err_after_init;
+    SoDebugError.postWarning("SoGLRenderAction::beginTraversal",
+                              "GL error "+((err_before_init != GL2.GL_NO_ERROR) ? "before" : "after")+" initialization: "+                              
+                              cc_glglue.coin_glerror_string(err));
+  }
+
+  pimpl.render(node);
+  // GL errors after rendering will be caught in SoNode::GLRenderS().
 }
+
+// Documented in superclass. Overridden from parent class to clean up
+// the lists of objects which were included in the delayed rendering.
+public void
+endTraversal(SoNode node)
+{
+  super.endTraversal(node);
+//  if (SoProfilerP.shouldContinuousRender()) { TODO
+//    float delay = SoProfilerP.getContinuousRenderDelay();
+//    if (delay == 0.0f) {
+//      node.touch();
+//    } else {
+//      if (pimpl.redrawSensor.get() == null) {
+//        pimpl.redrawSensor.reset(new SoAlarmSensor());
+//      }
+//      if (pimpl.redrawSensor.isScheduled()) {
+//        pimpl.redrawSensor.unschedule();
+//      }
+//      pimpl.redrawSensor.setFunction(SoGLRenderActionP::redrawSensorCB);
+//      pimpl.redrawSensor.setData(node);
+//      pimpl.redrawSensor.setTimeFromNow(new SbTime((double)(delay)));
+//      pimpl.redrawSensor.schedule();
+//      if (pimpl.deleteSensor.get() == null) {
+//        pimpl.deleteSensor.reset(new SoNodeSensor());
+//      }
+//      pimpl.deleteSensor.setDeleteCallback(SoGLRenderActionP::deleteNodeCB, pimpl));
+//      pimpl.deleteSensor.attach(node);
+//
+//    }
+//  }
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //

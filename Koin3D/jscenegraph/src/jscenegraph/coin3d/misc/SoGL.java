@@ -217,7 +217,7 @@ proxy_mipmap_2d(int width, int height,
   int levels = compute_log(SoBasic.cc_max(width, height));
 
   gl2.glTexImage2D(GL2.GL_PROXY_TEXTURE_2D, 0, internalFormat, width, height, 0,
-               format, type, null);
+               format, type, /*null*/0);
   gl2.glGetTexLevelParameteriv(GL2.GL_PROXY_TEXTURE_2D, 0,
                            GL2.GL_TEXTURE_WIDTH, w);
 
@@ -229,7 +229,7 @@ proxy_mipmap_2d(int width, int height,
     if (height > 1) height >>= 1;
     gl2.glTexImage2D(GL2.GL_PROXY_TEXTURE_2D, level, internalFormat, width,
                  height, 0, format, type,
-                 null);
+                 /*null*/0);
     gl2.glGetTexLevelParameteriv(GL2.GL_PROXY_TEXTURE_2D, 0,
                              GL2.GL_TEXTURE_WIDTH, w);
     if (w[0] == 0) return false;
@@ -1980,6 +1980,10 @@ cc_glglue_glMultiTexCoord2f( cc_glglue w,
 public static void cc_glglue_glDeleteBuffers(cc_glglue glue, int n, int[] buffers) {
 	  //assert(glue.glDeleteBuffers);
 	  glue.glDeleteBuffers(n, buffers);
+}
+
+public static boolean cc_glglue_isdirect(cc_glglue w) {
+	  return true; // w.glx.isdirect; YB
 }
 
 

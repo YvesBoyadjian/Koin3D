@@ -552,7 +552,7 @@ public class SoSceneTexture2P implements Destroyable {
 		                 fbodata.fbo_size.getValue()[0], fbodata.fbo_size.getValue()[1],
 		                 0, /* border */
 		                 format[0],
-		                 gltype, null);
+		                 gltype, /*null*/0);
 
 		    // for mipmaps
 		    // FIXME: add support for CLAMP_TO_BORDER in SoSceneTexture2 and SoTextureImageElement
@@ -593,7 +593,7 @@ public class SoSceneTexture2P implements Destroyable {
 		                   fbodata.fbo_size.getValue()[0], fbodata.fbo_size.getValue()[1],
 		                   0, /* border */
 		                   GL2.GL_DEPTH_COMPONENT,
-		                   GL2.GL_UNSIGNED_BYTE, null);
+		                   GL2.GL_UNSIGNED_BYTE, /*null*/0);
 
 		      if (SoGLDriverDatabase.isSupported(glue, "GL_ARB_texture_border_clamp") ||
 		          SoGLDriverDatabase.isSupported(glue, "GL_SGIS_texture_border_clamp")) {

@@ -289,6 +289,7 @@ public abstract class SoAction implements Destroyable {
 	          setUpState();
 	      
 	          beginTraversal(node);
+	          endTraversal(node); // COIN3D
 	      
 	          cleanUp();
 	      
@@ -348,6 +349,7 @@ public abstract class SoAction implements Destroyable {
 	         setUpState();
 	     
 	         beginTraversal(path.getHead());
+	         endTraversal(path.getHead()); // COIN3D
 	     
 	         cleanUp();
 	    
@@ -568,6 +570,7 @@ apply(final SoPathList sortedList,
         appliedTo.compactPathList = null;
 
     beginTraversal(sortedList.operator_square_bracket(0).getHead());
+    endTraversal(sortedList.operator_square_bracket(0).getHead());
 
     cleanUp();
 
@@ -801,6 +804,15 @@ apply(final SoPathList sortedList,
 	     {
 	         traverse(node);
 	     }
+
+	     /*!
+	     This virtual method can be overridden to execute code after the
+	     scene graph traversal.  Default method does nothing.
+	   */
+	   protected void endTraversal(SoNode node)
+	   {
+	   }
+
 	     
 	     //! Allows subclass instance to indicate that traversal has reached
 	          //! a termination condition

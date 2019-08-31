@@ -7,6 +7,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
 import org.lwjgl.BufferUtils;
 
@@ -20,6 +21,13 @@ public class Buffers {
 
 	public static ByteBuffer newDirectByteBuffer(byte[] array) {
 		ByteBuffer buffer = BufferUtils.createByteBuffer(array.length);
+		buffer.put(array);
+		buffer.flip();
+		return buffer;
+	}
+
+	public static ShortBuffer newDirectShortBuffer(short[] array) {
+		ShortBuffer buffer = BufferUtils.createShortBuffer(array.length);
 		buffer.put(array);
 		buffer.flip();
 		return buffer;

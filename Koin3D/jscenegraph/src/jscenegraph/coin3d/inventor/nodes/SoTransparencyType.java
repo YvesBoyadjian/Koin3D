@@ -45,6 +45,10 @@ public class SoTransparencyType extends SoNode {
 		    	    BLEND ( SoGLRenderAction.TransparencyType.BLEND.getValue()),
 		    	    DELAYED_BLEND ( SoGLRenderAction.TransparencyType.DELAYED_BLEND.getValue()),
 		    	    SORTED_OBJECT_BLEND ( SoGLRenderAction.TransparencyType.SORTED_OBJECT_BLEND.getValue()),
+		    	    SORTED_OBJECT_SORTED_TRIANGLE_ADD (
+		    	    SoGLRenderAction.TransparencyType.SORTED_OBJECT_SORTED_TRIANGLE_ADD.getValue()),
+		    	    SORTED_OBJECT_SORTED_TRIANGLE_BLEND (
+		    	    SoGLRenderAction.TransparencyType.SORTED_OBJECT_SORTED_TRIANGLE_BLEND.getValue()),
 		    NONE( SoGLRenderAction.TransparencyType.NONE.getValue());
 		    	    private int value;
 		    	    Type(int value) {
@@ -80,9 +84,9 @@ public class SoTransparencyType extends SoNode {
 	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.DELAYED_BLEND);
 	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.SORTED_OBJECT_ADD);
 	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.SORTED_OBJECT_BLEND);
-//	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.SORTED_OBJECT_SORTED_TRIANGLE_ADD);
-//	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.SORTED_OBJECT_SORTED_TRIANGLE_BLEND);
-//	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.NONE);
+	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.SORTED_OBJECT_SORTED_TRIANGLE_ADD);
+	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.SORTED_OBJECT_SORTED_TRIANGLE_BLEND);
+	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Type.NONE);
 
 	  nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(value,"value", "Type");
 	}

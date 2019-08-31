@@ -49,6 +49,8 @@ public class cc_glglue {
 	  public float max_anisotropy = 16.0f; //TODO
 	public boolean vendor_is_ati = true;
 
+	public boolean has_arb_fragment_program = true;
+	
 	public cc_glglue(int ctx) {
 		this.gl2 = Ctx.get(ctx);
 		this.contextid = ctx;
@@ -165,7 +167,7 @@ public class cc_glglue {
 	  static final String unknown = "Unknown OpenGL error";
 
 /* Convert an OpenGL enum error code to a textual representation. */
-public String
+public static String
 coin_glerror_string(/*GLenum*/int errorcode)
 {
   switch (errorcode) {
@@ -443,4 +445,15 @@ public void glDeleteBuffers(int n, int[] buffers) {
 	gl2.glDeleteBuffers(n,buffers);
 }
 
+public void glGenProgramsARB( int n, int[] ids) {
+	gl2.glGenProgramsARB(n,ids);
+}
+
+public void glBindProgramARB( int code, int id) {
+	gl2.glBindProgramARB(code, id);
+}
+
+public void glProgramStringARB( int a, int b, int c, String str) {
+	gl2.glProgramStringARB( a, b, c, str);
+}
 }
