@@ -302,6 +302,7 @@ public void destructor()
         cylinderProj.destructor();
     if (fieldSensor != null)
         fieldSensor.destructor();
+    super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////

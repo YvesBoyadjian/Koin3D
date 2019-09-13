@@ -93,8 +93,12 @@ public class SbVec3fArray implements FloatBufferAble {
 		return floatBuffer[0];//FloatBuffer.wrap(valuesArray,offset, length);
 	}
 	
-	float[] getValuesArray() {
+	public float[] getValuesArray() {
 		return valuesArray;
+	}
+	
+	public FloatBuffer[] getValuesBuffer() {
+		return floatBuffer;
 	}
 
 	int getDelta() {

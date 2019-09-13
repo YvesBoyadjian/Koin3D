@@ -251,6 +251,7 @@ public void setData(int numBytes, final /*Buffer*/VoidPtr data, int nodeId, SoSt
 {
   // free previous data if it was owned
   if (_ownsData && (_data != null)) {
+	  Destroyable.delete(_data);
     _data = null;//free((void*)_data);
   }
   if (nodeId != _nodeId) {
@@ -305,6 +306,7 @@ public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // 
 
 	  // free previous data if it was owned
 	  if (_ownsData && (_data != null)) {
+		  Destroyable.delete(_data);		  
 	    _data = null;//free((void*)_data);
 	  }
 	  if (dataid != _nodeId) {
@@ -322,6 +324,7 @@ public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // 
 public void allocateData( int numBytes, int nodeId , SoState state)
 {
   if (_ownsData && (_data!= null)) {
+	  Destroyable.delete(_data);
     _data = null;//free((void*)_data);
   }
   freeGL(state);

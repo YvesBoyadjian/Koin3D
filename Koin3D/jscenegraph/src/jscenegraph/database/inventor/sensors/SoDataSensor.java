@@ -155,6 +155,7 @@ public void destructor()
 ////////////////////////////////////////////////////////////////////////
 {
     unschedule();
+    super.destructor();
 }
 
     //! Sets a callback that will be called when the object the sensor is

@@ -1934,4 +1934,46 @@ setBackfaceCullingElt(boolean onoff)
   this.coinstate.culling = onoff ? 1 : 0;
 }
 
+public static void
+setVertexOrdering(SoState state, VertexOrdering ordering)
+{
+  SoLazyElement elem = SoLazyElement.getInstance(state);
+  if (elem.coinstate.vertexordering != ordering.getValue()) {
+    elem = getWInstance(state);
+    elem.setVertexOrderingElt(ordering);
+    if (state.isCacheOpen()) elem.lazyDidSet(masks.VERTEXORDERING_MASK.getValue());
+  }
+  else if (state.isCacheOpen()) {
+    elem.lazyDidntSet(masks.VERTEXORDERING_MASK.getValue());
+  }
+}
+
+public static void
+setTwosideLighting(SoState state, boolean onoff)
+{
+  SoLazyElement elem = SoLazyElement.getInstance(state);
+  if (elem.coinstate.twoside != (onoff ? 1 : 0)) {
+    elem = getWInstance(state);
+    elem.setTwosideLightingElt(onoff);
+    if (state.isCacheOpen()) elem.lazyDidSet(masks.TWOSIDE_MASK.getValue());
+  }
+  else if (state.isCacheOpen()) {
+    elem.lazyDidntSet(masks.TWOSIDE_MASK.getValue());
+  }
+  }
+
+public void
+setVertexOrderingElt(VertexOrdering ordering)
+{
+  this.coinstate.vertexordering = ordering.getValue();
+}
+
+public void
+setTwosideLightingElt(boolean onoff)
+{
+  this.coinstate.twoside = (onoff ? 1 : 0);
+}
+
+
+
 }

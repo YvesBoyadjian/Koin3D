@@ -114,6 +114,7 @@ public class SoConvexDataCache extends SoCache {
 	  }
 	//#endif // debug
 	  Destroyable.delete (pimpl);
+	  super.destructor();
 	}
 
 	/*!

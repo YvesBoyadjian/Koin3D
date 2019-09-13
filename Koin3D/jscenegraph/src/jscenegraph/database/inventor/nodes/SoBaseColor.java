@@ -180,6 +180,7 @@ public void destructor()
     if(_vbo[0] != null) {
     	_vbo[0].destructor();
     }
+    super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////

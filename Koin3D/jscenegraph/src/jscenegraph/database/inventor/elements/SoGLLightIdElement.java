@@ -225,4 +225,10 @@ pop(SoState state, SoElement prevTopElement)
             gl2.glDisable((int)(GL2.GL_LIGHT0 + i));
 }
 
+public static int
+get(SoState state)
+{
+  return SoInt32Element.get(classStackIndexMap.get(SoGLLightIdElement.class), state);
+}
+
 }

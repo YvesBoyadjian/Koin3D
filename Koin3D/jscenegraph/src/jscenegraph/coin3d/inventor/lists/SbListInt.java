@@ -21,6 +21,8 @@ public class SbListInt {
 	  private int[] itembuffer;
 	  private final int[] builtinbuffer = new int[DEFAULTSIZE];
 	  
+	  private IntArrayPtr internalIntArrayPtr;
+	  
 	/**
 	 * 
 	 */
@@ -48,7 +50,10 @@ public class SbListInt {
 		return getArrayPtr(0);
 	}
 		public IntArrayPtr getArrayPtr(int start) {
-		return new IntArrayPtr(start,itembuffer);
+			if(internalIntArrayPtr == null) {
+				internalIntArrayPtr = new IntArrayPtr(0,itembuffer);
+			}
+		return new IntArrayPtr(start,internalIntArrayPtr);
 	}
 
 	// java port
@@ -82,12 +87,14 @@ public class SbListInt {
 		      // if (this.itembuffer != this.builtinbuffer) delete[] this.itembuffer; java magic !
 		      this.itembuffer = newitembuffer;
 		      this.itembuffersize = items > DEFAULTSIZE ? items : DEFAULTSIZE;
+			  internalIntArrayPtr = null; // invalidate internal IntArrayPtr
 		    }
 		  }
 
 	public void append(int item) {
 	    if (this.numitems == this.itembuffersize) this.grow();
 	    this.itembuffer[this.numitems++] = item;
+	    internalIntArrayPtr = null; // invalidate internal IntArrayPtr
 	}
 
 	private void grow() {
@@ -105,6 +112,7 @@ public class SbListInt {
 	    //for (int i = 0; i < n; i++) newbuffer[i] = this.itembuffer[i];
 	    // if (this.itembuffer != this.builtinbuffer) delete[] this.itembuffer; java magic !
 	    this.itembuffer = newbuffer;
+	    internalIntArrayPtr = null; // invalidate internal IntArrayPtr
 	}
 
 	public void truncate(int length, boolean b) {

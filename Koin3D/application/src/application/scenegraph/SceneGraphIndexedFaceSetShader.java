@@ -11,14 +11,20 @@ import java.util.Random;
 
 import com.jogamp.opengl.GL2;
 
+import application.nodes.SoNoSpecularDirectionalLight;
+import application.objects.DouglasFir;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
+import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
+import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
+import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoCallback;
@@ -39,7 +45,7 @@ import jscenegraph.port.Ctx;
  * @author Yves Boyadjian
  *
  */
-public class SceneGraphIndexedFaceSet implements SceneGraph {		
+public class SceneGraphIndexedFaceSetShader implements SceneGraph {		
 	
 	private static final float ZMAX = 4392.473f;
 	
@@ -67,13 +73,23 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
+	private static final SbColor TREE_COLOR = new SbColor(22.0f/255,42.0f/255,0.0f/255);
+	
 	private static final float SKY_INTENSITY = 0.2f; 
 	
 	private static final Color STONE = new Color(139,141,122); //http://www.colourlovers.com/color/8B8D7A/stone_gray
 	
 	private static final float GRASS_LUMINOSITY = 0.6f;
 	
-	private SoSeparator sep = new SoSeparator();
+	private SoSeparator sep = new SoSeparator() {
+		public void ref() {
+			super.ref();
+		}
+		
+		public void unref() {
+			super.unref();
+		}
+	};
 	
 	private SoTranslation transl = new SoTranslation();
 	
@@ -108,9 +124,14 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	int h;
 	int w;
 	
+	float total_height_meter;
+	float total_width_meter;
+	
 	int jstart;
 	
-	public SceneGraphIndexedFaceSet(Raster rw, Raster re, int overlap, float zTranslation) {
+	SoShadowGroup shadowGroup;
+	
+	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
 		this.zTranslation = zTranslation;
 		
@@ -316,6 +337,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    		SoGLRenderAction glRenderAction = (SoGLRenderAction)action;
 	    		GL2 gl2 = Ctx.get(glRenderAction.getCacheContext());
 	    		gl2.glEnable(GL2.GL_FRAMEBUFFER_SRGB);
+	    		gl2.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
 	    	}
 	    });
 	    
@@ -334,19 +356,19 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    sep.addChild(sunSep);
 	    
 	    sky = new SoDirectionalLight[4];
-	    sky[0] = new SoDirectionalLight();
+	    sky[0] = new SoNoSpecularDirectionalLight();
 	    sky[0].color.setValue(SKY_COLOR);
 	    sky[0].intensity.setValue(SKY_INTENSITY);
 	    sky[0].direction.setValue(0, 1, -1);
-	    sky[1] = new SoDirectionalLight();
+	    sky[1] = new SoNoSpecularDirectionalLight();
 	    sky[1].color.setValue(SKY_COLOR);
 	    sky[1].intensity.setValue(SKY_INTENSITY);
 	    sky[1].direction.setValue(0, -1, -1);
-	    sky[2] = new SoDirectionalLight();
+	    sky[2] = new SoNoSpecularDirectionalLight();
 	    sky[2].color.setValue(SKY_COLOR);
 	    sky[2].intensity.setValue(SKY_INTENSITY);
 	    sky[0].direction.setValue(1, 0, -1);
-	    sky[3] = new SoDirectionalLight();
+	    sky[3] = new SoNoSpecularDirectionalLight();
 	    sky[3].color.setValue(SKY_COLOR);
 	    sky[3].intensity.setValue(SKY_INTENSITY);
 	    sky[3].direction.setValue(-1, 0, -1);
@@ -356,8 +378,16 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	    sep.addChild(sky[2]);
 	    sep.addChild(sky[3]);
 	    
-	    SoShadowGroup shadowGroup = new SoShadowGroup();
-	    //SoGroup shadowGroup = new SoGroup();
+//	    SoGroup shadowGroup = new SoGroup();
+	    shadowGroup = new SoShadowGroup() {
+			public void ref() {
+				super.ref();
+			}
+			
+			public void unref() {
+				super.unref();
+			}
+		};
 	    shadowGroup.quality.setValue(1.0f);
 	    shadowGroup.precision.setValue(0.2f);
 	    //shadowGroup.shadowCachingEnabled.setValue(false);
@@ -384,8 +414,28 @@ for(int is=0;is<4;is++) {
 	    
 	    SoSeparator landSep = new SoSeparator();
 	    
+	    SoShaderProgram program = new SoShaderProgram();
+	    
+	    SoVertexShader vertexShader = new SoVertexShader();
+	    
+	    //vertexShader.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/phongShading.vert");
+	    vertexShader.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/perpixel_vertex.glsl");
+	    
+	    program.shaderObject.set1Value(0, vertexShader);
+	    
+	    SoFragmentShader fragmentShader = new SoFragmentShader();
+	    
+	    //fragmentShader.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/phongShading.frag");
+	    fragmentShader.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/perpixel_fragment.glsl");
+	    
+	    program.shaderObject.set1Value(1, fragmentShader);
+	    
+	    //landSep.addChild(program);
+	    
 	    SoMaterial mat = new SoMaterial();
 	    mat.ambientColor.setValue(0, 0, 0); // no ambient
+	    mat.specularColor.setValue(0.3f,0.3f,0.3f);
+	    mat.shininess.setValue(0.15f);
 	    
 	    landSep.addChild(mat);
 	    
@@ -408,13 +458,22 @@ for(int is=0;is<4;is++) {
 //	    shadowGroup.addChild(shadowStyleW);
 		
 		shadowGroup.addChild(landSep);
+		
+	    SoSeparator douglasSep = new SoSeparator();
+	    
+	    douglasSep.addChild(transl);
+	    
+		SoIndexedFaceSet douglasTrees = getDouglasTrees();
+		
+		douglasSep.addChild(douglasTrees);
+		shadowGroup.addChild(douglasSep);
 
-		addWater(shadowGroup,185 + zTranslation, 0.0f);
-		addWater(shadowGroup,175 + zTranslation, 0.2f);
-		addWater(shadowGroup,165 + zTranslation, 0.4f);
-		addWater(shadowGroup,160 + zTranslation, 0.5f);
-		addWater(shadowGroup,155 + zTranslation, 0.6f);
-		addWater(shadowGroup,150 + zTranslation, 0.7f);		
+		addWater(shadowGroup,185 + zTranslation, 0.0f, false);
+		addWater(shadowGroup,175 + zTranslation, 0.2f, false);
+		addWater(shadowGroup,165 + zTranslation, 0.4f, false);
+		addWater(shadowGroup,160 + zTranslation, 0.5f, false);
+		addWater(shadowGroup,155 + zTranslation, 0.6f, false);
+		addWater(shadowGroup,150 + zTranslation, 0.7f, true);		
 		
 		sep.addChild(shadowGroup);
 		
@@ -422,7 +481,9 @@ for(int is=0;is<4;is++) {
 		
 		//castingShadowScene.addChild(inverseSunTransl);
 		
-		addWater(castingShadowScene,185 + zTranslation,0.0f);
+		//castingShadowScene.addChild(douglasSep);
+		
+		addWater(castingShadowScene,185 + zTranslation,0.0f, false);
 		
 //	    SoVertexProperty vertexPropertyGeom = new SoVertexProperty();
 //	    vertexPropertyGeom.vertex.setValuesPointer(/*0,*/ vertices);
@@ -467,7 +528,7 @@ for(int is=0;is<4;is++) {
 		//sep.ref();
 	}
 	
-	public void addWater(SoGroup group, float z, float transparency) {
+	public void addWater(SoGroup group, float z, float transparency, boolean shining) {
 		
 	    SoSeparator waterSeparator = new SoSeparator();
 	    
@@ -481,6 +542,10 @@ for(int is=0;is<4;is++) {
 	    waterMat.diffuseColor.setValue(0.1f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.6f*WATER_BRIGHTNESS);
 	    waterMat.ambientColor.setValue(0, 0, 0);
 	    waterMat.transparency.setValue(transparency);
+	    if(shining) {
+	    	waterMat.specularColor.setValue(2.0f, 2.0f, 2.0f);
+	    	waterMat.shininess.setValue(0.5f);
+	    }
 	    
 	    waterSeparator.addChild(waterMat);
 	    
@@ -552,12 +617,16 @@ for(int is=0;is<4;is++) {
 		p1.normalize();
 		SbVec3f p2 = dir.cross(p1);
 		
+		SbVec3f p3 = p1.operator_add(p2.operator_mul(0.5f)); p3.normalize();
+		
+		SbVec3f p4 = dir.cross(p3);
+		
 		float angle = SUN_RADIUS / SUN_REAL_DISTANCE * 0.8f;
 		
-	    r1.setValue(p1, angle);
-	    r2.setValue(p2, angle);
-	    r3.setValue(p1, -angle);
-	    r4.setValue(p2, -angle);
+	    r1.setValue(p3, angle);
+	    r2.setValue(p4, angle);
+	    r3.setValue(p3, -angle);
+	    r4.setValue(p4, -angle);
 	    
 		
 		sun[1].direction.setValue(r1.multVec(dir));
@@ -638,10 +707,182 @@ for(int is=0;is<4;is++) {
 		return z;
 	}
 
-	@Override
-	public void preDestroy() {
-		// TODO Auto-generated method stub
+	SoIndexedFaceSet getDouglasTrees() {
 		
+		int NB_DOUGLAS_SEEDS = 1000000;
+		
+		float[] xArray = new float[NB_DOUGLAS_SEEDS]; 
+		float[] yArray = new float[NB_DOUGLAS_SEEDS]; 
+		float[] zArray = new float[NB_DOUGLAS_SEEDS]; 
+		float[] heightArray = new float[NB_DOUGLAS_SEEDS]; 
+		
+		for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
+			float x = getRandomX();
+			float y = getRandomY();
+			float z = getZ(x/* - transl.translation.getValue().getX()*/,y/* - transl.translation.getValue().getY()*/,0.0f) + zTranslation;
+			
+			if( true ) {
+				
+				float height = DouglasFir.getHeight();
+				
+				xArray[i] = x;
+				yArray[i] = y;
+				zArray[i] = z;
+				heightArray[i] = height;
+			}
+		}
+		
+		int NB_INDICES_PER_TRIANGLE = 4;
+		
+		int NB_TRIANGLES_PER_TREE = 4;
+		
+		int NB_VERTEX_PER_TREE = 4;
+		
+		int NB_INDICES_PER_TREE = NB_INDICES_PER_TRIANGLE * NB_TRIANGLES_PER_TREE;
+		
+		int nbIndices = NB_INDICES_PER_TREE * NB_DOUGLAS_SEEDS;
+		
+		SoIndexedFaceSet indexedFaceSet = new SoIndexedFaceSet() {
+			public void GLRender(SoGLRenderAction action)
+			{
+				super.GLRender(action);
+			}			
+		};
+		
+		int[] indices = new int[nbIndices];
+		
+		int nbVertices = NB_VERTEX_PER_TREE * NB_DOUGLAS_SEEDS;
+		
+		float[] vertices = new float[nbVertices * 3];
+		
+		float[] normals = new float[nbVertices * 3];
+		
+		int[] colors = new int[nbVertices];
+		
+		for( int tree = 0; tree< NB_DOUGLAS_SEEDS; tree++) {
+			
+			int vertex = tree * NB_VERTEX_PER_TREE;
+			
+			colors[vertex] = TREE_COLOR.getPackedValue();
+			colors[vertex+1] = TREE_COLOR.getPackedValue();
+			colors[vertex+2] = TREE_COLOR.getPackedValue();
+			colors[vertex+3] = TREE_COLOR.getPackedValue();
+			
+			int vertexCoordIndice = vertex * 3;
+			
+			vertices[vertexCoordIndice] = xArray[tree];
+			vertices[vertexCoordIndice+1] = yArray[tree];
+			vertices[vertexCoordIndice+2] = zArray[tree] + heightArray[tree];
+			
+			normals[vertexCoordIndice] = 0;
+			normals[vertexCoordIndice+1] = 0;
+			normals[vertexCoordIndice+2] = 1;
+			
+			vertexCoordIndice += 3;
+			
+			vertices[vertexCoordIndice] = xArray[tree] + 1;
+			vertices[vertexCoordIndice+1] = yArray[tree];
+			vertices[vertexCoordIndice+2] = zArray[tree];
+			
+			normals[vertexCoordIndice] = 1;
+			normals[vertexCoordIndice+1] = 0;
+			normals[vertexCoordIndice+2] = 0;
+			
+			vertexCoordIndice += 3;
+			
+			vertices[vertexCoordIndice] = xArray[tree] - 0.707f;
+			vertices[vertexCoordIndice+1] = yArray[tree] + 0.707f;
+			vertices[vertexCoordIndice+2] = zArray[tree];
+			
+			normals[vertexCoordIndice] =  - 0.707f;
+			normals[vertexCoordIndice+1] = + 0.707f;
+			normals[vertexCoordIndice+2] = 0;
+			
+			vertexCoordIndice += 3;
+			
+			vertices[vertexCoordIndice] = xArray[tree] - 0.707f;
+			vertices[vertexCoordIndice+1] = yArray[tree] - 0.707f;
+			vertices[vertexCoordIndice+2] = zArray[tree];
+			
+			normals[vertexCoordIndice] = - 0.707f;
+			normals[vertexCoordIndice+1] = - 0.707f;
+			normals[vertexCoordIndice+2] = 0;
+			
+			int i = tree * NB_INDICES_PER_TREE; 
+			indices[i] = vertex;
+			indices[i+1] = vertex+1;
+			indices[i+2] = vertex+2;
+			indices[i+3] = -1;
+			
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			indices[i] = vertex+1;
+			indices[i+1] = vertex+2;
+			indices[i+2] = vertex+3;
+			indices[i+3] = -1;
+
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			indices[i] = vertex+2;
+			indices[i+1] = vertex+3;
+			indices[i+2] = vertex+0;
+			indices[i+3] = -1;
+
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			indices[i] = vertex+3;
+			indices[i+1] = vertex+0;
+			indices[i+2] = vertex+1;
+			indices[i+3] = -1;
+		}
+		
+		indexedFaceSet.coordIndex.setValuesPointer(indices);
+		
+		SoVertexProperty vertexProperty = new SoVertexProperty();
+		
+		vertexProperty.vertex.setValuesPointer(vertices);
+		
+		vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+		
+		vertexProperty.normal.setValuesPointer(normals);
+		
+		vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+		
+		vertexProperty.orderedRGBA.setValues(0, colors);
+		
+		indexedFaceSet.vertexProperty.setValue(vertexProperty);
+		
+		return indexedFaceSet;
+	}
+	
+	static Random random = new Random();
+	
+	float getRandomX() {
+		SbBox3f sceneBox = chunks.getSceneBox();
+		float xMin = sceneBox.getBounds()[0];
+		float xMax = sceneBox.getBounds()[3];
+		return xMin + (xMax - xMin) * random.nextFloat();
+	}
+	
+	float getRandomY() {
+		SbBox3f sceneBox = chunks.getSceneBox();
+		float yMin = sceneBox.getBounds()[1];
+		float yMax = sceneBox.getBounds()[4];
+		return yMin + (yMax - yMin) * random.nextFloat();
 	}
 
+	@Override
+	public void preDestroy() {
+		
+		for(int i=0; i<4; i++) {
+			sun[i].on.setValue(false);
+		}
+		
+		SbViewportRegion region = new SbViewportRegion();
+
+		SoGLRenderAction render = new SoGLRenderAction(region);
+		render.apply(shadowGroup);
+		
+		render.destructor();
+	}
 }

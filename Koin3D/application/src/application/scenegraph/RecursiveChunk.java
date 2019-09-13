@@ -74,7 +74,7 @@ public class RecursiveChunk {
 		else {
 			SoLOD lod = new SoTouchLOD2();
 			lod.center.setValue(getCenter());
-			lod.range.setValue(ChunkArray.DEFINITION * ni / 200.0f);
+			lod.range.setValue(ChunkArray.DEFINITION * ni / 250.0f);
 			SoGroup subChunkGroup = new SoGroup();
 			
 //			int[] array = { 0,1,2,3};

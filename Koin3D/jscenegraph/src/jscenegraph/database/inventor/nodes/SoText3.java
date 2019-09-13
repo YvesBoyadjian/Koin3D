@@ -656,6 +656,7 @@ public void destructor()
 
         fonts.remove(fonts.find(this));
     }
+    super.destructor();
 }
 ////////////////////////////////////////////////////////////////////////
 //

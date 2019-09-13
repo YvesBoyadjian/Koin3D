@@ -514,7 +514,8 @@ protected SoBase()
 	public void destructor() {		
 		  SbName myName = getName();
 		    if (myName.operator_not_equal(""))
-		    	removeName(this, myName.getString());		   
+		    	removeName(this, myName.getString());
+		    auditors.destructor(); // java port
 	}
 	
 	// Internal methods used to maintain the global name dictionary. 

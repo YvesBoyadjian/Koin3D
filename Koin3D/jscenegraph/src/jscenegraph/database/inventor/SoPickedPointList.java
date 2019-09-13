@@ -97,7 +97,10 @@ public class SoPickedPointList extends SbPList implements Destroyable {
     SoPickedPointList() {                super();     }
 	
 
-    public void destructor()                                { truncate(0); }
+    public void destructor()                                {
+    	truncate(0);
+    	super.destructor();
+    	}
 	
 	
 	// Access an element of a list. 

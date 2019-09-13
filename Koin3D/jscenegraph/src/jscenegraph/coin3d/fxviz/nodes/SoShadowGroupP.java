@@ -149,6 +149,13 @@ public class SoShadowGroupP implements Destroyable {
 		    if (fragmentshader != null) fragmentshader.unref();
 		    if (shaderprogram != null) shaderprogram.unref();
 		    deleteShadowLights();
+		    searchaction.destructor();
+		    lightpaths.destructor();
+		    bboxaction.destructor();
+		    matrixaction.destructor();
+		    shadowlights.destructor();
+		    vertexgenerator.destructor();
+		    fragmentgenerator.destructor();
 		  }
 
 	  public void clearLightPaths() {
@@ -1298,11 +1305,20 @@ void initLightMaterial(SoShaderGenerator gen, int i) {
     gen.addMainStatement(str);
   }
 
+//void addDirectionalLight(SoShaderGenerator gen, int i) {
+//    initLightMaterial(gen, i);
+//    String str;
+//    str = "DirectionalLight(normalize(vec3(gl_LightSource["+i+"].position)),"+
+//                "vec3(gl_LightSource["+i+"].halfVector), normal, diffuse, specular);";
+//    gen.addMainStatement(str);
+//  }
+
 void addDirectionalLight(SoShaderGenerator gen, int i) {
     initLightMaterial(gen, i);
     String str;
     str = "DirectionalLight(normalize(vec3(gl_LightSource["+i+"].position)),"+
-                "vec3(gl_LightSource["+i+"].halfVector), normal, diffuse, specular);";
+    		"normalize(eye),"+
+                "normalize(normalize(vec3(gl_LightSource["+i+"].position))+normalize(eye)), normal, diffuse, specular);";
     gen.addMainStatement(str);
   }
 

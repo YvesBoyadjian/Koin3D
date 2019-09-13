@@ -231,8 +231,10 @@ set(SoState state, VertexOrdering _vertexOrdering,
     // Get an instance we can change (pushing if necessary)
     elt = (SoShapeHintsElement ) getElement(state, classStackIndexMap.get(SoShapeHintsElement.class));
 
-    if (elt != null)
+    if (elt != null) {
         elt.setElt(_vertexOrdering, _shapeType, _faceType);
+    	elt.updateLazyElement(state);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -364,4 +366,16 @@ getShapeType(SoState state)
   return elem.shapeType;
 }
 
+public void
+updateLazyElement(SoState state)
+{
+  if (state.isElementEnabled(SoLazyElement.getClassStackIndex(SoLazyElement.class))) {
+    SoLazyElement.setVertexOrdering(state, this.vertexOrdering == VertexOrdering.CLOCKWISE ?
+                                     SoLazyElement.VertexOrdering.CW : SoLazyElement.VertexOrdering.CCW);
+    SoLazyElement.setTwosideLighting(state, this.vertexOrdering != VertexOrdering.UNKNOWN_ORDERING &&
+                                      this.shapeType == ShapeType.UNKNOWN_SHAPE_TYPE);
+    SoLazyElement.setBackfaceCulling(state, this.vertexOrdering != VertexOrdering.UNKNOWN_ORDERING &&
+                                      this.shapeType == ShapeType.SOLID);
+  }
+}
 }

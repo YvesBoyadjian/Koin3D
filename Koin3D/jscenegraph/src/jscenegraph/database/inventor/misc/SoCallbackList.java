@@ -110,5 +110,6 @@ public class SoCallbackList {
 			              soCallbackStruct.func = null;
 			              soCallbackStruct.userData = null;
 			          }
+			          list.destructor();
 			     		   }
 }

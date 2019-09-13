@@ -251,6 +251,9 @@ public void destructor() {
 	  final SbStringList empty = new SbStringList();
 	  this.setSearchDirectories(empty);
 	  this.sensor.destructor();
+	  
+	  parameter.destructor();
+	  
 	super.destructor();
 }
 
@@ -760,8 +763,6 @@ sensorCB(Object data, SoSensor sensor)
   SoShaderObject thisp = (SoShaderObject) data;
   SoField field = ((SoNodeSensor )sensor).getTriggerField();
   
-  //field.evaluate(); //YB
-
   if (field == thisp.owner.sourceProgram ||
       field == thisp.owner.sourceType) {
     thisp.deleteGLShaderObjects();

@@ -155,6 +155,7 @@ public void destructor()
     // delete the GLLazyElement
     if (GLCacheLazyElement != null)
         GLCacheLazyElement.destructor();
+    super.destructor();
 }
 
 ///////////////////////////////////////////////////////////////////////

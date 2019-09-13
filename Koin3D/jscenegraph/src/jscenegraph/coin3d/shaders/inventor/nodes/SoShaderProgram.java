@@ -289,6 +289,11 @@ public void destructor()
 	if(sensor != null) {
 		sensor.destructor();
 	}
+	
+	glShaderProgram.destructor();
+	
+	shaderObject.destructor(); //FIXME
+	
   super.destructor();
 }
 

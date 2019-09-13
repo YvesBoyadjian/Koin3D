@@ -269,6 +269,7 @@ public void destructor()
         currentHighlightPath = null;
     }
     colorPacker.destructor();
+    super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////

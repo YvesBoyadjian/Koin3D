@@ -167,6 +167,7 @@ public class SoEventCallback extends SoNode implements Destroyable {
 	        for (int i = 0; i < cblist.getLength(); i++)
 					((SoEventCallbackData )cblist.operator_square_bracket(i)).destructor();
 				cblist.destructor();
+				super.destructor();
 	    }
 	   	
 	

@@ -99,6 +99,8 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	private float[] valuesArray;
 	
 	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
+	
+	private SbVec3fArray vec3fArray;
 
 	/**
 	 * Sets the field to contain the given value and only the given value (if
@@ -417,8 +419,11 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 
     public SbVec3fArray getValuesSbVec3fArray() {
 		evaluate();
-
-		return new SbVec3fArray(valuesArray, valuesBuffer); 		
+				
+		if( vec3fArray == null || vec3fArray.getValuesArray() != valuesArray || vec3fArray.getValuesBuffer() != valuesBuffer ) {
+			vec3fArray = new SbVec3fArray(valuesArray, valuesBuffer);
+		}
+		return vec3fArray;
     }
 }
 

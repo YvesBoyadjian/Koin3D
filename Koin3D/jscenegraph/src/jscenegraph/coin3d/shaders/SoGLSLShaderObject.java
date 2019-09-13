@@ -65,6 +65,7 @@ public void destructor()
   // lead to memory leaks. pederb, 2006-10-17
   this.isattached = false;
   this.unload();
+  super.destructor();
 }
 
 // *************************************************************************

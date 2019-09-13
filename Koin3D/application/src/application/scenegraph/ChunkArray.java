@@ -260,7 +260,7 @@ public class ChunkArray {
 		float[] distances = new float[Chunk.NB_LOD-1];
 		for(int l=0;l<Chunk.NB_LOD-1;l++) {
 			int decimatedChunkWidth =  Chunk.getDecimatedChunkWidth(l);//((Chunk.CHUNK_WIDTH -1) >> l) + 1;
-			distances[l] = Chunk.CHUNK_WIDTH *2.0f + DEFINITION * Chunk.CHUNK_WIDTH * 2.0f / decimatedChunkWidth;
+			distances[l] = 0.1f;//Chunk.CHUNK_WIDTH *2.0f + DEFINITION * Chunk.CHUNK_WIDTH * 2.0f / decimatedChunkWidth;
 		}
 		SoGroup group = new SoGroup();
 		//SoTextureCoordinate2 coords = new SoTextureCoordinate2();
@@ -327,18 +327,27 @@ public class ChunkArray {
 	
 	SbBox3f sceneBox = new SbBox3f();
 	SbVec3f sceneCenter = new SbVec3f();
+	
+	private void computeBBox() {
+		
+		if(sceneBox.isEmpty()) {
+		
+			for(int i=0;i<nbChunkWidth;i++) {
+				for(int j=0;j<nbChunkHeight;j++) {
+					SbBox3f csb = chunks[i][j].sceneBox;
+					sceneBox.extendBy(csb);
+				}
+			}
+			sceneCenter.setValue(sceneBox.getCenter());
+		
+		}
+	}
 
 	public SoNode getShadowIndexedFaceSet() {
 		SoIndexedFaceSet shadowIndexedFaceSet;
-
-		for(int i=0;i<nbChunkWidth;i++) {
-			for(int j=0;j<nbChunkHeight;j++) {
-				SbBox3f csb = chunks[i][j].sceneBox;
-				sceneBox.extendBy(csb);
-			}
-		}
-		sceneCenter.setValue(sceneBox.getCenter());
 		
+		computeBBox();
+
 		shadowIndexedFaceSet = new SoIndexedFaceSet() {
 	    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
 	    		box.copyFrom(sceneBox);
@@ -413,5 +422,12 @@ public class ChunkArray {
 	public OverallTexture getOverallTexture() {
 		OverallTexture ot  = new OverallTexture(this);
 		return ot;
+	}
+
+	public SbBox3f getSceneBox() {
+		
+		computeBBox();
+
+		return sceneBox;
 	}
 }

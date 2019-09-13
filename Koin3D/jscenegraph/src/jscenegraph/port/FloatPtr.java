@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * @author Yves Boyadjian
  *
  */
-public class FloatPtr {
+public class FloatPtr implements Destroyable {
 	
 	private ByteBuffer buffer;
 	private int floatOffset;

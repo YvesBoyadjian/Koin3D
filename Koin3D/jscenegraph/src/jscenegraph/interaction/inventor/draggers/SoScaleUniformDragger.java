@@ -296,6 +296,7 @@ public void destructor()
     lineProj.destructor();
     if (fieldSensor != null)
         fieldSensor.destructor();
+    super.destructor();
 }
 
 //    detach/attach any sensors, callbacks, and/or field connections.

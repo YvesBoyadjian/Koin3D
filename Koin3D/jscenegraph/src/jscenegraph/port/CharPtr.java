@@ -11,7 +11,7 @@ import com.jogamp.common.nio.Buffers;
  * @author Yves Boyadjian
  *
  */
-public class CharPtr {
+public class CharPtr implements Destroyable {
 	
 	int floatOffset;
 	ByteBuffer buffer;

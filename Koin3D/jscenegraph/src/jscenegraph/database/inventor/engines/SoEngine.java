@@ -176,6 +176,7 @@ public void destructor()
 
     // In the debug case, our output's destructors will make sure they
     // aren't connected to anything, and will complain if they are.
+	super.destructor();
 }
 
 ////////////////////////////////////////////////////////////////////////

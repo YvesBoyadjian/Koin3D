@@ -59,6 +59,7 @@ public SoGLSLShaderParameter()
 
 public void destructor()
 {
+	
 }
 
 public SoShader.Type

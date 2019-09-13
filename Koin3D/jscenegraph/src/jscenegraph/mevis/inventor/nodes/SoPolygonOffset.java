@@ -81,6 +81,7 @@ public SoPolygonOffset()
 
 public void destructor()
 {
+	super.destructor();
 }
 
 public static void

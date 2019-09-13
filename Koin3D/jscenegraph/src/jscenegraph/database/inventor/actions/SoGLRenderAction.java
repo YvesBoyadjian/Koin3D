@@ -212,39 +212,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            
            private SoGLRenderActionP pimpl = new SoGLRenderActionP();
 
-	     private final	       SbViewportRegion    vpRegion = new SbViewportRegion();       //!< Current viewport region
-	     private final	       SbVec2f             updateOrigin = new SbVec2f();   //!< Origin of update area
-	     private final	       SbVec2f             updateSize = new SbVec2f();     //!< Size of update area
-
-
-	       //! Variables for render abort:
-	     private	       SoGLRenderAbortCB   abortCB;       //!< Callback to test abort
-	     private	       Object                abortData;     //!< User data for abort callback
-
 	       //! Variables for transparency, smoothing, and multi-pass rendering:
-	     private	       boolean              doSmooth;       //!< Doing smoothing ?
-	     private	       int                 numPasses;      //!< Number of rendering passes
-	     private	       int                 curPass;        //!< Current pass
-	     private	       boolean              passUpdate;     //!< Whether to update after each pass
-	     private	       SoGLRenderPassCB    passCB;        //!< Callback between passes
-	     private	       Object                passData;      //!< User data for pass callback
-
-	       //! For SORTED_OBJECT_ADD or SORTED_OBJECT_BLEND transparency:
-	     private	       boolean              renderingTranspObjs; //!< true when rendering transp objs
-	     private	       boolean              delayObjs;      //!< true if transp objects are to be
-	                                           //! delayed until after opaque ones
-	     private	       boolean              sortObjs;       //!< true if objects are to be sorted
-	     private final	       SoPathList          transpPaths = new SoPathList();    //!< Paths to transparent objects
-	     private	       SoGetBoundingBoxAction ba;         //!< For computing bounding boxes
-	     private	       SbBox3f[]             bboxes;        //!< Bounding boxes of objects
-	     private	       int                 numBBoxes;      //!< Number of bboxes allocated
-
-	     private	       /*GL2*/int            cacheContext;   //!< GL cache context
-	     private	       boolean              remoteRendering;//!< Remote rendering?
-
-	       //! Stuff needed to implement rendering of delayed paths
-	     private final	       SoPathList          delayedPaths = new SoPathList();   //!< List of paths to render
-	     private	       boolean              renderingDelPaths; //!< true when rendering them
 
 	     //! These flags determine which things have to be sent to GL when
 	          //! the action is applied. They indicate what's changed since the
@@ -286,28 +254,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
          //SO_ACTION_CONSTRUCTOR(SoGLRenderAction);
          traversalMethods = methods;
 
-
-         vpRegion.copyFrom(viewportRegion);
-         updateOrigin.setValue(0.0f, 0.0f);
-         updateSize.setValue(1.0f, 1.0f);
-
-         abortCB             = null;
-
          pimpl.transparencytype          = TransparencyType./*SCREEN_DOOR*/BLEND;
-         doSmooth            = false;
-         numPasses           = 1;
-         passUpdate          = false;
-         passCB              = null;
-
-         renderingTranspObjs = false;
-         delayObjs           = false;
-         sortObjs            = false;
-         ba                  = null;
-        bboxes              = null;
-        cacheContext        = /*null*/0;
-        remoteRendering     = false;
-
-        renderingDelPaths   = false;
 
         whatChanged         = flags.ALL.getValue();
 
@@ -362,13 +309,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 
      @Override
 	public void destructor() {
-    	    if (ba != null) {
-				ba.destructor();
-			}
-
-    	    if (bboxes != null) {
-				/*delete []*/ bboxes = null;
-			}
+    	    super.destructor();
      }
 
    ////////////////////////////////////////////////////////////////////////
@@ -385,7 +326,6 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
      {
     	  pimpl.viewport.copyFrom(newRegion);
     	  pimpl.bboxaction.setViewportRegion(newRegion);
-         vpRegion.copyFrom(newRegion);
      }
 
 
@@ -393,7 +333,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
      * Returns viewport region to use for rendering.
      */
     //! Returns viewport region to use for rendering.
-      public SbViewportRegion getViewportRegion() { return vpRegion; }
+      public SbViewportRegion getViewportRegion() { return pimpl.viewport; }
 
        ////////////////////////////////////////////////////////////////////////
        //
@@ -406,8 +346,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        ////////////////////////////////////////////////////////////////////////
        {
-           updateOrigin.copyFrom(origin);
-           updateSize.copyFrom(size);
+           pimpl.updateorigin.copyFrom(origin);
+           pimpl.updatesize.copyFrom(size);
        }
 
        ////////////////////////////////////////////////////////////////////////
@@ -421,8 +361,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        ////////////////////////////////////////////////////////////////////////
        {
-           origin.copyFrom(updateOrigin);
-           size.copyFrom(updateSize);
+           origin.copyFrom(pimpl.updateorigin);
+           size.copyFrom(pimpl.updatesize);
        }
        
        /*!
@@ -520,9 +460,9 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        {
            // If the cache context changes, we've changed OpenGL contexts,
            // and we should also invalidate the state:
-           if (cacheContext != context) {
+           if (pimpl.cachecontext != context) {
+               pimpl.cachecontext = context;
                invalidateState();
-               cacheContext = context;
            }
        }
 
@@ -543,11 +483,13 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        // Use: public
 
       public void
-       setRenderingIsRemote(boolean flag)
+       setRenderingIsRemote(boolean isremote)
        //
        ////////////////////////////////////////////////////////////////////////
        {
-           remoteRendering = flag;
+    	  pimpl.rendering = isremote ?
+    			    SoGLRenderActionP.Rendering.RENDERING_SET_INDIRECT :
+    			    SoGLRenderActionP.Rendering.RENDERING_SET_DIRECT;
        }
 
       ////////////////////////////////////////////////////////////////////////
@@ -562,7 +504,14 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        ////////////////////////////////////////////////////////////////////////
        {
-           return remoteRendering;
+    	  boolean isdirect;
+    	  if (pimpl.rendering == SoGLRenderActionP.Rendering.RENDERING_UNSET) {
+    	    isdirect = true;
+    	  }
+    	  else {
+    	    isdirect = pimpl.rendering == SoGLRenderActionP.Rendering.RENDERING_SET_DIRECT;
+    	  }
+    	  return !isdirect;
        }
 
 
@@ -605,8 +554,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        ////////////////////////////////////////////////////////////////////////
        {
-           if (doSmooth != smooth) {
-               doSmooth = smooth;
+           if (pimpl.smoothing != smooth) {
+               pimpl.smoothing = smooth;
                pimpl.needglinit = true;
                pimpl.smoothing = smooth;
                whatChanged |= flags.SMOOTHING.getValue();
@@ -616,10 +565,13 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
       //! Sets/returns smoothing flag. When on, smoothing uses OpenGL's line-
            //! and point-smoothing features to provide cheap antialiasing of lines
            //! and points. The default is false.
-      public     boolean              isSmoothing() { return doSmooth; }
+      public     boolean              isSmoothing() { return pimpl.smoothing; }
 
       //! \see getNumPasses
-      public     void                setNumPasses(int num)           { numPasses = num;  }
+      public     void                setNumPasses(int num)           {
+    	  pimpl.numpasses = num;
+    	  pimpl.internal_multipass = num > 1;
+    	  }
 
       //! Sets/returns number of rendering passes for multipass rendering.
            //! Specifying more than one pass will result in antialiasing of the
@@ -627,21 +579,21 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
            //! typically move their viewpoints a little bit for each pass to achieve
            //! the antialiasing.)  Each additional pass provides better
            //! antialiasing, but requires more rendering time The default is 1 pass.
-      public int                 getNumPasses() { return numPasses; }
+      public int                 getNumPasses() { return pimpl.numpasses; }
 
       //! \see isPassUpdate
-      public     void                setPassUpdate(boolean flag)      { passUpdate = flag; }
+      public     void                setPassUpdate(boolean flag)      { pimpl.passupdate = flag; }
            //! Sets/returns a flag indicating whether intermediate results are
            //! displayed after each antialiasing pass for progressive improvement
            //! (default is false).
-           public boolean              isPassUpdate()             { return passUpdate; }
+           public boolean              isPassUpdate()             { return pimpl.passupdate; }
 
 
       //! Sets a callback function to invoke between passes when antialiasing.
            //! Passing null (which is the default state) will cause a clear of the color
            //! and depth buffers to be performed.
       public     void                setPassCallback(SoGLRenderPassCB funcArg, Object userData)
-               { passCB = funcArg; passData = userData; }
+               { pimpl.passcallback = funcArg; pimpl.passcallbackdata = userData; }
 
       /**
        * Sets/returns the OpenGL cache context.
@@ -662,61 +614,59 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
        //
        ////////////////////////////////////////////////////////////////////////
        {
-           return cacheContext;
+           return pimpl.cachecontext;
        }
 
     //! Returns current rendering pass number
-    public int                 getCurPass()  { return curPass; }
+    public int                 getCurPass()  { return pimpl.currentpass; }
 
       //! Returns true if render action should abort - checks user callback
       public     boolean              abortNow()
-               { return (hasTerminated() || (abortCB != null && checkAbort())); }
+               {
+    	  if (this.hasTerminated()) return true;
 
-      ////////////////////////////////////////////////////////////////////////
-       //
-       // Description:
-       //    Returns true if render action should abort based on calling
-       //    callback. This assumes the callback is not null.
-       //
-       // Use: private
+//    	  #if COIN_DEBUG && 0 // for dumping the scene graph during GLRender traversals
+//    	    static int debug = -1;
+//    	    if (debug == -1) {
+//    	      const char * env = coin_getenv("COIN_DEBUG_GLRENDER_TRAVERSAL");
+//    	      debug = env && (atoi(env) > 0);
+//    	    }
+//    	    if (debug) {
+//    	      const SoFullPath * p = (const SoFullPath *)this->getCurPath();
+//    	      assert(p);
+//    	      const int len = p->getLength();
+//    	      for (int i=1; i < len; i++) { printf("  "); }
+//    	      const SoNode * n = p->getTail();
+//    	      assert(n);
+//    	      printf("%p %s (\"%s\")\n",
+//    	             n, n->getTypeId().getName().getString(),
+//    	             n->getName().getString());
+//    	    }
+//    	  #endif // debug
 
-      private boolean
-       checkAbort()
-       //
-       ////////////////////////////////////////////////////////////////////////
-       {
-           boolean doAbort;
+    	    boolean abort = false;
+    	    if (pimpl.abortcallback != null) {
+    	      switch (pimpl.abortcallback.abort(pimpl.abortcallbackdata)) {
+    	      case CONTINUE:
+    	        break;
+    	      case ABORT:
+    	        this.setTerminated(true);
+    	        abort = true;
+    	        break;
+    	      case PRUNE:
+    	        // abort this node, but do not abort rendering
+    	        abort = true;
+    	        break;
+    	      case DELAY:
+    	        this.addDelayedPath(this.getCurPath().copy());
+    	        // prune this node
+    	        abort = true;
+    	        break;
+    	      }
+    	    }
+    	    return abort;
+               }
 
-           switch (abortCB.abort(abortData)) {
-
-             case CONTINUE:
-               doAbort = false;
-               break;
-
-             case ABORT:
-               // Mark the action has having terminated
-               setTerminated(true);
-               doAbort = true;
-               break;
-
-             case PRUNE:
-               // Don't mark anything, but return true. This will tell the
-               // node not to render itself.
-               doAbort = true;
-               break;
-
-             case DELAY:
-               // Add the current path to the list of delayed paths
-               delayedPaths.append(getCurPath().copy());      // Also refs the path
-               doAbort = true;
-               break;
-
-               default:
-            	   throw new IllegalStateException("checkAbort : Illegal abort code");
-           }
-
-           return doAbort;
-       }
       ////////////////////////////////////////////////////////////////////////
        //
        // Description:
@@ -984,40 +934,11 @@ addDelayedPath(SoPath path)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    delayedPaths.append(path);
+	  SoState thestate = this.getState();
+	  SoCacheElement.invalidate(thestate);
+	  assert(!pimpl.delayedpathrender);
+	  pimpl.delayedpaths.append(path);
 }
-
-
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Enables or disables GL blending. Remembers previous setting to
-//    avoid sending commands unnecessarily.
-//
-// Use: private
-
-private void
-enableBlending(boolean enable)
-//
-////////////////////////////////////////////////////////////////////////
-{
-	  SoGLRenderAction.TransparencyType transptype =
-			    SoGLRenderAction.TransparencyType.fromValue(
-			    SoShapeStyleElement.getTransparencyType(state)
-			    );
-	  
-	  
-
-    //SoLazyElement.setBlending(state, enable);
-	if(enable) {
-		SoLazyElement.enableBlending(state, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-	else {
-		SoLazyElement.disableBlending(state);
-	}
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -1218,281 +1139,14 @@ endTraversal(SoNode node)
 //  }
 }
 
-
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Does actual rendering of all passes starting at a node.
-//
-// Use: private
-
-private void
-renderAllPasses(SoNode node)
-//
-////////////////////////////////////////////////////////////////////////
-{
-	GL2 gl2 = Ctx.get(getCacheContext());
-
-    // If anything has changed since the last time this action was
-    // applied, make sure it is set up correctly in GL.
-    if (whatChanged != 0) {
-
-        switch (pimpl.transparencytype) {
-          case SCREEN_DOOR:
-            if (doSmooth) {
-                // Blending has to be enabled for line smoothing to
-                // work properly
-                gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                enableBlending(true);
-            } else {
-				enableBlending(false);
-			}
-            break;
-
-          case ADD:
-          case DELAYED_ADD:
-          case SORTED_OBJECT_ADD:
-            gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            break;
-
-          case BLEND:
-          case DELAYED_BLEND:
-          case SORTED_OBJECT_BLEND:
-            gl2.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        }
-
-        sortObjs = (pimpl.transparencytype == TransparencyType.SORTED_OBJECT_ADD ||
-        		pimpl.transparencytype == TransparencyType.SORTED_OBJECT_BLEND);
-        delayObjs = (sortObjs ||
-        		pimpl.transparencytype == TransparencyType.DELAYED_ADD ||
-        				pimpl.transparencytype == TransparencyType.DELAYED_BLEND);
-
-        if (doSmooth) {
-            gl2.glEnable(GL_POINT_SMOOTH);
-            gl2.glEnable(GL_LINE_SMOOTH);
-        }
-        else {
-        	gl2.glDisable(GL_POINT_SMOOTH);
-        	gl2.glDisable(GL_LINE_SMOOTH);
-        }
-
-        // Reset flags to indicate that everything is up to date
-        whatChanged = 0;
-    }
-
-    // Set the GL cache context:
-    SoGLCacheContextElement.set(state, cacheContext, delayObjs,
-                                 remoteRendering);
-
-    // Set the transparency bit in the ShapeStyle element
-    // and the lazy element.
-    SoShapeStyleElement.setTransparencyType(state,pimpl.transparencytype.getValue());
-    SoLazyElement.setTransparencyType(state, pimpl.transparencytype.getValue());
-
-    // Simple case of one pass
-    if (getNumPasses() == 1) {
-        renderPass(node, 0);
-        return;
-    }
-
-    int         pass;
-    float       passFrac = 1.0f / getNumPasses();
-
-    for (pass = 0; pass < getNumPasses(); pass++) {
-
-        // Stuff to do between passes:
-        if (pass > 0) {
-            // Update the buffer after each pass if requested
-            if (passUpdate) {
-				gl2.glAccum(GL_RETURN, (float) getNumPasses() / (float) pass);
-			}
-
-            // If user-defined callback exists, call it. Otherwise,
-            // clear to current clear color and depth buffer clear value
-            if (passCB != null) {
-				(passCB).run(gl2,passData);
-			} else {
-				gl2.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			}
-        }
-
-        renderPass(node, pass);
-
-        // Stop if rendering was aborted
-        if (hasTerminated()) {
-			return;
-		}
-
-        if (pass > 0) {
-			gl2.glAccum(GL_ACCUM, passFrac);
-		} else {
-			gl2.glAccum(GL_LOAD,  passFrac);
-		}
-    }
-
-    gl2.glAccum(GL_RETURN, 1.0f);
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Does one pass of rendering starting at a node.
-//
-// Use: private
-
-private void
-renderPass(SoNode node, int pass)
-//
-////////////////////////////////////////////////////////////////////////
-{
-    // Set the current pass in the instance and in the state
-    curPass = pass;
-    SoGLRenderPassElement.set(getState(), pass);
-
-    // Set the viewport region
-    SoViewportRegionElement.set(getState(), vpRegion);
-    SoGLUpdateAreaElement.set(getState(), updateOrigin, updateSize);
-
-    // Do the actual rendering
-    traverse(node);
-
-    // For delayed (or sorted) transparency, see if any transparent
-    // objects were added
-    if (delayObjs && transpPaths.getLength() > 0 && ! hasTerminated()) {
-
-        // Make sure blending is enabled if necessary
-        if (pimpl.transparencytype != TransparencyType.SCREEN_DOOR) {
-			enableBlending(true);
-		}
-
-        renderTransparentObjs();
-
-        // Disable blending for next pass
-        if (pimpl.transparencytype != TransparencyType.SCREEN_DOOR) {
-			enableBlending(false);
-		}
-    }
-
-    // Delayed paths
-    if (delayedPaths.getLength() > 0 && ! hasTerminated()) {
-        renderingDelPaths = true;
-
-        // Render paths to delayed objects. We know these paths obey
-        // the rules for compact path lists, so let the action know
-        apply(delayedPaths, true);
-
-        // Clear out the list
-        delayedPaths.truncate(0);
-
-        renderingDelPaths = false;
-    }
-}
-
-////////////////////////////////////////////////////////////////////////
-//
-// Description:
-//    Renders delayed objects that have been marked as transparent.
-//    This sorts them if necessary. This should be called only if we
-//    are delaying transparent objects and there is at least one
-//    transparent object.
-//
-// Use: private
-
-private void
-renderTransparentObjs()
-//
-////////////////////////////////////////////////////////////////////////
-{
-    int i, numObjs = transpPaths.getLength(), numToDo;
-
-    GL2 gl2 = Ctx.get(getCacheContext());
-
-    // Indicate that we are doing transparent objects so we know not
-    // to render all passes
-    renderingTranspObjs = true;
-
-    // Indicate that objects are not to be delayed. (So they will render.)
-    delayObjs = false;
-
-    // Don't write into z buffer so that ALL transparent objects will
-    // be drawn. This makes things look better, even if sorting is not
-    // on or if sorting gives the incorrect order.
-    gl2.glDepthMask(false);
-
-    // If not sorting, just render them in order
-    if (! sortObjs) {
-		// Render paths to transparent objects. We know these paths
-        // obey the rules for compact path lists, so let the action know.
-        apply(transpPaths, true);
-	} else {
-        if (ba == null) {
-            ba = new SoGetBoundingBoxAction(vpRegion);
-
-            // Make sure bounding boxes are in camera space. This
-            // means the z coordinates of the bounding boxes indicate
-            // distance from the camera.
-            ba.setInCameraSpace(true);
-        }
-
-        // Make sure there is room for the bounding boxes
-        if (bboxes == null) {
-            bboxes = new SbBox3f[numObjs];
-            numBBoxes = numObjs;
-        }
-        else if (numBBoxes < numObjs) {
-            //delete [] bboxes; java port
-            bboxes = new SbBox3f[numObjs];
-            numBBoxes = numObjs;
-        }
-
-        for (i = 0; i < numObjs; i++) {
-            ba.apply(transpPaths.operator_square_bracket(i));
-            bboxes[i] = ba.getBoundingBox();
-        }
-
-        // Render them in sorted order
-        for (numToDo = numObjs; numToDo > 0; --numToDo) {
-            int         farthest = -1;
-            float       zFar;
-
-            // Use selection sort, since number of objects is usually small
-
-            // Look for bbox with smallest zmax (farthest from camera!)
-            zFar = Float.MAX_VALUE;
-            for (i = 0; i < numObjs; i++) {
-                if (bboxes[i].getMax().getValueRead()[2] < zFar) {
-                    zFar = bboxes[i].getMax().getValueRead()[2];
-                    farthest = i;
-                }
-            }
-
-            // Render farthest one
-            apply(transpPaths.operator_square_bracket(farthest));
-
-            // Mark it as being far
-            bboxes[farthest].getMax().setValue(2, Float.MAX_VALUE);
-        }
-    }
-
-    // Restore zwritemask to what we assume it was before...
-    gl2.glDepthMask(true);
-
-    // Get ready for next time
-    delayObjs = true;
-    transpPaths.truncate(0);
-    renderingTranspObjs = false;
-}
-
     //! Returns true if currently rendering delayed paths
     public boolean              isRenderingDelayedPaths()
-        { return renderingDelPaths; }
+        {
+    	  return pimpl.delayedpathrender;
+    	}
 
     public int                 getCullTestResults() { return cullBits; }
     public void                setCullTestResults(int b) { cullBits = b; }
-
-	private boolean transparencyrender; // COIN 3D
 
 	/*
 	 * !
@@ -1503,7 +1157,7 @@ renderTransparentObjs()
 	 * \since Coin 3.0
 	 */
 	public boolean isRenderingTranspPaths() {
-		return this.transparencyrender;
+		return pimpl.transparencyrender;
 	}
 
 

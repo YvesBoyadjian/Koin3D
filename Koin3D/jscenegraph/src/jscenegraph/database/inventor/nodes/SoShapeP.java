@@ -87,12 +87,13 @@
 package jscenegraph.database.inventor.nodes;
 
 import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoShapeP {
+public class SoShapeP implements Destroyable {
 
 	  public enum Flags {
 		    SHOULD_BBOX_CACHE ( 0x1),
@@ -114,4 +115,10 @@ public class SoShapeP {
 
 	  public void lock() { }
 	  public void unlock() { }
+	@Override
+	public void destructor() {
+	    if (this.bboxcache != null) { this.bboxcache.unref(); }
+//	    if (this.pvcache != null) { this.pvcache.unref(); } FIXME
+//	    Destroyable.delete( this.bumprender);
+	}
 }

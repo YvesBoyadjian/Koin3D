@@ -173,7 +173,7 @@ SoIndexedShape, SoNonIndexedShape, SoVertexProperty
  * @author Yves Boyadjian
  *
  */
-public abstract class SoVertexShape extends SoShape {
+public abstract class SoVertexShape extends SoShape implements Destroyable {
 	
 	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_ABSTRACT_HEADER(SoVertexShape.class,this);
    	

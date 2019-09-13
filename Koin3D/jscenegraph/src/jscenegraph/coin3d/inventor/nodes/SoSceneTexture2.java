@@ -524,6 +524,10 @@ public class SoSceneTexture2 extends SoNode {
 	  public void destructor()
 	  {
 	    Destroyable.delete(this.pimpl);
+	    
+	    scene.destructor(); //FIXME
+	    sceneTransparencyType.destructor();
+	    
 	    super.destructor();
 	  }
 

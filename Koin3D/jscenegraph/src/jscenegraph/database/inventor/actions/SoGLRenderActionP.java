@@ -515,7 +515,7 @@ public class SoGLRenderActionP {
 	  SoGLRenderAction.SoGLRenderAbortCB abortcallback;
 	  Object abortcallbackdata;
 
-	  int cachecontext;
+	  int cachecontext; //!< GL cache context
 	  int currentpass;
 	  final SoPathList delayedpaths = new SoPathList();
 	  

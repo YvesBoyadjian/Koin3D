@@ -130,6 +130,7 @@ public SoChildList(SoNode parentNode, final SoChildList l) {
 
 public void destructor() {
 	truncate(0);
+	super.destructor();
 }
 
 

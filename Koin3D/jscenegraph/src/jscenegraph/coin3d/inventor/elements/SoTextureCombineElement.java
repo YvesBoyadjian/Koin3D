@@ -204,6 +204,7 @@ public SoTextureCombineElement()
 public void destructor()
 {
   Destroyable.delete(this.pimpl);
+  super.destructor();
 }
 
 //! FIXME: write doc.

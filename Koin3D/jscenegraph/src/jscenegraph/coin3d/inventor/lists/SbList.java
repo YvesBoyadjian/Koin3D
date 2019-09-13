@@ -180,8 +180,11 @@ public void copyFrom(Object other) {
 }
 @Override
 public void destructor() {
-	// TODO Auto-generated method stub
-	
+	  itembuffersize = -1;
+	  numitems = -1;
+	  itembuffer = null;
+	  for( int i=0; i< DEFAULTSIZE; i++)
+		  builtinbuffer[i] = null;	  
 }
 
 public T[] getArrayPtr(T[] arrayWithGoodSize) {

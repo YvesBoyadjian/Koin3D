@@ -481,7 +481,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		super.destructor();
 	}
 	
-	public static final float MAX_FPS = 60.0f;
+	public static final float MAX_FPS = 250.0f;
 	
 	private long lastTime = Instant.now().toEpochMilli();
 

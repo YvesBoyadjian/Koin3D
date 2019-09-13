@@ -199,5 +199,10 @@ public class ShadowTestSceneGraph implements SceneGraph {
 	public float getZ(float x, float y, float z) {
 		return 0;
 	}
+	@Override
+	public void preDestroy() {
+		// TODO Auto-generated method stub
+		
+	}
 	
 }

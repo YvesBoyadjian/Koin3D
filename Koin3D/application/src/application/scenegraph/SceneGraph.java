@@ -21,4 +21,6 @@ public interface SceneGraph extends HeightProvider {
 	void setPosition(float x, float y);
 
 	void setSunPosition(SbVec3f sunPosition);
+	
+	void preDestroy();
 }

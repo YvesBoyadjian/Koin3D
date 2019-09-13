@@ -178,6 +178,7 @@ public void destructor()
         pickRoot.unref();
 
     pickAct.destructor();
+    super.destructor();
 }
 
      

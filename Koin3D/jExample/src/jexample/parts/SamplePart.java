@@ -78,7 +78,8 @@ public class SamplePart {
 		//viewer.setAntialiasing(true, 16);
 		viewer.setHeadlight(true);
 		//viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_ADD);
-		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
+		//viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
+		viewer.getSceneHandler().setTransparencyType(TransparencyType.SORTED_LAYERS_BLEND);
 		
 	    viewer.buildWidget(style);
 	    
@@ -97,10 +98,10 @@ public class SamplePart {
 	    }	    
 	    
 	    viewer.setSceneGraph(
-	    		SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
+	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
-	    		//createDemoScenePerformance()
+	    		createDemoScenePerformance()
 	    		//createDemoSceneSoMaterialShapeBinding()
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
@@ -131,7 +132,8 @@ public class SamplePart {
 
 	@Focus
 	public void setFocus() {
-		viewer.setFocus();
+		if(viewer != null)
+			viewer.setFocus();
 	}
 
 	@Persist
@@ -1140,6 +1142,9 @@ SoSeparator createPlanet2(float radius, float distance,
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/CyberHeads/josie.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/food/apple.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/scenes/chesschairs.iv";
+		//String fileName = "F:/test_oiv/Renderismissingtriangles.iv"; // default model
+		//String fileName = "F:/test_oiv/test.iv"; // default model
+		//String fileName = "F:/test_oiv/Issue177Renderismissingtrianglesround.iv"; // default model
 	boolean baseColor = false;
 
 	// create scene root

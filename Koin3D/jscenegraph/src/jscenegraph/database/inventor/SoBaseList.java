@@ -70,6 +70,7 @@
 package jscenegraph.database.inventor;
 
 import jscenegraph.database.inventor.misc.SoBase;
+import jscenegraph.port.Destroyable;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,7 +108,7 @@ SoBase, SoNodeList, SoPathList
  * @author Yves Boyadjian
  *
  */
-public class SoBaseList extends SbPList {
+public class SoBaseList extends SbPList implements Destroyable {
 	
 	private boolean addRefs;
 	
@@ -167,7 +168,10 @@ public SoBaseList(final SoBaseList l)
     copy(l);
 }
 
-	    
+	    public void destructor() {
+	    	this.truncate(0);
+	    	super.destructor();
+	    }
 	    
 	   // Adds a pointer to the end of the list. 
 	public void append(SoBase ptr) {

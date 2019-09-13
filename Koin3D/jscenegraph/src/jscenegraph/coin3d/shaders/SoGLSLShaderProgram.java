@@ -86,7 +86,8 @@ deletePrograms()
 {
   //final SbList <Integer> keylist = new SbList<>();
   //this.programHandles.makeKeyList(keylist);
-  for (/*int i = 0; i < keylist.getLength(); i++*/Map.Entry<Integer,Integer> entry : this.programHandles.entrySet()) {
+	Map<Integer,Integer> copyMap = new HashMap<>(this.programHandles);
+  for (/*int i = 0; i < keylist.getLength(); i++*/Map.Entry<Integer,Integer> entry : copyMap.entrySet()) {
     /*COIN_GLhandle*/Integer glhandle;
      glhandle = entry.getValue();//this.programHandles.get(keylist.operator_square_bracket(i));
     int tmp = (int) glhandle;

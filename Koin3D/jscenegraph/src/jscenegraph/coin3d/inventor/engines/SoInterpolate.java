@@ -151,6 +151,7 @@ public abstract class SoInterpolate extends SoEngine {
 	//#endif // debug
 	  Destroyable.delete(inputData[0]); inputData[0] = null;
 	  //Destroyable.delete(outputData[0]); outputData[0] = null; //TODO
+	  super.destructor();
 	}
 	
 ////////////////////////////////////////////////////////////////////////

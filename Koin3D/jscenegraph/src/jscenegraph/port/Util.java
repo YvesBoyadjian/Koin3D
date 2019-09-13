@@ -261,6 +261,7 @@ public class Util {
 	public static void qsort(Object base, int num, int size, Comparator comparator) {
 		if(base instanceof IntArrayPtr) {
 			IntArrayPtr iap = (IntArrayPtr)base;
+			size = size / Integer.BYTES;
 			int[][] array = new int[size][num];
 			int index = 0;
 			for(int i=0;i<size;i++) {
@@ -275,6 +276,7 @@ public class Util {
 					iap.set(index++, array[i][j]); 
 				}
 			}
+			return;
 		}
 		throw new IllegalArgumentException();
 	}

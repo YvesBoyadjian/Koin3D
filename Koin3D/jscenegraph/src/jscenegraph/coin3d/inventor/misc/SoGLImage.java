@@ -55,6 +55,7 @@ import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.Mutable;
 
 /**
@@ -214,7 +215,7 @@ import jscenegraph.port.Mutable;
 
 // *************************************************************************
 
-public class SoGLImage {
+public class SoGLImage implements Destroyable {
 	
   public enum Wrap {
     REPEAT /*= 0*/,

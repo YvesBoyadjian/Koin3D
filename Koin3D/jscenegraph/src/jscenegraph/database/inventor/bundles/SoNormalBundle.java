@@ -142,7 +142,7 @@ public void destructor()
 
     if (generator != null)
         generator.destructor();
-    //super.destructor(); not necessary
+    super.destructor();
 }
 
     

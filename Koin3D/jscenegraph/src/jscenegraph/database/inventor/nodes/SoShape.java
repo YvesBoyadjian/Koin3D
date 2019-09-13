@@ -132,6 +132,7 @@ import jscenegraph.database.inventor.shapenodes.soshape_trianglesort;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.FloatBufferAble;
 import jscenegraph.port.SbColorArray;
 import jscenegraph.port.SbVec3fArray;
@@ -156,7 +157,7 @@ SoCone, SoCube, SoCylinder, SoIndexedNurbsCurve, SoIndexedNurbsSurface, SoNurbsC
  * @author Yves Boyadjian
  *
  */
-public abstract class SoShape extends SoNode {
+public abstract class SoShape extends SoNode implements Destroyable {
 
 	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_ABSTRACT_HEADER(SoShape.class,this);
 	   	
@@ -371,6 +372,15 @@ public abstract class SoShape extends SoNode {
 	       return false;
 	   }
 	   	
+	   /*!
+	   Destructor.
+	 */
+	 public void destructor()
+	 {
+	   Destroyable.delete(pimpl);
+	   super.destructor();
+	 }
+
 
 	 ////////////////////////////////////////////////////////////////////////
 	  //

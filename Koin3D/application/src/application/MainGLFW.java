@@ -17,11 +17,13 @@ import java.awt.image.Raster;
 
 import application.scenegraph.SceneGraph;
 import application.scenegraph.SceneGraphIndexedFaceSet;
+import application.scenegraph.SceneGraphIndexedFaceSetShader;
 import application.scenegraph.ShadowTestSceneGraph;
 import application.scenegraph.Soleil;
 import application.viewer.glfw.SoQtWalkViewer;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.actions.SoGLRenderAction.TransparencyType;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jsceneviewerglfw.inventor.qt.SoQt;
@@ -66,7 +68,8 @@ public class MainGLFW {
 		//SceneGraph sg = new SceneGraphQuadMesh(r);
 		
 		int overlap = 13;		
-		SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap,Z_TRANSLATION);
+		//SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap,Z_TRANSLATION);
+		SceneGraph sg = new SceneGraphIndexedFaceSetShader(rw,re,overlap,Z_TRANSLATION);
 		//SceneGraph sg = new ShadowTestSceneGraph();
 		
 		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style);
@@ -98,6 +101,8 @@ public class MainGLFW {
 		viewer.getCameraController().changeCameraValues(camera);
 		
 		viewer.getSceneHandler().setBackgroundColor(new SbColor(0,0,1));
+
+		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
 		
 		sg.setPosition(SCENE_POSITION.getX(),SCENE_POSITION.getY()/*,SCENE_POSITION.getZ()*/);
 		
@@ -157,6 +162,8 @@ public class MainGLFW {
 	    System.runFinalization();
 	    
 	    display.loop();
+	    
+	    sg.preDestroy();
 	    
 	    viewer.destructor();
 

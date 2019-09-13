@@ -549,7 +549,7 @@ getVector(final SbVec2f m)
 }
 
 	public void destructor() {
-		//super.destructor();
+		super.destructor();
 	}
 
 }
