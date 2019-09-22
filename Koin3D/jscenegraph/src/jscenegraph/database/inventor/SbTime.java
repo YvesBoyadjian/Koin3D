@@ -128,6 +128,16 @@ public class SbTime implements Mutable {
 		int usec = nanos / 1000;
 		return new SbTime(sec, usec);
 	}
+	
+	private final static long NANO = 1000000000;
+
+	public static SbTime getTimeOfDay2() {
+		long systemNanoTime = System.nanoTime(); 
+		long sec = systemNanoTime / NANO;
+		long nanos = systemNanoTime - sec * NANO;
+		int usec = (int)nanos / 1000;
+		return new SbTime(sec, usec);
+	}
 
 	////////////////////////////////////////////////////////////////////////
 	//

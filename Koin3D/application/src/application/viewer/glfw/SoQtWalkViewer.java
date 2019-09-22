@@ -324,7 +324,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  SbRotation orientation = camera.orientation.getValue();
 		  orientation.multVec(diff_position, diff_position);
 		  SbVec3f new_position = old_position.operator_add( diff_position);
-		  new_position.setZ(EYES_HEIGHT + heightProvider.getZ(new_position.getX(), new_position.getY(), new_position.getZ()));
+		  new_position.setZ(EYES_HEIGHT + heightProvider.getZ(new_position.getX(), new_position.getY(), new_position.getZ() - EYES_HEIGHT));
 		  camera.position.setValue( new_position );
 		  getCameraController().changeCameraValues(camera);
 
@@ -453,9 +453,9 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	super.paintGL(gl2);
     	
     	nbFrames++;
-    	if(nbFrames == 200) {
+    	if(nbFrames == 500) {
     		long newFrameTime = System.nanoTime();
-    		float fps = 1.0e9f/(newFrameTime - lastFrameTime)*200;
+    		float fps = 1.0e9f/(newFrameTime - lastFrameTime)*500;
     		System.out.println("fps = "+fps);
     		nbFrames = 0;
     		lastFrameTime = newFrameTime;

@@ -26,6 +26,7 @@ package jscenegraph.coin3d.inventor.elements;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GL3;
 
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.elements.SoElement;
@@ -70,6 +71,7 @@ public class SoGLDepthBufferElement extends SoDepthBufferElement {
 		this.write = prev.write;
 		this.function = prev.function;
 		this.range.copyFrom(prev.range);
+		this.clamp = prev.clamp;
 		prev.capture(state);
 	}
 
@@ -80,7 +82,7 @@ public class SoGLDepthBufferElement extends SoDepthBufferElement {
 	public void pop(SoState state, SoElement prevTopElement) {
 		SoGLDepthBufferElement prev = (SoGLDepthBufferElement) (prevTopElement);
 		if (this.test != prev.test || this.write != prev.write || this.function != prev.function
-				|| this.range.operator_not_equal(prev.range)) {
+				|| this.range.operator_not_equal(prev.range) || this.clamp != prev.clamp) {
 			this.updategl(state.getGL2());
 		}
 	}
@@ -89,11 +91,11 @@ public class SoGLDepthBufferElement extends SoDepthBufferElement {
 	 * ! Set this element's values.
 	 */
 	@Override
-	public void setElt(GL2 gl2, boolean test, boolean write, DepthWriteFunction function, final SbVec2f range) {
+	public void setElt(GL2 gl2, boolean test, boolean write, DepthWriteFunction function, final SbVec2f range, boolean clamp) {
 		boolean update = (test != this.test) || (write != this.write) || (function != this.function)
 				|| (range.operator_not_equal(this.range));
 
-		super.setElt(gl2, test, write, function, range);
+		super.setElt(gl2, test, write, function, range, clamp);
 
 		if (update) {
 			this.updategl(gl2);
@@ -104,6 +106,13 @@ public class SoGLDepthBufferElement extends SoDepthBufferElement {
 	 * ! This method performs the OpenGL updates.
 	 */
 	public void updategl(GL2 gl2) {
+		
+		if (this.clamp) {
+			gl2.glEnable(GL3.GL_DEPTH_CLAMP);
+		} else {
+			gl2.glDisable(GL3.GL_DEPTH_CLAMP);			
+		}
+		
 		if (this.test) {
 			gl2.glEnable(GL.GL_DEPTH_TEST);
 		} else {

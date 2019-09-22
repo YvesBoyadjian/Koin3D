@@ -520,9 +520,9 @@ public int getDataId() { return _nodeId; }
     return
       (numdata >= minv) &&
       (numdata <= maxv) &&
-      SoVBO.isVBOFast(contextid) &&
-      (SoShapeStyleElement.get(state).getFlags() & SoShapeStyleElement.Flags.SHADOWMAP.getValue()) == 0;
-
+      SoVBO.isVBOFast(contextid)
+      //&& (SoShapeStyleElement.get(state).getFlags() & SoShapeStyleElement.Flags.SHADOWMAP.getValue()) == 0 // YB : Why disabling VBO for shadowmap mode ? It works perfectly
+;
   }
 
   static int vbo_vertex_count_min_limit = /*-1*/_vboMinimumSizeLimit;

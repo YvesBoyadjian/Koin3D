@@ -82,7 +82,7 @@ public class Main {
 			double nowGame = nowHour * TimeConstants.JMEMBA_TIME_ACCELERATION;
 			double Phi = 47;
 			SbVec3f sunPosition = Soleil.soleil_xyz((float)nowDay, (float)nowGame, (float)Phi);
-			sg.setSunPosition(new SbVec3f(sunPosition.y(),-sunPosition.x(),sunPosition.z()));
+			sg.setSunPosition(new SbVec3f(-sunPosition.y(),-sunPosition.x(),sunPosition.z()));
 		});		
 		
 		

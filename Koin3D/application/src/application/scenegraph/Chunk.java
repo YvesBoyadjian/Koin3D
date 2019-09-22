@@ -4,6 +4,7 @@
 package application.scenegraph;
 
 import java.nio.FloatBuffer;
+import java.util.BitSet;
 
 import org.lwjgl.BufferUtils;
 
@@ -35,6 +36,7 @@ public class Chunk {
 	float[] vertices;
 	float[] normals;
 	byte[] colors;
+	BitSet stone;
 	//int[] coordIndices;	
 
 	SoIndexedFaceSet[] LODindexedFaceSets;
@@ -53,6 +55,7 @@ public class Chunk {
 		vertices = new float[nbVertices*3];
 		normals = new float[nbVertices*3];
 		colors = new byte[nbVertices*4];
+		stone = new BitSet();
 		
 //		int nbCoordIndices = (chunkWidth-1)*(chunkWidth-1)*5;
 //		coordIndices = new int[nbCoordIndices];
@@ -222,7 +225,7 @@ public class Chunk {
 		return indice;
 	}
 	
-	int byteToInt(byte value) {
+	public static int byteToInt(byte value) {
 		int val = value;
 		if(val < 0) {
 			val += 256;
@@ -455,18 +458,18 @@ public class Chunk {
 		return (short)size;
 	}
 
-	public byte[] getImage() {
-		int size = Chunk.getDecimatedChunkWidth(0);
-		byte[] image = new byte[size*size*3];
-		for(int i=0;i<size;i++) {
-			for(int j=0;j<size;j++) {
-				int index = i*size+j;
-				image[index*3] = colors[index*4];
-				image[index*3+1] = colors[index*4+1];
-				image[index*3+2] = colors[index*4+2];
-			}
-		}
-		return image;
-	}
+//	public byte[] getImage() {
+//		int size = Chunk.getDecimatedChunkWidth(0);
+//		byte[] image = new byte[size*size*3];
+//		for(int i=0;i<size;i++) {
+//			for(int j=0;j<size;j++) {
+//				int index = i*size+j;
+//				image[index*3] = colors[index*4];
+//				image[index*3+1] = colors[index*4+1];
+//				image[index*3+2] = colors[index*4+2];
+//			}
+//		}
+//		return image;
+//	}
 
 }

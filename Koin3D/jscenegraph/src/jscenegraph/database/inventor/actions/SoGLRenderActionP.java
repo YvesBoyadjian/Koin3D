@@ -671,7 +671,7 @@ doPathSort()
 	  SoViewportRegionElement.set(state, this.viewport);
 	  SoDepthBufferElement.set(state, true, true,
 	                            SoDepthBufferElement.DepthWriteFunction.LEQUAL,
-	                            new SbVec2f(0.0f, 1.0f));
+	                            new SbVec2f(0.0f, 1.0f), false);
 	  SoLazyElement.setTransparencyType(state,
 	                                     (int)(this.transparencytype.getValue()));
 
@@ -846,7 +846,7 @@ renderSingle(SoNode node)
     if (!this.transpobjdepthwrite) {
       SoDepthBufferElement.set(state, true, false,
                                 SoDepthBufferElement.DepthWriteFunction.LEQUAL,
-                                new SbVec2f(0.0f, 1.0f));
+                                new SbVec2f(0.0f, 1.0f), false);
     }
     SoGLCacheContextElement.set(state, this.cachecontext,
                                  true, !this.isDirectRendering(state));
@@ -902,7 +902,7 @@ renderSingle(SoNode node)
     if (!this.transpobjdepthwrite) {
       SoDepthBufferElement.set(state, true, true,
                                 SoDepthBufferElement.DepthWriteFunction.LEQUAL,
-                                new SbVec2f(0.0f, 1.0f));
+                                new SbVec2f(0.0f, 1.0f), false);
     }
     this.transparencyrender = false;
   }

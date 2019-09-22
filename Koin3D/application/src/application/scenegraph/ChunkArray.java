@@ -7,8 +7,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoTexture2;
@@ -35,9 +37,9 @@ public class ChunkArray {
 
 	private Chunk[][] chunks;
 	
-	private Map<Chunk,Integer> chunkI = new HashMap<>();
+	private Map<Chunk,Integer> chunkI = new IdentityHashMap<>();
 	
-	private Map<Chunk,Integer> chunkJ = new HashMap<>();
+	private Map<Chunk,Integer> chunkJ = new IdentityHashMap<>();
 	
 	private int w;
 	private int h;
@@ -102,9 +104,14 @@ public class ChunkArray {
 		int j = vertexIndex - i*h;
 		int coord = index - vertexIndex * 3;
 				
-		Collection<Chunk> relevantChunks = getChunks(i,j);
+//		Collection<Chunk> relevantChunks = getChunks(i,j);
+//		
+//		relevantChunks.forEach((c)-> {
+//			int chunkIndice = getInChunkIndice(c, i,j);
+//			c.vertices[chunkIndice*3+coord] = value;
+//		});
 		
-		relevantChunks.forEach((c)-> {
+		chunksForEach(i,j,(c)-> {
 			int chunkIndice = getInChunkIndice(c, i,j);
 			c.vertices[chunkIndice*3+coord] = value;
 		});
@@ -150,9 +157,48 @@ public class ChunkArray {
 		return relevantChunks;
 	}
 
+	private void chunksForEach(int i, int j, Consumer<Chunk> consumer) {
+		
+		int ic = lowChunkFromIndice(i); int jc = lowChunkFromIndice(j);
+		if(isInside(ic,jc)) {
+			consumer.accept(chunks[ic-1][jc-1]);
+		}
+		
+		ic = lowChunkFromIndice(i); jc = highChunkFromIndice(j);
+		if(isInside(ic,jc)) {
+			consumer.accept(chunks[ic-1][jc-1]);
+		}
+		
+		ic = highChunkFromIndice(i); jc = lowChunkFromIndice(j);
+		if(isInside(ic,jc)) {
+			consumer.accept(chunks[ic-1][jc-1]);
+		}
+		
+		ic = highChunkFromIndice(i); jc = highChunkFromIndice(j);
+		if(isInside(ic,jc)) {
+			consumer.accept(chunks[ic-1][jc-1]);
+		}
+	}
+
 	private boolean isInside(int i0, int j0) {
 		return i0>0 && i0<=nbChunkWidth && j0 >0 && j0 <=nbChunkHeight;
 	}
+	
+	
+	public boolean isStone(int index) {
+		
+		int vertexIndex = index;
+		int i = vertexIndex/h;
+		int j = vertexIndex - i*h;
+		//int coord = index - vertexIndex * 3;
+		
+		Chunk c = getOneChunk(i,j);
+		int chunkIndice = getInChunkIndice(c, i,j);
+		
+		boolean stone = c.stone.get(chunkIndice);
+		return stone;
+	}
+	
 
 	public float[] verticesGet(int index, float[] ret) {
 		
@@ -198,6 +244,23 @@ public class ChunkArray {
 		return c.colors[chunkIndice*4+coord];
 	}
 	
+	public int colorsGetRGBA(int vertexIndex) {
+		int i = vertexIndex/h;
+		int j = vertexIndex - i*h;
+		
+		Chunk c = getOneChunk(i,j);
+		int chunkIndice = getInChunkIndice(c, i,j);
+		
+		byte red = c.colors[chunkIndice*4];
+		byte green = c.colors[chunkIndice*4+1];
+		byte blue = c.colors[chunkIndice*4+2];
+		byte alpha = c.colors[chunkIndice*4+3];
+		
+		int RGBA = (Chunk.byteToInt(red) << 24) | (Chunk.byteToInt(green) << 16) | (Chunk.byteToInt(blue) << 8) | Chunk.byteToInt(alpha);
+		
+		return RGBA;
+	}
+	
 	private Chunk getOneChunk(int i, int j) {
 		
 		int ic = lowChunkFromIndice(i); int jc = lowChunkFromIndice(j);
@@ -221,21 +284,30 @@ public class ChunkArray {
 		}
 		
 		return null;
-	}
-
+	}	
+	
 	public void colorsPut(int index, int r, int g, int b, int a) {
 		int vertexIndex = index;
 		int i = vertexIndex/h;
 		int j = vertexIndex - i*h;
 		
-		Collection<Chunk> relevantChunks = getChunks(i,j);
-		
-		relevantChunks.forEach((c)-> {
+		chunksForEach(i,j,(c)-> {
 			int chunkIndice = getInChunkIndice(c, i,j);
 			c.colors[chunkIndice*4] = (byte)r;
 			c.colors[chunkIndice*4+1] = (byte)g;
 			c.colors[chunkIndice*4+2] = (byte)b;
 			c.colors[chunkIndice*4+3] = (byte)a;
+		});
+	}
+
+	public void stonePut(int index) {
+		int vertexIndex = index;
+		int i = vertexIndex/h;
+		int j = vertexIndex - i*h;
+		
+		chunksForEach(i,j,(c)-> {
+			int chunkIndice = getInChunkIndice(c, i,j);
+			c.stone.set(chunkIndice);
 		});
 	}
 	
@@ -245,9 +317,16 @@ public class ChunkArray {
 		int j = vertexIndex - i*h;
 		//int coord = index - vertexIndex * 3;
 		
-		Collection<Chunk> relevantChunks = getChunks(i,j);
+//		Collection<Chunk> relevantChunks = getChunks(i,j);
+//		
+//		relevantChunks.forEach((c)-> {
+//			int chunkIndice = getInChunkIndice(c, i,j);
+//			c.normals[chunkIndice*3+0] = valueX;
+//			c.normals[chunkIndice*3+1] = valueY;
+//			c.normals[chunkIndice*3+2] = valueZ;
+//		});
 		
-		relevantChunks.forEach((c)-> {
+		chunksForEach(i,j,(c)-> {
 			int chunkIndice = getInChunkIndice(c, i,j);
 			c.normals[chunkIndice*3+0] = valueX;
 			c.normals[chunkIndice*3+1] = valueY;
@@ -255,50 +334,50 @@ public class ChunkArray {
 		});
 	}
 
-	public SoNode getGroup() {
-		
-		float[] distances = new float[Chunk.NB_LOD-1];
-		for(int l=0;l<Chunk.NB_LOD-1;l++) {
-			int decimatedChunkWidth =  Chunk.getDecimatedChunkWidth(l);//((Chunk.CHUNK_WIDTH -1) >> l) + 1;
-			distances[l] = 0.1f;//Chunk.CHUNK_WIDTH *2.0f + DEFINITION * Chunk.CHUNK_WIDTH * 2.0f / decimatedChunkWidth;
-		}
-		SoGroup group = new SoGroup();
-		//SoTextureCoordinate2 coords = new SoTextureCoordinate2();
-		//group.addChild(coords);
-		
-//		SoTexture2 texture = new SoTexture2();
-//		texture.filename.setValue("D:/screen.tif");
-		
-		SoTouchLODMaster master = new SoTouchLODMaster();
-		
-		SoCallback cbn = new SoCallback();
-		
-		cbn.setCallback((action)->master.reset());
-		
-		group.addChild(cbn);
-		
-		for(int i=0;i<nbChunkWidth;i++) {
-			for(int j=0;j<nbChunkHeight;j++) {
-				//SoSeparator sep = new SoSeparator();
-				SoGroup sep = new SoGroup();
-				
-				SoLOD lod = new SoTouchLOD(chunks[i][j],master);
-				lod.center.setValue(chunks[i][j].getCenter());
-				lod.range.setValues(0, distances);
-				for(int l=0; l< Chunk.NB_LOD;l++) {
-					lod.addChild(chunks[i][j].getIndexedFaceSet(l));
-				}
-				SoTexture2 texture = new SoTexture2();
-				texture.image.setValue(new SbVec2s((short)Chunk.getDecimatedChunkWidth(0),(short)Chunk.getDecimatedChunkWidth(0)),3, chunks[i][j].getImage(), true);
-				
-				sep.addChild(texture);
-				sep.addChild(lod);
-				group.addChild(sep);
-			}
-		}
-		
-		return group;
-	}
+//	public SoNode getGroup() {
+//		
+//		float[] distances = new float[Chunk.NB_LOD-1];
+//		for(int l=0;l<Chunk.NB_LOD-1;l++) {
+//			int decimatedChunkWidth =  Chunk.getDecimatedChunkWidth(l);//((Chunk.CHUNK_WIDTH -1) >> l) + 1;
+//			distances[l] = 0.1f;//Chunk.CHUNK_WIDTH *2.0f + DEFINITION * Chunk.CHUNK_WIDTH * 2.0f / decimatedChunkWidth;
+//		}
+//		SoGroup group = new SoGroup();
+//		//SoTextureCoordinate2 coords = new SoTextureCoordinate2();
+//		//group.addChild(coords);
+//		
+////		SoTexture2 texture = new SoTexture2();
+////		texture.filename.setValue("D:/screen.tif");
+//		
+//		SoTouchLODMaster master = new SoTouchLODMaster();
+//		
+//		SoCallback cbn = new SoCallback();
+//		
+//		cbn.setCallback((action)->master.reset());
+//		
+//		group.addChild(cbn);
+//		
+//		for(int i=0;i<nbChunkWidth;i++) {
+//			for(int j=0;j<nbChunkHeight;j++) {
+//				//SoSeparator sep = new SoSeparator();
+//				SoGroup sep = new SoGroup();
+//				
+//				SoLOD lod = new SoTouchLOD(chunks[i][j],master);
+//				lod.center.setValue(chunks[i][j].getCenter());
+//				lod.range.setValues(0, distances);
+//				for(int l=0; l< Chunk.NB_LOD;l++) {
+//					lod.addChild(chunks[i][j].getIndexedFaceSet(l));
+//				}
+//				SoTexture2 texture = new SoTexture2();
+//				texture.image.setValue(new SbVec2s((short)Chunk.getDecimatedChunkWidth(0),(short)Chunk.getDecimatedChunkWidth(0)),3, chunks[i][j].getImage(), true);
+//				
+//				sep.addChild(texture);
+//				sep.addChild(lod);
+//				group.addChild(sep);
+//			}
+//		}
+//		
+//		return group;
+//	}
 
 	public SoNode getShadowGroup() {
 		

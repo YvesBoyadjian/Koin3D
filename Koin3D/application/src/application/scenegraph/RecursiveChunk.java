@@ -314,8 +314,8 @@ public class RecursiveChunk {
 			
 			float[] xyz = new float[3];
 			
-			for(int i=i0;i<i0+ni;i++) {
-				for(int j=j0;j<j0+nj;j++) {
+			for(int i=i0;i<i0+ni;i+=(ni-1)) {
+				for(int j=j0;j<j0+nj;j+=(nj-1)) {
 					int index = i*ca.getH()+j;
 					ca.verticesGet(index,xyz);
 					xc += xyz[0];

@@ -21,9 +21,34 @@ public class OverallTexture {
 		this.ca = chunkArray;
 		
 		texture = new SoTexture2();
-		texture.image.setValue(new SbVec2s((short)ca.getW(),(short)ca.getH()),3,getImage(), true);
+		texture.image.setValue(new SbVec2s((short)ca.getW(),(short)ca.getH()),3,getImage2(), true);
 	}
 
+	private byte[] getImage2() {
+		int w = ca.getW();
+		int h = ca.getH();
+		byte[] image = new byte[w*h*3];
+		
+		int indexImage = 0;
+		for(int j=0;j<h;j++) {
+			for(int i=0;i<w;i++) {
+				int index = i*h+j;
+				//int indexI = i+w*j;
+				
+				int RGBA = ca.colorsGetRGBA(index);
+				
+				image[indexImage] = (byte)((RGBA>>>24) & 0xFF);indexImage++;
+				image[indexImage] = (byte)((RGBA>>>16) & 0xFF);indexImage++;
+				image[indexImage] = (byte)((RGBA>>>8) & 0xFF);indexImage++;
+				
+//				image[indexI*3] = ca.colorsGet(index*4);
+//				image[indexI*3+1] = ca.colorsGet(index*4+1);
+//				image[indexI*3+2] = ca.colorsGet(index*4+2);
+			}
+		}
+		
+		return image;
+	}
 	private byte[] getImage() {
 		int w = ca.getW();
 		int h = ca.getH();

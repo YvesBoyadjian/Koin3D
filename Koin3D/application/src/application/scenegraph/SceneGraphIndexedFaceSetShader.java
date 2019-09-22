@@ -16,6 +16,7 @@ import application.objects.DouglasFir;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
+import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
@@ -30,6 +31,7 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoCallback;
 import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoDirectionalLight;
+import jscenegraph.database.inventor.nodes.SoEnvironment;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoLight;
@@ -63,9 +65,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private static final float SUN_RADIUS = 7e8f;
 	
-	public static final float SUN_FAKE_DISTANCE = 1e5f;
+	public static final float SUN_FAKE_DISTANCE = 1e7f;
 	
-	public static final float WATER_HORIZON = 5e4f;
+	public static final float WATER_HORIZON = 1e5f;
 	
 	public static final float WATER_BRIGHTNESS = 0.4f;
 	
@@ -75,11 +77,17 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private static final SbColor TREE_COLOR = new SbColor(22.0f/255,42.0f/255,0.0f/255);
 	
+	private static final SbColor TREE_FOLIAGE = new SbColor(5.0f/255,42.0f/255,0.0f/255);
+	
 	private static final float SKY_INTENSITY = 0.2f; 
 	
 	private static final Color STONE = new Color(139,141,122); //http://www.colourlovers.com/color/8B8D7A/stone_gray
 	
 	private static final float GRASS_LUMINOSITY = 0.6f;
+	
+	private static final boolean FLY = false;
+	
+	private static final float CUBE_DEPTH = 2000;
 	
 	private SoSeparator sep = new SoSeparator() {
 		public void ref() {
@@ -236,10 +244,6 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 				
 				//Color color = snow;
 				
-				red_ = snow.getRed();
-				green_ = snow.getGreen();
-				blue_ = snow.getBlue();
-				
 				if(z < ALPINE_HEIGHT + 400 * (random.nextDouble()-0.3)) {
 					//color = new Color((float)random.nextDouble()*GRASS_LUMINOSITY, 1.0f*GRASS_LUMINOSITY, (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
 					
@@ -247,6 +251,12 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 					green_ = (int)(255.99f *  1.0f*GRASS_LUMINOSITY);
 					blue_ = (int)(255.99f * (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
 				}
+				else {					
+					red_ = snow.getRed();
+					green_ = snow.getGreen();
+					blue_ = snow.getBlue();					
+				}
+				
 				int red = /*color.getRed()*color.getRed()*/red_*red_/255;
 				int green = /*color.getGreen()*color.getGreen()*/green_*green_/255;
 				int blue = /*color.getBlue()*color.getBlue()*/blue_*blue_/255;
@@ -287,6 +297,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 			if((n.getZ()<0.45 && chunks.verticesGet(index,xyz)[2] < ALPINE_HEIGHT) || n.getZ()<0.35) {
 				chunks.colorsPut(index, redStone, greenStone, blueStone, 255);
+			}
+			if(n.getZ()<0.55) {
+				chunks.stonePut(index);				
 			}
 		}
 		}
@@ -343,6 +356,12 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    
 	    sep.addChild(callback);
 	    
+	    SoEnvironment environment = new SoEnvironment();
+	    environment.ambientColor.setValue(0, 0, 0);
+	    environment.ambientIntensity.setValue(0);
+	    
+	    sep.addChild(environment);
+	    
 	    sunView = new SoSphere();
 	    sunView.radius.setValue(SUN_RADIUS/SUN_REAL_DISTANCE*SUN_FAKE_DISTANCE);
 	    
@@ -352,6 +371,15 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    
 	    sunSep.addChild(sunMat);
 	    sunSep.addChild(sunTransl);
+	    
+	    SoDepthBuffer depthBuffer = new SoDepthBuffer();
+	    depthBuffer.test.setValue(false);
+	    depthBuffer.write.setValue(false);
+	    depthBuffer.clamp.setValue(true);
+	    
+	    sunSep.addChild(depthBuffer);
+	    
+	    
 	    sunSep.addChild(sunView);
 	    sep.addChild(sunSep);
 	    
@@ -389,20 +417,22 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 			}
 		};
 	    shadowGroup.quality.setValue(1.0f);
-	    shadowGroup.precision.setValue(0.2f);
+	    shadowGroup.precision.setValue(0.25f);
 	    //shadowGroup.shadowCachingEnabled.setValue(false);
 	    shadowGroup.intensity.setValue(1.0f);
-	    //shadowGroup.visibilityRadius.setValue(10000f);
+	    shadowGroup.visibilityFlag.setValue(SoShadowGroup.VisibilityFlag.PROJECTED_BBOX_DEPTH_FACTOR);
+	    //shadowGroup.visibilityRadius.setValue(1000f);
 	    //shadowGroup.smoothBorder.setValue(0.0f);
+	    shadowGroup.threshold.setValue(0.9f);
+	    shadowGroup.epsilon.setValue(3.0e-6f);
 	    
 for(int is=0;is<4;is++) {	    
 	    sun[is] = new SoShadowDirectionalLight();
 	    //sun = new SoDirectionalLight();
 	    sun[is].color.setValue(SUN_COLOR);
 	    
-	    //sun.maxShadowDistance.setValue(SUN_FAKE_DISTANCE*1.5f);
-	    //sun.bboxSize.setValue(SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE, SUN_FAKE_DISTANCE);
-	    sun[is].bboxSize.setValue(1e5f, 1e5f, 1e4f);
+	    sun[is].maxShadowDistance.setValue(2e4f/*SUN_FAKE_DISTANCE*1.5f*/);
+	    sun[is].bboxSize.setValue(2*WATER_HORIZON, 2*WATER_HORIZON, 1e4f);
 	    
 	    sun[is].intensity.setValue(1.0F/4.0f);
 	    
@@ -483,7 +513,7 @@ for(int is=0;is<4;is++) {
 		
 		//castingShadowScene.addChild(douglasSep);
 		
-		addWater(castingShadowScene,185 + zTranslation,0.0f, false);
+		addWater(castingShadowScene,150 + zTranslation,0.0f, false);
 		
 //	    SoVertexProperty vertexPropertyGeom = new SoVertexProperty();
 //	    vertexPropertyGeom.vertex.setValuesPointer(/*0,*/ vertices);
@@ -520,6 +550,16 @@ for(int is=0;is<4;is++) {
 		
 		castingShadowScene.addChild(shadowLandSep);
 		
+//	    SoSeparator douglasSepS = new SoSeparator();
+//	    
+//	    douglasSepS.addChild(transl);
+//	    
+//		SoIndexedFaceSet douglasTreesS = getDouglasTrees();
+//		
+//		douglasSepS.addChild(douglasTreesS);
+//		
+//		castingShadowScene.addChild(douglasSepS);
+		
 		sun[0].shadowMapScene.setValue(castingShadowScene);
 		sun[1].shadowMapScene.setValue(castingShadowScene);
 		sun[2].shadowMapScene.setValue(castingShadowScene);
@@ -534,7 +574,7 @@ for(int is=0;is<4;is++) {
 	    
 		SoCube water = new SoCube();
 		
-		water.depth.setValue(2000);
+		water.depth.setValue(CUBE_DEPTH);
 		water.height.setValue(WATER_HORIZON*2);
 		water.width.setValue(WATER_HORIZON*2);
 		
@@ -640,6 +680,13 @@ for(int is=0;is<4;is++) {
 	
 	public float getZ(float x, float y, float z) {
 		
+		if(FLY) {
+			return z;
+		}
+		return getInternalZ(x,y,z);
+	}
+	
+	public int[] getIndexes(float x, float y, int[] indices) {
 		float ifloat = (x - transl.translation.getValue().getX())/delta_x;
 		float jfloat = (delta_y*(h-1) -(y - transl.translation.getValue().getY() - jstart * delta_y))/delta_y;
 		
@@ -647,6 +694,9 @@ for(int is=0;is<4;is++) {
 		//int j = Math.round((y - transl.translation.getValue().getY() - 3298)/delta_y);
 		int j = Math.round(jfloat);
 		
+		if(i <0 || i>w-1 || j<0 || j>h-1) {
+			return null;
+		}
 		i = Math.max(0,i);
 		j = Math.max(0,j);
 		i = Math.min(w-1,i);
@@ -671,6 +721,63 @@ for(int is=0;is<4;is++) {
 		int index1 = imax*h + jmin;
 		int index2 = imax*h + jmax;
 		int index3 = imin*h + jmax;
+		
+		if(indices == null) {
+			indices = new int[4];
+			indices[0] = index0;
+			indices[1] = index1;
+			indices[2] = index2;
+			indices[3] = index3;
+		}
+		
+		return indices;
+	}
+	
+	public float getInternalZ(float x, float y, float z) {
+		
+		float ifloat = (x - transl.translation.getValue().getX())/delta_x;
+		float jfloat = (delta_y*(h-1) -(y - transl.translation.getValue().getY() - jstart * delta_y))/delta_y;
+		
+		int i = Math.round(ifloat);
+		//int j = Math.round((y - transl.translation.getValue().getY() - 3298)/delta_y);
+		int j = Math.round(jfloat);
+		
+		if(i <0 || i>w-1 || j<0 || j>h-1) {
+			return ZMIN - zTranslation;
+		}
+		i = Math.max(0,i);
+		j = Math.max(0,j);
+		i = Math.min(w-1,i);
+		j = Math.min(h-1,j);
+		
+		int imin = (int)Math.floor(ifloat);
+		int imax = (int)Math.ceil(ifloat);
+		int jmin = (int)Math.floor(jfloat);
+		int jmax = (int)Math.ceil(jfloat);
+		/*
+		imin = Math.max(0,imin);
+		jmin = Math.max(0,jmin);
+		imin = Math.min(w-1,imin);
+		jmin = Math.min(h-1,jmin);
+		
+		imax = Math.max(0,imax);
+		jmax = Math.max(0,jmax);
+		imax = Math.min(w-1,imax);
+		jmax = Math.min(h-1,jmax);
+		
+		int index0 = imin*h + jmin;
+		int index1 = imax*h + jmin;
+		int index2 = imax*h + jmax;
+		int index3 = imin*h + jmax;
+		*/
+		int[] indices = getIndexes(x,y,null);
+		if(indices == null) {
+			return ZMIN - zTranslation;			
+		}
+		int index0 = indices[0];
+		int index1 = indices[1];
+		int index2 = indices[2];
+		int index3 = indices[3];
 		
 		float[] xyz = new float[3];
  		
@@ -706,22 +813,45 @@ for(int is=0;is<4;is++) {
 //		System.out.println("delta = " +delta);
 		return z;
 	}
-
-	SoIndexedFaceSet getDouglasTrees() {
+	
+	public boolean isStone(float x, float y) {
+		int[] indices = getIndexes(x, y, null);
+		if(indices == null) {
+			return true;
+		}
+		boolean stone0 = chunks.isStone(indices[0]); 
+		boolean stone1 = chunks.isStone(indices[1]); 
+		boolean stone2 = chunks.isStone(indices[2]); 
+		boolean stone3 = chunks.isStone(indices[3]);
 		
-		int NB_DOUGLAS_SEEDS = 1000000;
+		return stone0 || stone1 || stone2 || stone3;
+	}
+	
+	int[] douglasIndices;
+	float[] douglasVertices;
+	float[] douglasNormals;
+	int[] douglasColors;
+	
+	private void computeDouglas() { 
+
+		int NB_DOUGLAS_SEEDS = 2000000;
 		
 		float[] xArray = new float[NB_DOUGLAS_SEEDS]; 
 		float[] yArray = new float[NB_DOUGLAS_SEEDS]; 
 		float[] zArray = new float[NB_DOUGLAS_SEEDS]; 
 		float[] heightArray = new float[NB_DOUGLAS_SEEDS]; 
 		
+		int nbDouglas = 0;
+		
 		for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
 			float x = getRandomX();
 			float y = getRandomY();
-			float z = getZ(x/* - transl.translation.getValue().getX()*/,y/* - transl.translation.getValue().getY()*/,0.0f) + zTranslation;
+			float z = getInternalZ(x,y,0.0f) + zTranslation;
 			
-			if( true ) {
+			boolean isAboveWater = z > - 150 + zTranslation - CUBE_DEPTH /2;
+			boolean isUnderSnowLevel = z < ALPINE_HEIGHT;
+			boolean isStone = isStone(x,y);
+			if( isAboveWater && isUnderSnowLevel && !isStone) {
 				
 				float height = DouglasFir.getHeight();
 				
@@ -729,19 +859,206 @@ for(int is=0;is<4;is++) {
 				yArray[i] = y;
 				zArray[i] = z;
 				heightArray[i] = height;
+				nbDouglas++;
 			}
 		}
 		
 		int NB_INDICES_PER_TRIANGLE = 4;
 		
-		int NB_TRIANGLES_PER_TREE = 4;
+		int NB_TRIANGLES_PER_TREE = 7;
 		
-		int NB_VERTEX_PER_TREE = 4;
+		int NB_VERTEX_PER_TREE = 7;
 		
 		int NB_INDICES_PER_TREE = NB_INDICES_PER_TRIANGLE * NB_TRIANGLES_PER_TREE;
 		
-		int nbIndices = NB_INDICES_PER_TREE * NB_DOUGLAS_SEEDS;
+		int nbIndices = NB_INDICES_PER_TREE * nbDouglas;
 		
+		douglasIndices = new int[nbIndices];
+		
+		int nbVertices = NB_VERTEX_PER_TREE * nbDouglas;
+		
+		douglasVertices = new float[nbVertices * 3];
+		
+		douglasNormals = new float[nbVertices * 3];
+		
+		douglasColors = new int[nbVertices];
+		
+		for( int tree = 0; tree< nbDouglas; tree++) {
+			
+			float height = heightArray[tree];
+			
+			int vertex = tree * NB_VERTEX_PER_TREE;
+			
+			douglasColors[vertex] = TREE_COLOR.getPackedValue();
+			douglasColors[vertex+1] = TREE_COLOR.getPackedValue();
+			douglasColors[vertex+2] = TREE_COLOR.getPackedValue();
+			douglasColors[vertex+3] = TREE_COLOR.getPackedValue();
+			douglasColors[vertex+1+3] = TREE_FOLIAGE.getPackedValue();
+			douglasColors[vertex+2+3] = TREE_FOLIAGE.getPackedValue();
+			douglasColors[vertex+3+3] = TREE_FOLIAGE.getPackedValue();
+			
+			int vertexCoordIndice = vertex * 3;
+			
+			// top of tree
+			douglasVertices[vertexCoordIndice] = xArray[tree];
+			douglasVertices[vertexCoordIndice+1] = yArray[tree];
+			douglasVertices[vertexCoordIndice+2] = zArray[tree] + height;
+			
+			douglasNormals[vertexCoordIndice] = 0;
+			douglasNormals[vertexCoordIndice+1] = 0;
+			douglasNormals[vertexCoordIndice+2] = 1;
+			
+			float width = height * 0.707f / 70.0f;
+			
+			//trunk
+			vertexCoordIndice += 3;
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] + width / 0.707f;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree];
+			douglasVertices[vertexCoordIndice+2] = zArray[tree] - 1;
+			
+			douglasNormals[vertexCoordIndice] = 1;
+			douglasNormals[vertexCoordIndice+1] = 0;
+			douglasNormals[vertexCoordIndice+2] = 0;
+			
+			vertexCoordIndice += 3;
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] - width;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + width;
+			douglasVertices[vertexCoordIndice+2] = zArray[tree] - 1;
+			
+			douglasNormals[vertexCoordIndice] =  - 0.707f;
+			douglasNormals[vertexCoordIndice+1] = + 0.707f;
+			douglasNormals[vertexCoordIndice+2] = 0;
+			
+			vertexCoordIndice += 3;
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] - width;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] - width;
+			douglasVertices[vertexCoordIndice+2] = zArray[tree] - 1;
+			
+			douglasNormals[vertexCoordIndice] = - 0.707f;
+			douglasNormals[vertexCoordIndice+1] = - 0.707f;
+			douglasNormals[vertexCoordIndice+2] = 0;
+			// end of trunk
+			
+			//foliage
+			vertexCoordIndice += 3;
+			
+			float foliageWidth = width * 8;
+			
+			
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] + foliageWidth / 0.707f;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree];
+
+			float z = getInternalZ(douglasVertices[vertexCoordIndice],douglasVertices[vertexCoordIndice+1],0.0f) + zTranslation;
+			
+			douglasVertices[vertexCoordIndice+2] = Math.max(zArray[tree] + 2.5f,z+0.2f);
+			
+			douglasNormals[vertexCoordIndice] = 1;
+			douglasNormals[vertexCoordIndice+1] = 0;
+			douglasNormals[vertexCoordIndice+2] = 0;
+			
+			vertexCoordIndice += 3;
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] - foliageWidth;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + foliageWidth;
+			
+			z = getInternalZ(douglasVertices[vertexCoordIndice],douglasVertices[vertexCoordIndice+1],0.0f) + zTranslation;
+			
+			douglasVertices[vertexCoordIndice+2] = Math.max(zArray[tree] + 2.5f,z+0.2f);
+			
+			douglasNormals[vertexCoordIndice] =  - 0.707f;
+			douglasNormals[vertexCoordIndice+1] = + 0.707f;
+			douglasNormals[vertexCoordIndice+2] = 0;
+			
+			vertexCoordIndice += 3;
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] - foliageWidth;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] - foliageWidth;
+			
+			z = getInternalZ(douglasVertices[vertexCoordIndice],douglasVertices[vertexCoordIndice+1],0.0f) + zTranslation;
+			
+			douglasVertices[vertexCoordIndice+2] = Math.max(zArray[tree] + 2.5f,z+0.2f);
+			
+			douglasNormals[vertexCoordIndice] = - 0.707f;
+			douglasNormals[vertexCoordIndice+1] = - 0.707f;
+			douglasNormals[vertexCoordIndice+2] = 0;
+			// end of foliage
+			
+			int i = tree * NB_INDICES_PER_TREE;
+			
+			// trunk side
+			douglasIndices[i] = vertex;
+			douglasIndices[i+1] = vertex+1;
+			douglasIndices[i+2] = vertex+2;
+			douglasIndices[i+3] = -1;
+			
+			i+= NB_INDICES_PER_TRIANGLE;
+
+//			indices[i] = vertex+1;
+//			indices[i+1] = vertex+2;
+//			indices[i+2] = vertex+3;
+//			indices[i+3] = -1;
+//
+//			i+= NB_INDICES_PER_TRIANGLE;
+
+			// trunk side
+			douglasIndices[i] = vertex+2;
+			douglasIndices[i+1] = vertex+3;
+			douglasIndices[i+2] = vertex+0;
+			douglasIndices[i+3] = -1;
+
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			// trunk side
+			douglasIndices[i] = vertex+3;
+			douglasIndices[i+1] = vertex+0;
+			douglasIndices[i+2] = vertex+1;
+			douglasIndices[i+3] = -1;
+			
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			//foliage side
+			douglasIndices[i] = vertex;
+			douglasIndices[i+1] = vertex+1+3;
+			douglasIndices[i+2] = vertex+2+3;
+			douglasIndices[i+3] = -1;
+			
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			// foliage side 
+			douglasIndices[i] = vertex+2+3;
+			douglasIndices[i+1] = vertex+3+3;
+			douglasIndices[i+2] = vertex+0;
+			douglasIndices[i+3] = -1;
+
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			// foliage side
+			douglasIndices[i] = vertex+3+3;
+			douglasIndices[i+1] = vertex+0;
+			douglasIndices[i+2] = vertex+1+3;
+			douglasIndices[i+3] = -1;
+			
+			i+= NB_INDICES_PER_TRIANGLE;
+
+			// foliage bottom
+			douglasIndices[i] = vertex+1+3;
+			douglasIndices[i+1] = vertex+2+3;
+			douglasIndices[i+2] = vertex+3+3;
+			douglasIndices[i+3] = -1;
+			
+		}
+	}
+		
+	SoIndexedFaceSet getDouglasTrees() {
+		
+		if( douglasIndices == null) {
+			computeDouglas();
+		}
+			
 		SoIndexedFaceSet indexedFaceSet = new SoIndexedFaceSet() {
 			public void GLRender(SoGLRenderAction action)
 			{
@@ -749,111 +1066,26 @@ for(int is=0;is<4;is++) {
 			}			
 		};
 		
-		int[] indices = new int[nbIndices];
-		
-		int nbVertices = NB_VERTEX_PER_TREE * NB_DOUGLAS_SEEDS;
-		
-		float[] vertices = new float[nbVertices * 3];
-		
-		float[] normals = new float[nbVertices * 3];
-		
-		int[] colors = new int[nbVertices];
-		
-		for( int tree = 0; tree< NB_DOUGLAS_SEEDS; tree++) {
-			
-			int vertex = tree * NB_VERTEX_PER_TREE;
-			
-			colors[vertex] = TREE_COLOR.getPackedValue();
-			colors[vertex+1] = TREE_COLOR.getPackedValue();
-			colors[vertex+2] = TREE_COLOR.getPackedValue();
-			colors[vertex+3] = TREE_COLOR.getPackedValue();
-			
-			int vertexCoordIndice = vertex * 3;
-			
-			vertices[vertexCoordIndice] = xArray[tree];
-			vertices[vertexCoordIndice+1] = yArray[tree];
-			vertices[vertexCoordIndice+2] = zArray[tree] + heightArray[tree];
-			
-			normals[vertexCoordIndice] = 0;
-			normals[vertexCoordIndice+1] = 0;
-			normals[vertexCoordIndice+2] = 1;
-			
-			vertexCoordIndice += 3;
-			
-			vertices[vertexCoordIndice] = xArray[tree] + 1;
-			vertices[vertexCoordIndice+1] = yArray[tree];
-			vertices[vertexCoordIndice+2] = zArray[tree];
-			
-			normals[vertexCoordIndice] = 1;
-			normals[vertexCoordIndice+1] = 0;
-			normals[vertexCoordIndice+2] = 0;
-			
-			vertexCoordIndice += 3;
-			
-			vertices[vertexCoordIndice] = xArray[tree] - 0.707f;
-			vertices[vertexCoordIndice+1] = yArray[tree] + 0.707f;
-			vertices[vertexCoordIndice+2] = zArray[tree];
-			
-			normals[vertexCoordIndice] =  - 0.707f;
-			normals[vertexCoordIndice+1] = + 0.707f;
-			normals[vertexCoordIndice+2] = 0;
-			
-			vertexCoordIndice += 3;
-			
-			vertices[vertexCoordIndice] = xArray[tree] - 0.707f;
-			vertices[vertexCoordIndice+1] = yArray[tree] - 0.707f;
-			vertices[vertexCoordIndice+2] = zArray[tree];
-			
-			normals[vertexCoordIndice] = - 0.707f;
-			normals[vertexCoordIndice+1] = - 0.707f;
-			normals[vertexCoordIndice+2] = 0;
-			
-			int i = tree * NB_INDICES_PER_TREE; 
-			indices[i] = vertex;
-			indices[i+1] = vertex+1;
-			indices[i+2] = vertex+2;
-			indices[i+3] = -1;
-			
-			i+= NB_INDICES_PER_TRIANGLE;
-
-			indices[i] = vertex+1;
-			indices[i+1] = vertex+2;
-			indices[i+2] = vertex+3;
-			indices[i+3] = -1;
-
-			i+= NB_INDICES_PER_TRIANGLE;
-
-			indices[i] = vertex+2;
-			indices[i+1] = vertex+3;
-			indices[i+2] = vertex+0;
-			indices[i+3] = -1;
-
-			i+= NB_INDICES_PER_TRIANGLE;
-
-			indices[i] = vertex+3;
-			indices[i+1] = vertex+0;
-			indices[i+2] = vertex+1;
-			indices[i+3] = -1;
-		}
-		
-		indexedFaceSet.coordIndex.setValuesPointer(indices);
+		indexedFaceSet.coordIndex.setValuesPointer(douglasIndices);
 		
 		SoVertexProperty vertexProperty = new SoVertexProperty();
 		
-		vertexProperty.vertex.setValuesPointer(vertices);
+		vertexProperty.vertex.setValuesPointer(douglasVertices);
 		
 		vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
 		
-		vertexProperty.normal.setValuesPointer(normals);
+		vertexProperty.normal.setValuesPointer(douglasNormals);
 		
 		vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
 		
-		vertexProperty.orderedRGBA.setValues(0, colors);
+		vertexProperty.orderedRGBA.setValues(0, douglasColors);
 		
 		indexedFaceSet.vertexProperty.setValue(vertexProperty);
 		
 		return indexedFaceSet;
 	}
+	
+	
 	
 	static Random random = new Random();
 	

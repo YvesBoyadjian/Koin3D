@@ -113,6 +113,7 @@ public class SoDepthBuffer extends SoNode {
 	public final SoSFBool write = new SoSFBool();
 	public final SoSFEnum function = new SoSFEnum();
 	public final SoSFVec2f range = new SoSFVec2f();
+	public final SoSFBool clamp = new SoSFBool();
 
 	/**
 	 *
@@ -124,6 +125,7 @@ public class SoDepthBuffer extends SoNode {
 		nodeHeader.SO_NODE_ADD_FIELD(write, "write", (true));
 		nodeHeader.SO_NODE_ADD_FIELD(function, "function", (SoDepthBuffer.DepthWriteFunction.LESS.getValue()));
 		nodeHeader.SO_NODE_ADD_FIELD(range, "range", (new SbVec2f(0.0f, 1.0f)));
+		nodeHeader.SO_NODE_ADD_FIELD(clamp, "clamp", (false));
 
 		nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(DepthWriteFunction.NEVER);
 		nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(DepthWriteFunction.ALWAYS);
@@ -146,7 +148,8 @@ GLRender(SoGLRenderAction  action)
 		boolean writeenable = this.write.getValue();
 		SoDepthBufferElement.DepthWriteFunction function =
 				SoDepthBufferElement.DepthWriteFunction.fromValue(this.function.getValue());
-  SbVec2f depthrange = this.range.getValue();
+  SbVec2f depthrange = new SbVec2f(this.range.getValue());
+	boolean clampenable = this.clamp.getValue();
 
   // accommodate for ignored fields
   if (this.test.isIgnored()) {
@@ -163,10 +166,13 @@ GLRender(SoGLRenderAction  action)
   if (this.range.isIgnored()) {
 			range.setValue(SoDepthBufferElement.getRange(state));
   }
+  if (this.clamp.isIgnored()) {
+		clampenable = SoDepthBufferElement.getClampEnable(state);
+}
 
   // update element
 		SoDepthBufferElement.set(state, testenable, writeenable,
-                            function, depthrange);
+                            function, depthrange, clampenable);
 }
 
 	public static void initClass() {

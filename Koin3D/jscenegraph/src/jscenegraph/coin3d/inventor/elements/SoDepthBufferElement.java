@@ -59,6 +59,7 @@ public class SoDepthBufferElement extends SoElement {
 	protected boolean write;
 	protected DepthWriteFunction function;
 	protected final SbVec2fSingle range = new SbVec2fSingle();
+	protected boolean clamp; // YB new feature
 
 	/**
 	 *
@@ -77,6 +78,7 @@ public class SoDepthBufferElement extends SoElement {
 		this.write = true;
 		this.function = DepthWriteFunction.LEQUAL;
 		this.range.setValue(0.0f, 1.0f);
+		this.clamp = false;
 	}
 
 	/*
@@ -94,6 +96,7 @@ push(SoState  state)
 		this.write = prev.write;
 		this.function = prev.function;
 		this.range.copyFrom(prev.range);
+	  	this.clamp = prev.clamp;
 		prev.capture(state);
 }
 
@@ -108,24 +111,25 @@ push(SoState  state)
 	 * ! Set this element's values.
 	 */
 	public static void set(SoState state, boolean test, boolean write, DepthWriteFunction function,
-			final SbVec2f range) {
+			final SbVec2f range, boolean clamp) {
 		SoDepthBufferElement elem = (SoDepthBufferElement) (SoElement.getElement(state,
 				classStackIndexMap.get(SoDepthBufferElement.class)));
 
-		elem.setElt(state.getGL2(), test, write, function, range);
+		elem.setElt(state.getGL2(), test, write, function, range, clamp);
 	}
 
 	/*
 	 * ! Fetches this element's values.
 	 */
 	public void get(SoState state, final boolean[] test_out, final boolean[] write_out,
-			final DepthWriteFunction[] function_out, final SbVec2f range_out) {
+			final DepthWriteFunction[] function_out, final SbVec2f range_out, final boolean[] clamp_out) {
 		SoDepthBufferElement elem = (SoDepthBufferElement) (SoElement.getConstElement(state,
 				classStackIndexMap.get(SoDepthBufferElement.class)));
 		test_out[0] = elem.test;
 		write_out[0] = elem.write;
 		function_out[0] = elem.function;
 		range_out.copyFrom(elem.range);
+		clamp_out[0] = elem.clamp;
 	}
 
 	/*
@@ -177,7 +181,8 @@ matches(final SoElement  element)
   return (elem.test == this.test)
     && (elem.write == this.write)
     && (elem.function == this.function)
-    && (elem.range.operator_equal_equal(this.range));
+    && (elem.range.operator_equal_equal(this.range)
+    		&& (elem.clamp == this.clamp));
 }
 
 	/*
@@ -191,6 +196,7 @@ matches(final SoElement  element)
 		elem.write = this.write;
 		elem.function = this.function;
 		elem.range.copyFrom(this.range);
+		elem.clamp = this.clamp;
   return elem;
 }
 
@@ -199,12 +205,19 @@ matches(final SoElement  element)
 */
 public void
 
-			setElt(GL2 gl2, boolean test, boolean write, DepthWriteFunction function, SbVec2f range)
+			setElt(GL2 gl2, boolean test, boolean write, DepthWriteFunction function, SbVec2f range, boolean clamp)
 {
   this.test = test;
   this.write = write;
   this.function = function;
 		this.range.copyFrom(range);
+		this.clamp = clamp;
+}
+
+public static boolean getClampEnable(SoState state) {
+	SoDepthBufferElement elem = (SoDepthBufferElement) (SoElement.getConstElement(state,
+			classStackIndexMap.get(SoDepthBufferElement.class)));
+	return elem.clamp;
 }
 
 }
