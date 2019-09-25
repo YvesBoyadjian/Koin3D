@@ -3,6 +3,7 @@
  */
 package jscenegraph.port;
 
+import java.io.UnsupportedEncodingException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -256,6 +257,27 @@ public class Util {
 			}
 		}
 		return new String(Arrays.copyOfRange(str,0,endIndex));
+	}
+
+	/**
+	 * Transform the array to a String, eliminating zero ending character
+	 * @param str
+	 * @return
+	 */
+	public static String toString(byte[] str) {
+		int len = str.length;
+		int endIndex = len;
+		for(int i=0;i<len;i++) {
+			if(str[i] == 0) {
+				endIndex = i;
+				break;
+			}
+		}
+		try {
+			return new String(Arrays.copyOfRange(str,0,endIndex),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			return null;
+		}
 	}
 
 	public static void qsort(Object base, int num, int size, Comparator comparator) {

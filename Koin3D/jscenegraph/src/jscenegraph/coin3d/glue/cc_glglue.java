@@ -218,7 +218,9 @@ public void glDetachObjectARB(int programHandle, int shaderHandle) {
 }
 
 public void glGetInfoLogARB(int handle, int length, int[] charsWritten, byte[] infoLog) {
-	ARBShaderObjects.glGetInfoLogARB(handle, charsWritten, Buffers.newDirectByteBuffer(infoLog));
+	ByteBuffer bb =  Buffers.newDirectByteBuffer(infoLog);
+	ARBShaderObjects.glGetInfoLogARB(handle, charsWritten, bb);
+	bb.get(infoLog);
 }
 
 public void glUseProgramObjectARB(int programhandle) {

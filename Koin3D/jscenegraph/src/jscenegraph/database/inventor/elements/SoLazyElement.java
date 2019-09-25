@@ -286,7 +286,7 @@ public class SoLazyElement extends SoElement {
 		        
 		                //! for transparency, keep either nodeid, or 0 if opaque.  Value of
 		                //! 1 indicates invalid.
-		                int            transpNodeId;
+		                //int            transpNodeId;
 		        
 		                //! store a value of each  color component; ambient, emissive,
 		                //! specular, shininess, or appropriate info to identify state.
@@ -309,7 +309,7 @@ public class SoLazyElement extends SoElement {
 		                float[]         transparencies;
 		                //int[]      packedColors;
 		                int[]      colorIndices;
-		                int              transpType;
+		                //int              transpType;
 		                int            cacheLevelSetBits;
 		                int            cacheLevelSendBits;
         boolean                overrideBlending;
@@ -328,7 +328,7 @@ public class SoLazyElement extends SoElement {
 			        
 			                //! for transparency, keep either nodeid, or 0 if opaque.  Value of
 			                //! 1 indicates invalid.
-			                            transpNodeId = other.transpNodeId;
+			                            //transpNodeId = other.transpNodeId;
 			        
 			                //! store a value of each  color component; ambient, emissive,
 			                //! specular, shininess, or appropriate info to identify state.
@@ -351,7 +351,7 @@ public class SoLazyElement extends SoElement {
 			                         transparencies = other.transparencies;
 			                      //packedColors = other.packedColors;
 			                      colorIndices = other.colorIndices;
-			                              transpType = other.transpType;
+			                              //transpType = other.transpType;
 			                            cacheLevelSetBits = other.cacheLevelSetBits;
 			                            cacheLevelSendBits = other.cacheLevelSendBits;
 		                }
@@ -838,21 +838,34 @@ getDiffuse(SoState state, int index)
 // Use: public, static
 ////////////////////////////////////////////////////////////////////////
 public static float
-getTransparency(SoState state, int index)  
+getTransparency(SoState state, int index)
 {
-    SoLazyElement curElt = getInstance(state);
-    if(state.isCacheOpen()) curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());  
-//#ifdef DEBUG
-    if (index > curElt.ivState.numTransparencies || index < 0){
-        SoDebugError.post("SoLazyElement.getTransparency", 
-                        "invalid index");
-        return(curElt.defaultTransparency[0]);
-    }
-//#endif
-    if (!curElt.ivState.packed) return (curElt.ivState.transparencies[index]);
-    return( 1.0f - ((curElt.coinstate.packedarray.get(index) & 0xff) * 1.0f/255));
-             
+	  SoLazyElement elem = getInstance(state);
+
+	  if (elem.coinstate.packeddiffuse) {
+	    final float[] transp = new float[1];
+	    final SbColor dummy = new SbColor();
+	    int numt = elem.coinstate.numdiffuse;
+	    dummy.setPackedValue(elem.coinstate.packedarray.get(index < numt ? index : numt-1), transp);
+	    return transp[0];
+	  }
+	  int numt = elem.coinstate.numtransp;
+	  return elem.coinstate.transparray.get(index < numt ? index : numt-1);	
 }
+//{
+//    SoLazyElement curElt = getInstance(state);
+//    if(state.isCacheOpen()) curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());  
+////#ifdef DEBUG
+//    if (index > curElt.ivState.numTransparencies || index < 0){
+//        SoDebugError.post("SoLazyElement.getTransparency", 
+//                        "invalid index");
+//        return(curElt.defaultTransparency[0]);
+//    }
+////#endif
+//    if (!curElt.ivState.packed) return (curElt.ivState.transparencies[index]);
+//    return( 1.0f - ((curElt.coinstate.packedarray.get(index) & 0xff) * 1.0f/255));
+//             
+//}
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -1003,27 +1016,42 @@ getBlending(SoState state, int[] sfactor, int[] dfactor)
 //
 ///////////////////////////////////////////////////////////////////////  
 public static void    
-setDiffuse(SoState state, SoNode node, int numColors, 
-            SbColorArray colors, SoColorPacker cPacker)
+setDiffuse(SoState state, SoNode node, int numcolors, 
+            SbColorArray colors, SoColorPacker packer)
 {
-    // if someone sets this directly, remove any color VBO
-    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
-    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
-        SoGLVBOElement.setColorVBO(state, null);
-      }
-
-    SoLazyElement curElt = SoLazyElement.getInstance(state);
-    //Because we are getting the transparency value from state, there
-    //is a get-dependence
-    if(state.isCacheOpen())curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
-    if (curElt.coinstate.diffusenodeid !=  node.getNodeId() ||
-         (!cPacker.transpMatch(curElt.ivState.transpNodeId))){
-        getWInstance(state).setDiffuseElt(node,  numColors, colors, cPacker);
-    }
-    else if (state.isCacheOpen()){       
-        curElt.registerRedundantSet(state, masks.DIFFUSE_MASK.getValue());
-    }
+	  if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
+		    SoGLVBOElement.setColorVBO(state, null);
+		  }
+		  SoLazyElement elem = SoLazyElement.getInstance(state);
+		  if (numcolors != 0 && (elem.coinstate.diffusenodeid !=
+		                    get_diffuse_node_id(node, numcolors, colors))) {
+		    elem = getWInstance(state);
+		    elem.setDiffuseElt(node, numcolors, colors, packer);
+		    if (state.isCacheOpen()) elem.lazyDidSet(masks.DIFFUSE_MASK.getValue());
+		  }
+		  else if (state.isCacheOpen()) {
+		    elem.lazyDidntSet(masks.DIFFUSE_MASK.getValue());
+		  }	
 }
+//{
+//    // if someone sets this directly, remove any color VBO
+//    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+//    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+//        SoGLVBOElement.setColorVBO(state, null);
+//      }
+//
+//    SoLazyElement curElt = SoLazyElement.getInstance(state);
+//    //Because we are getting the transparency value from state, there
+//    //is a get-dependence
+//    if(state.isCacheOpen())curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
+//    if (curElt.coinstate.diffusenodeid !=  node.getNodeId() ||
+//         (!cPacker.transpMatch(curElt.ivState.transpNodeId))){
+//        getWInstance(state).setDiffuseElt(node,  numColors, colors, cPacker);
+//    }
+//    else if (state.isCacheOpen()){       
+//        curElt.registerRedundantSet(state, masks.DIFFUSE_MASK.getValue());
+//    }
+//}
 ///////////////////////////////////////////////////////////////////////
 //
 // Description: static set() method for transparency 
@@ -1032,30 +1060,47 @@ setDiffuse(SoState state, SoNode node, int numColors,
 //
 ///////////////////////////////////////////////////////////////////////  
 public static void    
-setTransparency(SoState state, SoNode node, int numTransp, 
-            float[] transp, SoColorPacker cPacker)
+setTransparency(SoState state, SoNode node, int numvalues, 
+            float[] transparency, SoColorPacker packer)
 {
-    // if someone sets this directly, remove any color VBO
-    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
-    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
-        SoGLVBOElement.setColorVBO(state, null);
-      }
+	  if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
+	    SoGLVBOElement.setColorVBO(state, null);
+	  }
+	  SoLazyElement elem = SoLazyElement.getInstance(state);
+	  if (numvalues != 0 && (elem.coinstate.transpnodeid !=
+	                    get_transp_node_id(node, numvalues, new FloatArray(0,transparency)))) {
+	    elem = getWInstance(state);
+	    elem.setTranspElt(node, numvalues, transparency, packer);
+	    if (state.isCacheOpen()) elem.lazyDidSet(masks.TRANSPARENCY_MASK.getValue());
+	  }
+	  else if (state.isCacheOpen()) {
+	    elem.lazyDidntSet(masks.TRANSPARENCY_MASK.getValue());
+	  }
+	  SoShapeStyleElement.setTransparentMaterial(state, elem.coinstate.istransparent);
+	}
 
-    SoLazyElement curElt = SoLazyElement.getInstance(state);
-    //Because we are getting the diffuse value from state, there
-    //is a get-dependence
-    if(state.isCacheOpen())curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
-    
-    int testNodeId;
-    if(numTransp == 1 && transp[0] == 0.0) testNodeId = 0;
-    else testNodeId = node.getNodeId();
-    
-    if ((curElt.ivState.transpNodeId != testNodeId) || 
-        (!cPacker.diffuseMatch(curElt.coinstate.diffusenodeid)))
-        getWInstance(state).setTranspElt(node, numTransp, transp, cPacker);
-    else if (state.isCacheOpen()) 
-        curElt.registerRedundantSet(state, masks.TRANSPARENCY_MASK.getValue()|masks.DIFFUSE_MASK.getValue()); 
-}           
+//{
+//    // if someone sets this directly, remove any color VBO
+//    //SoGLVBOElement.unsetVBOIfEnabled(state, SoGLVBOElement.VBOType.COLOR_VBO);
+//    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+//        SoGLVBOElement.setColorVBO(state, null);
+//      }
+//
+//    SoLazyElement curElt = SoLazyElement.getInstance(state);
+//    //Because we are getting the diffuse value from state, there
+//    //is a get-dependence
+//    if(state.isCacheOpen())curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
+//    
+//    int testNodeId;
+//    if(numTransp == 1 && transp[0] == 0.0) testNodeId = 0;
+//    else testNodeId = node.getNodeId();
+//    
+//    if ((curElt.ivState.transpNodeId != testNodeId) || 
+//        (!cPacker.diffuseMatch(curElt.coinstate.diffusenodeid)))
+//        getWInstance(state).setTranspElt(node, numTransp, transp, cPacker);
+//    else if (state.isCacheOpen()) 
+//        curElt.registerRedundantSet(state, masks.TRANSPARENCY_MASK.getValue()|masks.DIFFUSE_MASK.getValue()); 
+//}           
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -1257,7 +1302,7 @@ setMaterials(SoState state,  SoNode node,
     //For transparency nodeid, opaque nodes are identified as nodeId = 0:       
     if(transp.getNum() == 1 && transp.operator_square_bracket(0) == 0.0) nodeId = 0;
     
-    if (curElt.ivState.transpNodeId != nodeId && (bitmask & masks.TRANSPARENCY_MASK.getValue()) != 0)  
+    if (/*curElt.ivState.transpNodeId*/curElt.coinstate.transpnodeid != nodeId && (bitmask & masks.TRANSPARENCY_MASK.getValue()) != 0)  
         realSet |= masks.TRANSPARENCY_MASK.getValue();
         
     if (realSet != 0){ 
@@ -1391,13 +1436,13 @@ setTranspElt(SoNode node, int numtransp,
     ivState.transparencies = transp;
     ivState.stippleNum = 0;
     if (transp[0] > 0.0) {
-        if (ivState.transpType == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
+        if (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
             ivState.stippleNum =
                 (int)(transp[0]*getNumPatterns());
         }       
     }
-    if (numtransp == 1 && transp[0] == 0.0) ivState.transpNodeId = 0;
-        else ivState.transpNodeId = node.getNodeId();
+    if (numtransp == 1 && transp[0] == 0.0) /*ivState.transpNodeId*/coinstate.transpnodeid = 0;
+        else /*ivState.transpNodeId*/coinstate.transpnodeid = node.getNodeId();
     ivState.packed=false;
     ivState.packedTransparent = false;
   
@@ -1481,7 +1526,7 @@ setPackedElt( SoNode node,  int numColors,
     ivState.numDiffuseColors = numColors;
     ivState.numTransparencies = numColors;
     ivState.stippleNum = 0;     
-    if ((ivState.transpType == SoGLRenderAction.TransparencyType.SCREEN_DOOR.ordinal()) &&
+    if ((coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.ordinal()) &&
             ((colors[0]&0xff) != 0xff)){        
         ivState.stippleNum = (int)(getNumPatterns()*
                 (1.-(colors[0] & 0xff)*(1./255.)));         
@@ -1597,7 +1642,7 @@ setMaterialElt(SoNode node, int mask, SoColorPacker packer,
         ivState.transparencies = transp.getValuesFloat(0);
         ivState.stippleNum = 0;
         if ((ivState.transparencies[0]> 0.0) &&
-                (ivState.transpType == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue())) {
+                (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue())) {
             ivState.stippleNum = 
                 (int)(ivState.transparencies[0]*getNumPatterns());
         }

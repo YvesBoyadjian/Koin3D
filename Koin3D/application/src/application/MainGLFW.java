@@ -31,6 +31,7 @@ import jsceneviewerglfw.inventor.qt.SoQtCameraController;
 import jsceneviewerglfw.inventor.qt.viewers.SoQtFullViewer;
 import jsceneviewerglfw.Cursor;
 import jsceneviewerglfw.Display;
+import jsceneviewerglfw.GLData;
 import jsceneviewerglfw.SWT;
 import loader.TerrainLoader;
 
@@ -73,6 +74,15 @@ public class MainGLFW {
 		//SceneGraph sg = new ShadowTestSceneGraph();
 		
 		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style);
+	    GLData glf = new GLData(/*GLProfile.getDefault()*/);
+	    glf.depthSize = 24;
+	    glf.doubleBuffer = true;
+	    glf.majorVersion = 3;
+	    glf.minorVersion = 3;
+	    glf.api = GLData.API.GL;
+	    glf.profile = GLData.Profile.COMPATIBILITY;
+	    glf.debug = true;
+	    viewer.setFormat(glf, style);
 
 		viewer.buildWidget(style);
 		viewer.setHeadlight(false);
@@ -102,7 +112,7 @@ public class MainGLFW {
 		
 		viewer.getSceneHandler().setBackgroundColor(new SbColor(0,0,1));
 
-		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
+		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND/*SORTED_LAYERS_BLEND*/);
 		
 		sg.setPosition(SCENE_POSITION.getX(),SCENE_POSITION.getY()/*,SCENE_POSITION.getZ()*/);
 		

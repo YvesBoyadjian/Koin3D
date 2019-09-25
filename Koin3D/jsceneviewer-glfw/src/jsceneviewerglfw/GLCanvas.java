@@ -39,9 +39,15 @@ public class GLCanvas extends Composite {
 	      int  width = vidMode.width();
 	      int  height = vidMode.height();
 	      
-	      glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, format.majorVersion);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, format.minorVersion);
-			glfwWindowHint(GLFW_OPENGL_PROFILE, format.profile ==  GLData.Profile.COMPATIBILITY ? GLFW_OPENGL_COMPAT_PROFILE : GLFW_OPENGL_CORE_PROFILE);
+	      if( format.majorVersion >= 0 ) {
+	    	  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, format.majorVersion);
+	      }
+	      if( format.minorVersion >= 0 ) {
+	    	  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, format.minorVersion);
+	      }
+	      if( format.profile != null ) {
+	    	  glfwWindowHint(GLFW_OPENGL_PROFILE, format.profile ==  GLData.Profile.COMPATIBILITY ? GLFW_OPENGL_COMPAT_PROFILE : GLFW_OPENGL_CORE_PROFILE);
+	      }
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
 			glfwWindowHint(GLFW_REFRESH_RATE, 120);
 			glfwWindowHint(GLFW_DEPTH_BITS, 24);			

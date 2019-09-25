@@ -34,6 +34,7 @@ import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1i;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Util;
 
 /**
  * @author Yves Boyadjian
@@ -195,7 +196,7 @@ printInfoLog( cc_glglue g, /*COIN_GLhandle*/int handle, int objType)
     default: ;// do nothing
     }
     SoDebugError.postInfo("SoGLSLShaderObject::printInfoLog",
-                           s+" log: '"+infoLog+"'");
+                           s+" log: '"+Util.toString(infoLog)+"'");
     //delete [] infoLog; java port
   }
 }

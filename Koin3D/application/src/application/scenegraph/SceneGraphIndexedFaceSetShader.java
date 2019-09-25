@@ -75,9 +75,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
-	private static final SbColor TREE_COLOR = new SbColor(22.0f/255,42.0f/255,0.0f/255);
+	private static final SbColor TRUNK_COLOR = new SbColor(60.0f/255,42.0f/255,0.0f/255);
 	
-	private static final SbColor TREE_FOLIAGE = new SbColor(5.0f/255,42.0f/255,0.0f/255);
+	private static final SbColor TREE_FOLIAGE = new SbColor(22.0f/255,42.0f/255,0.0f/255);
+	
+	private static final SbColor GREEN = new SbColor(5.0f/255,52.0f/255,0.0f/255);
 	
 	private static final float SKY_INTENSITY = 0.2f; 
 	
@@ -138,6 +140,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	int jstart;
 	
 	SoShadowGroup shadowGroup;
+	//SoSeparator shadowGroup;
 	
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
@@ -406,7 +409,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    sep.addChild(sky[2]);
 	    sep.addChild(sky[3]);
 	    
-//	    SoGroup shadowGroup = new SoGroup();
+	    //shadowGroup = new SoSeparator();
 	    shadowGroup = new SoShadowGroup() {
 			public void ref() {
 				super.ref();
@@ -418,11 +421,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		};
 	    shadowGroup.quality.setValue(1.0f);
 	    shadowGroup.precision.setValue(0.25f);
-	    //shadowGroup.shadowCachingEnabled.setValue(false);
 	    shadowGroup.intensity.setValue(1.0f);
 	    shadowGroup.visibilityFlag.setValue(SoShadowGroup.VisibilityFlag.PROJECTED_BBOX_DEPTH_FACTOR);
-	    //shadowGroup.visibilityRadius.setValue(1000f);
-	    //shadowGroup.smoothBorder.setValue(0.0f);
 	    shadowGroup.threshold.setValue(0.9f);
 	    shadowGroup.epsilon.setValue(3.0e-6f);
 	    
@@ -834,7 +834,7 @@ for(int is=0;is<4;is++) {
 	
 	private void computeDouglas() { 
 
-		int NB_DOUGLAS_SEEDS = 2000000;
+		int NB_DOUGLAS_SEEDS = 4000000;
 		
 		float[] xArray = new float[NB_DOUGLAS_SEEDS]; 
 		float[] yArray = new float[NB_DOUGLAS_SEEDS]; 
@@ -865,11 +865,15 @@ for(int is=0;is<4;is++) {
 		
 		int NB_INDICES_PER_TRIANGLE = 4;
 		
-		int NB_TRIANGLES_PER_TREE = 7;
+		int NB_INDICES_PER_QUAD = 5;
 		
-		int NB_VERTEX_PER_TREE = 7;
+		int NB_TRIANGLES_PER_TREE = 5;
 		
-		int NB_INDICES_PER_TREE = NB_INDICES_PER_TRIANGLE * NB_TRIANGLES_PER_TREE;
+		int NB_QUAD_PER_TREE = 3;
+		
+		int NB_VERTEX_PER_TREE = 10;
+		
+		int NB_INDICES_PER_TREE = NB_INDICES_PER_TRIANGLE * NB_TRIANGLES_PER_TREE + NB_INDICES_PER_QUAD * NB_QUAD_PER_TREE;
 		
 		int nbIndices = NB_INDICES_PER_TREE * nbDouglas;
 		
@@ -889,13 +893,16 @@ for(int is=0;is<4;is++) {
 			
 			int vertex = tree * NB_VERTEX_PER_TREE;
 			
-			douglasColors[vertex] = TREE_COLOR.getPackedValue();
-			douglasColors[vertex+1] = TREE_COLOR.getPackedValue();
-			douglasColors[vertex+2] = TREE_COLOR.getPackedValue();
-			douglasColors[vertex+3] = TREE_COLOR.getPackedValue();
+			douglasColors[vertex] = TRUNK_COLOR.getPackedValue();
+			douglasColors[vertex+1] = TRUNK_COLOR.getPackedValue();
+			douglasColors[vertex+2] = TRUNK_COLOR.getPackedValue();
+			douglasColors[vertex+3] = TRUNK_COLOR.getPackedValue();
 			douglasColors[vertex+1+3] = TREE_FOLIAGE.getPackedValue();
 			douglasColors[vertex+2+3] = TREE_FOLIAGE.getPackedValue();
 			douglasColors[vertex+3+3] = TREE_FOLIAGE.getPackedValue();
+			douglasColors[vertex+1+3+3] = TREE_FOLIAGE.getPackedValue();
+			douglasColors[vertex+2+3+3] = TREE_FOLIAGE.getPackedValue();
+			douglasColors[vertex+3+3+3] = TREE_FOLIAGE.getPackedValue();
 			
 			int vertexCoordIndice = vertex * 3;
 			
@@ -908,7 +915,7 @@ for(int is=0;is<4;is++) {
 			douglasNormals[vertexCoordIndice+1] = 0;
 			douglasNormals[vertexCoordIndice+2] = 1;
 			
-			float width = height * 0.707f / 70.0f;
+			float width = height * 0.707f / 50.0f;
 			
 			//trunk
 			vertexCoordIndice += 3;
@@ -942,10 +949,45 @@ for(int is=0;is<4;is++) {
 			douglasNormals[vertexCoordIndice+2] = 0;
 			// end of trunk
 			
-			//foliage
 			vertexCoordIndice += 3;
 			
-			float foliageWidth = width * 8;
+			float widthTop = width *1.2f * random.nextFloat();
+			
+			// top of tree foliage
+			douglasVertices[vertexCoordIndice] = xArray[tree]+ widthTop / 0.707f;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree];
+			douglasVertices[vertexCoordIndice+2] = zArray[tree] + height;
+			
+			douglasNormals[vertexCoordIndice] = 1;
+			douglasNormals[vertexCoordIndice+1] = 0;
+			douglasNormals[vertexCoordIndice+2] = 0.2f;
+			
+			vertexCoordIndice += 3;
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] - widthTop;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + widthTop;
+			douglasVertices[vertexCoordIndice+2] = zArray[tree] + height;
+			
+			douglasNormals[vertexCoordIndice] =  - 0.707f;
+			douglasNormals[vertexCoordIndice+1] = + 0.707f;
+			douglasNormals[vertexCoordIndice+2] = 0.2f;
+			
+			vertexCoordIndice += 3;
+			
+			douglasVertices[vertexCoordIndice] = xArray[tree] - widthTop;
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] - widthTop;
+			douglasVertices[vertexCoordIndice+2] = zArray[tree] + height;
+			
+			douglasNormals[vertexCoordIndice] = - 0.707f;
+			douglasNormals[vertexCoordIndice+1] = - 0.707f;
+			douglasNormals[vertexCoordIndice+2] = 0.2f;
+			
+			//foliage
+			vertexCoordIndice += 3;
+
+			
+			
+			float foliageWidth = width * 7;
 			
 			
 			
@@ -1021,30 +1063,41 @@ for(int is=0;is<4;is++) {
 			i+= NB_INDICES_PER_TRIANGLE;
 
 			//foliage side
-			douglasIndices[i] = vertex;
-			douglasIndices[i+1] = vertex+1+3;
-			douglasIndices[i+2] = vertex+2+3;
-			douglasIndices[i+3] = -1;
+			douglasIndices[i] = vertex+1+3;
+			douglasIndices[i+1] = vertex+1+3+3;
+			douglasIndices[i+2] = vertex+2+3+3;
+			douglasIndices[i+3] = vertex+2+3;
+			douglasIndices[i+4] = -1;
 			
-			i+= NB_INDICES_PER_TRIANGLE;
+			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_QUAD;
 
 			// foliage side 
-			douglasIndices[i] = vertex+2+3;
-			douglasIndices[i+1] = vertex+3+3;
-			douglasIndices[i+2] = vertex+0;
-			douglasIndices[i+3] = -1;
+			douglasIndices[i] = vertex+2+3+3;
+			douglasIndices[i+1] = vertex+3+3+3;
+			douglasIndices[i+2] = vertex+3+3;
+			douglasIndices[i+3] = vertex+2+3;
+			douglasIndices[i+4] = -1;
 
-			i+= NB_INDICES_PER_TRIANGLE;
+			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_QUAD;
 
 			// foliage side
-			douglasIndices[i] = vertex+3+3;
-			douglasIndices[i+1] = vertex+0;
+			douglasIndices[i] = vertex+3+3+3;
+			douglasIndices[i+1] = vertex+3+3;
 			douglasIndices[i+2] = vertex+1+3;
-			douglasIndices[i+3] = -1;
+			douglasIndices[i+3] = vertex+1+3+3;
+			douglasIndices[i+4] = -1;
 			
-			i+= NB_INDICES_PER_TRIANGLE;
+			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_QUAD;
 
 			// foliage bottom
+			douglasIndices[i] = vertex+1+3+3;
+			douglasIndices[i+1] = vertex+2+3+3;
+			douglasIndices[i+2] = vertex+3+3+3;
+			douglasIndices[i+3] = -1;
+			
+			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_TRIANGLE;
+
+			// foliage top
 			douglasIndices[i] = vertex+1+3;
 			douglasIndices[i+1] = vertex+2+3;
 			douglasIndices[i+2] = vertex+3+3;
