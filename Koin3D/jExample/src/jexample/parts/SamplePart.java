@@ -22,8 +22,10 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GLDebugMessageCallbackI;
 import org.osgi.framework.Bundle;
 
+import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.coin3d.inventor.nodes.SoTexture2;
+import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SoDB;
@@ -32,11 +34,14 @@ import jscenegraph.database.inventor.engines.SoElapsedTime;
 import jscenegraph.database.inventor.nodes.SoBaseColor;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCone;
+import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoCylinder;
 import jscenegraph.database.inventor.nodes.SoDirectionalLight;
 import jscenegraph.database.inventor.nodes.SoDrawStyle;
 import jscenegraph.database.inventor.nodes.SoEnvironment;
 import jscenegraph.database.inventor.nodes.SoFile;
+import jscenegraph.database.inventor.nodes.SoGroup;
+import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoIndexedTriangleStripSet;
 import jscenegraph.database.inventor.nodes.SoLightModel;
 import jscenegraph.database.inventor.nodes.SoMaterial;
@@ -101,7 +106,7 @@ public class SamplePart {
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
-	    		createDemoScenePerformance()
+	    		//createDemoScenePerformance()
 	    		//createDemoSceneSoMaterialShapeBinding()
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
@@ -125,6 +130,7 @@ public class SamplePart {
 	    		//Orbits.main()
 	    		//WorldAnimated.main()
 	    		//DualWorld.main()
+	    		createDemoSceneTransparentCubes()
 	    		);
 	    //CameraSensor.attach(viewer);
 	    viewer.viewAll();
@@ -1256,6 +1262,78 @@ SoSeparator createPlanet2(float radius, float distance,
 		return root;
 	}
 
+	SoNode createDemoSceneTransparentCubes() {
+		SoSeparator root = new SoSeparator();
+		root.ref();
+
+		SoSeparator root2 = new SoShadowGroup();
+		root.addChild(root2);
+		
+		SoGroup root3 = new SoGroup();
+		root2.addChild(root3);
+		
+		SoMaterial mat = new SoMaterial();
+		mat.diffuseColor.setValue(.5f, .6f, 0.7f);
+		mat.transparency.setValue(0.5f);
+		
+		root3.addChild(mat);
+		
+		SoCube bigCube;
+		
+//		bigCube = new SoCube();
+//		bigCube.depth.setValue(5.0f);
+//		bigCube.height.setValue(5.0f);
+//		bigCube.width.setValue(5.0f);
+//				
+//		root3.addChild(bigCube);
+		
+		SoIndexedFaceSet faceSet = new SoIndexedFaceSet();
+		
+		SoVertexProperty vp = new SoVertexProperty();
+		
+		int nbRepeat = 10000;
+		
+		float[] xyz = new float[9*nbRepeat];
+		for(int i=0;i<nbRepeat;i++) {
+		xyz[3+9*i] = 1.0f;
+		xyz[4+9*i] = 1.0f;
+		xyz[6+9*i] = -1.0f;
+		xyz[7+9*i] = 1.0f;
+		}
+		vp.vertex.setValues(0,xyz);
+		
+		faceSet.vertexProperty.setValue(vp);
+		
+		int[] indices = new int[4*nbRepeat];
+		for(int i=0;i<nbRepeat;i++) {
+		indices[0+4*i] = 0+3*i;
+		indices[1+4*i] = 1+3*i;
+		indices[2+4*i] = 2+3*i;
+		indices[3+4*i] = -1;
+		}		
+		faceSet.coordIndex.setValues(0, indices);
+		
+		SoSeparator root4 = new SoSeparator();
+		
+		SoTranslation transl = new SoTranslation();
+		
+		transl.translation.setValue(1, 2, 3);
+		root4.addChild(transl);
+		root4.addChild(faceSet);
+		root3.addChild(root4);
+		
+		bigCube = new SoCube();
+		bigCube.depth.setValue(10.0f);
+		bigCube.height.setValue(10.0f);
+		bigCube.width.setValue(10.0f);
+				
+		root4 = new SoSeparator();
+		root4.addChild(bigCube);
+		root3.addChild(root4);
+		
+		return root;
+	}
+	
 	
 	public static void main(String[] args) {
 

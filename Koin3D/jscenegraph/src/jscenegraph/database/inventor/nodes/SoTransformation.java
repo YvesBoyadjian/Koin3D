@@ -55,6 +55,15 @@
 package jscenegraph.database.inventor.nodes;
 
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoCallbackAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
+import jscenegraph.database.inventor.actions.SoPickAction;
+import jscenegraph.database.inventor.elements.SoBBoxModelMatrixElement;
+import jscenegraph.database.inventor.elements.SoGLModelMatrixElement;
+import jscenegraph.database.inventor.elements.SoLocalBBoxMatrixElement;
+import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 
 
@@ -118,5 +127,17 @@ public class SoTransformation extends SoNode {
 	  ////////////////////////////////////////////////////////////////////////
 	  {
 	      SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(SoTransformation.class, "Transformation", SoNode.class);
+	      
+	      SO_ENABLE(SoGetBoundingBoxAction.class, SoModelMatrixElement.class);
+	      SO_ENABLE(SoGetBoundingBoxAction.class, SoBBoxModelMatrixElement.class);
+	      SO_ENABLE(SoGetBoundingBoxAction.class, SoLocalBBoxMatrixElement.class);
+
+	      SO_ENABLE(SoGLRenderAction.class, SoGLModelMatrixElement.class);
+
+	      SO_ENABLE(SoPickAction.class, SoModelMatrixElement.class);
+
+	      SO_ENABLE(SoCallbackAction.class, SoModelMatrixElement.class);
+
+	      SO_ENABLE(SoGetPrimitiveCountAction.class, SoModelMatrixElement.class);
 	  }
 	  }

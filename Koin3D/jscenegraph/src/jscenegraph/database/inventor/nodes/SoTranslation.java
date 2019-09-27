@@ -62,6 +62,7 @@ import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoGetMatrixAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -267,4 +268,13 @@ public void pick(SoPickAction action)
     SoTranslation_doAction(action);
 }
 
+// Doc in superclass. Overrides the traversal method in this class for
+// the SoGetPrimitiveCountAction because the number of primitives can
+// be different depending on scene location (and thereby distance to
+// camera) if there are e.g. SoLOD nodes in the scene.
+public void
+getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  SoTranslation_doAction((SoAction )action);
+}
 }
