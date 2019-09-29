@@ -63,6 +63,7 @@ import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate4;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
+import jscenegraph.coin3d.inventor.nodes.SoLevelOfDetail;
 import jscenegraph.coin3d.inventor.nodes.SoSceneTexture2;
 import jscenegraph.coin3d.inventor.nodes.SoShuttle;
 import jscenegraph.coin3d.inventor.nodes.SoTexture;
@@ -556,7 +557,7 @@ doAction(SoAction action)
 		       SoIndexedTriangleStripSet.initClass();
 		       SoInfo.initClass();
 		       SoLabel.initClass();
-//		       SoLevelOfDetail.initClass();
+		       SoLevelOfDetail.initClass();
 		       SoLOD.initClass();
 		       SoLocateHighlight.initClass();
 		       SoLightModel.initClass();

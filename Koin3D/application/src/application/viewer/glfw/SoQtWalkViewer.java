@@ -315,7 +315,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		return false;
 	}
 	
-	private void updateLocation(SbVec3f diff_position) {
+	public void updateLocation(SbVec3f diff_position) {
 		
 		double currentTimeSec = System.nanoTime()/1.0e9;
 		
@@ -385,7 +385,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		//viewer.getSceneHandler().getSceneGraph().touch();
 		sensor.schedule();
 	}
-
+	
 	public void idle() {
 		  
 		  moveCamera();
@@ -468,11 +468,12 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 //    	super.actualRedraw();
 //    }
     
-    public void addIdleListener(Consumer listener) {
+    public void addIdleListener(Consumer<SoQtWalkViewer> listener) {
     	idleListeners.add(listener);
     }
 
 	public void start() {
+		idle();
 		idleSensor.schedule();
 	}
 

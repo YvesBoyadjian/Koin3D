@@ -11,9 +11,9 @@ import java.util.Random;
  */
 public class DouglasFir {
 	
-	private static Random random = new Random();
+	private static Random random = new Random(42);
 
-	final static float min_height_meters = 20;
+	final static float min_height_meters = 10;
 	
 	final static float max_height_meters = 60;
 	

@@ -5,6 +5,8 @@ package application;
 
 import java.awt.image.Raster;
 
+import com.jogamp.opengl.GL2;
+
 //import org.eclipse.swt.SWT;
 //import org.eclipse.swt.graphics.Color;
 //import org.eclipse.swt.graphics.Cursor;
@@ -41,7 +43,7 @@ import loader.TerrainLoader;
  */
 public class MainGLFW {
 	
-	public static final float MINIMUM_VIEW_DISTANCE = 1.0f;
+	public static final float MINIMUM_VIEW_DISTANCE = 2.0f;//1.0f;
 
 	public static final float MAXIMUM_VIEW_DISTANCE = SceneGraphIndexedFaceSetShader.WATER_HORIZON;//5e4f;//SceneGraphIndexedFaceSet.SUN_FAKE_DISTANCE * 1.5f;
 	
@@ -153,6 +155,8 @@ public class MainGLFW {
 	    boolean success = viewer.setFocus();
 	    
 	    viewer.start();
+		viewer.updateLocation(new SbVec3f(0.0f, 0.0f, 0.0f));
+		
 	    
 	    //viewer.getGLWidget().maximize();
 	    
@@ -170,6 +174,13 @@ public class MainGLFW {
 //		}
 	    System.gc();
 	    System.runFinalization();
+	    
+	    GL2 gl2 = new GL2() {};
+	    
+	    int[] depthBits = new int[1];
+	    gl2.glGetIntegerv(GL2.GL_DEPTH_BITS, depthBits);
+	    
+	    System.out.println("Depth Buffer : "+depthBits[0]);
 	    
 	    display.loop();
 	    

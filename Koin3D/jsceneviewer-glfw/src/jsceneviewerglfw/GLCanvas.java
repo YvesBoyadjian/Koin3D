@@ -39,7 +39,7 @@ public class GLCanvas extends Composite {
 	      int  width = vidMode.width();
 	      int  height = vidMode.height();
 	      
-	      if( format.majorVersion >= 0 ) {
+	      if( format.majorVersion > 0 ) {
 	    	  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, format.majorVersion);
 	      }
 	      if( format.minorVersion >= 0 ) {
@@ -50,8 +50,9 @@ public class GLCanvas extends Composite {
 	      }
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
 			glfwWindowHint(GLFW_REFRESH_RATE, 120);
-			glfwWindowHint(GLFW_DEPTH_BITS, 24);			
-
+		if(format.depthSize > 0) {
+			glfwWindowHint(GLFW_DEPTH_BITS, format.depthSize);			
+		}
 			
 		// Create the window
 		window = glfwCreateWindow(width, height, "Hello World!", glfwGetPrimaryMonitor(), NULL);

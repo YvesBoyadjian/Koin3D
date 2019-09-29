@@ -217,7 +217,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		
 		float zmin = Float.MAX_VALUE;
 		float zmax = -Float.MAX_VALUE;
-		Random random = new Random();
+		//Random random = new Random();
 		
 		chunks.initXY(delta_x,delta_y);
 		
@@ -365,6 +365,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    
 	    sep.addChild(environment);
 	    
+	    SoDepthBuffer depthBuffer1 = new SoDepthBuffer();
+	    depthBuffer1.clamp.setValue(true);
+	    sep.addChild(depthBuffer1);	    
+	    
 	    sunView = new SoSphere();
 	    sunView.radius.setValue(SUN_RADIUS/SUN_REAL_DISTANCE*SUN_FAKE_DISTANCE);
 	    
@@ -378,10 +382,19 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    SoDepthBuffer depthBuffer = new SoDepthBuffer();
 	    depthBuffer.test.setValue(false);
 	    depthBuffer.write.setValue(false);
-	    depthBuffer.clamp.setValue(true);
+	    //depthBuffer.clamp.setValue(true);
 	    
 	    sunSep.addChild(depthBuffer);
 	    
+	    SoShaderProgram programSun = new SoShaderProgram();
+	    
+	    SoVertexShader vertexShaderSun = new SoVertexShader();
+	    
+	    //vertexShader.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/phongShading.vert");
+	    vertexShaderSun.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/behind_vertex.glsl");
+	    
+	    programSun.shaderObject.set1Value(0, vertexShaderSun);
+	    sunSep.addChild(programSun);
 	    
 	    sunSep.addChild(sunView);
 	    sep.addChild(sunSep);
@@ -431,7 +444,7 @@ for(int is=0;is<4;is++) {
 	    //sun = new SoDirectionalLight();
 	    sun[is].color.setValue(SUN_COLOR);
 	    
-	    sun[is].maxShadowDistance.setValue(2e4f/*SUN_FAKE_DISTANCE*1.5f*/);
+	    sun[is].maxShadowDistance.setValue(2e4f);
 	    sun[is].bboxSize.setValue(2*WATER_HORIZON, 2*WATER_HORIZON, 1e4f);
 	    
 	    sun[is].intensity.setValue(1.0F/4.0f);
@@ -893,16 +906,16 @@ for(int is=0;is<4;is++) {
 			
 			int vertex = tree * NB_VERTEX_PER_TREE;
 			
-			douglasColors[vertex] = TRUNK_COLOR.getPackedValue();
-			douglasColors[vertex+1] = TRUNK_COLOR.getPackedValue();
-			douglasColors[vertex+2] = TRUNK_COLOR.getPackedValue();
-			douglasColors[vertex+3] = TRUNK_COLOR.getPackedValue();
-			douglasColors[vertex+1+3] = TREE_FOLIAGE.getPackedValue();
-			douglasColors[vertex+2+3] = TREE_FOLIAGE.getPackedValue();
-			douglasColors[vertex+3+3] = TREE_FOLIAGE.getPackedValue();
-			douglasColors[vertex+1+3+3] = TREE_FOLIAGE.getPackedValue();
-			douglasColors[vertex+2+3+3] = TREE_FOLIAGE.getPackedValue();
-			douglasColors[vertex+3+3+3] = TREE_FOLIAGE.getPackedValue();
+			douglasColors[vertex] = TRUNK_COLOR.getPackedValue();//TOP
+			douglasColors[vertex+1] = TRUNK_COLOR.getPackedValue();//TR1
+			douglasColors[vertex+2] = TRUNK_COLOR.getPackedValue();//TR2
+			douglasColors[vertex+3] = TRUNK_COLOR.getPackedValue();//TR3
+			douglasColors[vertex+1+3] = TREE_FOLIAGE.getPackedValue();//TFOL1
+			douglasColors[vertex+2+3] = TREE_FOLIAGE.getPackedValue();//TFOL2
+			douglasColors[vertex+3+3] = TREE_FOLIAGE.getPackedValue();//TFOL3
+			douglasColors[vertex+1+3+3] = TREE_FOLIAGE.getPackedValue();//BFOL1
+			douglasColors[vertex+2+3+3] = TREE_FOLIAGE.getPackedValue();//BFOL2
+			douglasColors[vertex+3+3+3] = TREE_FOLIAGE.getPackedValue();//BFOL3
 			
 			int vertexCoordIndice = vertex * 3;
 			
@@ -917,69 +930,76 @@ for(int is=0;is<4;is++) {
 			
 			float width = height * 0.707f / 50.0f;
 			
+			float angleDegree1 = 120.0f * random.nextFloat();
+			float angleDegree2 = angleDegree1 + 120.0f;
+			float angleDegree3 = angleDegree2 + 120.0f;
+			float angleRadian1 = angleDegree1 * (float)Math.PI / 180.0f;
+			float angleRadian2 = angleDegree2 * (float)Math.PI / 180.0f;
+			float angleRadian3 = angleDegree3 * (float)Math.PI / 180.0f;
+			
 			//trunk
 			vertexCoordIndice += 3;
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] + width / 0.707f;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree];
+			douglasVertices[vertexCoordIndice] = xArray[tree] + width * (float)Math.cos(angleRadian1);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + width * (float)Math.sin(angleRadian1);
 			douglasVertices[vertexCoordIndice+2] = zArray[tree] - 1;
 			
-			douglasNormals[vertexCoordIndice] = 1;
-			douglasNormals[vertexCoordIndice+1] = 0;
+			douglasNormals[vertexCoordIndice] = (float)Math.cos(angleRadian1);
+			douglasNormals[vertexCoordIndice+1] = (float)Math.sin(angleRadian1);
 			douglasNormals[vertexCoordIndice+2] = 0;
 			
 			vertexCoordIndice += 3;
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] - width;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree] + width;
+			douglasVertices[vertexCoordIndice] = xArray[tree] + width * (float)Math.cos(angleRadian2);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + width * (float)Math.sin(angleRadian2);
 			douglasVertices[vertexCoordIndice+2] = zArray[tree] - 1;
 			
-			douglasNormals[vertexCoordIndice] =  - 0.707f;
-			douglasNormals[vertexCoordIndice+1] = + 0.707f;
+			douglasNormals[vertexCoordIndice] =  (float)Math.cos(angleRadian2);
+			douglasNormals[vertexCoordIndice+1] = (float)Math.sin(angleRadian2);
 			douglasNormals[vertexCoordIndice+2] = 0;
 			
 			vertexCoordIndice += 3;
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] - width;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree] - width;
+			douglasVertices[vertexCoordIndice] = xArray[tree] + width * (float)Math.cos(angleRadian3);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + width * (float)Math.sin(angleRadian3);
 			douglasVertices[vertexCoordIndice+2] = zArray[tree] - 1;
 			
-			douglasNormals[vertexCoordIndice] = - 0.707f;
-			douglasNormals[vertexCoordIndice+1] = - 0.707f;
+			douglasNormals[vertexCoordIndice] = (float)Math.cos(angleRadian3);
+			douglasNormals[vertexCoordIndice+1] = (float)Math.sin(angleRadian3);
 			douglasNormals[vertexCoordIndice+2] = 0;
 			// end of trunk
 			
 			vertexCoordIndice += 3;
 			
-			float widthTop = width *1.2f * random.nextFloat();
+			float widthTop = width *2.5f * random.nextFloat();
 			
 			// top of tree foliage
-			douglasVertices[vertexCoordIndice] = xArray[tree]+ widthTop / 0.707f;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree];
+			douglasVertices[vertexCoordIndice] = xArray[tree]+ widthTop * (float)Math.cos(angleRadian1);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree]+ widthTop * (float)Math.sin(angleRadian1);
 			douglasVertices[vertexCoordIndice+2] = zArray[tree] + height;
 			
-			douglasNormals[vertexCoordIndice] = 1;
-			douglasNormals[vertexCoordIndice+1] = 0;
+			douglasNormals[vertexCoordIndice] = (float)Math.cos(angleRadian1);
+			douglasNormals[vertexCoordIndice+1] = (float)Math.sin(angleRadian1);
 			douglasNormals[vertexCoordIndice+2] = 0.2f;
 			
 			vertexCoordIndice += 3;
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] - widthTop;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree] + widthTop;
+			douglasVertices[vertexCoordIndice] = xArray[tree]+ widthTop * (float)Math.cos(angleRadian2);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree]+ widthTop * (float)Math.sin(angleRadian2);
 			douglasVertices[vertexCoordIndice+2] = zArray[tree] + height;
 			
-			douglasNormals[vertexCoordIndice] =  - 0.707f;
-			douglasNormals[vertexCoordIndice+1] = + 0.707f;
+			douglasNormals[vertexCoordIndice] = (float)Math.cos(angleRadian2);
+			douglasNormals[vertexCoordIndice+1] = (float)Math.sin(angleRadian2);
 			douglasNormals[vertexCoordIndice+2] = 0.2f;
 			
 			vertexCoordIndice += 3;
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] - widthTop;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree] - widthTop;
+			douglasVertices[vertexCoordIndice] = xArray[tree]+ widthTop * (float)Math.cos(angleRadian3);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree]+ widthTop * (float)Math.sin(angleRadian3);
 			douglasVertices[vertexCoordIndice+2] = zArray[tree] + height;
 			
-			douglasNormals[vertexCoordIndice] = - 0.707f;
-			douglasNormals[vertexCoordIndice+1] = - 0.707f;
+			douglasNormals[vertexCoordIndice] = (float)Math.cos(angleRadian3);
+			douglasNormals[vertexCoordIndice+1] = (float)Math.sin(angleRadian3);
 			douglasNormals[vertexCoordIndice+2] = 0.2f;
 			
 			//foliage
@@ -991,41 +1011,41 @@ for(int is=0;is<4;is++) {
 			
 			
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] + foliageWidth / 0.707f;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree];
+			douglasVertices[vertexCoordIndice] = xArray[tree] + foliageWidth * (float)Math.cos(angleRadian1);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + foliageWidth * (float)Math.sin(angleRadian1);
 
 			float z = getInternalZ(douglasVertices[vertexCoordIndice],douglasVertices[vertexCoordIndice+1],0.0f) + zTranslation;
 			
 			douglasVertices[vertexCoordIndice+2] = Math.max(zArray[tree] + 2.5f,z+0.2f);
 			
-			douglasNormals[vertexCoordIndice] = 1;
-			douglasNormals[vertexCoordIndice+1] = 0;
+			douglasNormals[vertexCoordIndice] =  (float)Math.cos(angleRadian1);
+			douglasNormals[vertexCoordIndice+1] =  (float)Math.sin(angleRadian1);
 			douglasNormals[vertexCoordIndice+2] = 0;
 			
 			vertexCoordIndice += 3;
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] - foliageWidth;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree] + foliageWidth;
+			douglasVertices[vertexCoordIndice] = xArray[tree] + foliageWidth * (float)Math.cos(angleRadian2);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + foliageWidth * (float)Math.sin(angleRadian2);
 			
 			z = getInternalZ(douglasVertices[vertexCoordIndice],douglasVertices[vertexCoordIndice+1],0.0f) + zTranslation;
 			
 			douglasVertices[vertexCoordIndice+2] = Math.max(zArray[tree] + 2.5f,z+0.2f);
 			
-			douglasNormals[vertexCoordIndice] =  - 0.707f;
-			douglasNormals[vertexCoordIndice+1] = + 0.707f;
+			douglasNormals[vertexCoordIndice] =   (float)Math.cos(angleRadian2);
+			douglasNormals[vertexCoordIndice+1] =  (float)Math.sin(angleRadian2);
 			douglasNormals[vertexCoordIndice+2] = 0;
 			
 			vertexCoordIndice += 3;
 			
-			douglasVertices[vertexCoordIndice] = xArray[tree] - foliageWidth;
-			douglasVertices[vertexCoordIndice+1] = yArray[tree] - foliageWidth;
+			douglasVertices[vertexCoordIndice] = xArray[tree] + foliageWidth * (float)Math.cos(angleRadian3);
+			douglasVertices[vertexCoordIndice+1] = yArray[tree] + foliageWidth * (float)Math.sin(angleRadian3);
 			
 			z = getInternalZ(douglasVertices[vertexCoordIndice],douglasVertices[vertexCoordIndice+1],0.0f) + zTranslation;
 			
 			douglasVertices[vertexCoordIndice+2] = Math.max(zArray[tree] + 2.5f,z+0.2f);
 			
-			douglasNormals[vertexCoordIndice] = - 0.707f;
-			douglasNormals[vertexCoordIndice+1] = - 0.707f;
+			douglasNormals[vertexCoordIndice] = (float)Math.cos(angleRadian3);
+			douglasNormals[vertexCoordIndice+1] = (float)Math.sin(angleRadian3);
 			douglasNormals[vertexCoordIndice+2] = 0;
 			// end of foliage
 			
@@ -1047,16 +1067,16 @@ for(int is=0;is<4;is++) {
 //			i+= NB_INDICES_PER_TRIANGLE;
 
 			// trunk side
-			douglasIndices[i] = vertex+2;
-			douglasIndices[i+1] = vertex+3;
-			douglasIndices[i+2] = vertex+0;
+			douglasIndices[i] = vertex+0;
+			douglasIndices[i+1] = vertex+2;
+			douglasIndices[i+2] = vertex+3;
 			douglasIndices[i+3] = -1;
 
 			i+= NB_INDICES_PER_TRIANGLE;
 
 			// trunk side
-			douglasIndices[i] = vertex+3;
-			douglasIndices[i+1] = vertex+0;
+			douglasIndices[i] = vertex+0;
+			douglasIndices[i+1] = vertex+3;
 			douglasIndices[i+2] = vertex+1;
 			douglasIndices[i+3] = -1;
 			
@@ -1072,19 +1092,19 @@ for(int is=0;is<4;is++) {
 			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_QUAD;
 
 			// foliage side 
-			douglasIndices[i] = vertex+2+3+3;
-			douglasIndices[i+1] = vertex+3+3+3;
-			douglasIndices[i+2] = vertex+3+3;
-			douglasIndices[i+3] = vertex+2+3;
+			douglasIndices[i] = vertex+2+3;
+			douglasIndices[i+1] = vertex+2+3+3;
+			douglasIndices[i+2] = vertex+3+3+3;
+			douglasIndices[i+3] = vertex+3+3;
 			douglasIndices[i+4] = -1;
 
 			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_QUAD;
 
 			// foliage side
-			douglasIndices[i] = vertex+3+3+3;
-			douglasIndices[i+1] = vertex+3+3;
-			douglasIndices[i+2] = vertex+1+3;
-			douglasIndices[i+3] = vertex+1+3+3;
+			douglasIndices[i] = vertex+3+3;
+			douglasIndices[i+1] = vertex+3+3+3;
+			douglasIndices[i+2] = vertex+1+3+3;
+			douglasIndices[i+3] = vertex+1+3;
 			douglasIndices[i+4] = -1;
 			
 			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_QUAD;
@@ -1140,7 +1160,7 @@ for(int is=0;is<4;is++) {
 	
 	
 	
-	static Random random = new Random();
+	static Random random = new Random(42);
 	
 	float getRandomX() {
 		SbBox3f sceneBox = chunks.getSceneBox();

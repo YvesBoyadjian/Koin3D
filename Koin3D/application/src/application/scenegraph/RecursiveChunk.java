@@ -18,6 +18,7 @@ import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoSeparator;
 
 /**
  * @author Yves Boyadjian
@@ -75,7 +76,8 @@ public class RecursiveChunk {
 			SoLOD lod = new SoTouchLOD2();
 			lod.center.setValue(getCenter());
 			lod.range.setValue(ChunkArray.DEFINITION * ni / 250.0f);
-			SoGroup subChunkGroup = new SoGroup();
+			SoSeparator subChunkGroup = new SoSeparator();
+			subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 			
 //			int[] array = { 0,1,2,3};
 //			IntStream is = Arrays.stream(array);
