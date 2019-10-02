@@ -43,7 +43,7 @@ import loader.TerrainLoader;
  */
 public class MainGLFW {
 	
-	public static final float MINIMUM_VIEW_DISTANCE = 2.0f;//1.0f;
+	public static final float MINIMUM_VIEW_DISTANCE = 2.5f;//1.0f;
 
 	public static final float MAXIMUM_VIEW_DISTANCE = SceneGraphIndexedFaceSetShader.WATER_HORIZON;//5e4f;//SceneGraphIndexedFaceSet.SUN_FAKE_DISTANCE * 1.5f;
 	
