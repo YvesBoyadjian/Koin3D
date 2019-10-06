@@ -163,7 +163,7 @@ public class SbIntList extends SbPList {
      * Java port
      * @return
      */
-    public int[] getArrayPtr() {
+    public int[] getIntArrayPtr() {
     	int size = getLength();
     	int[] array = new int[size];
     	for(int i =0; i<size;i++) {

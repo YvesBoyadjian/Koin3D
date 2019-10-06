@@ -190,7 +190,7 @@ public abstract class SoShape extends SoNode implements Destroyable {
 
     //! Helper struct used by primitive types like cube, sphere, ...
     public class SimpleVertexArrayCache {
-      SimpleVertexArrayCache() {
+      public SimpleVertexArrayCache() {
     	  numVertices = 0;
     	  useTexCoords = false;
     	  useNormals = false;
@@ -201,7 +201,7 @@ public abstract class SoShape extends SoNode implements Destroyable {
     	  colorOffset = 0;    	  
       }
 
-      void drawArrays(SoShape shape, SoGLRenderAction action, /*GLenum*/int primitiveType) {
+      public void drawArrays(SoShape shape, SoGLRenderAction action, /*GLenum*/int primitiveType) {
   SoState state = action.getState();
   enableVertexAttributes(state);
 
@@ -292,18 +292,18 @@ public abstract class SoShape extends SoNode implements Destroyable {
   }      
       }
 
-      final SoVBO vbo = new SoVBO(GL_ARRAY_BUFFER);
+      public final SoVBO vbo = new SoVBO(GL_ARRAY_BUFFER);
 
-      int numVertices;
+      public int numVertices;
 
-      int vertexOffset;
-      int normalOffset;
-      int texCoordOffset;
-      int colorOffset;
+      public int vertexOffset;
+      public int normalOffset;
+      public int texCoordOffset;
+      public int colorOffset;
 
-      boolean useTexCoords;
-      boolean useNormals;
-      boolean useColors;
+      public boolean useTexCoords;
+      public boolean useNormals;
+      public boolean useColors;
     };
 
     

@@ -75,7 +75,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float USAIN_BOLT_RUN = 10;
 	
-	private final static float SPEED = /*GOD*/USAIN_BOLT_RUN;
+	private final static float SPEED = /*GOD;*/USAIN_BOLT_RUN;
 	
 	private final static float EYES_HEIGHT = 1.7f;
 
@@ -445,17 +445,24 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	int nbFrames = 0;
 	
-	long lastFrameTime = System.nanoTime();
+	long lastFrameTime = -1;
+	
+	final static int NB_FRAMES = 200;
 
     protected void paintGL(GL2 gl2) {
     	
     	//idle();
     	super.paintGL(gl2);
     	
-    	nbFrames++;
-    	if(nbFrames == 500) {
+    	if(lastFrameTime < 0) {
+    		lastFrameTime = System.nanoTime();
+    	}
+    	else {
+    		nbFrames++;
+    	}
+    	if(nbFrames == NB_FRAMES) {
     		long newFrameTime = System.nanoTime();
-    		float fps = 1.0e9f/(newFrameTime - lastFrameTime)*500;
+    		float fps = 1.0e9f/(newFrameTime - lastFrameTime)*NB_FRAMES;
     		System.out.println("fps = "+fps);
     		nbFrames = 0;
     		lastFrameTime = newFrameTime;

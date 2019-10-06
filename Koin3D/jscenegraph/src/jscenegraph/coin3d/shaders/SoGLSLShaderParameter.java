@@ -300,7 +300,7 @@ isValid( SoGLShaderObject  shader,
                              tmpType, myName);
     int zeroIndex = 0;
     for(int index=0;index<256;index++) {
-    	if(myName[index]==0) {
+    	if(myName[index]==0 || myName[index]=='[') { // YB : trim the [x]
     		zeroIndex = index;
     		break;
     	}

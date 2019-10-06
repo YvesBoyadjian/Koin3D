@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.misc;
 
 import jscenegraph.database.inventor.SoFullPath;
+import jscenegraph.database.inventor.nodes.SoNode;
 
 
 
@@ -90,5 +91,40 @@ public class SoTempPath extends SoFullPath {
 
 	public void copyFrom(SoTempPath other) {
 		impl.copyFrom(other.impl);
+	}
+
+	/*!
+	  Append a node (specified by \a node and parent child \a index) to the path.
+	  This method is only available in SoTempPath, since it will not
+	  consider auditing or hidden children.
+	*/
+	public void
+	simpleAppend(SoNode node, int index)
+	{
+	  // this will make SoPath rescan the path for hidden children the
+	  // next time getLength() is called.
+	  this.impl.firsthiddendirty = true;
+
+	  // just append node and index
+	  this.impl.nodes.append(node);
+	  this.impl.indices.append(index);
+	}
+
+	/*!  
+	  Replace the tail of this path. The node is specified by \a node
+	  and parent child \a index. This method is only available in
+	  SoTempPath,, since it will not consider auditing or hidden children.  
+	*/
+	public void 
+	replaceTail(SoNode node, int index)
+	{
+	  // this will make SoPath rescan the path for hidden children the
+	  // next time getLength() is called.
+	  this.impl.firsthiddendirty = true;
+
+	  // just replace the last node and index
+	  int i = this.impl.nodes.getLength() - 1;
+	  this.impl.nodes.set(i, (SoBase) node);
+	  this.impl.indices.operator_square_bracket(i, index);
 	}
 }

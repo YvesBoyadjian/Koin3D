@@ -646,7 +646,7 @@ private void renderSkirt(SoGLRenderAction action,
 {
 	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
-  int[] vertices = tile.vertices.getArrayPtr();
+  int[] vertices = tile.vertices.getIntArrayPtr();
   int max_x = this.tile_size;
   int max_y = this.tile_size;
   float skirt_height = (tile.bounds.getMax().operator_minus( tile.bounds.getMin())).getValueRead()[2] * 0.2f;
@@ -739,7 +739,7 @@ private void renderSkirt(SoGLRenderAction action,
 {
 	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
-  final int[] vertices = tile.vertices.getArrayPtr();
+  final int[] vertices = tile.vertices.getIntArrayPtr();
   int max_x = this.tile_size;
   int max_y = this.tile_size;
   float skirt_height = (tile.bounds.getMax().operator_minus( tile.bounds.getMin())).getValueRead()[2] * 0.2f;
@@ -874,7 +874,7 @@ private void renderTile(SoGLRenderAction action,
 {
 	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
-  final int[] vertices = tile.vertices.getArrayPtr();
+  final int[] vertices = tile.vertices.getIntArrayPtr();
   int max_x = this.tile_size;
   int max_y = this.tile_size;
 
@@ -923,7 +923,7 @@ private void renderTile(SoGLRenderAction action,
 {
 	GL2 gl2 = Ctx.get(action.getCacheContext());
 	
-  int[] vertices = tile.vertices.getArrayPtr();
+  int[] vertices = tile.vertices.getIntArrayPtr();
   int max_x = this.tile_size;
   int max_y = this.tile_size;
 

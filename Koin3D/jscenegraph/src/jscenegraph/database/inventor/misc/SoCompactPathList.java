@@ -418,6 +418,15 @@ compactPaths(int curSlot, int depth,
     return nextSlot;
 }
 
+/*!
+  Returns the depth of the current node.
+*/
+public int
+getDepth()
+{
+  return 1 + this.stack.length;//getLength(); java port
+}
+
 
 	   	  
 }

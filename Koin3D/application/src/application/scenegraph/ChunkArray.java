@@ -434,7 +434,7 @@ public class ChunkArray {
 	    	}
 	    };
 	    
-	    final int SHADOW_LOD = 27;
+	    final int SHADOW_LOD = 4;//27;
 	
 	    int shadowWidth = w / SHADOW_LOD;
 	    int shadowHeight = h / SHADOW_LOD;

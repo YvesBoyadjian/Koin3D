@@ -168,7 +168,7 @@ public abstract class SoAction implements Destroyable {
     	   
       private    	       boolean              isBeingApplied;
     	   
-      private    	       final SoLightPath         curPath;
+      //private    	       final SoLightPath         curPath;
     	   
       private    	       SoTempPath         tempPath;
     	    
@@ -194,7 +194,7 @@ public abstract class SoAction implements Destroyable {
              
     	       
     	       protected SoAction() {
-    	    	   curPath = new SoLightPath(32);
+    	    	   //curPath = new SoLightPath(32);
     	    	   //SO_ACTION_CONSTRUCTOR(SoAction);
     	    	   traversalMethods = methods;
     	    	   
@@ -283,7 +283,7 @@ public abstract class SoAction implements Destroyable {
 	          appliedTo.node.ref();
 	          appliedTo.curPathCode = PathCode.NO_PATH;
 	      
-	          curPath.setHead(node);
+	          currentpath.setHead(node);
 	          terminated = false;
 	      
 	          setUpState();
@@ -343,7 +343,7 @@ public abstract class SoAction implements Destroyable {
 	         appliedTo.curPathCode = ((SoFullPath.cast(path).getLength() == 1) ?
 	                                  PathCode.BELOW_PATH : PathCode.IN_PATH);
 	     
-	         curPath.setHead(path.getHead());
+	         currentpath.setHead(path.getHead());
 	         terminated    = false;
 	     
 	         setUpState();
@@ -367,7 +367,7 @@ public abstract class SoAction implements Destroyable {
 	             SoNode head = (appliedTo.code == AppliedCode.NODE ? appliedTo.node :
 	                             appliedTo.code == AppliedCode.PATH ? appliedTo.path.getHead() :
 	                             appliedTo.pathList.operator_square_bracket(0).getHead());
-	             curPath.setHead(head);
+	             currentpath.setHead(head);
 	         }
 	     
 	         isBeingApplied = needToRestore;
@@ -557,7 +557,7 @@ apply(final SoPathList sortedList,
         ((SoFullPath.cast( sortedList.operator_square_bracket(0))).getLength() == 1 ?
          PathCode.BELOW_PATH : PathCode.IN_PATH);
 
-    curPath.setHead(sortedList.operator_square_bracket(0).getHead());
+    currentpath.setHead(sortedList.operator_square_bracket(0).getHead());
     terminated = false;
 
     setUpState();
@@ -591,7 +591,7 @@ apply(final SoPathList sortedList,
         SoNode head = (appliedTo.code == AppliedCode.NODE ? appliedTo.node :
                         appliedTo.code == AppliedCode.PATH ? appliedTo.path.getHead() :
                         (appliedTo.pathList).operator_square_bracket(0).getHead());
-        curPath.setHead(head);
+        currentpath.setHead(head);
     }
 
     isBeingApplied = needToRestore;
@@ -621,12 +621,13 @@ apply(final SoPathList sortedList,
 	     public SoPath 
 	     getCurPath()
 	     {
-	         if(tempPath == null){
-	             tempPath = new SoTempPath(32);
-	             tempPath.ref();
-	             }
-	         curPath.makeTempPath(tempPath);
-	         return tempPath;
+	    	  return this.currentpath;
+//	         if(tempPath == null){
+//	             tempPath = new SoTempPath(32);
+//	             tempPath.ref();
+//	             }
+//	         currentpath.makeTempPath(tempPath);
+//	         return tempPath;
 	     }
 	     	   	
 	   	
@@ -665,7 +666,7 @@ apply(final SoPathList sortedList,
 	     
 	             if (appliedTo.code == AppliedCode.PATH) {
 	                 // Use "index" storage in instance to return next index
-	                 index = appliedTo.path.getIndex(curPath.getFullLength());
+	                 index = appliedTo.path.getIndex(currentpath.getFullLength());
 	                 numIndices[0]  = 1;
 	                 int[] dummy = new int[1];
 	                 dummy[0] = index;
@@ -692,7 +693,7 @@ apply(final SoPathList sortedList,
 	     ////////////////////////////////////////////////////////////////////////
 	     {
 	         // Push the new node
-	         curPath.push(childIndex);
+	         currentpath.push(childIndex);
 	     
 	         // See if new node is on path being applied to. (We must have been
 	         // on the path already for this to be true.)
@@ -725,7 +726,7 @@ apply(final SoPathList sortedList,
 	             else {
 	     
 	                 // Get new length of current path
-	                 int l = curPath.getFullLength();
+	                 int l = currentpath.getFullLength();
 	     
 	                 // There are three possible cases:
 	                 // (1) New node is the last node in the path chain    => BELOW_PATH
@@ -735,7 +736,7 @@ apply(final SoPathList sortedList,
 	                 // If the new node is NOT the next node in the path, we must
 	                 // be off the path
 	                 final SoNode nextPathNode = appliedTo.path.getNode(l - 1);
-	                 if (curPath.getNode(l - 1) != nextPathNode)
+	                 if (currentpath.getNode(l - 1) != nextPathNode)
 	                     appliedTo.curPathCode = PathCode.OFF_PATH;
 	     
 	                 // Otherwise, if cur path length is now the same as the path
@@ -747,6 +748,97 @@ apply(final SoPathList sortedList,
 	             }
 	         }
 	     }
+	     
+	     /*!
+	     Get ready to traverse the \a childindex'th child. Use this method
+	     if the path code might change as a result of this.
+
+	     This method is very internal. Do not use unless you know
+	     what you're doing.
+	   */
+	   public void
+	   pushCurPath( int childindex, SoNode node)
+	   {
+	     if (node != null) this.currentpath.simpleAppend(node, childindex);
+	     else {
+	       this.currentpath.append(childindex);
+	     }
+	     int curlen = this.currentpath.getFullLength();
+
+	     if (this.currentpathcode == PathCode.IN_PATH) {
+	       if (this.getWhatAppliedTo() == AppliedCode.PATH) {
+	         assert(curlen <= pimpl.applieddata.path.getFullLength());
+	         if (this.currentpath.getIndex(curlen-1) !=
+	             pimpl.applieddata.path.getIndex(curlen-1)) {
+//	   #ifdef DEBUG_PATH_TRAVERSAL
+//	           fprintf(stderr,"off path at: %d (%s), depth: %d\n",
+//	                   childindex, node->getName().getString(), curlen);
+//	   #endif // DEBUG_PATH_TRAVERSAL
+	           this.currentpathcode = PathCode.OFF_PATH;
+	         }
+	         else if (curlen == pimpl.applieddata.path.getFullLength()) {
+	           this.currentpathcode = PathCode.BELOW_PATH;
+//	   #ifdef DEBUG_PATH_TRAVERSAL
+//	           fprintf(stderr,"below path at: %d (%s), depth: %d\n",
+//	                   childindex, node->getName().getString(),curlen);
+//	   #endif // DEBUG_PATH_TRAVERSAL
+	         }
+	       }
+	       else {
+	         if (pimpl.applieddata.pathlistdata.compactlist != null) {
+	           boolean inpath = pimpl.applieddata.pathlistdata.compactlist.push(childindex);
+	           assert(pimpl.applieddata.pathlistdata.compactlist.getDepth() == this.currentpath.getLength());
+
+	           if (!inpath) {
+	             this.currentpathcode = PathCode.OFF_PATH;
+	           }
+	           else {
+	             final int[] numchildren = new int[1];
+	             final int[][] dummy = new int[1][];
+	             pimpl.applieddata.pathlistdata.compactlist.getChildren(numchildren, dummy);
+	             this.currentpathcode = numchildren[0] == 0 ? PathCode.BELOW_PATH : PathCode.IN_PATH;
+	           }
+	         }
+	         else {
+	           // test for below path by testing for one path that contains
+	           // current path, and is longer than current.  At the same time,
+	           // test for off path by testing if there is no paths that
+	           // contains current path.  This is a lame and slow way to do it,
+	           // but SoCompactPathList will always be used. This is just backup
+	           // code in case some action actually disables compact path list.
+	           final SoPathList pl = pimpl.applieddata.pathlistdata.pathlist;
+	           int i, n = pl.getLength();
+	           int len = -1;
+
+	           for (i = 0; i < n; i++) {
+	             final SoPath path = (pl).operator_square_bracket(i);
+	             len = path.getFullLength();
+	             // small optimization, no use testing if path is shorter
+	             if (len >= curlen) {
+	               if (path.containsPath(this.currentpath)) break;
+	             }
+	           }
+	           // if no path is found, we're off path
+	           if (i == n) {
+	             this.currentpathcode = PathCode.OFF_PATH;
+//	   #ifdef DEBUG_PATH_TRAVERSAL
+//	             fprintf(stderr,"off path at: %d (%s), depth: %d\n",
+//	                     childindex, node->getName().getString(), curlen);
+//	   #endif // DEBUG_PATH_TRAVERSAL
+	           }
+	           else if (len == curlen) {
+	             this.currentpathcode = PathCode.BELOW_PATH;
+//	   #ifdef DEBUG_PATH_TRAVERSAL
+//	             fprintf(stderr,"below path at: %d (%s), depth: %d\n",
+//	                     childindex, node->getName().getString(), curlen);
+//	   #endif // DEBUG_PATH_TRAVERSAL
+	           }
+	         }
+	       }
+	     }
+	   }
+
+	     
 	     	    
 	     ////////////////////////////////////////////////////////////////////////
 	      //
@@ -761,7 +853,7 @@ apply(final SoPathList sortedList,
 	      //
 	      ////////////////////////////////////////////////////////////////////////
 	      {
-	          curPath.pop();
+	          currentpath.pop();
 	      
 	          appliedTo.curPathCode = prevPathCode;
 	      
@@ -773,12 +865,41 @@ apply(final SoPathList sortedList,
 	    
 	     //! Optimized versions of push/pop when we know path codes won't
 	         //! change:
+	     /*!
+	     Pushes a NULL node onto the current path. Use this before
+	     traversing all children when you know that the path code will not
+	     change while traversing children.
+
+	     This method is very internal. Do not use unless you know
+	     what you're doing.
+	   */
 	    public     void                pushCurPath()
-	                             { curPath.append(-1); }
-	    public void                popPushCurPath(int childIndex)
-	                              { curPath.setTail(childIndex);}
+	                             {
+	    	  this.currentpath.simpleAppend((SoNode)( null), -1);
+	    	}
+	    
+	    public void                popPushCurPath(int childindex) {
+	    	popPushCurPath(childindex,null);
+	    }
+	    /*!
+	    Get ready to traverse the \a childindex'th child. Use this method
+	    if you know the path code will not change as a result of this.
+
+	    This method is very internal. Do not use unless you know
+	    what you're doing.
+	  */
+	    public void                popPushCurPath(int childindex, SoNode node)
+	                              {
+	    	  if (node == null) {
+	    		    this.currentpath.pop(); // pop off previous or NULL node
+	    		    this.currentpath.append(childindex);
+	    		  }
+	    		  else {
+	    		    this.currentpath.replaceTail(node, childindex);
+	    		  }
+	                              }
 	    public      void                popCurPath()
-	                              { curPath.pop(); }
+	                              { currentpath.pop(); }
 	     	    	    
 	   	//
 	     // Description:
@@ -895,7 +1016,7 @@ apply(final SoPathList sortedList,
 	             break;
 	         }
 	     
-	         curPath.truncate(0);
+	         currentpath.truncate(0);
 	     }
 	    
 	    ////////////////////////////////////////////////////////////////////////
@@ -988,13 +1109,13 @@ public SoNode
 getCurPathTail() 
 {
 //#ifdef DEBUG
-    if (curPath.getTail() != (SoFullPath.cast(getCurPath())).getTail()){
+    if (currentpath.getTail() != (SoFullPath.cast(getCurPath())).getTail()){
         SoDebugError.post("SoAction::getCurPathTail\n", 
         "Inconsistent path tail.  Did you change the scene graph\n"+
         "During traversal?\n");
     }
 //#endif /*DEBUG*/
-    return(curPath.getTail());
+    return(currentpath.getTail());
 }
 
 	     

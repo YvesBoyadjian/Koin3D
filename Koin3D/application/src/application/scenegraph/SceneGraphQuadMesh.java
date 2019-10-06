@@ -7,6 +7,7 @@ import java.awt.image.Raster;
 
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCone;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoQuadMesh;
@@ -106,6 +107,18 @@ public class SceneGraphQuadMesh implements SceneGraph {
 
 	@Override
 	public void preDestroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCamera(SoCamera camera) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void idle() {
 		// TODO Auto-generated method stub
 		
 	}

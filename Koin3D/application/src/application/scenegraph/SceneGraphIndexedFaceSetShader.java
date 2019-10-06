@@ -29,6 +29,7 @@ import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoCallback;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoDirectionalLight;
 import jscenegraph.database.inventor.nodes.SoEnvironment;
@@ -37,8 +38,10 @@ import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoLight;
 import jscenegraph.database.inventor.nodes.SoMaterial;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoPerspectiveCamera;
 import jscenegraph.database.inventor.nodes.SoQuadMesh;
 import jscenegraph.database.inventor.nodes.SoSeparator;
+import jscenegraph.database.inventor.nodes.SoShapeHints;
 import jscenegraph.database.inventor.nodes.SoSphere;
 import jscenegraph.database.inventor.nodes.SoTranslation;
 import jscenegraph.port.Ctx;
@@ -120,8 +123,6 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private SoTranslation sunTransl = new SoTranslation();
 	
-	//private SoTranslation inverseSunTransl = new SoTranslation();
-	
 	private SoSphere sunView;
 	
 	private SbRotation r1 = new SbRotation();
@@ -140,7 +141,15 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	int jstart;
 	
 	SoShadowGroup shadowGroup;
-	//SoSeparator shadowGroup;
+	SoNode shadowTree;
+	SoNode chunkTree;
+	SoCamera camera;
+	
+	float current_x;
+	
+	float current_y;
+	
+	float current_z;
 	
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
@@ -307,45 +316,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		}
 		}
 		
-		//chunks.initIndices();
-//		int indice=0;
-//		for(int i=1;i<w;i++) {
-//		for(int j=1; j<h;j++) {
-//			coordIndices[indice++] = (i-1)*h+(j-1); //1
-//			coordIndices[indice++] = (i)*h+(j-1); //2
-//			coordIndices[indice++] = (i)*h+(j); //3
-//			coordIndices[indice++] = (i-1)*h+(j); //4
-//			coordIndices[indice++] = -1; 
-//		}
-//		}
-		// Define coordinates
-	    //SoCoordinate3 coords = new SoCoordinate3();
-	    //coords.point.setValues(0, vertices);
-	    //sep.addChild(coords);
-
 		chunks.initIndexedFaceSets();
 		
-//	    SoVertexProperty vertexProperty = new SoVertexProperty();
-//	    
-//	    vertexProperty.vertex.setValuesPointer(/*0,*/ vertices);
-//	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-//	    vertexProperty.normal.setValuesPointer(/*0,*/ normals);
-//	    vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-//	    vertexProperty.orderedRGBA.setValues(0, colors);
-//	    
-//		SoIndexedFaceSet indexedFaceSet;
-//		
-//	    indexedFaceSet = new SoIndexedFaceSet() {
-//	    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
-//	    		box.copyFrom(sceneBox);
-//	    		center.copyFrom(sceneCenter);
-//	    	}
-//	    };
-//	    
-//	    indexedFaceSet.vertexProperty.setValue(vertexProperty);
-//	    indexedFaceSet.coordIndex.setValues(0, coordIndices);
-	    
-	    
 	    SoCallback callback = new SoCallback();
 	    
 	    callback.setCallback(action -> {
@@ -433,11 +405,15 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 			}
 		};
 	    shadowGroup.quality.setValue(1.0f);
-	    shadowGroup.precision.setValue(0.25f);
+	    shadowGroup.precision.setValue(0.2f);
 	    shadowGroup.intensity.setValue(1.0f);
+//	    shadowGroup.visibilityNearRadius.setValue(5000);
+//	    shadowGroup.visibilityRadius.setValue(10000);
+//	    shadowGroup.visibilityFlag.setValue(SoShadowGroup.VisibilityFlag.ABSOLUTE_RADIUS);
 	    shadowGroup.visibilityFlag.setValue(SoShadowGroup.VisibilityFlag.PROJECTED_BBOX_DEPTH_FACTOR);
 	    shadowGroup.threshold.setValue(0.9f);
 	    shadowGroup.epsilon.setValue(3.0e-6f);
+	    shadowGroup.smoothBorder.setValue(1.0f);
 	    
 for(int is=0;is<4;is++) {	    
 	    sun[is] = new SoShadowDirectionalLight();
@@ -445,17 +421,20 @@ for(int is=0;is<4;is++) {
 	    sun[is].color.setValue(SUN_COLOR);
 	    
 	    sun[is].maxShadowDistance.setValue(2e4f);
-	    sun[is].bboxSize.setValue(2*WATER_HORIZON, 2*WATER_HORIZON, 1e4f);
+	    //sun[is].bboxCenter.setValue(10000, 0, 0);
+	    sun[is].bboxSize.setValue(5000+is*3000, 5000+is*3000, 1000);
 	    
 	    sun[is].intensity.setValue(1.0F/4.0f);
 	    
 	    shadowGroup.addChild(sun[is]);
 }
-//	    SoShadowStyle shadowStyle = new SoShadowStyle();	    
-//	    shadowStyle.style.setValue(SoShadowStyle.Style.CASTS_SHADOW_AND_SHADOWED);	    
-//	    shadowGroup.addChild(shadowStyle);
 	    
 	    SoSeparator landSep = new SoSeparator();
+	    
+	    SoShapeHints shapeHints = new SoShapeHints();
+	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);
+	    shapeHints.vertexOrdering.setValue(SoShapeHints.VertexOrdering.CLOCKWISE);
+	    landSep.addChild(shapeHints);
 	    
 	    SoShaderProgram program = new SoShaderProgram();
 	    
@@ -490,19 +469,17 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    landSep.addChild(rc.getGroup());
+	    chunkTree = rc.getGroup(200,true);
+	    landSep.addChild(chunkTree);
 	    
-		//landSep.addChild(chunks.getGroup());
-		
-		//shadowGroup.addChild(landSep);
-
-//	    SoShadowStyle shadowStyleW = new SoShadowStyle();	    
-//	    shadowStyleW.style.setValue(SoShadowStyle.Style.SHADOWED);	    
-//	    shadowGroup.addChild(shadowStyleW);
-		
 		shadowGroup.addChild(landSep);
 		
 	    SoSeparator douglasSep = new SoSeparator();
+	    
+	    shapeHints = new SoShapeHints();
+	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);
+	    shapeHints.vertexOrdering.setValue(SoShapeHints.VertexOrdering.COUNTERCLOCKWISE);
+	    douglasSep.addChild(shapeHints);
 	    
 	    douglasSep.addChild(transl);
 	    
@@ -511,46 +488,26 @@ for(int is=0;is<4;is++) {
 		douglasSep.addChild(douglasTrees);
 		shadowGroup.addChild(douglasSep);
 
-		addWater(shadowGroup,185 + zTranslation, 0.0f, false);
-		addWater(shadowGroup,175 + zTranslation, 0.2f, false);
-		addWater(shadowGroup,165 + zTranslation, 0.4f, false);
-		addWater(shadowGroup,160 + zTranslation, 0.5f, false);
-		addWater(shadowGroup,155 + zTranslation, 0.6f, false);
-		addWater(shadowGroup,150 + zTranslation, 0.7f, true);		
+		addWater(shadowGroup,185 + zTranslation, 0.0f, true,false);
+		addWater(shadowGroup,175 + zTranslation, 0.2f, true,false);
+		addWater(shadowGroup,165 + zTranslation, 0.4f, true,false);
+		addWater(shadowGroup,160 + zTranslation, 0.4f, true,false);
+		addWater(shadowGroup,155 + zTranslation, 0.6f, true,false);
+		addWater(shadowGroup,150 + zTranslation, 0.7f, true,false);		
 		
 		sep.addChild(shadowGroup);
 		
 		SoSeparator castingShadowScene = new SoSeparator();
 		
-		//castingShadowScene.addChild(inverseSunTransl);
-		
-		//castingShadowScene.addChild(douglasSep);
-		
-		addWater(castingShadowScene,150 + zTranslation,0.0f, false);
-		
-//	    SoVertexProperty vertexPropertyGeom = new SoVertexProperty();
-//	    vertexPropertyGeom.vertex.setValuesPointer(/*0,*/ vertices);
-//	    
-//	    SoIndexedFaceSet indexedFaceSetGeom = new SoIndexedFaceSet() {
-//	    	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
-//	    		box.copyFrom(sceneBox);
-//	    		center.copyFrom(sceneCenter);
-//	    	}
-//	    };
-//	    
-//	    indexedFaceSetGeom.vertexProperty.setValue(vertexPropertyGeom);
-//	    indexedFaceSetGeom.coordIndex.setValues(0, coordIndices);
-//	    
-	    //castingShadowScene.addChild(transl);
-//	    
-//	    SoMaterial shadowMat = new SoMaterial();
-//	    shadowMat.diffuseColor.setValue(0, 0, 0);
-//	    
-//	    castingShadowScene.addChild(shadowMat);
-//	    
-//	    castingShadowScene.addChild(indexedFaceSetGeom);
+		addWaterShadow(castingShadowScene, 150 + zTranslation,0.0f, false,false);
+		//addWater(castingShadowScene,150 + zTranslation,0.0f, false,true);
 		
 	    SoSeparator shadowLandSep = new SoSeparator();
+	    
+	    shapeHints = new SoShapeHints();
+	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);
+	    shapeHints.vertexOrdering.setValue(SoShapeHints.VertexOrdering.CLOCKWISE);
+	    shadowLandSep.addChild(shapeHints);
 	    
 	    SoMaterial shadowMat = new SoMaterial();
 	    shadowMat.ambientColor.setValue(0, 0, 0); // no ambient
@@ -559,19 +516,29 @@ for(int is=0;is<4;is++) {
 	    
 	    shadowLandSep.addChild(transl);
 	    
-	    shadowLandSep.addChild(chunks.getShadowGroup());
+	    //RecursiveChunk rcS = chunks.getRecursiveChunk();
+	    
+	    shadowTree = rc.getShadowGroup(2000,false);
+	    shadowLandSep.addChild(shadowTree);
+	    
+	    //shadowLandSep.addChild(chunks.getShadowGroup());
 		
 		castingShadowScene.addChild(shadowLandSep);
 		
-//	    SoSeparator douglasSepS = new SoSeparator();
-//	    
-//	    douglasSepS.addChild(transl);
-//	    
-//		SoIndexedFaceSet douglasTreesS = getDouglasTrees();
-//		
-//		douglasSepS.addChild(douglasTreesS);
-//		
-//		castingShadowScene.addChild(douglasSepS);
+	    SoSeparator douglasSepS = new SoSeparator();
+	    
+	    shapeHints = new SoShapeHints();
+	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);
+	    shapeHints.vertexOrdering.setValue(SoShapeHints.VertexOrdering.COUNTERCLOCKWISE);
+	    douglasSepS.addChild(shapeHints);
+	    
+	    douglasSepS.addChild(transl);
+	    
+		SoIndexedFaceSet douglasTreesS = getDouglasTrees();
+		
+		douglasSepS.addChild(douglasTreesS);
+		
+		castingShadowScene.addChild(douglasSepS);
 		
 		sun[0].shadowMapScene.setValue(castingShadowScene);
 		sun[1].shadowMapScene.setValue(castingShadowScene);
@@ -581,22 +548,55 @@ for(int is=0;is<4;is++) {
 		//sep.ref();
 	}
 	
-	public void addWater(SoGroup group, float z, float transparency, boolean shining) {
+	public void addWater(SoGroup group, float z, float transparency, boolean shining, boolean small) {
 		
 	    SoSeparator waterSeparator = new SoSeparator();
 	    
 		SoCube water = new SoCube();
 		
 		water.depth.setValue(CUBE_DEPTH);
-		water.height.setValue(WATER_HORIZON*2);
-		water.width.setValue(WATER_HORIZON*2);
+		water.height.setValue(small ? WATER_HORIZON : WATER_HORIZON*2);
+		water.width.setValue(small ? WATER_HORIZON : WATER_HORIZON*2);
 		
 	    SoMaterial waterMat = new SoMaterial();
 	    waterMat.diffuseColor.setValue(0.1f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.6f*WATER_BRIGHTNESS);
 	    waterMat.ambientColor.setValue(0, 0, 0);
 	    waterMat.transparency.setValue(transparency);
 	    if(shining) {
-	    	waterMat.specularColor.setValue(2.0f, 2.0f, 2.0f);
+	    	waterMat.specularColor.setValue(1.0f, 1.0f, 1.0f);
+	    	waterMat.shininess.setValue(0.5f);
+	    }
+	    
+	    waterSeparator.addChild(waterMat);
+	    
+	    SoTranslation waterTranslation = new SoTranslation();
+	    
+	    waterTranslation.translation.setValue( /*14000*/- 4000 + WATER_HORIZON/2, /*-8000*/0, - /*transl.translation.getValue().getZ()*/z);	    
+	    
+	    waterSeparator.addChild(waterTranslation);
+	    
+	    waterSeparator.addChild(water);
+	    
+	    group.addChild(waterSeparator);
+	    
+	}
+	
+	public void addWaterShadow(SoGroup group, float z, float transparency, boolean shining, boolean small) {
+		
+	    SoSeparator waterSeparator = new SoSeparator();
+	    
+		SoCubeWithoutTop water = new SoCubeWithoutTop();
+		
+		water.depth.setValue(CUBE_DEPTH);
+		water.height.setValue(small ? WATER_HORIZON : WATER_HORIZON*2);
+		water.width.setValue(small ? WATER_HORIZON : WATER_HORIZON*2);
+		
+	    SoMaterial waterMat = new SoMaterial();
+	    waterMat.diffuseColor.setValue(0.1f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.6f*WATER_BRIGHTNESS);
+	    waterMat.ambientColor.setValue(0, 0, 0);
+	    waterMat.transparency.setValue(transparency);
+	    if(shining) {
+	    	waterMat.specularColor.setValue(1.0f, 1.0f, 1.0f);
 	    	waterMat.shininess.setValue(0.5f);
 	    }
 	    
@@ -693,10 +693,31 @@ for(int is=0;is<4;is++) {
 	
 	public float getZ(float x, float y, float z) {
 		
+		current_x = x;
+		current_y = y;
+		
 		if(FLY) {
-			return z;
+			current_z = z;
+			setBBoxCenter();
+			return current_z;
 		}
-		return getInternalZ(x,y,z);
+		float newZ = getInternalZ(x,y,z);
+		
+		current_z = newZ;
+		setBBoxCenter();
+		return current_z;
+	}
+	
+	private void setBBoxCenter() {
+		  SbVec3f world_camera_direction = camera.orientation.getValue().multVec(new SbVec3f(0,0,-1)); 
+		  
+		  world_camera_direction.normalize();
+		  
+		for(int is=0;is<4;is++) {
+		    sun[is].bboxCenter.setValue(
+		    		current_x+2000*world_camera_direction.getX(),
+		    		current_y+2000*world_camera_direction.getY(), current_z);			
+		}		
 	}
 	
 	public int[] getIndexes(float x, float y, int[] indices) {
@@ -1110,9 +1131,9 @@ for(int is=0;is<4;is++) {
 			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_QUAD;
 
 			// foliage bottom
-			douglasIndices[i] = vertex+1+3+3;
+			douglasIndices[i] = vertex+3+3+3;
 			douglasIndices[i+1] = vertex+2+3+3;
-			douglasIndices[i+2] = vertex+3+3+3;
+			douglasIndices[i+2] = vertex+1+3+3;
 			douglasIndices[i+3] = -1;
 			
 			i+= /*NB_INDICES_PER_TRIANGLE*/NB_INDICES_PER_TRIANGLE;
@@ -1189,5 +1210,17 @@ for(int is=0;is<4;is++) {
 		render.apply(shadowGroup);
 		
 		render.destructor();
+	}
+
+	@Override
+	public void setCamera(SoCamera camera) {
+		this.camera = camera;
+		RecursiveChunk.setCamera(chunkTree, camera);
+		RecursiveChunk.setCamera(shadowTree, camera);		
+	}
+
+	@Override
+	public void idle() {
+		setBBoxCenter();
 	}
 }

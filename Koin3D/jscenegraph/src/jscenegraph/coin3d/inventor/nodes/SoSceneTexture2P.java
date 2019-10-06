@@ -430,7 +430,7 @@ public class SoSceneTexture2P implements Destroyable {
 
 		      if (!this.canrendertotexture) {
 		        final SbVec2s size1 = new SbVec2s(this.glcontextsize);
-		        int reqbytes = size1.getValue()[0]*size1.getValue()[1]*4;
+		        int reqbytes = ((int)size1.getValue()[0])*size1.getValue()[1]*4;
 		        if (reqbytes > this.offscreenbuffersize) {
 		          //delete[] this.offscreenbuffer; java port
 		          this.offscreenbuffer = new /*unsigned char*/byte[reqbytes];

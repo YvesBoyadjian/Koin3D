@@ -102,6 +102,8 @@ public class MainGLFW {
 		
 		SoCamera camera = viewer.getCameraController().getCamera();
 		
+		sg.setCamera(camera);
+		
 		camera.nearDistance.setValue(MINIMUM_VIEW_DISTANCE);
 		camera.farDistance.setValue(MAXIMUM_VIEW_DISTANCE);
 		
@@ -130,7 +132,9 @@ public class MainGLFW {
 			SbVec3f sunPosition = Soleil.soleil_xyz((float)nowDay, (float)nowGame, (float)Phi);
 			sg.setSunPosition(new SbVec3f(-sunPosition.y(),-sunPosition.x(),sunPosition.z()));
 		});		
-		
+		viewer.addIdleListener((viewer1)->{
+			sg.idle();
+		});
 		
 		//shell.open();
 		

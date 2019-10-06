@@ -115,10 +115,11 @@ public class SoPath extends SoBase implements Destroyable {
 	
 	protected static class SoPathImpl {
 		public final SoNodeList nodes = new SoNodeList(); //!< Pointers to nodes
-		protected final SbIntList indices = new SbIntList(); //!< Child indices
+		public final SbIntList indices = new SbIntList(); //!< Child indices
 		private int numPublic; //!< How many children are public
 		private int minNumPublic; //!< Minimum we KNOW are public
 		private boolean doAuditors; //!< TRUE if auditors to be maintained
+		public boolean firsthiddendirty; //TODO COIN3D
 		
 		public void copyFrom(SoPathImpl other) {
 			nodes.copyFrom(other.nodes);
@@ -126,6 +127,7 @@ public class SoPath extends SoBase implements Destroyable {
 			numPublic = other.numPublic;
 			minNumPublic = other.minNumPublic;
 			doAuditors = other.doAuditors;
+			firsthiddendirty = other.firsthiddendirty;
 		}
 	}
 	
@@ -194,6 +196,7 @@ public class SoPath extends SoBase implements Destroyable {
 	
 	public void destructor() {
 		truncate(0,false);
+		impl = null;
 		super.destructor();
 	}
 

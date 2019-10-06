@@ -186,7 +186,7 @@ setValue(final SbVec2s s, int nc, byte[] b, boolean dontCopy)
     size.copyFrom(s);
     numComponents = nc;
     
-    int numBytes = size.getValue()[0]*size.getValue()[1]*numComponents;
+    int numBytes = (int)size.getValue()[0]*size.getValue()[1]*numComponents;
 
     if (numBytes != 0) {
     	if(dontCopy) {
@@ -260,7 +260,7 @@ public boolean operator_equal_equal(
     if ((!size.equals(f.size)) || numComponents != f.numComponents)
         return false;
 
-    if (Util.memcmp(bytes, f.bytes, size.getValue()[0] * size.getValue()[1] * numComponents) != 0)
+    if (Util.memcmp(bytes, f.bytes, (int)size.getValue()[0] * size.getValue()[1] * numComponents) != 0)
         return false;
 
     return true;
@@ -314,20 +314,20 @@ public boolean readValue(SoInput in)
         return false;
     
     //if (bytes != NULL) delete[] bytes; java port
-    bytes = new byte[size.getValue()[0]*size.getValue()[1]*numComponents];
+    bytes = new byte[(int)size.getValue()[0]*size.getValue()[1]*numComponents];
 
     int _byte = 0;
     if (in.isBinary()) {
         // Inventor version 2.1 and later binary file
         if (in.getIVVersion() > 2.0) {
-            int numBytes = size.getValue()[0]*size.getValue()[1]*numComponents;
+            int numBytes = (int)size.getValue()[0]*size.getValue()[1]*numComponents;
             if (! in.readBinaryArray(bytes, numBytes))
                 return false;
         }
 
         // Pre version 2.1 Inventor binary files
         else {
-            for (int i = 0; i < size.getValue()[0]*size.getValue()[1]; i++) {
+            for (int i = 0; i < (int)size.getValue()[0]*size.getValue()[1]; i++) {
                 final int[] l = new int[1];
 
                 if (!in.read(l)) return false;
@@ -339,7 +339,7 @@ public boolean readValue(SoInput in)
         }
     }
     else {
-        for (int i = 0; i < size.getValue()[0]*size.getValue()[1]; i++) {
+        for (int i = 0; i < (int)size.getValue()[0]*size.getValue()[1]; i++) {
             final int[] l = new int[1];
     
             if (!in.readHex(l)) return false;

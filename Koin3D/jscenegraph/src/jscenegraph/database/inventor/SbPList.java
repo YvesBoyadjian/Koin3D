@@ -186,6 +186,12 @@ public SbPList(final SbPList pl)
 	// Removes all pointers after one with given index, inclusive.
 	public void truncate(int start) {
 		nPtrs = start;
+		if (ptrs != null) {
+			int nb_ptrs = ptrs.length;
+			for (int i = start; i < nb_ptrs; i++) {
+				ptrs[i] = null; // java port
+			}
+		}
 	}
 	
 	// Returns pointer with given index. 
@@ -303,4 +309,14 @@ public SbPList(final SbPList pl)
 		SbPList otherList = (SbPList)other;
 		copy(otherList);
 	}
+	
+	public Object[] 
+	getArrayPtr( /*int start*/)  
+	{
+	//#ifdef COIN_EXTRA_DEBUG
+	  //assert(start >= 0 && start < nPtrs/*this.numitems*/);
+	//#endif // COIN_EXTRA_DEBUG
+	  return /*this.itembuffer*/ptrs;
+	}
+
 	   }

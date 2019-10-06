@@ -15,9 +15,13 @@ import org.lwjgl.BufferUtils;
 
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
+import jscenegraph.database.inventor.SbBox3f;
+import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoPerspectiveCamera;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 
 /**
@@ -34,6 +38,11 @@ public class RecursiveChunk {
 	int ni;
 	int nj;
 	ChunkArray ca;
+	
+	float x_min, x_max, y_min, y_max;
+	
+	SbBox3f sceneBox = new SbBox3f();
+	SbVec3f sceneCenter = new SbVec3f();
 	
 	List<RecursiveChunk> childs = new ArrayList<>();
 
@@ -67,7 +76,7 @@ public class RecursiveChunk {
 		return childs.isEmpty() ? nj : Math.min(nj, MIN_CHUNK_SIZE);
 	}
 
-	public SoNode getGroup() {
+	public SoNode getGroup(float lodFactor, boolean culling) {
 		
 		if(childs.isEmpty()) {
 			return getIndexedFaceSet();
@@ -75,26 +84,60 @@ public class RecursiveChunk {
 		else {
 			SoLOD lod = new SoTouchLOD2();
 			lod.center.setValue(getCenter());
-			lod.range.setValue(ChunkArray.DEFINITION * ni / 250.0f);
+			lod.range.setValue(ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
 			SoSeparator subChunkGroup = new SoSeparator();
-			subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
+			if(culling) {
+				subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
+			}
 			
-//			int[] array = { 0,1,2,3};
-//			IntStream is = Arrays.stream(array);
-//			List<SoNode> nodes = is.
-//			sequential().
-//			mapToObj((i) -> childs.get(i).getGroup()).
-//			collect(Collectors.toList());
-			
-//			nodes.forEach((o)->subChunkGroup.addChild(o));
-			
-			subChunkGroup.addChild(childs.get(0).getGroup());
-			subChunkGroup.addChild(childs.get(1).getGroup());
-			subChunkGroup.addChild(childs.get(2).getGroup());
-			subChunkGroup.addChild(childs.get(3).getGroup());
+			subChunkGroup.addChild(childs.get(0).getGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(1).getGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(2).getGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(3).getGroup(lodFactor,culling));
 			lod.addChild(subChunkGroup);
 			lod.addChild(getIndexedFaceSet());
 			return lod;
+		}
+	}
+
+	public SoNode getShadowGroup(float lodFactor, boolean culling) {
+		
+		if(childs.isEmpty()) {
+			return getIndexedFaceSet();
+		}
+		else {
+			SoCameraLOD lod = new SoTouchLOD3();
+			lod.center.setValue(getCenter());
+			lod.range.setValue(500 + ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
+			SoSeparator subChunkGroup = new SoSeparator();
+			if(culling) {
+				subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
+			}
+			
+			subChunkGroup.addChild(childs.get(0).getShadowGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(1).getShadowGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(2).getShadowGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(3).getShadowGroup(lodFactor,culling));
+			lod.addChild(subChunkGroup);
+			lod.addChild(getIndexedFaceSet());
+			return lod;
+		}
+	}
+	
+	public static void setCamera(SoNode node, SoCamera camera) {
+		if( node instanceof SoCameraLOD) {
+			SoCameraLOD cnode = (SoCameraLOD) node;			
+			cnode.setCamera(camera);
+		}
+		if( node instanceof SoTouchLOD2) {
+			SoTouchLOD2 cnode = (SoTouchLOD2) node;			
+			cnode.setCamera(camera);
+		}
+		if( node instanceof SoGroup) {
+			SoGroup cnode = (SoGroup) node;			
+			for(int i= 0; i<cnode.getNumChildren();i++) {
+				setCamera(cnode.getChild(i),camera);
+			}
 		}
 	}
 
@@ -149,6 +192,11 @@ public class RecursiveChunk {
 			
 			float[] xyz = new float[3];
 			
+			x_min = Float.MAX_VALUE;
+			x_max = - Float.MAX_VALUE;
+			y_min = Float.MAX_VALUE;
+			y_max = - Float.MAX_VALUE;
+			
 			for(int i =0 ; i< decimatedChunkWidth; i++) {
 				for(int j =0 ; j<decimatedChunkHeight ; j++) {
 					int i0 = fromSonToSourceI(i);
@@ -159,8 +207,16 @@ public class RecursiveChunk {
 					decimatedVertices[indice*3] = xyz[0];
 					decimatedVertices[indice*3+1] = xyz[1];
 					decimatedVertices[indice*3+2] = xyz[2];
+					
+					x_min = Math.min(decimatedVertices[indice*3],x_min);
+					x_max = Math.max(decimatedVertices[indice*3],x_max);
+					y_min = Math.min(decimatedVertices[indice*3+1],y_min);
+					y_max = Math.max(decimatedVertices[indice*3+1],y_max);
+					
+					sceneBox.extendBy(new SbVec3f(decimatedVertices[indice*3],decimatedVertices[indice*3+1],decimatedVertices[indice*3+2]));
 				}
 			}
+			sceneCenter.setValue(sceneBox.getCenter());
 		}
 		return decimatedVertices;
 	}
@@ -356,5 +412,31 @@ public class RecursiveChunk {
 		getCenter();
 		
 		childs.parallelStream().forEach((c)-> c.prepare());
+	}
+	
+	public boolean isInside(float x, float y) {
+		if( x < x_min) {
+			return false;
+		}
+		if( x > x_max) {
+			return false;
+		}
+		if( y < y_min) {
+			return false;
+		}
+		if( y > y_max) {
+			return false;
+		}
+		return true;
+	}
+	
+	public float distance(float x, float y) {
+		SbVec3f point = new SbVec3f(x,y,sceneCenter.getZ());
+		
+		SbVec3f closestPoint = sceneBox.getClosestPoint(point);
+		
+		float distance = point.operator_minus(closestPoint).length();
+		
+		return distance;
 	}
 }

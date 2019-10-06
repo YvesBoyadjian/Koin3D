@@ -114,6 +114,7 @@ import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.MutableSbVec3fArray;
@@ -1227,8 +1228,8 @@ GLRender(SoGLRenderAction action)
 } 
 	 //glrender_done:
 		 finally {
-		 mb.destructor();
-	  tb.destructor();
+		 Destroyable.delete(mb);
+		 Destroyable.delete(tb);
 
 	  if (this.vertexProperty.getValue() != null)
 	    state.pop();

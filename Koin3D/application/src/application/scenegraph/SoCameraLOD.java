@@ -1,105 +1,9 @@
-/**************************************************************************\
- * Copyright (c) Kongsberg Oil & Gas Technologies AS
- * All rights reserved.
+/**
  * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- * 
- * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- * 
- * Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- * 
- * Neither the name of the copyright holder nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-\**************************************************************************/
+ */
+package application.scenegraph;
 
-/*!
-  \class SoLOD SoLOD.h Inventor/nodes/SoLOD.h
-  \brief The SoLOD class is used to choose a child based distance between viewer and object.
-  \ingroup nodes
-
-  The class documentation for the SoLOD node class would be similar
-  enough to that of SoLevelOfDetail that we will refer you to look at
-  that one first. It will explain the general principles of what a
-  level-of-detail mechanism is, and why and how to use it.
-
-  (The main difference between SoLOD and SoLevelOfDetail is that SoLOD
-  uses the speedier "distance-to-viewer" technique for implementing
-  level-of-detail functionality, versus the more correct (but
-  potentially slower) "projected-bbox-area" technique used by
-  SoLevelOfDetail.)
-
-  Here's a mockup example (in Inventor file format style, but easily
-  converted to code) that shows how to use this node:
-
-  \code
-  LOD {
-     range [ 10, 20, 30, 40 ]
-
-     Sphere { }
-     Cylinder { }
-     Cone { }
-     Cube { }
-     Info { }
-  }
-  \endcode
-
-  For the sub-scenegraph above, when the LOD-object is less than 10
-  units away from the viewpoint camera, an SoSphere will be shown. For
-  distances 10 - 20 units away, this will be changed to the
-  SoCylinder, and so on. For distances of \e more than 40 units from
-  the camera, an SoInfo node will be traversed / rendered -- ie,
-  nothing will be shown. (This is a common "trick" used to optimize
-  rendering when models get far enough away from the camera that we
-  want to remove them completely).
-
-  Note that when using an SoOrthographicCamera in the examiner viewers
-  of the SoQt, SoWin and SoXt libraries, it will seem like the SoLOD
-  node is not working when using the "Zoom" functionality. What
-  happens is that an SoOrthographicCamera is not actually moved, the
-  "zoom" effect is accomplished simply by changing its height-of-view
-  setting (i.e. the value of the SoOrthographicCamera::height field),
-  but its position remains constant. So the distance to the camera
-  will not change, which means SoLOD will pick the same child, no
-  matter how much one "zooms".
-
-  (The SoLevelOfDetail node uses the screen space area of the object
-  to decide when to switch children, so that node will still work with
-  SoOrthographicCamera.)
-
-  <b>FILE FORMAT/DEFAULTS:</b>
-  \code
-    LOD {
-        center 0 0 0
-        range [  ]
-    }
-  \endcode
-
-  \since Inventor 2.1
-  \sa SoLevelOfDetail
-*/
-
-// *************************************************************************
-
-package jscenegraph.coin3d.inventor.nodes;
-
+import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
@@ -118,8 +22,10 @@ import jscenegraph.database.inventor.fields.SoMFFloat;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoPerspectiveCamera;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.nodes.SoSwitch;
 import jscenegraph.port.Destroyable;
@@ -128,33 +34,7 @@ import jscenegraph.port.Destroyable;
  * @author Yves Boyadjian
  *
  */
-// *************************************************************************
-
-/*!
-  \var SoMFFloat SoLOD::range
-
-  The distance ranges which decides when to use each child for
-  traversal / rendering. See usage example in main class documentation
-  of SoLOD for an explanation of how this vector should be set up
-  correctly.
-
-  By default this vector just contains a single value 0.0f.
-*/
-/*!
-  \var SoSFVec3f SoLOD::center
-
-  This vector represents an offset within the object from the
-  geometric center point to the center point the application
-  programmer would actually like the distance between the viewer and
-  the object to be calculated from.
-
-  Default value is [0, 0, 0]. It is usually not necessary to change
-  this field.
-*/
-
-// *************************************************************************
-
-public class SoLOD extends SoGroup {
+public class SoCameraLOD extends SoGroup {
 	
 	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoLOD.class,this);
 	   
@@ -181,20 +61,22 @@ public class SoLOD extends SoGroup {
 class SoLODP /*: public SoSoundElementHelper*/implements Destroyable
 {
 public
-  SoLODP(SoLOD master) { this.master = master; };
-  SoLOD master;
+  SoLODP(SoCameraLOD master) { this.master = master; };
+  SoCameraLOD master;
 @Override
 public void destructor() {
 	master = null;
 }
 };
 
+public SoCamera camera; // ptr
+
 //SO_NODE_SOURCE(SoLOD);
 
 /*!
   Default constructor.
 */
-public SoLOD()
+public SoCameraLOD()
 {
   this.commonConstructor();
 }
@@ -207,7 +89,7 @@ public SoLOD()
   exact, as it is only used as a hint for better memory resource
   allocation.
 */
-public SoLOD(int numchildren) {
+public SoCameraLOD(int numchildren) {
   super(numchildren);
 
   this.commonConstructor();
@@ -249,29 +131,32 @@ initClass()
   //SO_NODE_INTERNAL_INIT_CLASS(SoLOD, SO_FROM_INVENTOR_2_1|SoNode::VRML1);
 }
 
+public void setCamera(SoCamera camera) {
+	this.camera = camera;
+}
 
 // Documented in superclass.
 public void
 doAction(SoAction action)
 {
-  final int[] numindices = new int[1];
-  final int[][] indices = new int[1][];
-  SoAction.PathCode pathcode = action.getPathCode(numindices, indices);
-  if (pathcode == SoAction.PathCode.IN_PATH) {
-    this.children.traverseInPath(action, numindices[0], indices[0]);
-  }
-  else {
-    int idx = this.whichToTraverse(action);
-    if (idx >= 0) {
-//      this.children.traverse(action, idx);
-//      pimpl.enableTraversingOfInactiveChildren();
-//      pimpl.traverseInactiveChildren(this, action, idx, pathcode,
-//                                              this.getNumChildren(),
-//                                              this.getChildren());
-        children.traverse(action, /*childToTraverse*/idx, /*childToTraverse*/idx);
-    	
-    }
-  }
+	  final int[] numindices = new int[1];
+	  final int[][] indices = new int[1][];
+	  SoAction.PathCode pathcode = action.getPathCode(numindices, indices);
+	  if (pathcode == SoAction.PathCode.IN_PATH) {
+	    this.children.traverseInPath(action, numindices[0], indices[0]);
+	  }
+	  else {
+	    int idx = this.whichToTraverse(action);
+	    if (idx >= 0) {
+//	      this.children.traverse(action, idx);
+//	      pimpl.enableTraversingOfInactiveChildren();
+//	      pimpl.traverseInactiveChildren(this, action, idx, pathcode,
+//	                                              this.getNumChildren(),
+//	                                              this.getChildren());
+	        children.traverse(action, /*childToTraverse*/idx, /*childToTraverse*/idx);
+	    	
+	    }
+	  }
 }
 
 // Documented in superclass.
@@ -417,13 +302,44 @@ whichToTraverse(SoAction action)
 {
   SoState state = action.getState();
   final SbMatrix mat = SoModelMatrixElement.get(state); //ref
-  final SbViewVolume vv = SoViewVolumeElement.get(state); //ref
+  //final SbViewVolume vv = SoViewVolumeElement.get(state); //ref
 
   final SbVec3f worldcenter = new SbVec3f();
   mat.multVecMatrix(this.center.getValue(), worldcenter);
+  
+  SbVec3f world_camera_position = camera.position.getValue();
 
-  float dist = (vv.getProjectionPoint().operator_minus( worldcenter)).length();
-
+  float dist = (/*vv.getProjectionPoint()*/world_camera_position.operator_minus( worldcenter)).length();
+  
+  SoRecursiveIndexedFaceSet SoRecursiveIndexedFaceSet = (SoRecursiveIndexedFaceSet)getChild(1);
+  
+  RecursiveChunk rc = SoRecursiveIndexedFaceSet.recursiveChunk;
+  
+  float model_x, model_y;
+  
+  SbVec3f model_xyz = new SbVec3f();
+  
+  SbVec3f world_camera_direction = camera.orientation.getValue().multVec(new SbVec3f(0,0,-1)); 
+  
+  mat.inverse().multVecMatrix(world_camera_position, model_xyz);
+  
+  world_camera_direction.normalize();
+  
+  model_xyz.add(world_camera_direction.operator_mul(500));
+  
+  model_x = model_xyz.getX();
+  model_y = model_xyz.getY();
+  
+  if( rc.isInside(model_x, model_y)) {
+	  dist = 0;
+  }
+  else {
+	  
+	  //System.out.print("dist = "+dist);
+	  dist = rc.distance(model_x, model_y);
+	  
+	  //System.out.println(" dist = "+dist);	  
+  }
   int i;
   int n = this.range.getNum();
 
@@ -443,4 +359,5 @@ notify(SoNotList nl)
 }
 
 	  
+
 }

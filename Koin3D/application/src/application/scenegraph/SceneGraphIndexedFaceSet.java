@@ -22,6 +22,7 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoCallback;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoDirectionalLight;
 import jscenegraph.database.inventor.nodes.SoGroup;
@@ -397,7 +398,7 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    landSep.addChild(rc.getGroup());
+	    landSep.addChild(rc.getGroup(250,true));
 	    
 		//landSep.addChild(chunks.getGroup());
 		
@@ -640,6 +641,18 @@ for(int is=0;is<4;is++) {
 
 	@Override
 	public void preDestroy() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setCamera(SoCamera camera) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void idle() {
 		// TODO Auto-generated method stub
 		
 	}

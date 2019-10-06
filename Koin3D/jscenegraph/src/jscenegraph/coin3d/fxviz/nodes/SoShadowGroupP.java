@@ -305,7 +305,7 @@ public class SoShadowGroupP implements Destroyable {
 	    if (!this.shadowlightsvalid) {
 	      int lightidoffset = SoLightElement.getLights(state).getLength();
 	      float smoothing = master.smoothBorder.getValue();
-	      smoothing = 0.0f; // FIXME: temporary until we have time to fix this feature
+	      //smoothing = 0.0f; // FIXME: temporary until we have time to fix this feature
 
 	      int gaussmatrixsize = 0;
 	      float gaussstandarddeviation = 0.6f;

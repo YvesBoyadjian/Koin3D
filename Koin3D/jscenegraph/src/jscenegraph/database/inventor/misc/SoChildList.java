@@ -295,6 +295,47 @@ copy(final SoChildList cList)
 	          parent.startNotify();
 	     		
 	}
+	
+	/*!
+	  Optimized IN_PATH traversal method.
+
+	  This method is an extension versus the Open Inventor API.
+	*/
+	public void
+	traverseInPath(SoAction action,
+	                            int numindices,
+	                            int[] indices)
+	{
+	  assert(action.getCurPathCode() == SoAction.PathCode.IN_PATH);
+
+	  // only traverse nodes in path list, and nodes off path that
+	  // affects state.
+	  int childidx = 0;
+
+	  for (int i = 0; i < numindices && !action.hasTerminated(); i++) {
+	    int stop = indices[i];
+	    for (; childidx < stop && !action.hasTerminated(); childidx++) {
+	      // we are off path. Check if node affects state before traversing
+	      SoNode node = (this).operator_square_bracket(childidx);
+	      if (node.affectsState()) {
+	        action.pushCurPath(childidx, node);
+	        action.traverse(node);
+	        action.popCurPath(SoAction.PathCode.IN_PATH);
+	      }
+	    }
+
+	    if (!action.hasTerminated()) {
+	      // here we are in path. Always traverse
+	      SoNode node = (this).operator_square_bracket(childidx);
+	      action.pushCurPath(childidx, node);
+	      action.traverse(node);
+	      action.popCurPath(SoAction.PathCode.IN_PATH);
+	      childidx++;
+	    }
+	  }
+	}
+
+	
 
 	// SoPath calls these to be notified of changes in scene graph topology: 
 	public void addPathAuditor(SoPath p) {

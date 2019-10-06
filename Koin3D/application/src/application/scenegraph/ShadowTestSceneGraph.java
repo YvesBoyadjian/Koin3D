@@ -9,6 +9,7 @@ import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoFaceSet;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
@@ -201,6 +202,16 @@ public class ShadowTestSceneGraph implements SceneGraph {
 	}
 	@Override
 	public void preDestroy() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void setCamera(SoCamera camera) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void idle() {
 		// TODO Auto-generated method stub
 		
 	}

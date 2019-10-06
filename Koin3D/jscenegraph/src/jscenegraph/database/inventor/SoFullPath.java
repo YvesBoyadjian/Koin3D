@@ -99,7 +99,7 @@ public class SoFullPath extends SoPath {
 
 	// These return the first and last nodes in a path chain. 
 	public SoNode getTail() {
-		 return (impl.nodes.operator_square_bracket(getFullLength() - 1)); 
+		 return (impl.nodes.operator_square_bracket(this.impl.nodes.getLength()/*getFullLength()*/ - 1)); 
 	}
 	
 	// java port

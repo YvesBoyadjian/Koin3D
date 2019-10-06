@@ -4,6 +4,7 @@
 package application.scenegraph;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoNode;
 
 /**
@@ -23,4 +24,8 @@ public interface SceneGraph extends HeightProvider {
 	void setSunPosition(SbVec3f sunPosition);
 	
 	void preDestroy();
+
+	void setCamera(SoCamera camera);
+
+	void idle();
 }

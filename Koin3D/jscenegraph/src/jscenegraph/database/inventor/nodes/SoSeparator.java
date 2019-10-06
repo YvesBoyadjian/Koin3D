@@ -77,11 +77,13 @@ import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoLocalBBoxMatrixElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.misc.SoTempPath;
 import jscenegraph.port.Destroyable;
 
 /**
@@ -739,10 +741,12 @@ GLRenderBelowPath(SoGLRenderAction action)
             cacheList.open(action, renderCaching.getValue() == CacheEnabled.AUTO.getValue());
         }
 
+        int n = this.children.getLength();
+        Object[] childarray = (n!=0)? this.children.getArrayPtr() : null;
         action.pushCurPath();
         final int numKids = children.getLength();
         for (int i = 0; i < numKids && !action.hasTerminated(); i++) {
-            action.popPushCurPath(i);
+            action.popPushCurPath(i, (SoNode)childarray[i]);
             if (! action.abortNow())
                 ((SoNode )children.get(i)).GLRenderBelowPath(action);
             else
@@ -866,6 +870,22 @@ GLRenderOffPath(SoGLRenderAction action)
 // Use: extender
 
     private static SoGetBoundingBoxAction bba = null;
+
+    
+    /*!
+    This is an internal Open Inventor method. We've implemented
+    view frustum culling in a different manner. Let us know if
+    you need this function, and we'll consider implementing it.
+  */
+//  public boolean
+//  cullTest(SoGLRenderAction action, final int[] cullresults)
+//  {
+//    //COIN_OBSOLETED();
+//    SoDebugError.post("SoSeparator::cullTest(SoGLRenderAction action, final int[] cullresults)", 
+//            "OBSOLETED: functionality not supported (any more)"); 
+//    return false;
+//  }
+
     
 public boolean
 cullTest(SoGLRenderAction action, final int[] cullBits)
@@ -891,7 +911,10 @@ cullTest(SoGLRenderAction action, final int[] cullBits)
         else
             bba.setViewportRegion(SoViewportRegionElement.get(state));
 
-        bba.apply((SoPath )action.getCurPath());
+        SoPath dummy = action.getCurPath().copy();
+        dummy.ref();
+        bba.apply(dummy);
+        dummy.unref();
     }
 
     if (bboxCache == null) return false;

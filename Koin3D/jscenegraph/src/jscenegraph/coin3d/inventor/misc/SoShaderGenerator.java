@@ -27,8 +27,8 @@ public class SoShaderGenerator {
 		  Constructor.
 		*/
 		public SoShaderGenerator()
-		{ dirty = false;
-		
+		{
+		 reset(false);
 		}
 
 		/*!
