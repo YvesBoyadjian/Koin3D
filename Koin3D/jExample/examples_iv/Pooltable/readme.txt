@@ -1,0 +1,1 @@
+This model demonstrates 3ds-file loading capabilities.

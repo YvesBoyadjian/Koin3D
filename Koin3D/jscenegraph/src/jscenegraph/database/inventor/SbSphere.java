@@ -70,6 +70,7 @@
 
 package jscenegraph.database.inventor;
 
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Mutable;
 
 
@@ -248,4 +249,29 @@ public boolean intersect(final SbLine l, final SbVec3f intersection)
         return doesIntersect;
    }
    
+   /*!
+   Set the sphere's radius.
+
+   \sa setValue(), setCenter() and getRadius().
+  */
+public  void
+ setRadius( float radiusarg)
+ {
+ //#if COIN_DEBUG
+   if (radiusarg<0.0f)
+     SoDebugError.postWarning("SbSphere::setRadius",
+                               "Radius should be >= 0.0f.");
+ //#endif // COIN_DEBUG
+   this.radius = radiusarg;
+ }
+
+/*!
+  Returns \a TRUE of the given point \a p lies within the sphere.
+ */
+public boolean
+pointInside(final SbVec3f p)
+{
+  return (p.operator_minus(center)).length() < radius;
+}
+
 }

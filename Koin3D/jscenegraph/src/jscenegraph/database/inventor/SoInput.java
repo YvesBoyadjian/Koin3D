@@ -74,6 +74,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.port.FILE;
+import jscenegraph.port.Util;
 
 /**
  * @author Yves Boyadjian
@@ -2854,35 +2855,34 @@ searchForFile( final String basename,
 
   String fullname = basename;
 
-  // TODO : to implement with java classes
-//  boolean trypath = true;
-//  const char * strptr = basename.getString();
-//  const char * lastunixdelim = strrchr(strptr, '/');
-//  const char * lastdosdelim = strrchr(strptr, '\\');
-//  if (!lastdosdelim) {
-//    lastdosdelim = strrchr(strptr, ':');
-//    if (lastdosdelim) trypath = FALSE;
-//  }
-//  const char * lastdelim = SbMax(lastunixdelim, lastdosdelim);
-//
-//  if (lastdelim && trypath) {
-//    String tmpstring;
-//    for (i = 0; i < directories.getLength(); i++) {
-//      SbString dirname(directories[i]->getString());
-//      int dirlen = dirname.getLength();
-//
-//      if (dirlen > 0 &&
-//          dirname[dirlen-1] != '/' &&
-//          dirname[dirlen-1] != '\\' &&
-//          dirname[dirlen-1] != ':') {
-//        dirname += "/";
-//      }
-//
-//      tmpstring.sprintf("%s%s", dirname.getString(),
-//                        fullname.getString());
-//      if (test_filename(tmpstring)) return tmpstring;
-//    }
-//  }
+  boolean trypath = true;
+  final String strptr = basename/*.getString()*/;
+  String lastunixdelim = Util.strrchr(strptr, '/');
+  String lastdosdelim = Util.strrchr(strptr, '\\');
+  if (lastdosdelim == null) {
+    lastdosdelim = Util.strrchr(strptr, ':');
+    if (lastdosdelim != null) trypath = false;
+  }
+  String lastdelim = Util.shortestNonNull(lastunixdelim, lastdosdelim);
+
+  if (lastdelim != null && trypath) {
+    String tmpstring;
+    for (i = 0; i < directories.getLength(); i++) {
+      String dirname = (String)directories.operator_square_bracket(i)/*.getString()*/;
+      int dirlen = dirname.length();
+
+      if (dirlen > 0 &&
+          dirname.charAt(dirlen-1) != '/' &&
+          dirname.charAt(dirlen-1) != '\\' &&
+          dirname.charAt(dirlen-1) != ':') {
+        dirname += "/";
+      }
+
+      tmpstring = dirname/*.getString(),*/+
+                        fullname/*.getString()*/;
+      if (test_filename(tmpstring)) return tmpstring;
+    }
+  }
 //
 //  const ptrdiff_t offset = lastdelim - strptr;
 //  String base = lastdelim ?

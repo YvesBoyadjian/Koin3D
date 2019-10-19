@@ -302,4 +302,31 @@ public class Util {
 		}
 		throw new IllegalArgumentException();
 	}
+	
+ 	public static String strrchr(String str, int ch) {
+ 		int lastIndex = str.lastIndexOf(ch);
+ 		 		
+ 		if(lastIndex == -1) {
+ 			return null;
+ 		}
+ 		else {
+ 			int beginIndex = lastIndex;
+ 			return str.substring(beginIndex);
+ 		}
+ 	}
+ 		
+ 	public static String shortestNonNull(String str1, String str2) {
+ 		if( str1 == null) {
+ 			return str2;
+ 		}
+ 		if ( str2 == null) {
+ 			return str1;
+ 		}
+ 		if( str1.length() < str2.length() ) {
+ 			return str1;
+ 		}
+ 		else {
+ 			return str2;
+ 		}
+ 	}
 }

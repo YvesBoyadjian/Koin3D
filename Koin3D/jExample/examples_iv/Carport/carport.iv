@@ -1,0 +1,2945 @@
+#Inventor V2.1 ascii
+
+
+Separator {
+
+  Transform {
+    translation 0 0 0
+    rotation -1 0 0  1.5707964
+    scaleFactor 0.99999994 0.99999994 0.99999994
+    scaleOrientation 0 0 1  0
+
+  }
+  Separator {
+
+  }
+  DEF _1CIAVKn9H4$8yzAehYer$P_BUILDINGELEMENTPROXY SeparatorKit {
+    appearance 
+    AppearanceKit {
+      material 
+      Material {
+
+      }
+
+    }
+    childList 
+    NodeKitListPart {
+      containerTypeName "Separator"
+      childTypeNames [ "ShapeKit",
+          "SeparatorKit" ]
+      containerNode 
+      Separator {
+
+        DEF _11bueWhRb9NeFW8hsqRzoz_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            DEF +0 Texture2 {
+              filename "./materials/tile/texture/hellblau.jpg"
+              wrapS REPEAT
+              wrapT REPEAT
+              model MODULATE
+              blendColor 0 0 0
+
+            }
+
+          }
+          transform 
+          Transform {
+            translation -2.5999999 -5.1999998 1.5
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 1.4000001 -1.4,
+                7.3000002 1.4000001 -1.4,
+                0 1.4000001 -1.3999333,
+                0 -0.2 -1.3,
+                0 3 -1.3,
+                0 3 -1.5,
+                0 -0.2 -1.5,
+                7.3000002 -0.2 -1.5,
+                7.3000002 3 -1.5,
+                7.3000002 3 -1.3,
+                7.3000002 -0.2 -1.3 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+        DEF _3vIlQ94P91VPwuEFarjg_Q_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +0
+
+          }
+          transform 
+          Transform {
+            translation -2.5999999 -2.2 1.7
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 -0.1 -0.85000002,
+                7.3000002 -0.1 -0.85000002,
+                0 -0.1 -0.8495667,
+                0 -0.2 -0.2,
+                0 -2.9802323e-009 -0.2,
+                0 -2.9802323e-009 -1.5,
+                0 -0.2 -1.5,
+                7.3000002 -0.2 -1.5,
+                7.3000002 -2.9802323e-009 -1.5,
+                7.3000002 -2.9802323e-009 -0.2,
+                7.3000002 -0.2 -0.2 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+        DEF _0A9XCMC1LCx8y4zD61HKr4_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +0
+
+          }
+          transform 
+          Transform {
+            translation -2.7 -2.2 3
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0.20000033 2.3000002 -1.4,
+                7.4000001 2.3000002 -1.4,
+                0.20000033 2.3000002 -1.3999333,
+                0.20000033 -0.2 -1.3,
+                0.20000033 4.8000002 -1.3,
+                0.20000033 4.8000002 -1.5,
+                0.20000033 -0.2 -1.5,
+                7.4000001 -0.2 -1.5,
+                7.4000001 4.8000002 -1.5,
+                7.4000001 4.8000002 -1.3,
+                7.4000001 -0.2 -1.3 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+        DEF _1RMZXfaaLDHx15uNSCGP0O_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            DEF +1 Texture2 {
+              filename "./materials/wood/texture/fichte.jpg"
+              wrapS REPEAT
+              wrapT REPEAT
+              model MODULATE
+              blendColor 0 0 0
+
+            }
+
+          }
+          transform 
+          Transform {
+            translation -2.5999999 -4.6900001 3
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 16 16
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 -0.30000001 -0.080000013,
+                0 -0.14000002 -0.080000013,
+                0 -0.14000002 -0.30000001,
+                0 -0.30000001 -0.30000001,
+                4 -0.30000001 -0.080000013,
+                4 -0.14000002 -0.080000013,
+                4 -0.14000002 -0.30000001,
+                4 -0.30000001 -0.30000001,
+                0 -0.22000001 -0.19000001,
+                4 -0.22000001 -0.19000001,
+                0 -0.22000001 -0.18963334 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _0JTJbYU3DC2utCZ$PGJ_w1_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -2.5999999 -2.0899999 4.5
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 -0.30000001 -0.080000013,
+                0 -0.14000002 -0.080000013,
+                0 -0.14000002 -0.30000001,
+                0 -0.30000001 -0.30000001,
+                4 -0.30000001 -0.080000013,
+                4 -0.14000002 -0.080000013,
+                4 -0.14000002 -0.30000001,
+                4 -0.30000001 -0.30000001,
+                0 -0.22000001 -0.19000001,
+                4 -0.22000001 -0.19000001,
+                0 -0.22000001 -0.18963334 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _0U2LUfwbr5fhz_KxEcLakc_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            Texture2 {
+              filename "./materials/wood/texture/Esche.jpg"
+              wrapS REPEAT
+              wrapT REPEAT
+              model MODULATE
+              blendColor 0 0 0
+
+            }
+
+          }
+          transform 
+          Transform {
+            translation -2.5999999 2.3300002 4.5
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 -0.30000001 -0.080000013,
+                0 -0.14000002 -0.080000013,
+                0 -0.14000002 -0.30000001,
+                0 -0.30000001 -0.30000001,
+                4 -0.30000001 -0.080000013,
+                4 -0.14000002 -0.080000013,
+                4 -0.14000002 -0.30000001,
+                4 -0.30000001 -0.30000001,
+                0 -0.22000001 -0.19000001,
+                4 -0.22000001 -0.19000001,
+                0 -0.22000001 -0.18963334 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _3vK5EfTPz0AulhvuTI30yw_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -2.5999999 0.11999988 5.7701707
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 -0.30000001 -0.080000013,
+                0 -0.14000002 -0.080000013,
+                0 -0.14000002 -0.30000001,
+                0 -0.30000001 -0.30000001,
+                4 -0.30000001 -0.080000013,
+                4 -0.14000002 -0.080000013,
+                4 -0.14000002 -0.30000001,
+                4 -0.30000001 -0.30000001,
+                0 -0.22000001 -0.19000001,
+                4 -0.22000001 -0.19000001,
+                0 -0.22000001 -0.18963334 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _06DBCPTHL2v8OcfpVTWm1K_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 1.1099974 -4.6799893 3.3999949
+            rotation 0 0.99999994 0  1.5707964
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 6.24999 6.24999
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0.69999921 -0.29999968 -0.15999983,
+                0.69999921 -0.15999983 -0.15999983,
+                0.69999921 -0.15999983 -0.29999968,
+                0.69999921 -0.29999968 -0.29999968,
+                3.1999965 -0.29999968 -0.15999983,
+                3.1999965 -0.15999983 -0.15999983,
+                3.1999965 -0.15999983 -0.29999968,
+                3.1999965 -0.29999968 -0.29999968,
+                0.69999921 -0.22999977 -0.22999977,
+                3.1999965 -0.22999977 -0.22999977,
+                0.69999921 -0.22999977 -0.22976643 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _3Kqui_VLLCOOcXtFNOP57T_BUILDINGELEMENTPROXY SeparatorKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+
+            }
+
+          }
+          transform 
+          Transform {
+            translation -3 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          childList 
+          NodeKitListPart {
+            containerTypeName "Separator"
+            childTypeNames [ "ShapeKit",
+                "SeparatorKit" ]
+            containerNode 
+            Separator {
+
+              DEF _2gsKP6dzL15v9O4YO1OOhI_BUILDINGELEMENTPROXY ShapeKit {
+                pickStyle 
+                PickStyle {
+                  style SHAPE
+
+                }
+                appearance 
+                AppearanceKit {
+                  drawStyle 
+                  DrawStyle {
+                    style FILLED
+
+                  }
+                  material 
+                  Material {
+                    ambientColor 1 1 1
+                    diffuseColor 1 1 1
+                    specularColor 0 0 0
+                    emissiveColor 0 0 0
+                    shininess 0.2
+                    transparency 0
+
+                  }
+                  texture2 
+                  USE +1
+
+                }
+                transform 
+                Transform {
+                  translation 1.1099993 -2.0799985 4.8999972
+                  rotation 0 0.99999994 0  1.5707964
+                  scaleFactor 1 1 1
+                  scaleOrientation 0 0 1  0
+                  center 0 0 0
+
+                }
+                texture2Transform 
+                Texture2Transform {
+                  translation 0 0
+                  rotation 0
+                  scaleFactor 2.4999998 2.4999998
+                  center 0 0
+
+                }
+                shapeHints 
+                ShapeHints {
+                  vertexOrdering COUNTERCLOCKWISE
+                  shapeType UNKNOWN_SHAPE_TYPE
+                  faceType UNKNOWN_FACE_TYPE
+
+                }
+                coordinate3 
+                Coordinate3 {
+                  point [ 0.69999969 -0.29999989 -0.15999995,
+                      0.69999969 -0.15999995 -0.15999995,
+                      0.69999969 -0.15999995 -0.29999989,
+                      0.69999969 -0.29999989 -0.29999989,
+                      3.1999986 -0.29999989 -0.15999995,
+                      3.1999986 -0.15999995 -0.15999995,
+                      3.1999986 -0.15999995 -0.29999989,
+                      3.1999986 -0.29999989 -0.29999989,
+                      0.69999969 -0.22999993 -0.22999993,
+                      3.1999986 -0.22999993 -0.22999993,
+                      0.69999969 -0.22999993 -0.22976659 ]
+
+                }
+                shape 
+                SoIndexedFaceSet {
+                  coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                      0, -1, 5, 6, 2, 1, -1, 6,
+                      7, 3, 2, -1, 7, 4, 0, 3,
+                      -1, 7, 6, 5, 4, -1 ]
+
+                }
+
+              }
+              DEF _25W$s7Wo133f2hkq71Xz9B_BUILDINGELEMENTPROXY ShapeKit {
+                pickStyle 
+                PickStyle {
+                  style SHAPE
+
+                }
+                appearance 
+                AppearanceKit {
+                  drawStyle 
+                  DrawStyle {
+                    style FILLED
+
+                  }
+                  material 
+                  Material {
+                    ambientColor 1 1 1
+                    diffuseColor 1 1 1
+                    specularColor 0 0 0
+                    emissiveColor 0 0 0
+                    shininess 0.2
+                    transparency 0
+
+                  }
+                  texture2 
+                  USE +1
+
+                }
+                transform 
+                Transform {
+                  translation 0.50999999 -2.3900001 4.3400002
+                  rotation 0 0 0.99999994  1.5707964
+                  scaleFactor 1 1 1
+                  scaleOrientation 0 0 1  0
+                  center 0 0 0
+
+                }
+                texture2Transform 
+                Texture2Transform {
+                  translation 0 0
+                  rotation 0
+                  scaleFactor 4.5700002 4.5700002
+                  center 0 0
+
+                }
+                shapeHints 
+                ShapeHints {
+                  vertexOrdering COUNTERCLOCKWISE
+                  shapeType UNKNOWN_SHAPE_TYPE
+                  faceType UNKNOWN_FACE_TYPE
+
+                }
+                coordinate3 
+                Coordinate3 {
+                  point [ 0 -0.30000001 -0.14000002,
+                      0 -0.24000001 -0.14000002,
+                      0 -0.24000001 -0.30000001,
+                      0 -0.30000001 -0.30000001,
+                      4.5700002 -0.30000001 -0.14000002,
+                      4.5700002 -0.24000001 -0.14000002,
+                      4.5700002 -0.24000001 -0.30000001,
+                      4.5700002 -0.30000001 -0.30000001,
+                      0 -0.27000001 -0.22000001,
+                      4.5700002 -0.27000001 -0.22000001,
+                      0 -0.27000001 -0.21973334 ]
+
+                }
+                shape 
+                SoIndexedFaceSet {
+                  coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                      0, -1, 5, 6, 2, 1, -1, 6,
+                      7, 3, 2, -1, 7, 4, 0, 3,
+                      -1, 7, 6, 5, 4, -1 ]
+
+                }
+
+              }
+              DEF _2ubrzdw612wvPpRYSvo$eB_BUILDINGELEMENTPROXY ShapeKit {
+                pickStyle 
+                PickStyle {
+                  style SHAPE
+
+                }
+                appearance 
+                AppearanceKit {
+                  drawStyle 
+                  DrawStyle {
+                    style FILLED
+
+                  }
+                  material 
+                  Material {
+                    ambientColor 1 1 1
+                    diffuseColor 1 1 1
+                    specularColor 0 0 0
+                    emissiveColor 0 0 0
+                    shininess 0.2
+                    transparency 0
+
+                  }
+                  texture2 
+                  USE +1
+
+                }
+                transform 
+                Transform {
+                  translation 1.11 0.1299998 7
+                  rotation 0 0.99999994 0  1.5707964
+                  scaleFactor 1 1 1
+                  scaleOrientation 0 0 1  0
+                  center 0 0 0
+
+                }
+                texture2Transform 
+                Texture2Transform {
+                  translation 0 0
+                  rotation 0
+                  scaleFactor 2.4999998 2.4999998
+                  center 0 0
+
+                }
+                shapeHints 
+                ShapeHints {
+                  vertexOrdering COUNTERCLOCKWISE
+                  shapeType UNKNOWN_SHAPE_TYPE
+                  faceType UNKNOWN_FACE_TYPE
+
+                }
+                coordinate3 
+                Coordinate3 {
+                  point [ 1.5298295 -0.30000001 -0.16000001,
+                      1.5298295 -0.16000001 -0.16000001,
+                      1.5298295 -0.16000001 -0.30000001,
+                      1.5298295 -0.30000001 -0.30000001,
+                      3.2 -0.30000001 -0.16000001,
+                      3.2 -0.16000001 -0.16000001,
+                      3.2 -0.16000001 -0.30000001,
+                      3.2 -0.30000001 -0.30000001,
+                      1.5298295 -0.23000002 -0.23000002,
+                      3.2 -0.23000002 -0.23000002,
+                      1.5298295 -0.23000002 -0.22976668 ]
+
+                }
+                shape 
+                SoIndexedFaceSet {
+                  coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                      0, -1, 5, 6, 2, 1, -1, 6,
+                      7, 3, 2, -1, 7, 4, 0, 3,
+                      -1, 7, 6, 5, 4, -1 ]
+
+                }
+
+              }
+              DEF _1ShE2Y6_P0LQVRo0Rjvqhu_BUILDINGELEMENTPROXY ShapeKit {
+                pickStyle 
+                PickStyle {
+                  style SHAPE
+
+                }
+                appearance 
+                AppearanceKit {
+                  drawStyle 
+                  DrawStyle {
+                    style FILLED
+
+                  }
+                  material 
+                  Material {
+                    ambientColor 1 1 1
+                    diffuseColor 1 1 1
+                    specularColor 0 0 0
+                    emissiveColor 0 0 0
+                    shininess 0.2
+                    transparency 0
+
+                  }
+                  texture2 
+                  USE +1
+
+                }
+                transform 
+                Transform {
+                  translation 1.11 2.3399999 4.9000001
+                  rotation 0 0.99999994 0  1.5707964
+                  scaleFactor 1 1 1
+                  scaleOrientation 0 0 1  0
+                  center 0 0 0
+
+                }
+                texture2Transform 
+                Texture2Transform {
+                  translation 0 0
+                  rotation 0
+                  scaleFactor 2.4999998 2.4999998
+                  center 0 0
+
+                }
+                shapeHints 
+                ShapeHints {
+                  vertexOrdering COUNTERCLOCKWISE
+                  shapeType UNKNOWN_SHAPE_TYPE
+                  faceType UNKNOWN_FACE_TYPE
+
+                }
+                coordinate3 
+                Coordinate3 {
+                  point [ 0.69999999 -0.30000001 -0.16000001,
+                      0.69999999 -0.16000001 -0.16000001,
+                      0.69999999 -0.16000001 -0.30000001,
+                      0.69999999 -0.30000001 -0.30000001,
+                      3.2 -0.30000001 -0.16000001,
+                      3.2 -0.16000001 -0.16000001,
+                      3.2 -0.16000001 -0.30000001,
+                      3.2 -0.30000001 -0.30000001,
+                      0.69999999 -0.23000002 -0.23000002,
+                      3.2 -0.23000002 -0.23000002,
+                      0.69999999 -0.23000002 -0.22976668 ]
+
+                }
+                shape 
+                SoIndexedFaceSet {
+                  coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                      0, -1, 5, 6, 2, 1, -1, 6,
+                      7, 3, 2, -1, 7, 4, 0, 3,
+                      -1, 7, 6, 5, 4, -1 ]
+
+                }
+
+              }
+              DEF _0DQyJkxDjBWfUa284iyUgY_BUILDINGELEMENTPROXY ShapeKit {
+                pickStyle 
+                PickStyle {
+                  style SHAPE
+
+                }
+                appearance 
+                AppearanceKit {
+                  drawStyle 
+                  DrawStyle {
+                    style FILLED
+
+                  }
+                  material 
+                  Material {
+                    ambientColor 1 1 1
+                    diffuseColor 1 1 1
+                    specularColor 0 0 0
+                    emissiveColor 0 0 0
+                    shininess 0.2
+                    transparency 0
+
+                  }
+                  texture2 
+                  USE +1
+
+                }
+                transform 
+                Transform {
+                  translation 0.64999998 -0.51418823 5.2592254
+                  rotation 0.67154294 0.31314564 -0.67154294  3.7485385
+                  scaleFactor 1 1 1
+                  scaleOrientation 2.5813478e-007 -0.13046856 -0.9914524  0.12773129
+                  center 0 0 0
+
+                }
+                texture2Transform 
+                Texture2Transform {
+                  translation 0 0
+                  rotation 0
+                  scaleFactor 2.4999998 2.4999998
+                  center 0 0
+
+                }
+                shapeHints 
+                ShapeHints {
+                  vertexOrdering COUNTERCLOCKWISE
+                  shapeType UNKNOWN_SHAPE_TYPE
+                  faceType UNKNOWN_FACE_TYPE
+
+                }
+                coordinate3 
+                Coordinate3 {
+                  point [ 0.35000014 -0.30000001 -0.16000003,
+                      0.35000014 -0.16000001 -0.16000003,
+                      0.35000014 -0.16000001 -0.30000004,
+                      0.35000014 -0.30000001 -0.30000004,
+                      3.2000008 -0.30000001 -0.16000003,
+                      3.2000008 -0.16000001 -0.16000003,
+                      3.2000008 -0.16000001 -0.30000004,
+                      3.2000008 -0.30000001 -0.30000004,
+                      0.35000014 -0.23000002 -0.23000005,
+                      3.2000008 -0.23000002 -0.23000005,
+                      0.35000014 -0.23000002 -0.22976671 ]
+
+                }
+                shape 
+                SoIndexedFaceSet {
+                  coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                      0, -1, 5, 6, 2, 1, -1, 6,
+                      7, 3, 2, -1, 7, 4, 0, 3,
+                      -1, 7, 6, 5, 4, -1 ]
+
+                }
+
+              }
+              DEF _06653Rurj0ahQW3EmYVjqr_BUILDINGELEMENTPROXY ShapeKit {
+                pickStyle 
+                PickStyle {
+                  style SHAPE
+
+                }
+                appearance 
+                AppearanceKit {
+                  drawStyle 
+                  DrawStyle {
+                    style FILLED
+
+                  }
+                  material 
+                  Material {
+                    ambientColor 1 1 1
+                    diffuseColor 1 1 1
+                    specularColor 0 0 0
+                    emissiveColor 0 0 0
+                    shininess 0.2
+                    transparency 0
+
+                  }
+                  texture2 
+                  USE +1
+
+                }
+                transform 
+                Transform {
+                  translation 0.70999938 -2.3899977 4.3399954
+                  rotation 0 0 0.99999994  1.5707964
+                  scaleFactor 1 1 1
+                  scaleOrientation 0 0 1  0
+                  center 0 0 0
+
+                }
+                texture2Transform 
+                Texture2Transform {
+                  translation 0 0
+                  rotation 0
+                  scaleFactor 4.5699978 4.5699978
+                  center 0 0
+
+                }
+                shapeHints 
+                ShapeHints {
+                  vertexOrdering COUNTERCLOCKWISE
+                  shapeType UNKNOWN_SHAPE_TYPE
+                  faceType UNKNOWN_FACE_TYPE
+
+                }
+                coordinate3 
+                Coordinate3 {
+                  point [ 0 -0.29999986 -0.13999994,
+                      0 -0.23999988 -0.13999994,
+                      0 -0.23999988 -0.29999986,
+                      0 -0.29999986 -0.29999986,
+                      4.5699978 -0.29999986 -0.13999994,
+                      4.5699978 -0.23999988 -0.13999994,
+                      4.5699978 -0.23999988 -0.29999986,
+                      4.5699978 -0.29999986 -0.29999986,
+                      0 -0.26999986 -0.21999989,
+                      4.5699978 -0.26999986 -0.21999989,
+                      0 -0.26999986 -0.21973322 ]
+
+                }
+                shape 
+                SoIndexedFaceSet {
+                  coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                      0, -1, 5, 6, 2, 1, -1, 6,
+                      7, 3, 2, -1, 7, 4, 0, 3,
+                      -1, 7, 6, 5, 4, -1 ]
+
+                }
+
+              }
+              DEF _0H_rBTnwn7wfkzvueiw3eW_BUILDINGELEMENTPROXY ShapeKit {
+                pickStyle 
+                PickStyle {
+                  style SHAPE
+
+                }
+                appearance 
+                AppearanceKit {
+                  drawStyle 
+                  DrawStyle {
+                    style FILLED
+
+                  }
+                  material 
+                  Material {
+                    ambientColor 1 1 1
+                    diffuseColor 1 1 1
+                    specularColor 0 0 0
+                    emissiveColor 0 0 0
+                    shininess 0.2
+                    transparency 0
+
+                  }
+                  texture2 
+                  USE +1
+
+                }
+                transform 
+                Transform {
+                  translation 1.1099999 0.31418806 5.2604594
+                  rotation -0.38928166 0.83481711 -0.38928166  1.750366
+                  scaleFactor 1 1 1
+                  scaleOrientation -0.1873616 0.71963298 0.66859859  0.72140545
+                  center 0 0 0
+
+                }
+                texture2Transform 
+                Texture2Transform {
+                  translation 0 0
+                  rotation 0
+                  scaleFactor 2.4999998 2.4999998
+                  center 0 0
+
+                }
+                shapeHints 
+                ShapeHints {
+                  vertexOrdering COUNTERCLOCKWISE
+                  shapeType UNKNOWN_SHAPE_TYPE
+                  faceType UNKNOWN_FACE_TYPE
+
+                }
+                coordinate3 
+                Coordinate3 {
+                  point [ 0.34999999 -0.29999995 -0.15999997,
+                      0.34999999 -0.15999997 -0.15999997,
+                      0.34999999 -0.15999997 -0.29999995,
+                      0.34999999 -0.29999995 -0.29999995,
+                      3.1999996 -0.29999995 -0.15999997,
+                      3.1999996 -0.15999997 -0.15999997,
+                      3.1999996 -0.15999997 -0.29999995,
+                      3.1999996 -0.29999995 -0.29999995,
+                      0.34999999 -0.22999996 -0.22999996,
+                      3.1999996 -0.22999996 -0.22999996,
+                      0.34999999 -0.22999996 -0.22976662 ]
+
+                }
+                shape 
+                SoIndexedFaceSet {
+                  coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                      0, -1, 5, 6, 2, 1, -1, 6,
+                      7, 3, 2, -1, 7, 4, 0, 3,
+                      -1, 7, 6, 5, 4, -1 ]
+
+                }
+
+              }
+            }
+
+          }
+
+        }
+        DEF _0eTzHtpVfEXOP2f6NiAaYF_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 1.11 -2.0799999 4.9000001
+            rotation 0 0.99999994 0  1.5707964
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 2.4999998 2.4999998
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0.69999999 -0.30000001 -0.16000001,
+                0.69999999 -0.16000001 -0.16000001,
+                0.69999999 -0.16000001 -0.30000001,
+                0.69999999 -0.30000001 -0.30000001,
+                3.2 -0.30000001 -0.16000001,
+                3.2 -0.16000001 -0.16000001,
+                3.2 -0.16000001 -0.30000001,
+                3.2 -0.30000001 -0.30000001,
+                0.69999999 -0.23000002 -0.23000002,
+                3.2 -0.23000002 -0.23000002,
+                0.69999999 -0.23000002 -0.22976668 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _0jLHg1p7z3WumfvB3cqlne_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 0.50999999 -2.3900001 4.3400002
+            rotation 0 0 0.99999994  1.5707964
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4.5700002 4.5700002
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 -0.30000001 -0.14000002,
+                0 -0.24000001 -0.14000002,
+                0 -0.24000001 -0.30000001,
+                0 -0.30000001 -0.30000001,
+                4.5700002 -0.30000001 -0.14000002,
+                4.5700002 -0.24000001 -0.14000002,
+                4.5700002 -0.24000001 -0.30000001,
+                4.5700002 -0.30000001 -0.30000001,
+                0 -0.27000001 -0.22000001,
+                4.5700002 -0.27000001 -0.22000001,
+                0 -0.27000001 -0.21973334 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _0j$VsWoZPCDuIMYHKMpJ1G_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 1.11 0.1299998 7
+            rotation 0 0.99999994 0  1.5707964
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 2.4999998 2.4999998
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.5298295 -0.30000001 -0.16000001,
+                1.5298295 -0.16000001 -0.16000001,
+                1.5298295 -0.16000001 -0.30000001,
+                1.5298295 -0.30000001 -0.30000001,
+                3.2 -0.30000001 -0.16000001,
+                3.2 -0.16000001 -0.16000001,
+                3.2 -0.16000001 -0.30000001,
+                3.2 -0.30000001 -0.30000001,
+                1.5298295 -0.23000002 -0.23000002,
+                3.2 -0.23000002 -0.23000002,
+                1.5298295 -0.23000002 -0.22976668 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _2fjDBUDYz8cwgLXyl5nsEm_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 1.11 2.3399999 4.9000001
+            rotation 0 0.99999994 0  1.5707964
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 2.4999998 2.4999998
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0.69999999 -0.30000001 -0.16000001,
+                0.69999999 -0.16000001 -0.16000001,
+                0.69999999 -0.16000001 -0.30000001,
+                0.69999999 -0.30000001 -0.30000001,
+                3.2 -0.30000001 -0.16000001,
+                3.2 -0.16000001 -0.16000001,
+                3.2 -0.16000001 -0.30000001,
+                3.2 -0.30000001 -0.30000001,
+                0.69999999 -0.23000002 -0.23000002,
+                3.2 -0.23000002 -0.23000002,
+                0.69999999 -0.23000002 -0.22976668 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _34J9aj7VP7xgYz7hIyaO7K_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 0.64999998 -0.51418823 5.2592254
+            rotation 0.67154294 0.31314561 -0.67154294  3.7485385
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 2.4999998 2.4999998
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0.35000002 -0.29999998 -0.16000001,
+                0.35000002 -0.16 -0.16000001,
+                0.35000002 -0.16 -0.30000001,
+                0.35000002 -0.29999998 -0.30000001,
+                3.1999996 -0.29999998 -0.16000001,
+                3.1999996 -0.16 -0.16000001,
+                3.1999996 -0.16 -0.30000001,
+                3.1999996 -0.29999998 -0.30000001,
+                0.35000002 -0.22999999 -0.23000002,
+                3.1999996 -0.22999999 -0.23000002,
+                0.35000002 -0.22999999 -0.22976668 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _3Ky32e4Yb3aRQ1B$Q6OfKx_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 0.70999938 -2.3899977 4.3399954
+            rotation 0 0 0.99999994  1.5707964
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4.5699978 4.5699978
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 -0.29999986 -0.13999994,
+                0 -0.23999988 -0.13999994,
+                0 -0.23999988 -0.29999986,
+                0 -0.29999986 -0.29999986,
+                4.5699978 -0.29999986 -0.13999994,
+                4.5699978 -0.23999988 -0.13999994,
+                4.5699978 -0.23999988 -0.29999986,
+                4.5699978 -0.29999986 -0.29999986,
+                0 -0.26999986 -0.21999989,
+                4.5699978 -0.26999986 -0.21999989,
+                0 -0.26999986 -0.21973322 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _2wzvUhx290Sexv3iD2LdpQ_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 1.1099998 0.31418803 5.2604589
+            rotation -0.38928166 0.83481711 -0.38928166  1.750366
+            scaleFactor 1 1 1
+            scaleOrientation 0.043372151 -0.21112348 0.9764967  0.44903791
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 2.4999998 2.4999998
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0.35000008 -0.29999986 -0.16,
+                0.35000008 -0.15999992 -0.16,
+                0.35000008 -0.15999992 -0.29999998,
+                0.35000008 -0.29999986 -0.29999998,
+                3.2000005 -0.29999986 -0.16,
+                3.2000005 -0.15999992 -0.16,
+                3.2000005 -0.15999992 -0.29999998,
+                3.2000005 -0.29999986 -0.29999998,
+                0.35000008 -0.2299999 -0.23,
+                3.2000005 -0.2299999 -0.23,
+                0.35000008 -0.2299999 -0.22976667 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _1XdxHs_7HBtg4GgvT$1t3e_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            Texture2 {
+              filename "./materials/roof/texture/Rot_engobiert.jpg"
+              wrapS REPEAT
+              wrapT REPEAT
+              model MODULATE
+              blendColor 0 0 0
+
+            }
+
+          }
+          transform 
+          Transform {
+            translation -2.7399991 -6.1437669 4.1176
+            rotation 1 0 0  0.52359891
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.5707964
+            scaleFactor 12 12
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0 2.9563594 -1.48,
+                4.1399999 2.9563594 -1.48,
+                0 2.9563594 -1.4799867,
+                0 -0.2 -1.46,
+                0 6.1127181 -1.46,
+                0 6.1127181 -1.5,
+                0 -0.2 -1.5,
+                4.1399999 -0.2 -1.5,
+                4.1399999 6.1127181 -1.5,
+                4.1399999 6.1127181 -1.46,
+                4.1399999 -0.2 -1.46 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+        DEF _2vbOwX58X0AhKpmUiMwY8L_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -2.9399996 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _2pwptZ$ub9uRs3e4tomEny_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -3.3599997 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _19LKWU_Xz1Oxoy1rDSAEOu_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -2.0999999 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _2sX5vL$1PFLuzmjGniPpvW_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -0.83999991 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _3phbqBnt1DU9txog$m68dB_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -1.2599999 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _1m$RkAwhn30ec9xmr4LO09_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -2.5199997 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _3w7H6LY8PC7hOG$kH2nnzO_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -1.6799998 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _2rbRZPt6L2KvdUbMhwecT7_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -0.41999996 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 8 8
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -0.10000014 5.6901708,
+                1.1799999 -0.10000014 5.8749228,
+                1.26 -0.10000014 5.6901708,
+                1.26 -0.10000014 5.8749228 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 5, 4, 0, -1,
+                1, 4, 6, -1, 6, 3, 1, -1,
+                6, 7, 2, -1, 2, 3, 6, -1,
+                2, 7, 5, -1, 5, 0, 2, -1,
+                7, 5, 6, -1, 4, 6, 5, -1 ]
+
+          }
+
+        }
+        DEF _3OupPz6jX1QAePx2fzVoeT_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation 0 0 0
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 1.0471976
+            scaleFactor 10 10
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType CONVEX
+            creaseAngle 0
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 1.1799999 -5.5669737 2.718564,
+                1.1799999 -5.4869738 2.5799999,
+                1.26 -5.5669737 2.718564,
+                1.26 -5.4869738 2.5799999,
+                1.1799999 -4.9900002 2.8669279,
+                1.1799999 -4.9900002 2.9200001,
+                1.1799999 -0.10000014 5.8749228,
+                1.1799999 -4.8980765 2.9200001,
+                1.1799999 -0.10000014 5.6901708,
+                1.26 -4.9900002 2.8669279,
+                1.26 -0.10000014 5.8749228,
+                1.26 -4.8980765 2.9200001,
+                1.26 -0.10000014 5.6901708,
+                1.26 -4.9900002 2.9200001,
+                1.22 -4.9440384 2.9200001,
+                1.22 -4.9900002 2.8934639 ]
+
+          }
+          shape 
+          IndexedTriangleStripSet {
+            coordIndex [ 0, 1, 2, -1, 3, 2, 1, -1,
+                1, 0, 4, -1, 4, 0, 5, -1,
+                5, 6, 7, -1, 6, 5, 0, -1,
+                8, 7, 6, -1, 1, 4, 9, -1,
+                9, 3, 1, -1, 10, 11, 12, -1,
+                11, 10, 13, -1, 13, 2, 9, -1,
+                2, 13, 10, -1, 3, 9, 2, -1,
+                2, 10, 6, -1, 6, 0, 2, -1,
+                7, 5, 14, -1, 14, 13, 11, -1,
+                13, 14, 5, -1, 14, 11, 7, -1,
+                7, 8, 12, -1, 12, 11, 7, -1,
+                10, 6, 12, -1, 8, 12, 6, -1,
+                13, 5, 15, -1, 15, 4, 9, -1,
+                4, 15, 5, -1, 15, 9, 13, -1 ]
+
+          }
+
+        }
+        DEF _13NtUswITF8ANlhkqbUG6e_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            Texture2 {
+              filename "./materials/stone/texture/Mauer01.jpg"
+              wrapS REPEAT
+              wrapT REPEAT
+              model MODULATE
+              blendColor 0 0 0
+
+            }
+
+          }
+          transform 
+          Transform {
+            translation -5.5999994 -6.7999997 1.3
+            rotation 0 0 1  0
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 12 12
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ -3.3999994 3.7000008 -1.4,
+                17.800001 3.7000008 -1.4,
+                -3.3999994 3.7000008 -1.3999333,
+                -3.3999994 -7.0999994 -1.3,
+                -3.3999994 14.5 -1.3,
+                -3.3999994 14.5 -1.5,
+                -3.3999994 -7.0999994 -1.5,
+                17.800001 -7.0999994 -1.5,
+                17.800001 14.5 -1.5,
+                17.800001 14.5 -1.3,
+                17.800001 -7.0999994 -1.3 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+        DEF _0slFH4BSn97xwsSSG2JUCF_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +1
+
+          }
+          transform 
+          Transform {
+            translation -1.7499996 -4.6799979 3.3999991
+            rotation 0 0.99999994 0  1.5707964
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 2.4999988 2.4999988
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 0.69999987 -0.29999995 -0.15999998,
+                0.69999987 -0.15999998 -0.15999998,
+                0.69999987 -0.15999998 -0.29999995,
+                0.69999987 -0.29999995 -0.29999995,
+                3.1999996 -0.29999995 -0.15999998,
+                3.1999996 -0.15999998 -0.15999998,
+                3.1999996 -0.15999998 -0.29999995,
+                3.1999996 -0.29999995 -0.29999995,
+                0.69999987 -0.22999997 -0.22999997,
+                3.1999996 -0.22999997 -0.22999997,
+                0.69999987 -0.22999997 -0.22976664 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1, 4, 5, 1,
+                0, -1, 5, 6, 2, 1, -1, 6,
+                7, 3, 2, -1, 7, 4, 0, 3,
+                -1, 7, 6, 5, 4, -1 ]
+
+          }
+
+        }
+        DEF _1g5yffcKT5n8BZ2L$fcHkE_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +0
+
+          }
+          transform 
+          Transform {
+            translation -2.2999992 3.8999991 3.099999
+            rotation -1 -2.2204459e-016 -2.2204459e-016  1.5707964
+            scaleFactor 0.99999988 0.99999988 0.99999988
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ -0.29999986 2.4000001 -1.4,
+                6.9000006 2.4000001 -1.4,
+                -0.29999986 2.4000001 -1.3999333,
+                -0.29999986 1.6 -1.3,
+                -0.29999986 3.2 -1.3,
+                -0.29999986 3.2 -1.5,
+                -0.29999986 1.6 -1.5,
+                6.9000006 1.6 -1.5,
+                6.9000006 3.2 -1.5,
+                6.9000006 3.2 -1.3,
+                6.9000006 1.6 -1.3 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+        DEF _15NN9lSbb5lhfprTOsajLs_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +0
+
+          }
+          transform 
+          Transform {
+            translation -3.9000001 -4.7000003 3.0999999
+            rotation 0.57735026 0.57735026 -0.57735026  4.1887903
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 2.5000002 2.4000001 -1.4,
+                7.3000002 2.4000001 -1.4,
+                2.5000002 2.4000001 -1.3999333,
+                2.5000002 1.6 -1.3,
+                2.5000002 3.2 -1.3,
+                2.5000002 3.2 -1.5,
+                2.5000002 1.6 -1.5,
+                7.3000002 1.6 -1.5,
+                7.3000002 3.2 -1.5,
+                7.3000002 3.2 -1.3,
+                7.3000002 1.6 -1.3 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+        DEF _08Pa1Da5r2LhFezauS2WTd_BUILDINGELEMENTPROXY ShapeKit {
+          pickStyle 
+          PickStyle {
+            style SHAPE
+
+          }
+          appearance 
+          AppearanceKit {
+            drawStyle 
+            DrawStyle {
+              style FILLED
+
+            }
+            material 
+            Material {
+              ambientColor 1 1 1
+              diffuseColor 1 1 1
+              specularColor 0 0 0
+              emissiveColor 0 0 0
+              shininess 0.2
+              transparency 0
+
+            }
+            texture2 
+            USE +0
+
+          }
+          transform 
+          Transform {
+            translation 3.2000003 -4.6999998 3.2
+            rotation 0.57735026 0.57735026 -0.57735026  4.1887903
+            scaleFactor 1 1 1
+            scaleOrientation 0 0 1  0
+            center 0 0 0
+
+          }
+          texture2Transform 
+          Texture2Transform {
+            translation 0 0
+            rotation 0
+            scaleFactor 4 4
+            center 0 0
+
+          }
+          shapeHints 
+          ShapeHints {
+            vertexOrdering COUNTERCLOCKWISE
+            shapeType UNKNOWN_SHAPE_TYPE
+            faceType UNKNOWN_FACE_TYPE
+
+          }
+          coordinate3 
+          Coordinate3 {
+            point [ 2.5000002 2.4000001 -1.4,
+                7.3000002 2.4000001 -1.4,
+                2.5000002 2.4000001 -1.3999333,
+                2.5000002 1.6 -1.3,
+                2.5000002 3.2 -1.3,
+                2.5000002 3.2 -1.5,
+                2.5000002 1.6 -1.5,
+                7.3000002 1.6 -1.5,
+                7.3000002 3.2 -1.5,
+                7.3000002 3.2 -1.3,
+                7.3000002 1.6 -1.3 ]
+
+          }
+          shape 
+          SoIndexedFaceSet {
+            coordIndex [ 3, 4, 5, 6, -1, 10, 9, 4,
+                3, -1, 9, 8, 5, 4, -1, 8,
+                7, 6, 5, -1, 7, 10, 3, 6,
+                -1, 7, 8, 9, 10, -1 ]
+
+          }
+
+        }
+      }
+
+    }
+
+  }
+  Separator {
+
+  }
+}

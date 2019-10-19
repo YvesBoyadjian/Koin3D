@@ -58,13 +58,17 @@ package jscenegraph.nodekits.inventor.nodekits;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
+import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoFullPath;
+import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.SoNodeList;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPickedPointList;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.SoTypeList;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
@@ -87,6 +91,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.nodekits.inventor.SoNodeKitPath;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
@@ -318,6 +323,11 @@ public class SoBaseKit extends SoNode {
 	
     protected boolean connectionsSetUp;
 	
+    // This array is a 1-1 mapping of the fields corresponding to the
+    // catalog parts. Catalog indices will therefore also be used as
+    // indices into this array.
+    final SbList<SoSFNode> instancelist = new SbList<>(); //COIN3D
+
 	  
 	  
 	/**
@@ -459,7 +469,7 @@ public void destructor() {
                     // Try to look inside the nodekit part.
                     SoBaseKit kit = (SoBaseKit ) iPart;
                     String subString = kit.getPartString(part);
-                    if (subString != "") {
+                    if (!subString.isEmpty()/* != ""*/) {
                         String answer =  cat.getName(i).getString() ;
                         answer += ".";
                         answer += subString/*.getString()*/;
@@ -543,7 +553,7 @@ public void destructor() {
                         // Try to look inside the nodekit part.
                         SoBaseKit kit = (SoBaseKit ) iPart;
                         String subString = kit.getPartString(part);
-                        if (subString != "") {
+                        if (!subString.isEmpty() /*!= ""*/) {
                             String answer = ( cat.getName(i).getString() );
                             answer += ".";
                             answer += subString/*.getString()*/;
@@ -568,7 +578,7 @@ public void destructor() {
                                 // Try to look inside the nodekit part.
                                 String subString 
                                     = ((SoBaseKit )kid).getPartString(part);
-                                if (subString != "") {
+                                if (!subString.isEmpty() /*!= ""*/) {
                                     //char indxString[30];
                                     String indxString = "["+indx+"]";
                                     String answer = ( cat.getName(i).getString() );
@@ -633,6 +643,158 @@ public void destructor() {
 		 // return parts unless they are public leaves.
 		 return ( setAnyPart( partName, from, false ) );
 	}
+	
+	//
+	// makes part, makes sure node is connected in the scene
+	//
+	public boolean
+	makePart(int partnum)
+	{
+		SoBaseKit pimpl = this;
+		
+	  assert(partnum > 0 && partnum < pimpl.instancelist.getLength());
+	  final SoNodekitCatalog catalog = this.getNodekitCatalog();
+	  assert(catalog != null);
+
+	  SoNode node = (SoNode )catalog.getDefaultType(partnum).createInstance();
+	  if (catalog.isList(partnum)) {
+	    SoNodeKitListPart list = (SoNodeKitListPart ) node;
+	    if (catalog.getListContainerType(partnum).operator_not_equal(SoGroup.getClassTypeId())) {
+	      list.setContainerType(catalog.getListContainerType(partnum));
+	    }
+	    final SoTypeList typelist = catalog.getListItemTypes(partnum);
+	    for (int i = 0; i < typelist.getLength(); i++) {
+	      list.addChildType(typelist.operator_square_bracket(i));
+	    }
+	    list.lockTypes();
+	  }
+	  return this.setPart(partnum, node);
+	}
+
+	/*!
+	  Sets parts, updates nodekit scene graph, and makes sure graph is
+	  valid with respect to right siblings and parent.  This method is
+	  virtual to enable subclasses to detect when a part changes value.
+
+	  This method is not part of the original SGI Open Inventor API, but
+	  is an extension specific to Coin.
+	*/
+	public boolean
+	setPart(final int partnum, SoNode node)
+	{
+		SoBaseKit pimpl = this;
+		
+	  assert(partnum > 0 && partnum < pimpl.instancelist.getLength());
+	  final SoNodekitCatalog catalog = this.getNodekitCatalog();
+	  assert(catalog != null);
+
+	  if (node != null && !node.getTypeId().isDerivedFrom(catalog.getType(partnum))) {
+	//#if COIN_DEBUG
+	    SoDebugError.postWarning("SoBaseKit::setPart",
+	                              "Attempted to set part ``"+catalog.getName(partnum).getString()+"'' "+
+	                              "to wrong type. Expected ``"+catalog.getType(partnum).getName().getString()+"'', got ``"+node.getTypeId().getName().getString()+"''"
+	                              );
+	//#endif // COIN_DEBUG
+	    return false;
+	  }
+	  int parentIdx = catalog.getParentPartNumber(partnum);
+	  assert(parentIdx >= 0 && parentIdx < pimpl.instancelist.getLength());
+	  SoNode parent = null;
+	  if (parentIdx == 0) parent = this;
+	  else parent = pimpl.instancelist.operator_square_bracket(parentIdx).getValue();
+	  if (parent == null) {
+	    this.makePart(parentIdx);
+	    parent = pimpl.instancelist.operator_square_bracket(parentIdx).getValue();
+	  }
+	  assert(parent != null);
+	  SoChildList childlist = parent.getChildren();
+	  assert(childlist != null);
+
+	  // if parent is a node derived from SoGroup, use the SoGroup access
+	  // functions to add/remove/insert children instead of SoChildList
+	  // directly. This is needed for VRML group nodes to work properly
+	  // inside node kits. pederb, 2004-06-23
+	  SoGroup parentgroup = null;
+	  if (parent.isOfType(SoGroup.getClassTypeId())) {
+	    parentgroup = (SoGroup) parent;
+	  }
+
+	  SoNode oldnode = pimpl.instancelist.operator_square_bracket(partnum).getValue();
+	  if (oldnode == node) return true; // part is already inserted
+
+	  if (childlist.find(node) >= 0) {
+	    // FIXME: should really allow this, but since it's a bit complex
+	    // (we need to somehow keep better track of which SoGroup child
+	    // indices belong to which catalog parts), we just disallow it for
+	    // now. 20020808 mortene.
+	    SoDebugError.postWarning("SoBaseKit::setPart",
+	                              "Node pointer ("+node+", '"+node.getName().getString()+"', '"+node.getTypeId().getName().getString()+"') is already used under the same group node in the catalog "+
+	                              "as a child of part '"+catalog.getName(parentIdx).getString()+"' -- this is not allowed"
+	                              );
+	    return false;
+	  }
+
+	  if (oldnode != null) { // part exists, replace
+	    int oldIdx = childlist.find(oldnode);
+	    assert(oldIdx >= 0);
+
+	    if (parentgroup != null) {
+	      if (node != null) parentgroup.replaceChild(oldIdx, node);
+	      else parentgroup.removeChild(oldIdx);
+	    }
+	    else {
+	      if (node != null) childlist.set(oldIdx, node);
+	      else childlist.remove(oldIdx);
+	    }
+	  }
+	  else if (node != null) { // find where to insert in parent childlist
+	    int rightSibling = this.getRightSiblingIndex(partnum);
+	    if (rightSibling >= 0) { // part has right sibling, insert before
+	      int idx = childlist.find(pimpl.instancelist.operator_square_bracket(rightSibling).getValue());
+	      assert(idx >= 0);
+	      if (parentgroup != null) {
+	        parentgroup.insertChild(node, idx);
+	      }
+	      else {
+	        childlist.insert(node, idx);
+	      }
+	    }
+	    else {
+	      if (parentgroup != null) {
+	        parentgroup.addChild(node);
+	      }
+	      else {
+	        childlist.append(node);
+	      }
+	    }
+	  }
+
+	  // set part field value
+	  pimpl.instancelist.operator_square_bracket(partnum).setValue(node);
+	  return true;
+	}
+
+
+//
+// returns part number of existing right sibling or -1 if none exists
+//
+public int
+getRightSiblingIndex(int partnum)
+{
+	SoBaseKit pimpl = this;
+	
+  assert(partnum > 0 && partnum < pimpl.instancelist.getLength());
+  final SoNodekitCatalog catalog = this.getNodekitCatalog();
+
+  int sibling = catalog.getRightSiblingPartNumber(partnum);
+
+  // iterate until no more siblings or until we find an existing one
+  while (sibling >= 0 && pimpl.instancelist.operator_square_bracket(sibling).getValue() == null) {
+    sibling = catalog.getRightSiblingPartNumber(sibling);
+  }
+  return sibling;
+}
+
 	
 	
 ////////////////////////////////////////////////////////////////////////
@@ -1303,6 +1465,33 @@ protected void createNodekitPartsList()
     }
 }
 
+/*!
+  Replaces the createNodekitPartsList() method.
+
+  Sets up the list of SoSFNode fields with node pointers to the
+  instances in our catalog.
+*/
+public void
+createFieldList()
+{
+	SoBaseKit pimpl = this; // java port
+	
+  // FIXME:
+  // is there any way to make sure this code is only run once, and in
+  // the top level constructor. pederb, 2000-01-06
+  //
+  final SoNodekitCatalog catalog = this.getNodekitCatalog();
+  // only do this if the catalog has been created
+  if (catalog != null) {
+    pimpl.instancelist.truncate(0);
+    pimpl.instancelist.append(null); // first catalog entry is "this"
+    for (int i = 1; i < catalog.getNumEntries(); i++) {
+      pimpl.instancelist.append((SoSFNode )this.getField(catalog.getName(i)));
+      assert(pimpl.instancelist.operator_square_bracket(i) != null);
+    }
+  }
+}
+
 
     //! called during construction to create any parts that are created by
     //! default (such as the cube in the SoCubeKit)
@@ -1505,6 +1694,169 @@ public boolean setUpConnections( boolean onOff) {
         return !(connectionsSetUp = onOff);    	
     }
 
+ // doc in super
+    public boolean
+    readInstance(SoInput in, short flags)
+    {
+      int i;
+
+      boolean oldnotify = this.enableNotify(false);
+      boolean oldsetup = this.setUpConnections(false);
+
+      // store old part values to find which parts are read
+      final SoNodeList nodelist = new SoNodeList();
+      final SbList <Boolean> defaultlist = new SbList<>();
+
+      final SoNodekitCatalog cat = this.getNodekitCatalog(); // ptr
+
+      // Dummy first element to get indices to match instancelist (where
+      // the dummy "this" catalog entry is first).
+      nodelist.append(null);
+      defaultlist.append(false);
+      
+      SoBaseKit pimpl = this; // java port
+
+      // copy all parts into nodelist, and then set all parts to NULL
+      // and default before reading
+      for (i = 1; i < pimpl.instancelist.getLength(); i++) {
+        nodelist.append(pimpl.instancelist.operator_square_bracket(i).getValue());
+        defaultlist.append(pimpl.instancelist.operator_square_bracket(i).isDefault());
+        pimpl.instancelist.operator_square_bracket(i).setValue(null);
+        pimpl.instancelist.operator_square_bracket(i).setDefault(true);
+      }
+
+      // reset the node kit by removing all children. We will restore it
+      // by setting the parts again later
+      this.getChildren().truncate(0);
+
+      // actually read the nodekit.
+      // Use readUnknownFields instead to read fields not part of catalog
+      // SbBool ret = inherited::readInstance(in, flags);
+
+      // Fields that's not part of catalog is read as a SoSFNode, and stored
+      // in unknownfielddata. Later they'll be put in nodekit using setAnyPart.
+      boolean ret = true;
+      SoFieldData unknownfielddata = new SoFieldData();
+      if (!pimpl.readUnknownFields(in, unknownfielddata))
+        ret = false;
+
+      if (ret) {
+        // loop through fields and copy the read parts into nodelist
+        for (i = 1; i < pimpl.instancelist.getLength(); i++) {
+          if (!pimpl.instancelist.operator_square_bracket(i).isDefault()) { // we've read a part
+            nodelist.set(i, pimpl.instancelist.operator_square_bracket(i).getValue());
+            defaultlist.operator_square_bracket(i, false);
+            // set to NULL again so that setPart() will not get confused
+            pimpl.instancelist.operator_square_bracket(i).setValue(null);
+          }
+        }
+
+        // restore the nodekit with all old and read parts
+        for (i = 1; i < pimpl.instancelist.getLength(); i++) {
+          if (!cat.isLeaf(i) && nodelist.operator_square_bracket(i) != null) {
+            // if not leaf, remove all children. They will be re-added
+            // later when the children parts are set.
+            assert(nodelist.operator_square_bracket(i).isOfType(SoGroup.getClassTypeId()));
+            SoGroup g = (SoGroup) nodelist.operator_square_bracket(i);
+            g.removeAllChildren();
+          }
+          this.setPart(i, nodelist.operator_square_bracket(i));
+          pimpl.instancelist.operator_square_bracket(i).setDefault(defaultlist.operator_square_bracket(i));
+        }
+
+        // put the unknown fields into nodekit using setAnyPart
+        final SbName partname = new SbName();
+        SoNode pnode; //ptr
+        SoSFNode pfield; //ptr
+        for (i = 0; i < unknownfielddata.getNumFields(); i++) {
+          partname.copyFrom(unknownfielddata.getFieldName(i));
+          pfield = (SoSFNode ) unknownfielddata.getField(this, i);
+          pnode = pfield.getValue();
+          this.setAnyPart(partname, pnode);
+        }
+      }
+
+      Destroyable.delete( unknownfielddata);
+
+      this.setUpConnections(oldsetup);
+      this.enableNotify(oldnotify);
+
+      return ret;
+    }
+
+//  Reading in parts of nested nodekits does not allow certain shortcuts
+//  that are specified by the Inventor Mentor. The Mentor specifies that
+//  within nested nodekits intermediary kits can be left out and will be
+//  created automatically. Reported by Gerhard Reitmayr.
+public boolean 
+readUnknownFields(SoInput in, final SoFieldData unknownfielddata)
+{
+	SoBaseKit owner = this;
+  final SoFieldData fd = owner.getFieldData();
+
+  // Binary format
+  if (in.isBinary()) {
+    final boolean[] notbuiltin = new boolean[1];
+    return fd.read(in, owner, true, notbuiltin);
+  }
+
+  boolean firstfield = true;
+  SbName fielddescriptionsmarker = new SbName("fields");
+
+  // ASCII format
+  // keep reading fields until we hit close bracket
+  while (true) {
+    // read first character - if none, EOF
+    final char[] c = new char[1];
+    if (!in.read(c))
+      return false;
+    in.putBack(c[0]);
+
+    if (c[0] == '}')
+      return true;
+
+    // read fieldname with no identifier, to be able to read names like
+    // appearance.material
+    final SbName fieldname = new SbName();
+    if (!in.read(fieldname, false))
+      return true;
+    
+    // if this is the first field we try to read, it might be the
+    // field descriptions for extension node kits. Detect and read.
+    if (firstfield) {
+      firstfield = false;
+      if (fieldname == fielddescriptionsmarker) {
+        if (!fd.readFieldDescriptions(in, owner, 0, false)) {
+          return false;
+        }
+        continue; // read next field
+      }
+    }
+
+    // try to read data into one of the fields in this nodekit first.
+    // SoFieldData::read() will return TRUE and set foundname to FALSE
+    // if the field isn't part of the node(kit)
+    final boolean[] foundname = new boolean[1];
+    if (!fd.read(in, owner, fieldname, foundname))
+      return false;
+    
+    if (!foundname[0]) {
+      // add a node pointer field with this name to the unknownFieldData,
+      // and read it
+      unknownfielddata.addField(owner, fieldname.getString(),
+                                 new SoSFNode());
+      if (!unknownfielddata.read(in, owner, fieldname, foundname))
+        return false;
+    }
+  }
+  // Will never be reached, but functions with a return value other than 
+  // void must return *something* by default. At least gcc-4.0.0
+  // (Apple snapshot 20041026, default in Mac OS 10.4) will warn.
+  //return true; java port
+}
+
+    
+    
 	  	 
 	 ////////////////////////////////////////////////////////////////////////
 	   //
@@ -1596,6 +1948,7 @@ public boolean setUpConnections( boolean onOff) {
 ///
 		protected void SO_KIT_INIT_INSTANCE() {
 			   createNodekitPartsList(); 
+			   createFieldList();
 			   createDefaultParts();			
 		}
 	 }

@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor;
 
 import jscenegraph.database.inventor.details.SoDetail;
+import jscenegraph.port.Mutable;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ probably make copies of them.
  * @author Yves Boyadjian
  *
  */
-public class SoPrimitiveVertex {
+public class SoPrimitiveVertex implements Mutable {
 
     //! These return the surface point, normal, and texture coordinates in
     //! object space.
@@ -184,7 +185,8 @@ operator_equal(final SoPrimitiveVertex pv)
     return this;
 }
 
-public void copyFrom(final SoPrimitiveVertex pv) {
+public void copyFrom(final Object other) {
+	final SoPrimitiveVertex pv = (SoPrimitiveVertex) other;
 	operator_equal(pv);
 }
 public void destructor() {

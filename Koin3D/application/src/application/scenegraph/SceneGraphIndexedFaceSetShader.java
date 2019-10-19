@@ -870,6 +870,12 @@ for(int is=0;is<4;is++) {
 
 		int NB_DOUGLAS_SEEDS = 4000000;
 		
+		final int SEED_PLACEMENT_TREES = 42;
+		final int SEED_HEIGHT_TREES = 43;
+		final int SEED_ANGLE_TREES = 44;
+		final int SEED_WITH_TOP_TREES = 45;
+		final int SEED_WITH_BOTTOM_TREES = 46;
+		
 		float[] xArray = new float[NB_DOUGLAS_SEEDS]; 
 		float[] yArray = new float[NB_DOUGLAS_SEEDS]; 
 		float[] zArray = new float[NB_DOUGLAS_SEEDS]; 
@@ -877,9 +883,15 @@ for(int is=0;is<4;is++) {
 		
 		int nbDouglas = 0;
 		
+		Random randomPlacementTrees = new Random(SEED_PLACEMENT_TREES);		
+		Random randomHeightTrees = new Random(SEED_HEIGHT_TREES);		
+		Random randomAngleTrees = new Random(SEED_ANGLE_TREES);
+		Random randomTopTrees  = new Random(SEED_WITH_TOP_TREES);
+		Random randomBottomTrees  = new Random(SEED_WITH_BOTTOM_TREES);
+		
 		for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
-			float x = getRandomX();
-			float y = getRandomY();
+			float x = getRandomX(randomPlacementTrees);
+			float y = getRandomY(randomPlacementTrees);
 			float z = getInternalZ(x,y,0.0f) + zTranslation;
 			
 			boolean isAboveWater = z > - 150 + zTranslation - CUBE_DEPTH /2;
@@ -887,7 +899,7 @@ for(int is=0;is<4;is++) {
 			boolean isStone = isStone(x,y);
 			if( isAboveWater && isUnderSnowLevel && !isStone) {
 				
-				float height = DouglasFir.getHeight();
+				float height = DouglasFir.getHeight(randomHeightTrees);
 				
 				xArray[i] = x;
 				yArray[i] = y;
@@ -951,7 +963,7 @@ for(int is=0;is<4;is++) {
 			
 			float width = height * 0.707f / 50.0f;
 			
-			float angleDegree1 = 120.0f * random.nextFloat();
+			float angleDegree1 = 120.0f * randomAngleTrees.nextFloat();
 			float angleDegree2 = angleDegree1 + 120.0f;
 			float angleDegree3 = angleDegree2 + 120.0f;
 			float angleRadian1 = angleDegree1 * (float)Math.PI / 180.0f;
@@ -992,7 +1004,7 @@ for(int is=0;is<4;is++) {
 			
 			vertexCoordIndice += 3;
 			
-			float widthTop = width *2.5f * random.nextFloat();
+			float widthTop = width *2.5f * randomTopTrees.nextFloat();
 			
 			// top of tree foliage
 			douglasVertices[vertexCoordIndice] = xArray[tree]+ widthTop * (float)Math.cos(angleRadian1);
@@ -1028,7 +1040,7 @@ for(int is=0;is<4;is++) {
 
 			
 			
-			float foliageWidth = width * 7;
+			float foliageWidth = (height+ randomBottomTrees.nextFloat()*12.0f) * 0.1f;
 			
 			
 			
@@ -1183,18 +1195,18 @@ for(int is=0;is<4;is++) {
 	
 	static Random random = new Random(42);
 	
-	float getRandomX() {
+	float getRandomX(Random randomPlacementTrees) {
 		SbBox3f sceneBox = chunks.getSceneBox();
 		float xMin = sceneBox.getBounds()[0];
 		float xMax = sceneBox.getBounds()[3];
-		return xMin + (xMax - xMin) * random.nextFloat();
+		return xMin + (xMax - xMin) * randomPlacementTrees.nextFloat();
 	}
 	
-	float getRandomY() {
+	float getRandomY(Random randomPlacementTrees) {
 		SbBox3f sceneBox = chunks.getSceneBox();
 		float yMin = sceneBox.getBounds()[1];
 		float yMax = sceneBox.getBounds()[4];
-		return yMin + (yMax - yMin) * random.nextFloat();
+		return yMin + (yMax - yMin) * randomPlacementTrees.nextFloat();
 	}
 
 	@Override

@@ -83,8 +83,8 @@ public class SamplePart {
 		//viewer.setAntialiasing(true, 16);
 		viewer.setHeadlight(true);
 		//viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_ADD);
-		//viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
-		viewer.getSceneHandler().setTransparencyType(TransparencyType.SORTED_LAYERS_BLEND);
+		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
+		//viewer.getSceneHandler().setTransparencyType(TransparencyType.SORTED_LAYERS_BLEND);
 		
 	    viewer.buildWidget(style);
 	    
@@ -106,7 +106,7 @@ public class SamplePart {
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
-	    		//createDemoScenePerformance()
+	    		createDemoScenePerformance()
 	    		//createDemoSceneSoMaterialShapeBinding()
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
@@ -130,7 +130,7 @@ public class SamplePart {
 	    		//Orbits.main()
 	    		//WorldAnimated.main()
 	    		//DualWorld.main()
-	    		createDemoSceneTransparentCubes()
+	    		//createDemoSceneTransparentCubes()
 	    		);
 	    //CameraSensor.attach(viewer);
 	    viewer.viewAll();
@@ -1131,7 +1131,7 @@ SoSeparator createPlanet2(float radius, float distance,
 
 	//String fileName = "C:/eclipseWorkspaces/2-6-Performance/AztecCityI.iv"; // default model
 		//String fileName = "G:/eclipseWorkspaces/5-1-Tanky1/models/tank.wrl";
-		String fileName = "C:/eclipseWorkspaces/examples_iv/transparentbluecylinder.iv"; // default model
+		//String fileName = "C:/eclipseWorkspaces/examples_iv/transparentbluecylinder.iv"; // default model
 		//String fileName = "G:/eclipseWorkspaces/examples_iv/sphere.iv"; // default model
 		//String fileName = "C:/eclipseWorkspaces/examples_iv/text3.iv"; // default model
 		//String fileName = "C:/eclipseWorkspaces/examples_iv/texSphereTransf.iv"; // default model
@@ -1151,6 +1151,8 @@ SoSeparator createPlanet2(float radius, float distance,
 		//String fileName = "F:/test_oiv/Renderismissingtriangles.iv"; // default model
 		//String fileName = "F:/test_oiv/test.iv"; // default model
 		//String fileName = "F:/test_oiv/Issue177Renderismissingtrianglesround.iv"; // default model
+		//String fileName = "F:/basic_examples/Road/road.iv";
+		String fileName = "F:/basic_examples/Carport/carport.iv";
 	boolean baseColor = false;
 
 	// create scene root

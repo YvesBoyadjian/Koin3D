@@ -488,6 +488,29 @@ getFieldName(int index)
 	}
 
 
+	/*!
+	  Reads a set of field specifications from \a in for an unknown nodeclass type,
+	  in the form "[ FIELDCLASS FIELDNAME, FIELDCLASS FIELDNAME, ... ]".
+
+	  \a numdescriptionsexpected is used for binary format import to know
+	  how many descriptions should be parsed.
+
+	  If \a readfieldvalues is \e TRUE (the default), the field initial value
+	  is expected after the field name in the SoInput stream.
+
+	*/
+	public boolean
+	readFieldDescriptions(SoInput in, SoFieldContainer object,
+	                                   int numdescriptionsexpected,
+	                                   boolean readfieldvalues)
+	{
+		if(readfieldvalues) {
+			throw new RuntimeException();
+		}
+		else {
+			return readFieldDescriptions(in,object,numdescriptionsexpected);
+		}
+	}
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -752,7 +775,7 @@ public boolean readFields(SoInput in, SoFieldContainer object,
 //
 // Use: internal
 
-private boolean read(SoInput in, SoFieldContainer object,
+public boolean read(SoInput in, SoFieldContainer object,
                   final SbName fieldName, final boolean[] foundName)
 //
 ////////////////////////////////////////////////////////////////////////

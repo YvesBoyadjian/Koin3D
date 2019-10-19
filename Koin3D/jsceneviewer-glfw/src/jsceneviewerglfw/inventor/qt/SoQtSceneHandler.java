@@ -629,7 +629,7 @@ void translateAndSendEvent(TypedEvent anyevent, EventType type)
 }
 
 
-void registerDevice (SoQtDevice d)
+public void registerDevice (SoQtDevice d)
 {
     int index = deviceList.indexOf (d);
     if (index < 0) {

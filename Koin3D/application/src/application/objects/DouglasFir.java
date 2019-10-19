@@ -11,15 +11,13 @@ import java.util.Random;
  */
 public class DouglasFir {
 	
-	private static Random random = new Random(42);
-
 	final static float min_height_meters = 10;
 	
 	final static float max_height_meters = 60;
 	
 	final float trunk_diameter_angle_degree = 5.0f;
 
-	public static float getHeight() {
+	public static float getHeight(Random random) {
 		
 		float alpha = random.nextFloat();
 		

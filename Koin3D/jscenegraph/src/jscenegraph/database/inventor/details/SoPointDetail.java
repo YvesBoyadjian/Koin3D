@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.details;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.port.Mutable;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +80,7 @@ SoDetail, SoPickedPoint, SoPrimitiveVertex, SoVertexShape, SoFaceDetail, SoLineD
  * @author Yves Boyadjian
  *
  */
-public class SoPointDetail extends SoDetail {
+public class SoPointDetail extends SoDetail implements Mutable {
 
 	  private
 	    static final SoType       classTypeId = new SoType();            //!< Type identifier
@@ -106,12 +107,13 @@ public class SoPointDetail extends SoDetail {
     public void        setTextureCoordIndex(int i) { texCoordIndex = i; }
     
     // java port
-    public void copyFrom(SoPointDetail other) {
+    public void copyFrom(Object other) {
+    	SoPointDetail otherPointDetail = (SoPointDetail) other; 
     	//super.copyFrom(other);
-        coordIndex = other.coordIndex;
-        materialIndex = other.materialIndex;
-        normalIndex = other.normalIndex;
-        texCoordIndex = other.texCoordIndex;
+        coordIndex = otherPointDetail.coordIndex;
+        materialIndex = otherPointDetail.materialIndex;
+        normalIndex = otherPointDetail.normalIndex;
+        texCoordIndex = otherPointDetail.texCoordIndex;
     	
     }
     

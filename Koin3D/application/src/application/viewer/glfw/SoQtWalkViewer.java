@@ -445,7 +445,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	int nbFrames = 0;
 	
-	long lastFrameTime = -1;
+	long lastFrameTime = -100;
 	
 	final static int NB_FRAMES = 200;
 
@@ -455,9 +455,12 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	super.paintGL(gl2);
     	
     	if(lastFrameTime < 0) {
+    		lastFrameTime++;
+    	}
+    	if(lastFrameTime == 0) {
     		lastFrameTime = System.nanoTime();
     	}
-    	else {
+    	if(lastFrameTime > 0) {
     		nbFrames++;
     	}
     	if(nbFrames == NB_FRAMES) {

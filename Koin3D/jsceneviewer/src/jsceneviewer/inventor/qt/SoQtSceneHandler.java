@@ -202,6 +202,55 @@ public abstract class SoQtSceneHandler {
     }
 
 
+//void registerNamedDevices(final String d)
+//{
+//  final SoTypeList registeredDeviceTypes = new SoTypeList();
+//  foreach (SoQtDevice* dev, deviceList) {
+//    registeredDeviceTypes.append(dev->getTypeId());
+//  }
+//
+//  QStringList devices = QString(QLatin1String(d.getString())).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+//  foreach (QString dev, devices) {
+//    SoType devType = SoType::fromName(dev.toLatin1().constData());
+//    if (devType == SoType::badType()) {
+//      SoDebugError::post("SoQtSceneHandler::setInputDevicesList", "Type '%s' is unknown to the runtime type system", dev.toLatin1().constData());
+//
+//      SoTypeList knownDevices;
+//      if (SoType::getAllDerivedFrom(SoQtDevice::getClassTypeId(), knownDevices) > 0) {
+//        for (int i = 0; i < knownDevices.getLength(); ++i) {
+//          if (knownDevices[i].canCreateInstance()) {
+//            SoDebugError::postInfo("SoQtSceneHandler::setInputDevicesList", "A known device type name is '%s'", knownDevices[i].getName().getString());
+//          }
+//        }
+//      }
+//    }
+//    else {
+//      if (! devType.isDerivedFrom(SoQtDevice::getClassTypeId())) {
+//        SoDebugError::post("SoQtSceneHandler::setInputDevicesList", "Type '%s' is no descendant of SoQtDevice", dev.toLatin1().constData());
+//      }
+//      else {
+//        if (registeredDeviceTypes.find(devType) >= 0) {
+//          SoDebugError::post("SoQtSceneHandler::setInputDevicesList", "A device of type '%s' is already registered", dev.toLatin1().constData());
+//        }
+//        else {
+//          if (! devType.canCreateInstance()) {
+//            SoDebugError::post("SoQtSceneHandler::setInputDevicesList", "Type '%s' cannot create an instance", dev.toLatin1().constData());
+//          }
+//          else {
+//            SoQtDevice *qd = (SoQtDevice *)devType.createInstance();
+//            if (! qd) {
+//              SoDebugError::post("SoQtSceneHandler::setInputDevicesList", "Could not create an instance of type '%s'", dev.toLatin1().constData());
+//            }
+//            else {
+//              registerDevice(qd);
+//            }
+//          }
+//        }
+//      }
+//    }
+//  }
+//}    
+
 public void initializeScene(int shareID)
 {
     sceneMgr.reinitialize();
@@ -625,7 +674,7 @@ void translateAndSendEvent(TypedEvent anyevent, EventType type)
 }
 
 
-void registerDevice (SoQtDevice d)
+public void registerDevice (SoQtDevice d)
 {
     int index = deviceList.indexOf (d);
     if (index < 0) {

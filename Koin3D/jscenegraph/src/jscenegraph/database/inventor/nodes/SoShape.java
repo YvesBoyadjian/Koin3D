@@ -131,6 +131,7 @@ import jscenegraph.database.inventor.shapenodes.soshape_primdata;
 import jscenegraph.database.inventor.shapenodes.soshape_trianglesort;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
+import jscenegraph.port.Array;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.FloatBufferAble;
@@ -337,8 +338,8 @@ public abstract class SoShape extends SoNode implements Destroyable {
     //! once for each polygon or set of polygons.
 	private static SoPrimitiveVertex[] primVerts;        //!< Array of saved vertices
 	private static SoPointDetail[]     vertDetails;      //!< Array of vertex details
-	private static SoPrimitiveVertex[] polyVerts;        //!< Array of saved poly vertices
-	private static SoPointDetail[]     polyDetails;      //!< Array of poly details
+	private static Array<SoPrimitiveVertex> polyVerts;        //!< Array of saved poly vertices
+	private static Array<SoPointDetail>     polyDetails;      //!< Array of poly details
 	private static int numPolyVertsAllocated;   //!< Size of polyVerts array
 	private static GLUtessellator  tobj;   //!< Tesselator (for concave polygons)
     
@@ -960,16 +961,16 @@ shapeVertex(final SoPrimitiveVertex v)
       case POLYGON:
         // Make sure there is enough room in polyVerts array
         allocateVerts();
-        polyVerts[polyVertNum].copyFrom(v);
+        polyVerts.get(polyVertNum).copyFrom(v);
 
         if (faceDetail != null) {
 
             // Save point detail for given vertex in array
-            polyDetails[polyVertNum].copyFrom(
+            polyDetails.get(polyVertNum).copyFrom(
                  ( SoPointDetail ) v.getDetail());
 
             // Store pointer to point detail in saved polygon vertex
-            polyVerts[polyVertNum].setDetail(polyDetails[polyVertNum]);
+            polyVerts.get(polyVertNum).setDetail(polyDetails.get(polyVertNum));
         }
 
         ++polyVertNum;
@@ -1047,26 +1048,26 @@ allocateVerts()
 {
     // 8 vertices are allocated to begin with
     if (polyVerts == null) {
-        polyVerts   = new SoPrimitiveVertex[8];
-        polyDetails = new SoPointDetail[8];
+        polyVerts   = new Array<>(SoPrimitiveVertex.class, new SoPrimitiveVertex[8]);
+        polyDetails = new Array<>(SoPointDetail.class, new SoPointDetail[8]);
         numPolyVertsAllocated = 8;
     }
 
     else {
         if (polyVertNum >= numPolyVertsAllocated) {
-            final SoPrimitiveVertex[] oldVerts   = polyVerts;
-            final SoPointDetail[]     oldDetails = polyDetails;
+            final Array<SoPrimitiveVertex> oldVerts   = polyVerts;
+            final Array<SoPointDetail>     oldDetails = polyDetails;
 
             // Double storage
             numPolyVertsAllocated = polyVertNum*2;
-            polyVerts   = new SoPrimitiveVertex[numPolyVertsAllocated];
-            polyDetails = new SoPointDetail[numPolyVertsAllocated];
+            polyVerts   = new Array<>(SoPrimitiveVertex.class, new SoPrimitiveVertex[numPolyVertsAllocated]);
+            polyDetails = new Array<>(SoPointDetail.class, new SoPointDetail[numPolyVertsAllocated]);
 
             // Copy over old vertices and details
             for (int i = 0; i < polyVertNum; i++) {
-                polyVerts[i]   = oldVerts[i];
-                polyDetails[i] = oldDetails[i];
-                polyVerts[i].setDetail(polyDetails[i]);
+                polyVerts.get(i).copyFrom(oldVerts.get(i));
+                polyDetails.get(i).copyFrom(oldDetails.get(i));
+                polyVerts.get(i).setDetail(polyDetails.get(i));
             }
 
             // Delete old storage
@@ -1156,11 +1157,11 @@ endShape()
 //#endif
 
         for (i = 0; i < polyVertNum; i++) {
-            final SbVec3f t = polyVerts[i].getPoint();
+            final SbVec3f t = polyVerts.get(i).getPoint();
 
             double[] dv = new double[3];  // glu requires double...
             dv[0] = t.getValueRead()[0]; dv[1] = t.getValueRead()[1]; dv[2] = t.getValueRead()[2];
-            GLU.gluTessVertex(tobj, dv, 0,(Object)polyVerts[i]);
+            GLU.gluTessVertex(tobj, dv, 0,(Object)polyVerts.get(i));
         }
 //#ifdef GLU_VERSION_1_2
         GLU.gluTessEndContour(tobj);

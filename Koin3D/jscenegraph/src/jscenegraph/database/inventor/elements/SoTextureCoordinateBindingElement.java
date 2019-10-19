@@ -76,6 +76,7 @@ public class SoTextureCoordinateBindingElement extends SoInt32Element {
 		        //! The (seemingly random) choice of values is for compatibility
 		        //! with Inventor 2.0 binary format files:
 		        enum Binding {
+		   			NO_BINDING (0), // java port
 		            PER_VERTEX (2),         //!< per vertex texture coordinates
 		            PER_VERTEX_INDEXED (3);  //!< per vertex, indexed, texture coordinates
 		            
@@ -91,6 +92,7 @@ public class SoTextureCoordinateBindingElement extends SoInt32Element {
 		            
 		            public static Binding fromValue(int value) {
 		            	switch(value) {
+		            	case 0: return NO_BINDING; // java port
 		            	case 2: return PER_VERTEX;
 		            	case 3: return PER_VERTEX_INDEXED;
 		            	default: return null;

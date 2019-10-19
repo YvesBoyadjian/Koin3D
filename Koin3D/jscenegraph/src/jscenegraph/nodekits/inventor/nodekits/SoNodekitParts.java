@@ -17,6 +17,7 @@ import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSwitch;
+import jscenegraph.port.Util;
 
 /**
  * @author Yves Boyadjian
@@ -461,7 +462,7 @@ setAnyPart( final SbName nameOfPart, SoNode newPartNode,
     boolean answer;
 
     // JUST A SINGLE NAME...
-    if ( strrchr( nameOfPart.getString(), '.' ) == null )
+    if ( Util.strrchr( nameOfPart.getString(), '.' ) == null )
         return setSingleNamePart( nameOfPart, newPartNode, anyPart );
 
     // OTHERWISE, A COMPOUND NAME of the form:  part1.part2.part3 etc.
@@ -562,7 +563,7 @@ protected SoNode
      SoNode firstNode = null, secondNode = null;
  
      // JUST A SINGLE NAME...
-     if ( strrchr( nameOfPart.getString(), '.' ) == null )
+     if ( Util.strrchr( nameOfPart.getString(), '.' ) == null )
          return getSingleNamePart( nameOfPart, makeIfNeeded, leafCheck, 
                                    publicCheck, existedBefore );
  
@@ -657,7 +658,7 @@ createPathToAnyPart( final SbName nameOfPart,
     SoFullPath firstPath = null, secondPath = null, answer = null;
 
     // JUST A SINGLE NAME...
-    if ( strrchr( nameOfPart.getString(), '.' ) == null )
+    if ( Util.strrchr( nameOfPart.getString(), '.' ) == null )
         return getSingleNamePathToPart( nameOfPart, makeIfNeeded, 
                                     leafCheck, publicCheck, existedBefore );
 
@@ -864,7 +865,7 @@ getSingleNamePathToPart(final  SbName nameOfPart,
     SoFullPath answerPath = null;
 
     // IS THERE A BRACKET, WHICH SIGNIFIES INDEXING INTO A LIST?
-    if ( strrchr( nameOfPart.getString(), '[') != null ) {
+    if ( Util.strrchr( nameOfPart.getString(), '[') != null ) {
 
         final String[] listNameCopy = new String[1]; listNameCopy[0] = strdup( nameOfPart.getString());
         int[]  arrayIndex = new int[1];
@@ -1123,7 +1124,7 @@ private boolean setSingleNamePart(SbName nameOfPart, SoNode newPartNode, boolean
 ////////////////////////////////////////////////////////////////////////
 {
     // IS THERE A BRACKET, WHICH SIGNIFIES INDEXING INTO A LIST?
-    if ( strrchr( nameOfPart.getString(), '[') != null ) {
+    if ( Util.strrchr( nameOfPart.getString(), '[') != null ) {
         final String[] listNameCopy = new String[1]; listNameCopy[0] = strdup( nameOfPart.getString());
         int[]  arrayIndex = new int[1];
 
@@ -1382,7 +1383,7 @@ getSingleNamePart( final SbName nameOfPart,
     existedBefore[0] = false;
 
     // IS THERE A BRACKET, WHICH SIGNIFIES INDEXING INTO A LIST?
-    if ( strrchr( nameOfPart.getString(), '[') != null ) {
+    if ( Util.strrchr( nameOfPart.getString(), '[') != null ) {
 
         final String[] listNameCopy = new String[1]; listNameCopy[0] = strdup( nameOfPart.getString());
         int[]  arrayIndex = new int[1];
@@ -1725,18 +1726,6 @@ parseListItem( final String[] parseString, int[] index )
     return true;
 }
 
- 	private static String strrchr(String str, int ch) {
- 		int lastIndex = str.lastIndexOf(ch);
- 		 		
- 		if(lastIndex == -1) {
- 			return null;
- 		}
- 		else {
- 			int beginIndex = lastIndex;
- 			return str.substring(beginIndex);
- 		}
- 	}
- 	
  	private static String strdup(String str) {
  		return str; 	
  	}

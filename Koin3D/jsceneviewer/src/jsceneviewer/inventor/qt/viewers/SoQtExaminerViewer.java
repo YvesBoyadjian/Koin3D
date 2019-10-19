@@ -81,6 +81,7 @@ import jsceneviewer.QDoubleSpinBox;
 import jsceneviewer.inventor.qt.SoQtCameraController.Type;
 import jsceneviewer.inventor.qt.SoQtIcons;
 import jsceneviewer.inventor.qt.SoQtThumbWheel;
+import jsceneviewer.inventor.qt.devices.SoQtMouseWheel;
 
 /**
  * @author Yves Boyadjian
@@ -269,6 +270,8 @@ public class SoQtExaminerViewer extends SoQtFullViewer {
     };
 
     restoreInteractions();
+    
+    getSceneHandler().registerDevice( new SoQtMouseWheel() ); // java port
 }
     
 
@@ -792,6 +795,10 @@ protected void processEvent (TypedEvent anyEvent, EventType type, final boolean[
             default:
                 ;
         }
+    } else if (type == EventType.MOUSE_EVENT_MOUSE_SCROLLED) {
+    	MouseEvent me = (MouseEvent)anyEvent;
+    	int count = me.count;
+    	getCameraController().zoomCamera( - count / 20.0f );
     } else if (type == EventType.MOUSE_EVENT_MOUSE_ENTER/*QEvent.Enter*/) {
     	MouseEvent me = (MouseEvent)anyEvent;
         updateViewerMode(me.stateMask & SWT.MODIFIER_MASK, me.stateMask & SWT.BUTTON_MASK);
