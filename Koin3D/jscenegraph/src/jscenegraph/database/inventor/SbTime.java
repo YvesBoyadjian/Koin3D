@@ -58,8 +58,10 @@ package jscenegraph.database.inventor;
 
 import java.text.DateFormat;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 
 import jscenegraph.port.Mutable;
@@ -119,9 +121,23 @@ public class SbTime implements Mutable {
 	public static SbTime zero() {
 		return new SbTime(0, 0);
 	}
+	
+	private final static long NANO = 1000000000;
+	private final static long MICRO = 1000000;
+
+	private static long epochRefStartSec;
+	private static double epochRefStartMicro;
+	private static long refSystemNanoTimeMicro;
+	
+	static {
+		Instant refInstant = Instant.now();
+		refSystemNanoTimeMicro = System.nanoTime() / 1000;
+		epochRefStartSec = refInstant.getEpochSecond();
+		epochRefStartMicro = (double)refInstant.getNano() / 1000 + (double)MICRO * epochRefStartSec;
+	}
 
 	// Get the current time (seconds since Jan 1, 1970).
-	public static SbTime getTimeOfDay() {
+	public static SbTime getTimeOfDayNotPrecise() {
 		Instant now = Instant.now();
 		long sec = now.getEpochSecond();
 		int nanos = now.getNano();
@@ -129,14 +145,57 @@ public class SbTime implements Mutable {
 		return new SbTime(sec, usec);
 	}
 	
-	private final static long NANO = 1000000000;
-
 	public static SbTime getTimeOfDay2() {
 		long systemNanoTime = System.nanoTime(); 
 		long sec = systemNanoTime / NANO;
 		long nanos = systemNanoTime - sec * NANO;
 		int usec = (int)nanos / 1000;
 		return new SbTime(sec, usec);
+	}
+	
+	// Get the current time (seconds since Jan 1, 1970).
+	public static SbTime getTimeOfDay() {
+		long systemNanoTimeMicro = System.nanoTime() / 1000;
+		double epochTimeMicro = (double)(systemNanoTimeMicro - refSystemNanoTimeMicro) + epochRefStartMicro;
+		long sec = (long)(epochTimeMicro / MICRO);
+		int usec = (int)(epochTimeMicro - (double)sec * MICRO);
+		return new SbTime(sec, usec);
+	}
+	
+	public static void main( String[] args) {
+		int nbTry = (int)1e7;
+		
+		long t1 = System.nanoTime();
+		List<SbTime> times1 = new ArrayList<>(nbTry);
+		List<SbTime> times2 = new ArrayList<>(nbTry);
+		for (int i=0;i<nbTry;i++) {
+			times1.add(getTimeOfDayNotPrecise());
+			times2.add(getTimeOfDay());
+		}
+		long t2 = System.nanoTime();
+		for (int i=0;i<nbTry;i++) {
+		}
+		long t3 = System.nanoTime();
+		
+		System.out.println("getTimeOfDay : "+ (t2-t1)/1.0e9+" s");
+		for( int i=0;i<90000;i++) {
+			int delta = (int)(times1.get(i+1).operator_minus(times1.get(i)).getValue()*1e6);
+			if( delta > 0 ) {
+				//System.out.println(delta);
+			}
+		}
+		System.out.println("getTimeOfDay2 : "+ (t3-t2)/1.0e9+" s");
+		for( int i=0;i<5000;i++) {
+			int delta = (int)(times2.get(i+1).operator_minus(times2.get(i)).getValue()*1e6);
+			if( delta > 0 ) {
+				//System.out.println(delta);
+			}
+		}
+		for( int i=0;i<1000;i++) {
+			int delta = (int)(times1.get(i).operator_minus(times2.get(i)).getValue()*1e6);
+				System.out.println(delta);
+
+		}
 	}
 
 	////////////////////////////////////////////////////////////////////////

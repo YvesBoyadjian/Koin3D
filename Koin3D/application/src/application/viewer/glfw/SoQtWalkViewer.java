@@ -447,7 +447,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	long lastFrameTime = -100;
 	
-	final static int NB_FRAMES = 200;
+	final static int NB_FRAMES = 100;
 
     protected void paintGL(GL2 gl2) {
     	
@@ -494,25 +494,25 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	public static final float MAX_FPS = 250.0f;
 	
-	private long lastTime = Instant.now().toEpochMilli();
+//	private long lastTime = Instant.now().toEpochMilli();
 
-    public void swapBuffers() {
-    	
-    	long present = Instant.now().toEpochMilli();
-    	long deltaMilli = present - lastTime;
-    	long deltaMinMilli = 1000 / (int)MAX_FPS;
-    	if(deltaMinMilli > deltaMilli) {
-    		try {
-				Thread.sleep(deltaMinMilli - deltaMilli);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    	}
-    	
-    	lastTime = Instant.now().toEpochMilli();
-    	super.swapBuffers();
-    }
+//    public void swapBuffers() {
+//    	
+//    	long present = Instant.now().toEpochMilli();
+//    	long deltaMilli = present - lastTime;
+//    	long deltaMinMilli = 1000 / (int)MAX_FPS;
+//    	if(deltaMinMilli > deltaMilli) {
+//    		try {
+//				Thread.sleep(deltaMinMilli - deltaMilli);
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//    	}
+//    	
+//    	lastTime = Instant.now().toEpochMilli();
+//    	super.swapBuffers();
+//    }
     
     public void setHeightProvider(HeightProvider hp) {
     	this.heightProvider = hp;

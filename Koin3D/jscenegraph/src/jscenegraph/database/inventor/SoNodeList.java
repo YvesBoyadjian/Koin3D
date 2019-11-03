@@ -69,6 +69,8 @@
 
 package jscenegraph.database.inventor;
 
+import java.util.Iterator;
+
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.nodes.SoNode;
 
@@ -92,7 +94,7 @@ SoNode
  * @author Yves Boyadjian
  *
  */
-public class SoNodeList extends SoBaseList {
+public class SoNodeList extends SoBaseList implements Iterable<SoNode> {
 	
    public SoNodeList() { super();  }
    public SoNodeList(int size) { super(size); }
@@ -115,5 +117,26 @@ public class SoNodeList extends SoBaseList {
     //! Copies a list, keeping all reference counts correct.
     public void        copyFrom(Object other) // java port
         { final SoNodeList l = (SoNodeList)other; super.copy(l) ; }
+    
+    private class SoNodeListIterator implements Iterator<SoNode> {
+    	
+    	int currentIndex = 0;
+    	
+		@Override
+		public boolean hasNext() {
+			return currentIndex < getLength();
+		}
+
+		@Override
+		public SoNode next() {
+			return operator_square_bracket(currentIndex++);			
+		}
+		
+    }
+    
+	@Override
+	public Iterator<SoNode> iterator() {
+		return new SoNodeListIterator();
+	}
 
 }
