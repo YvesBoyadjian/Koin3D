@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -41,6 +42,8 @@ public class ChunkArray {
 	
 	private Map<Chunk,Integer> chunkJ = new IdentityHashMap<>();
 	
+	private List<Chunk> chunkList = new ArrayList<Chunk>();
+	
 	private int w;
 	private int h;
 	
@@ -58,10 +61,13 @@ public class ChunkArray {
 		chunks = new Chunk[nbChunkWidth][nbChunkHeight];
 		for(int i=0;i<nbChunkWidth;i++) {
 			for(int j=0;j<nbChunkHeight;j++) {
-				Chunk chunk = new Chunk(Chunk.CHUNK_WIDTH);
+				String chunkId = "nbw"+nbChunkWidth+"nbh"+nbChunkHeight+"w"+i+"h"+j+"cw"+Chunk.CHUNK_WIDTH;
+								
+				Chunk chunk = new Chunk(chunkId, Chunk.CHUNK_WIDTH);
 				chunks[i][j] = chunk;
 				chunkI.put(chunk, i);
 				chunkJ.put(chunk, j);
+				chunkList.add(chunk);
 			}
 		}
 	}
@@ -81,6 +87,64 @@ public class ChunkArray {
 			}
 		}
 	}
+
+	/**
+	 * true if success
+	 * @return
+	 */
+	public boolean loadZAndColors() {
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				if(! chunks[i][j].loadZAndColors()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public boolean loadNormalsAndStones() {
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				if(! chunks[i][j].loadNormalsAndStones()) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public void saveZAndColors() {
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				chunks[i][j].saveZAndColors();
+			}
+		}
+	}
+	
+	public void saveZ() {
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				chunks[i][j].saveZ();
+			}
+		}
+	}
+	
+	public void saveColors() {
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				chunks[i][j].saveColors();
+			}
+		}
+	}
+
+	public void saveNormalsAndStones() {
+		for(int i=0;i<nbChunkWidth;i++) {
+			for(int j=0;j<nbChunkHeight;j++) {
+				chunks[i][j].saveNormalsAndStones();
+			}
+		}
+	}
 	
 //	public void initIndices() {
 //		for(int i=0;i<nbChunkWidth;i++) {
@@ -91,11 +155,14 @@ public class ChunkArray {
 //	}
 	
 	public void initIndexedFaceSets() {
-		for(int i=0;i<nbChunkWidth;i++) {
-			for(int j=0;j<nbChunkHeight;j++) {
-				chunks[i][j].initIndexedFaceSet();
-			}
-		}
+		
+		chunkList.parallelStream().forEach((chunk)->chunk.initIndexedFaceSet());
+		
+//		for(int i=0;i<nbChunkWidth;i++) {
+//			for(int j=0;j<nbChunkHeight;j++) {
+//				chunks[i][j].initIndexedFaceSet();
+//			}
+//		}
 	}
 	
 	public void verticesPut(int index, float value) {
@@ -483,7 +550,7 @@ public class ChunkArray {
 	}
 	
 	public RecursiveChunk getRecursiveChunk() {
-		RecursiveChunk rc = new RecursiveChunk(this,null,0,0,w,h);
+		RecursiveChunk rc = new RecursiveChunk(this,null,1,0,0,w,h);
 		
 		rc.prepare();
 		

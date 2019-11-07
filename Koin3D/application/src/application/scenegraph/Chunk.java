@@ -3,7 +3,14 @@
  */
 package application.scenegraph;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 import java.util.BitSet;
 
 import org.lwjgl.BufferUtils;
@@ -26,6 +33,8 @@ public class Chunk {
 	
 	public static final int NB_LOD = 5;
 	
+	private String chunkId;
+	
 	private int chunkWidth;
 	
 	private float delta_x;
@@ -45,7 +54,8 @@ public class Chunk {
 	SbBox3f sceneBox = new SbBox3f();
 	SbVec3f sceneCenter = new SbVec3f();
 	
-	public Chunk(int chunkWidth) {
+	public Chunk(String chunkId, int chunkWidth) {
+		this.chunkId = chunkId;
 		this.chunkWidth = chunkWidth;
 	}
 
@@ -456,6 +466,272 @@ public class Chunk {
 	public short getImageSize() {
 		int size = Chunk.getDecimatedChunkWidth(0);
 		return (short)size;
+	}
+
+	public boolean loadZAndColors() {
+		if(!loadZ()) {
+			return false;
+		}
+		if(!loadColors()) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean loadColors() {
+		File file = new File( getColorsFileName() );
+		
+		if( !file.exists()) {
+			return false;
+		}
+		if( !file.isFile()) {
+			return false;
+		}
+		if ( file.length() != getZAndColorsFileLength()) {
+			return false;
+		}
+		try {
+			FileInputStream fileInputStream = new FileInputStream(file);
+			
+			byte[] buffer = colors;
+			fileInputStream.read(buffer);
+			
+			fileInputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return true;
+	}
+
+	private boolean loadZ() {
+		File file = new File( getZFileName() );
+		
+		if( !file.exists()) {
+			return false;
+		}
+		if( !file.isFile()) {
+			return false;
+		}
+		if ( file.length() != getZAndColorsFileLength()) {
+			return false;
+		}
+		try {
+			FileInputStream fileInputStream = new FileInputStream(file);
+			
+			int nbZ = vertices.length / 3;									
+			byte[] buffer = new byte[nbZ * Float.BYTES];
+			ByteBuffer bb = ByteBuffer.wrap(buffer);
+			FloatBuffer fb = bb.asFloatBuffer();
+			fileInputStream.read(buffer);
+			for( int i=0; i<nbZ; i++ ) {
+				vertices[3*i+2] = fb.get();
+			}
+			
+			fileInputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		
+		return true;
+	}
+
+	public void saveZAndColors() {
+		saveZ();
+		saveColors();
+	}
+
+	void saveColors() {
+		File file = new File( getColorsFileName() );
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			
+			byte[] buffer = colors;
+			fileOutputStream.write(buffer);
+			
+			fileOutputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	void saveZ() {
+		File file = new File( getZFileName() );
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			
+			int nbZ = vertices.length / 3;									
+			byte[] buffer = new byte[nbZ * Float.BYTES];
+			ByteBuffer bb = ByteBuffer.wrap(buffer);
+			FloatBuffer fb = bb.asFloatBuffer();
+			for( int i=0; i<nbZ; i++ ) {
+				fb.put(vertices[3*i+2]);
+			}
+			fileOutputStream.write(buffer);
+			
+			fileOutputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private String getZFileName() {
+		return "chunk_z_"+chunkId+".mri";
+	}
+
+	private String getColorsFileName() {
+		return "chunk_colors_"+chunkId+".mri";
+	}
+	
+	private String getNormalsFileName() {
+		return "chunk_normals_"+chunkId+".mri";
+	}
+
+	private String getStonesFileName() {
+		return "chunk_stones_"+chunkId+".mri";
+	}
+
+	private int getZAndColorsFileLength() {
+		int nbVertices = chunkWidth *chunkWidth;
+		return nbVertices * 4; 
+	}
+
+	private int getNormalsFileLength() {
+		int nbVertices = chunkWidth *chunkWidth;
+		return nbVertices * 4 * 3;
+	}
+
+	private int getStonesFileLength() {
+		int nbVertices = chunkWidth *chunkWidth;
+		int nbBits = nbVertices;
+		int nbSBytes = (nbBits+Byte.SIZE - 1)/Byte.SIZE; 									
+		return nbSBytes;
+	}
+
+	public boolean loadNormalsAndStones() {
+		if(!loadNormals()) {
+			return false;
+		}
+		if(!loadStones()) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean loadStones() {
+		File file = new File( getStonesFileName() );
+		
+		if( !file.exists()) {
+			return false;
+		}
+		if( !file.isFile()) {
+			return false;
+		}
+		if ( file.length() != getStonesFileLength()) {
+			return false;
+		}
+		try {
+			FileInputStream fileInputStream = new FileInputStream(file);
+			
+			byte[] buffer = new byte[(int)file.length()];
+			fileInputStream.read(buffer);
+			stone = BitSet.valueOf(buffer);
+			
+			fileInputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		
+		return true;
+	}
+
+	private boolean loadNormals() {
+		File file = new File( getNormalsFileName() );
+		
+		if( !file.exists()) {
+			return false;
+		}
+		if( !file.isFile()) {
+			return false;
+		}
+		if ( file.length() != getNormalsFileLength()) {
+			return false;
+		}
+		try {
+			FileInputStream fileInputStream = new FileInputStream(file);
+			
+			int nbN = normals.length;									
+			byte[] buffer = new byte[nbN * Float.BYTES];
+			ByteBuffer bb = ByteBuffer.wrap(buffer);
+			FloatBuffer fb = bb.asFloatBuffer();
+			fileInputStream.read(buffer);
+			fb.get(normals);
+			
+			fileInputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		
+		return true;
+	}
+
+	public void saveNormalsAndStones() {
+		saveNormals();
+		saveStones();
+	}
+
+	private void saveStones() {
+		File file = new File( getStonesFileName() );
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			
+			int nbBits = chunkWidth *chunkWidth;
+			int nbSBytes = (nbBits+Byte.SIZE - 1)/Byte.SIZE; 									
+			byte[] bitsetbuffer = stone.toByteArray();
+			if(bitsetbuffer.length > nbSBytes) {
+				throw new IllegalStateException();
+			}
+			byte[] buffer = Arrays.copyOf(bitsetbuffer, nbSBytes); // We want a constant size buffer
+			fileOutputStream.write(buffer);
+			
+			fileOutputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void saveNormals() {
+		File file = new File( getNormalsFileName() );
+		try {
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+			
+			int nbN = normals.length;									
+			byte[] buffer = new byte[nbN * Float.BYTES];
+			ByteBuffer bb = ByteBuffer.wrap(buffer);
+			FloatBuffer fb = bb.asFloatBuffer();
+			fb.put(normals);
+			fileOutputStream.write(buffer);
+			
+			fileOutputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 //	public byte[] getImage() {

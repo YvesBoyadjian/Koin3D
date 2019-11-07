@@ -162,27 +162,23 @@ public class SbBox3f implements Mutable {
 public void
 extendBy(final SbVec3f ptV)
 {
-	float[] pt = ptV.getValueRead();
-	float[] min = this.min.getValueRead();
-	float[] max = this.max.getValueRead();
-
-    if (pt[0] < min[0]) {
-    	this.min.setValue(0, pt[0]);
+    if (ptV.getX() < min.getX()) {
+    	this.min.setValue(0, ptV.getX());
     }
-    if (pt[1] < min[1]) {
-    	this.min.setValue(1, pt[1]);
+    if (ptV.getY() < min.getY()) {
+    	this.min.setValue(1, ptV.getY());
     }
-    if (pt[2] < min[2]) {
-    	this.min.setValue(2, pt[2]);
+    if (ptV.getZ() < min.getZ()) {
+    	this.min.setValue(2, ptV.getZ());
     }
-    if (pt[0] > max[0]) {
-    	this.max.setValue(0, pt[0]);
+    if (ptV.getX() > max.getX()) {
+    	this.max.setValue(0, ptV.getX());
     }
-    if (pt[1] > max[1]) {
-    	this.max.setValue(1, pt[1]);
+    if (ptV.getY() > max.getY()) {
+    	this.max.setValue(1, ptV.getY());
     }
-    if (pt[2] > max[2]) {
-    	this.max.setValue(2, pt[2]);
+    if (ptV.getZ() > max.getZ()) {
+    	this.max.setValue(2, ptV.getZ());
     }
 }
 
@@ -221,12 +217,12 @@ extendBy(final SbVec3f ptV)
 public boolean
 intersect(final SbVec3f pt)
 {
-    return ((pt.getValueRead()[0] >= min.getValueRead()[0]) &&
-            (pt.getValueRead()[1] >= min.getValueRead()[1]) &&
-            (pt.getValueRead()[2] >= min.getValueRead()[2]) &&
-            (pt.getValueRead()[0] <= max.getValueRead()[0]) &&
-            (pt.getValueRead()[1] <= max.getValueRead()[1]) &&
-            (pt.getValueRead()[2] <= max.getValueRead()[2]));
+    return ((pt.getX() >= min.getX()) &&
+            (pt.getY() >= min.getY()) &&
+            (pt.getZ() >= min.getZ()) &&
+            (pt.getX() <= max.getX()) &&
+            (pt.getY() <= max.getY()) &&
+            (pt.getZ() <= max.getZ()));
 }
 
 //

@@ -254,6 +254,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  }
 		  if (SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.ESCAPE))
 		  {
+			  onClose();
 			  glfwSetWindowShouldClose(getGLWidget().getWindow(), true);
 		    return true;
 		  }
@@ -516,5 +517,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     
     public void setHeightProvider(HeightProvider hp) {
     	this.heightProvider = hp;
+    }
+    
+    // to be redefined
+    public void onClose() {
+    	
     }
 }

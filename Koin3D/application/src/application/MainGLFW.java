@@ -4,6 +4,14 @@
 package application;
 
 import java.awt.image.Raster;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Properties;
 
 import com.jogamp.opengl.GL2;
 
@@ -49,6 +57,12 @@ public class MainGLFW {
 	
 	public static final float Z_TRANSLATION = 2000;
 	
+	public static final String HERO_X = "hero_x";
+	
+	public static final String HERO_Y = "hero_y";
+	
+	public static final String HERO_Z = "hero_z";
+	
 	public static SbVec3f SCENE_POSITION;
 
 	/**
@@ -75,7 +89,35 @@ public class MainGLFW {
 		SceneGraph sg = new SceneGraphIndexedFaceSetShader(rw,re,overlap,Z_TRANSLATION);
 		//SceneGraph sg = new ShadowTestSceneGraph();
 		
-		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style);
+		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style) {
+			
+			public void onClose() {
+				File saveGameFile = new File("savegame.mri");
+				
+				Properties saveGameProperties = new Properties();
+				
+				
+				try {
+					OutputStream out = new FileOutputStream(saveGameFile);
+					
+					SoCamera camera = getCameraController().getCamera();
+					
+					saveGameProperties.setProperty(HERO_X, String.valueOf(camera.position.getValue().getX()));
+					
+					saveGameProperties.setProperty(HERO_Y, String.valueOf(camera.position.getValue().getY()));
+					
+					saveGameProperties.setProperty(HERO_Z, String.valueOf(camera.position.getValue().getZ() + Z_TRANSLATION));
+					
+					saveGameProperties.store(out, "Mount Rainier Island save game");
+				
+					out.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		};
 	    GLData glf = new GLData(/*GLProfile.getDefault()*/);
 	    glf.depthSize = 24;
 	    glf.doubleBuffer = true;
@@ -110,8 +152,35 @@ public class MainGLFW {
 		camera.position.setValue(0,0,0);
 		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
 		
-		camera.position.setValue(250, 305, 1279 - SCENE_POSITION.getZ());
-		
+		File saveGameFile = new File("savegame.mri");
+		if( saveGameFile.exists() ) {
+			try {
+				InputStream in = new FileInputStream(saveGameFile);
+				
+				Properties saveGameProperties = new Properties();
+				
+				saveGameProperties.load(in);
+				
+				float x = Float.valueOf(saveGameProperties.getProperty(HERO_X, "250"));
+				
+				float y = Float.valueOf(saveGameProperties.getProperty(HERO_Y, "305"));
+				
+				float z = Float.valueOf(saveGameProperties.getProperty(HERO_Z, String.valueOf(1279 - SCENE_POSITION.getZ())));
+				
+				camera.position.setValue(x,y,z);
+				
+				in.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			
+		}
+		else {		
+			camera.position.setValue(250, 305, 1279 - SCENE_POSITION.getZ());
+		}
 		viewer.getCameraController().changeCameraValues(camera);
 		
 		viewer.getSceneHandler().setBackgroundColor(new SbColor(0,0,1));

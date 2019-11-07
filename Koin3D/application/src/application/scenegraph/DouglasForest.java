@@ -3,6 +3,13 @@
  */
 package application.scenegraph;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,40 +57,135 @@ public class DouglasForest {
 
 	public int compute() {
 		
-		Random randomPlacementTrees = new Random(SEED_PLACEMENT_TREES);		
-		Random randomHeightTrees = new Random(SEED_HEIGHT_TREES);		
-		Random randomAngleTrees = new Random(SEED_ANGLE_TREES);
-		Random randomTopTrees  = new Random(SEED_WITH_TOP_TREES);
-		Random randomBottomTrees  = new Random(SEED_WITH_BOTTOM_TREES);
+		if( ! loadDouglas()) {
 		
-		for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
-			float x = getRandomX(randomPlacementTrees);
-			float y = getRandomY(randomPlacementTrees);
-			float z = sg.getInternalZ(x,y,0.0f) + sg.getzTranslation();
+			Random randomPlacementTrees = new Random(SEED_PLACEMENT_TREES);		
+			Random randomHeightTrees = new Random(SEED_HEIGHT_TREES);		
+			Random randomAngleTrees = new Random(SEED_ANGLE_TREES);
+			Random randomTopTrees  = new Random(SEED_WITH_TOP_TREES);
+			Random randomBottomTrees  = new Random(SEED_WITH_BOTTOM_TREES);
 			
-			boolean isAboveWater = z > - 150 + sg.getzTranslation() - sg.CUBE_DEPTH /2;
-			boolean isUnderSnowLevel = z < sg.ALPINE_HEIGHT;
-			boolean isStone = sg.isStone(x,y);
-			if( isAboveWater && isUnderSnowLevel && !isStone) {
+			for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
+				float x = getRandomX(randomPlacementTrees);
+				float y = getRandomY(randomPlacementTrees);
+				float z = sg.getInternalZ(x,y,0.0f) + sg.getzTranslation();
 				
-				float height = DouglasFir.getHeight(randomHeightTrees);
-				
-				xArray[i] = x;
-				yArray[i] = y;
-				zArray[i] = z;
-				heightArray[i] = height;
-				float angleDegree = 120.0f * randomAngleTrees.nextFloat();
-				angleDegree1[i] = angleDegree;
-				float width = height * 0.707f / 50.0f;
-				float widthTop = width *2.5f * randomTopTrees.nextFloat();
-				randomTopTree[i] = widthTop;
-				float foliageWidth = (height+ randomBottomTrees.nextFloat()*12.0f) * 0.1f;
-				randomBottomTree[i] = foliageWidth;
-				nbDouglas++;
+				boolean isAboveWater = z > - 150 + sg.getzTranslation() - sg.CUBE_DEPTH /2;
+				boolean isUnderSnowLevel = z < sg.ALPINE_HEIGHT;
+				boolean isStone = sg.isStone(x,y);
+				if( isAboveWater && isUnderSnowLevel && !isStone) {
+					
+					float height = DouglasFir.getHeight(randomHeightTrees);
+					
+					xArray[i] = x;
+					yArray[i] = y;
+					zArray[i] = z;
+					heightArray[i] = height;
+					float angleDegree = 120.0f * randomAngleTrees.nextFloat();
+					angleDegree1[i] = angleDegree;
+					float width = height * 0.707f / 50.0f;
+					float widthTop = width *2.5f * randomTopTrees.nextFloat();
+					randomTopTree[i] = widthTop;
+					float foliageWidth = (height+ randomBottomTrees.nextFloat()*12.0f) * 0.1f;
+					randomBottomTree[i] = foliageWidth;
+					nbDouglas++;
+				}
 			}
+			saveDouglas();
 		}
 		
 		return nbDouglas;
+	}
+
+	private void saveDouglas() {
+		File file = new File("douglas_forest.mri");
+		
+		try {
+			FileOutputStream fos = new FileOutputStream(file);
+			
+			byte[] nbda = new byte[Integer.BYTES];
+			ByteBuffer bbnbda = ByteBuffer.wrap(nbda);
+			bbnbda.asIntBuffer().put(nbDouglas);
+			fos.write(nbda);
+			
+			byte[] ba = new byte[xArray.length*Float.BYTES];
+			ByteBuffer bb = ByteBuffer.wrap(ba);
+			
+			bb.asFloatBuffer().put(xArray);
+			fos.write(ba);
+			
+			bb.asFloatBuffer().put(yArray);
+			fos.write(ba);
+			
+			bb.asFloatBuffer().put(zArray);
+			fos.write(ba);
+			
+			bb.asFloatBuffer().put(heightArray);
+			fos.write(ba);
+			
+			bb.asFloatBuffer().put(angleDegree1);
+			fos.write(ba);
+			
+			bb.asFloatBuffer().put(randomTopTree);
+			fos.write(ba);
+			
+			bb.asFloatBuffer().put(randomBottomTree);
+			fos.write(ba);
+			
+			fos.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private boolean loadDouglas() {
+		File file = new File( "douglas_forest.mri" );
+		
+		if( !file.exists()) {
+			return false;
+		}
+		if( !file.isFile()) {
+			return false;
+		}
+		if ( file.length() != getDouglasForestFileLength()) {
+			return false;
+		}
+		try {
+			FileInputStream fileInputStream = new FileInputStream(file);
+			
+			int nbb = (int)file.length();									
+			byte[] buffer = new byte[nbb];
+			fileInputStream.read(buffer);
+			
+			ByteBuffer bbnbda = ByteBuffer.wrap(buffer,0,Integer.BYTES);
+			nbDouglas = bbnbda.asIntBuffer().get();
+			
+			ByteBuffer bb = ByteBuffer.wrap(buffer,Integer.BYTES,(int)file.length()-Integer.BYTES);
+			
+			FloatBuffer fb = bb.asFloatBuffer();			
+			
+			fb.get(xArray);
+			fb.get(yArray);
+			fb.get(zArray);
+			fb.get(heightArray);
+			fb.get(angleDegree1);
+			fb.get(randomTopTree);
+			fb.get(randomBottomTree);
+			
+			fileInputStream.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}		
+		
+		return true;
+	}
+
+	private long getDouglasForestFileLength() {
+		return NB_DOUGLAS_SEEDS * Float.BYTES * 7 + Integer.BYTES;
 	}
 
 	float getRandomX(Random randomPlacementTrees) {
@@ -132,14 +234,19 @@ public class DouglasForest {
 	}
 
 	public void fillDouglasChunks() {
+		
+		final SbVec3f xy = new SbVec3f();
+		
 		for(int tree=0; tree<nbDouglas;tree++) {
 			float x = xArray[tree];
 			float y = yArray[tree];
 			
+			xy.setValue(x, y, 0.0f);
+			
 			int nbChunks = douglasChunks.size(); 
 			for(int i=0;i<nbChunks;i++) {
 				DouglasChunk chunk = douglasChunks.get(i);
-				if( chunk.boundingBox.intersect(new SbVec3f(x,y,0.0f))) {
+				if( chunk.boundingBox.intersect(xy)) {
 					chunk.addTree(/*x,y,zArray[tree],heightArray[tree],angleDegree1[tree],randomTopTree[tree],randomBottomTree[tree]*/tree);
 				}
 			}
@@ -148,9 +255,10 @@ public class DouglasForest {
 	}
 
 	public void computeDouglas() {
-		for( DouglasChunk chunk : douglasChunks ) {
-			chunk.computeDouglas();
-		}
+		douglasChunks.parallelStream().forEach((dc)->dc.computeDouglas());
+//		for( DouglasChunk chunk : douglasChunks ) {
+//			chunk.computeDouglas();
+//		}
 	}
 
 	public SoSeparator getDouglasTrees(float distance) {

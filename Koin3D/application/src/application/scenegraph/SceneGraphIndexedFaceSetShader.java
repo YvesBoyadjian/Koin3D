@@ -218,8 +218,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		}
 		delta /= nb;
 		
-		SbBox3f sceneBox = new SbBox3f();
-		SbVec3f sceneCenter = new SbVec3f();
+		//SbBox3f sceneBox = new SbBox3f();
+		//SbVec3f sceneCenter = new SbVec3f();
 		SbVec3f ptV = new SbVec3f();
 		
 		float zmin = Float.MAX_VALUE;
@@ -230,88 +230,108 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		
 		jstart = (int)(Math.ceil((float)(h-1)/(Chunk.CHUNK_WIDTH-1)))*(Chunk.CHUNK_WIDTH-1) - h + 1;
 		
-		int red_,green_,blue_;
+		boolean need_to_save_colors = false;
+		boolean load_z_and_color_was_successfull = chunks.loadZAndColors(); 
+		if( ! load_z_and_color_was_successfull )
+		{
 		
-		float[] xyz = new float[3];
-		
-		for(int i=0;i<w;i++) {
-		for(int j=0; j<h;j++) {
-				int index = i*h+j;
-				//chunks.verticesPut(index*3+0, i * delta_x);
-				//chunks.verticesPut(index*3+1, (h - j -1) * delta_y);
-				float z = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i+I_START, j, fArray)[0]);
-				if( Math.abs(z)> 1e30) {
-					z= ZMIN;
-				}
-				else {
-					zmin = Math.min(zmin, z);
-					zmax = Math.max(zmax, z);
-				}
-				chunks.verticesPut(index*3+2, z);
-				
-				ptV.setValue(chunks.verticesGet(index,xyz));
-				sceneBox.extendBy(ptV);
-				
-				//Color color = snow;
-				
-				if(z < ALPINE_HEIGHT + 400 * (random.nextDouble()-0.3)) {
-					//color = new Color((float)random.nextDouble()*GRASS_LUMINOSITY, 1.0f*GRASS_LUMINOSITY, (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
+			int red_,green_,blue_;
+			
+			float[] xyz = new float[3];
+			
+			for(int i=0;i<w;i++) {
+			for(int j=0; j<h;j++) {
+					int index = i*h+j;
+					//chunks.verticesPut(index*3+0, i * delta_x);
+					//chunks.verticesPut(index*3+1, (h - j -1) * delta_y);
+					float z = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i+I_START, j, fArray)[0]);
+					if( Math.abs(z)> 1e30) {
+						z= ZMIN;
+					}
+					else {
+						zmin = Math.min(zmin, z);
+						zmax = Math.max(zmax, z);
+					}
+					chunks.verticesPut(index*3+2, z);
 					
-					red_ = (int)(255.99f * (float)random.nextDouble()*GRASS_LUMINOSITY);
-					green_ = (int)(255.99f *  1.0f*GRASS_LUMINOSITY);
-					blue_ = (int)(255.99f * (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
+					ptV.setValue(chunks.verticesGet(index,xyz));
+					//sceneBox.extendBy(ptV);
+					
+					//Color color = snow;
+					
+					if(z < ALPINE_HEIGHT + 400 * (random.nextDouble()-0.3)) {
+						//color = new Color((float)random.nextDouble()*GRASS_LUMINOSITY, 1.0f*GRASS_LUMINOSITY, (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
+						
+						red_ = (int)(255.99f * (float)random.nextDouble()*GRASS_LUMINOSITY);
+						green_ = (int)(255.99f *  1.0f*GRASS_LUMINOSITY);
+						blue_ = (int)(255.99f * (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
+					}
+					else {					
+						red_ = snow.getRed();
+						green_ = snow.getGreen();
+						blue_ = snow.getBlue();					
+					}
+					
+					int red = /*color.getRed()*color.getRed()*/red_*red_/255;
+					int green = /*color.getGreen()*color.getGreen()*/green_*green_/255;
+					int blue = /*color.getBlue()*color.getBlue()*/blue_*blue_/255;
+					int alpha = 255;//color.getAlpha();
+					
+					chunks.colorsPut(index, red, green, blue, alpha);
 				}
-				else {					
-					red_ = snow.getRed();
-					green_ = snow.getGreen();
-					blue_ = snow.getBlue();					
-				}
-				
-				int red = /*color.getRed()*color.getRed()*/red_*red_/255;
-				int green = /*color.getGreen()*color.getGreen()*/green_*green_/255;
-				int blue = /*color.getBlue()*color.getBlue()*/blue_*blue_/255;
-				int alpha = 255;//color.getAlpha();
-				
-				chunks.colorsPut(index, red, green, blue, alpha);
 			}
+			
+			chunks.saveZ();
+			need_to_save_colors = true;
 		}
 		
 		rw = null;
 		re = null;
 		
-		sceneCenter.setValue(sceneBox.getCenter());
+		//sceneCenter.setValue(sceneBox.getCenter());
 		
-		SbVec3f p0 = new SbVec3f();
-		SbVec3f p1 = new SbVec3f();
-		SbVec3f p2 = new SbVec3f();
-		SbVec3f p3 = new SbVec3f();
-		SbVec3f v0 = new SbVec3f();
-		SbVec3f v1 = new SbVec3f();
-		SbVec3f n = new SbVec3f();
-		for(int i=1;i<w-1;i++) {
-		for(int j=1; j<h-1;j++) {
-			int index = i*h+j;
-			int index0 = (i-1)*h+j;
-			int index1 = i*h+j+1;
-			int index2 = (i+1)*h+j;
-			int index3 = i*h+j-1;
-			p0.setValue(chunks.verticesGet(index0,xyz));
-			p1.setValue(chunks.verticesGet(index1,xyz));
-			p2.setValue(chunks.verticesGet(index2,xyz));
-			p3.setValue(chunks.verticesGet(index3,xyz));
-			v0.setValue(p0.operator_minus_equal(p2));
-			v1.setValue(p1.operator_minus_equal(p3));
-			n.setValue(v0.operator_cross_equal(v1));
-			n.normalize();
-			chunks.normalsPut(index, n.getX(), n.getY(), n.getZ());
-
-			if((n.getZ()<0.45 && chunks.verticesGet(index,xyz)[2] < ALPINE_HEIGHT) || n.getZ()<0.35) {
-				chunks.colorsPut(index, redStone, greenStone, blueStone, 255);
+		boolean load_normals_and_stone_was_successfull = chunks.loadNormalsAndStones(); 
+		
+		if( ! load_normals_and_stone_was_successfull )
+		{
+			float[] xyz = new float[3];
+			
+			SbVec3f p0 = new SbVec3f();
+			SbVec3f p1 = new SbVec3f();
+			SbVec3f p2 = new SbVec3f();
+			SbVec3f p3 = new SbVec3f();
+			SbVec3f v0 = new SbVec3f();
+			SbVec3f v1 = new SbVec3f();
+			SbVec3f n = new SbVec3f();
+			for(int i=1;i<w-1;i++) {
+				for(int j=1; j<h-1;j++) {
+					int index = i*h+j;
+					int index0 = (i-1)*h+j;
+					int index1 = i*h+j+1;
+					int index2 = (i+1)*h+j;
+					int index3 = i*h+j-1;
+					p0.setValue(chunks.verticesGet(index0,xyz));
+					p1.setValue(chunks.verticesGet(index1,xyz));
+					p2.setValue(chunks.verticesGet(index2,xyz));
+					p3.setValue(chunks.verticesGet(index3,xyz));
+					v0.setValue(p0.operator_minus_equal(p2));
+					v1.setValue(p1.operator_minus_equal(p3));
+					n.setValue(v0.operator_cross_equal(v1));
+					n.normalize();
+					chunks.normalsPut(index, n.getX(), n.getY(), n.getZ());
+		
+					if((n.getZ()<0.45 && chunks.verticesGet(index,xyz)[2] < ALPINE_HEIGHT) || n.getZ()<0.35) {
+						chunks.colorsPut(index, redStone, greenStone, blueStone, 255);
+					}
+					if(n.getZ()<0.55) {
+						chunks.stonePut(index);				
+					}
+				}
 			}
-			if(n.getZ()<0.55) {
-				chunks.stonePut(index);				
+			if ( need_to_save_colors ) {
+				chunks.saveColors();
 			}
-		}
+			chunks.saveNormalsAndStones();
 		}
 		
 		chunks.initIndexedFaceSets();
@@ -467,7 +487,7 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    chunkTree = rc.getGroup(200,true);
+	    chunkTree = rc.getGroup(2000,true);
 	    landSep.addChild(chunkTree);
 	    
 		shadowGroup.addChild(landSep);
@@ -481,7 +501,7 @@ for(int is=0;is<4;is++) {
 	    
 	    douglasSep.addChild(transl);
 	    
-		douglasTrees = getDouglasTrees(10000);
+		douglasTrees = getDouglasTrees(7000);
 		
 		douglasSep.addChild(douglasTrees);
 		shadowGroup.addChild(douglasSep);
@@ -516,7 +536,7 @@ for(int is=0;is<4;is++) {
 	    
 	    //RecursiveChunk rcS = chunks.getRecursiveChunk();
 	    
-	    shadowTree = rc.getShadowGroup(2000,false);
+	    shadowTree = rc.getShadowGroup(10000,false);
 	    shadowLandSep.addChild(shadowTree);
 	    
 	    //shadowLandSep.addChild(chunks.getShadowGroup());
@@ -532,7 +552,7 @@ for(int is=0;is<4;is++) {
 	    
 	    douglasSepS.addChild(transl);
 	    
-		douglasTreesS = getDouglasTrees(4000);
+		douglasTreesS = getDouglasTrees(3000);
 		
 		douglasSepS.addChild(douglasTreesS);
 		
@@ -686,6 +706,13 @@ for(int is=0;is<4;is++) {
 		sun[3].direction.setValue(r4.multVec(dir));
 		sunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE));
 		//inverseSunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE).operator_minus());
+		
+		float sunElevationAngle = (float)Math.atan2(sunPosition.getZ(), Math.sqrt(Math.pow(sunPosition.getX(),2.0f)+Math.pow(sunPosition.getY(),2.0f)));
+		float sinus = (float)Math.sin(sunElevationAngle);
+		for(int is=0;is<4;is++) {	    		    
+		    sun[is].maxShadowDistance.setValue(1e4f + (1 - sinus)*1e5f);
+		    sun[is].bboxSize.setValue(5000+is*3000 + (1 - sinus)*10000, 5000+is*3000 + (1 - sinus)*10000, 2000);		    
+		}
 	}
 	
 	
@@ -693,24 +720,6 @@ for(int is=0;is<4;is++) {
 		
 		current_x = x;
 		current_y = y;
-		
-		float xTransl = - transl.translation.getValue().getX();
-		
-		float yTransl = - transl.translation.getValue().getY();
-		
-		float zTransl = - transl.translation.getValue().getZ();
-		
-		for(SoNode node : douglasTrees.getChildren()) {
-			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
-			lifs.referencePoint.setValue(current_x + xTransl, current_y + yTransl, current_z + zTransl);
-		}
-		
-		for (SoNode node : douglasTreesS.getChildren()) {
-			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
-			lifs.referencePoint.setValue(current_x + xTransl, current_y + yTransl, current_z + zTransl);
-		}
-		
-		
 		
 		if(FLY) {
 			current_z = z;
@@ -735,7 +744,28 @@ for(int is=0;is<4;is++) {
 		    		current_y+2000*world_camera_direction.getY(), current_z);			
 		}		
 		
+		float xTransl = - transl.translation.getValue().getX();
 		
+		float yTransl = - transl.translation.getValue().getY();
+		
+		float zTransl = - transl.translation.getValue().getZ();
+		
+		for(SoNode node : douglasTrees.getChildren()) {
+			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+			lifs.referencePoint.setValue(
+					current_x + xTransl+3000*world_camera_direction.getX(),
+					current_y + yTransl+3000*world_camera_direction.getY(),
+					current_z + zTransl);
+		}
+				
+		for (SoNode node : douglasTreesS.getChildren()) {
+			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+			lifs.referencePoint.setValue(
+					current_x + xTransl+1000*world_camera_direction.getX(), 
+					current_y + yTransl+1000*world_camera_direction.getY(), 
+					current_z + zTransl);
+		}
+				
 	}
 	
 	public int[] getIndexes(float x, float y, int[] indices) {
