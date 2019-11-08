@@ -36,7 +36,7 @@ import jscenegraph.database.inventor.nodes.SoSeparator;
  */
 public class RecursiveChunk {
 	
-	final int MIN_CHUNK_SIZE = 300;
+	final int MIN_CHUNK_SIZE = 200;
 	
 	RecursiveChunk parent;
 	int rank;
@@ -107,13 +107,13 @@ public class RecursiveChunk {
 		return childs.isEmpty() ? nj : Math.min(nj, MIN_CHUNK_SIZE);
 	}
 
-	public SoNode getGroup(float lodFactor, boolean culling) {
+	public SoNode getGroup(SoTouchLODMaster master, float lodFactor, boolean culling) {
 		
 		if(childs.isEmpty()) {
 			return getIndexedFaceSet();
 		}
 		else {
-			SoLOD lod = new SoTouchLOD2();
+			SoLOD lod = new SoTouchLOD2(master);
 			lod.center.setValue(getCenter());
 			lod.range.setValue(ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
 			SoSeparator subChunkGroup = new SoSeparator();
@@ -121,10 +121,10 @@ public class RecursiveChunk {
 				subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 			}
 			
-			subChunkGroup.addChild(childs.get(0).getGroup(lodFactor,culling));
-			subChunkGroup.addChild(childs.get(1).getGroup(lodFactor,culling));
-			subChunkGroup.addChild(childs.get(2).getGroup(lodFactor,culling));
-			subChunkGroup.addChild(childs.get(3).getGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(0).getGroup(master, lodFactor,culling));
+			subChunkGroup.addChild(childs.get(1).getGroup(master, lodFactor,culling));
+			subChunkGroup.addChild(childs.get(2).getGroup(master, lodFactor,culling));
+			subChunkGroup.addChild(childs.get(3).getGroup(master, lodFactor,culling));
 			lod.addChild(subChunkGroup);
 			lod.addChild(getIndexedFaceSet());
 			return lod;

@@ -398,7 +398,9 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    landSep.addChild(rc.getGroup(250,true));
+	    SoTouchLODMaster master = new SoTouchLODMaster(); 
+	    
+	    landSep.addChild(rc.getGroup(master,250,true));
 	    
 		//landSep.addChild(chunks.getGroup());
 		

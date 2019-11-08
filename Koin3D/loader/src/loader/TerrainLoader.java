@@ -17,7 +17,7 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.DataSourceException;
 import org.geotools.gce.geotiff.GeoTiffReader;
 
-import com.sun.media.jai.imageioimpl.ImageReadWriteSpi;
+//import com.sun.media.jai.imageioimpl.ImageReadWriteSpi;
 
 /**
  * @author Yves Boyadjian
@@ -32,7 +32,7 @@ public class TerrainLoader {
     public Raster load(String fileName)
     {
         System.out.println( "Hello World!" );
-        initJAI();
+        //initJAI();
         //System.setProperty(GeoTiffReader.OVERRIDE_CRS_SWITCH, "False");
         //File tiffFile = new File("..\\loader\\ressource\\ned19_n47x00_w122x00_wa_mounttrainier_2008\\ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
         //File tiffFile = new File("..\\loader\\ressource\\ned19_n47x00_w121x75_wa_mounttrainier_2008\\ned19_n47x00_w121x75_wa_mounttrainier_2008.tif");
@@ -58,17 +58,17 @@ public class TerrainLoader {
         return null;
     }
 
-    protected static void initJAI() {
-        // See [URL]http://docs.oracle.com/cd/E17802_01/products/products/java-media/jai/forDevelopers/jai-apidocs/javax/media/jai/OperationRegistry.html[/URL]
-        OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
-        if( registry == null) {
-            //log.warning("Error with JAI initialization (needed for GeoTools).");
-        } else {
-            try {
-                new ImageReadWriteSpi().updateRegistry(registry);
-            } catch(IllegalArgumentException e) {
-                // Probably indicates it was already registered.
-            }
-        }
-    }
+//    protected static void initJAI() {
+//        // See [URL]http://docs.oracle.com/cd/E17802_01/products/products/java-media/jai/forDevelopers/jai-apidocs/javax/media/jai/OperationRegistry.html[/URL]
+//        OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
+//        if( registry == null) {
+//            //log.warning("Error with JAI initialization (needed for GeoTools).");
+//        } else {
+//            try {
+//                new ImageReadWriteSpi().updateRegistry(registry);
+//            } catch(IllegalArgumentException e) {
+//                // Probably indicates it was already registered.
+//            }
+//        }
+//    }
 }

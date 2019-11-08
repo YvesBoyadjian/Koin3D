@@ -487,7 +487,11 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    chunkTree = rc.getGroup(2000,true);
+	    SoTouchLODMaster master = new SoTouchLODMaster();
+	    
+	    landSep.addChild(master);
+	    
+	    chunkTree = rc.getGroup(master,500,true);
 	    landSep.addChild(chunkTree);
 	    
 		shadowGroup.addChild(landSep);
@@ -536,7 +540,7 @@ for(int is=0;is<4;is++) {
 	    
 	    //RecursiveChunk rcS = chunks.getRecursiveChunk();
 	    
-	    shadowTree = rc.getShadowGroup(10000,false);
+	    shadowTree = rc.getShadowGroup(5000,false);
 	    shadowLandSep.addChild(shadowTree);
 	    
 	    //shadowLandSep.addChild(chunks.getShadowGroup());

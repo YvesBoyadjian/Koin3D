@@ -26,13 +26,29 @@ public class SoTouchLOD2 extends SoLOD {
 
 	private int previousChild = -1;
 	
+	private SoTouchLODMaster master;
+	
+	public SoTouchLOD2(SoTouchLODMaster master) {
+		this.master = master;
+	}
+	
+	public static final int MAX_CHANGE = 1;
+	
 	protected int
 	whichToTraverse(SoAction action)
 	{
 		int newChild = do_whichToTraverse(action);
 		if(previousChild == 0) {
-			if(newChild != previousChild) {
-				SoGroup group = (SoGroup) getChild(previousChild);
+			if(newChild != 0) {
+				if(master.getCount() >= MAX_CHANGE) {
+					return 0;
+				}
+				else {
+					master.increment();
+				}
+				//System.out.println("SoTouchLOD2");
+				//long start = System.nanoTime();
+				SoGroup group = (SoGroup) getChild(0);
 				for(int i=0;i<4;i++) {
 					SoNode child = group.getChild(i);
 					if(child instanceof SoRecursiveIndexedFaceSet) {
@@ -41,6 +57,8 @@ public class SoTouchLOD2 extends SoLOD {
 						SoIndexedFaceSet.clear();
 					}
 				}
+				//long stop = System.nanoTime();
+				//System.out.println("SoTouchLOD2 " + (stop - start)+" ns");				
 			}
 		}
 		previousChild = newChild;

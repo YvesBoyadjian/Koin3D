@@ -21,6 +21,7 @@ public class SoTouchLOD3 extends SoCameraLOD {
 		int newChild = super.whichToTraverse(action);
 		if(previousChild == 0) {
 			if(newChild != previousChild) {
+				//System.out.println("SoTouchLOD3");
 				SoGroup group = (SoGroup) getChild(previousChild);
 				for(int i=0;i<4;i++) {
 					SoNode child = group.getChild(i);

@@ -29,5 +29,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/imageio-ext-streams-1.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/imageio-ext-tiff-1.2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jaxb-api-2.4.0-b180830.0359.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jai_imageio-1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
