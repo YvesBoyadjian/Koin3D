@@ -491,7 +491,7 @@ for(int is=0;is<4;is++) {
 	    
 	    landSep.addChild(master);
 	    
-	    chunkTree = rc.getGroup(master,500,true);
+	    chunkTree = rc.getGroup(master,600,true);
 	    landSep.addChild(chunkTree);
 	    
 		shadowGroup.addChild(landSep);

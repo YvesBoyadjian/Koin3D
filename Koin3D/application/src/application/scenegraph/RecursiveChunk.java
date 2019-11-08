@@ -175,20 +175,20 @@ public class RecursiveChunk {
 	private SoNode getIndexedFaceSet() {
 		SoIndexedFaceSet indexedFaceSet = new SoRecursiveIndexedFaceSet(this);
 		
-		SoVertexProperty vertexProperty = new SoVertexProperty();
-		vertexProperty.vertex.setValuesPointer(getDecimatedVertices(),getDecimatedVerticesBuffer());
-	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(),getDecimatedNormalsBuffer());
-	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(),getDecimatedTexCoordsBuffer());
-		
-		indexedFaceSet.vertexProperty.setValue(vertexProperty);
-
-	    indexedFaceSet.coordIndex.setValuesPointer(/*0,*/ getDecimatedCoordIndices());
+//		SoVertexProperty vertexProperty = new SoVertexProperty();
+//		vertexProperty.vertex.setValuesPointer(getDecimatedVertices(),getDecimatedVerticesBuffer());
+//	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+//	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(),getDecimatedNormalsBuffer());
+//	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(),getDecimatedTexCoordsBuffer());
+//		
+//		indexedFaceSet.vertexProperty.setValue(vertexProperty);
+//
+//	    indexedFaceSet.coordIndex.setValuesPointer(/*0,*/ getDecimatedCoordIndices());
 		
 		return indexedFaceSet;
 	}
 	
-	private float[] getDecimatedTexCoords() {
+	float[] getDecimatedTexCoords() {
 		
 		if(decimatedTextCoords == null) {
 			
@@ -213,7 +213,7 @@ public class RecursiveChunk {
 		return decimatedTextCoords;
 	}
 
-	private float[] getDecimatedVertices() {
+	float[] getDecimatedVertices() {
 		if( decimatedVertices == null) {
 			if( true || (decimatedVertices = loadDecimatedVertices()) == null) { // load does not accelerate loading
 				int decimatedChunkWidth = getDecimatedChunkWidth();
@@ -341,7 +341,7 @@ public class RecursiveChunk {
 		return nbFloat * Float.BYTES;
 	}
 
-	private FloatBuffer getDecimatedVerticesBuffer() {
+	FloatBuffer getDecimatedVerticesBuffer() {
 		if(decimatedVerticesBuffer == null) {
 			
 			int length = getDecimatedVertices().length;
@@ -353,7 +353,7 @@ public class RecursiveChunk {
 		return decimatedVerticesBuffer;
 	}
 	
-	private FloatBuffer getDecimatedNormalsBuffer() {
+	FloatBuffer getDecimatedNormalsBuffer() {
 		if(decimatedNormalsBuffer == null) {
 			
 			int length = getDecimatedNormals().length;
@@ -365,7 +365,7 @@ public class RecursiveChunk {
 		return decimatedNormalsBuffer;
 	}
 	
-	private FloatBuffer getDecimatedTexCoordsBuffer() {
+	FloatBuffer getDecimatedTexCoordsBuffer() {
 		if(decimatedTexCoordsBuffer == null) {
 			
 			int length = getDecimatedTexCoords().length;
@@ -377,7 +377,7 @@ public class RecursiveChunk {
 		return decimatedTexCoordsBuffer;
 	}
 	
-	private float[] getDecimatedNormals() {
+	float[] getDecimatedNormals() {
 		
 		if( decimatedNormals == null) {
 		if( true || (decimatedNormals = loadDecimatedNormals()) == null) { // load does not accelerate loading					
@@ -585,10 +585,10 @@ public class RecursiveChunk {
 	}
 
 	public void prepare() {
-		getDecimatedVertices();getDecimatedVerticesBuffer();
-		getDecimatedNormals();getDecimatedNormalsBuffer();
-		getDecimatedTexCoords();getDecimatedTexCoordsBuffer();
-		getDecimatedCoordIndices();
+		getDecimatedVertices();decimatedVertices = null;//getDecimatedVerticesBuffer();
+//		getDecimatedNormals();getDecimatedNormalsBuffer();
+//		getDecimatedTexCoords();getDecimatedTexCoordsBuffer();
+//		getDecimatedCoordIndices();
 		getCenter();
 		
 		childs.parallelStream().forEach((c)-> c.prepare());
@@ -618,5 +618,12 @@ public class RecursiveChunk {
 		float distance = point.operator_minus(closestPoint).length();
 		
 		return distance;
+	}
+
+	public void clear() {
+		decimatedVertices = null; decimatedVerticesBuffer = null;
+		decimatedNormals = null; decimatedNormalsBuffer = null;
+		decimatedTextCoords = null; decimatedTexCoordsBuffer = null;
+		decimatedCoordIndices = null;
 	}
 }
