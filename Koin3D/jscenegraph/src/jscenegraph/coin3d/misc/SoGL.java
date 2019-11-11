@@ -1,12 +1,18 @@
 package jscenegraph.coin3d.misc;
 
+import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
+
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLCapabilities;
+
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.TidBits;
+import jscenegraph.coin3d.glue.Wglglue_contextdata;
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
@@ -575,6 +581,15 @@ public static boolean cc_glglue_context_make_current(Object ctx) {
 //		#elif defined(HAVE_GLX)
 //		  return glxglue_context_make_current(ctx);
 //		#elif defined(HAVE_WGL)
+			  if( ctx instanceof Wglglue_contextdata) {
+				  Wglglue_contextdata wglglue_contextdata = (Wglglue_contextdata)ctx;
+				  long window = wglglue_contextdata.pbufferwnd;
+
+					// Make the OpenGL context current
+					glfwMakeContextCurrent(window);
+			        GLCapabilities swtCapabilities = GL.createCapabilities();	        
+					return true;
+			  }
 		  return false;//wglglue_context_make_current(ctx); TODO
 		  }
 }

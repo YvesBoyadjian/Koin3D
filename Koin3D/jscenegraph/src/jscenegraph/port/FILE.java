@@ -50,15 +50,18 @@ public class FILE {
 		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE),(int)length);
 	}
 
-	public static void fclose(FILE fp) {
+	public static int fclose(FILE fp) {
 		if(fp.in != null) {
 			try {
 				fp.in.close();
+				return 0;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				return -1;
 			}
 		}
+		return -1;
 	}
 
 	/**
@@ -278,6 +281,11 @@ public class FILE {
 			delta = -1;
 		}
 		return _Stream.rl.getLength() + delta;
+	}
+
+	public static int fwrite(byte[] tmp, int i, int j, FILE fp) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 	

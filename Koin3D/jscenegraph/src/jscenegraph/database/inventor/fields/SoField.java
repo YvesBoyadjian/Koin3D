@@ -1866,4 +1866,10 @@ public boolean readConnection(SoInput in)
 	public static final SoType getClassTypeId(Class<? extends SoField> klass) {
 		return typeMap.get(klass);
 	}
+
+	public void get(String[] s) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -329,4 +329,9 @@ public class Util {
  			return str2;
  		}
  	}
+
+	public static void strcpy(byte[] buf, int offset, String string) {
+		// TODO Auto-generated method stub
+		
+	}
 }

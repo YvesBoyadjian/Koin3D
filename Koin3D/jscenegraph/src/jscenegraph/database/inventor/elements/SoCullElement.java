@@ -132,7 +132,7 @@ public class SoCullElement extends SoElement {
 	  set, the old view volume planes are overwritten by the new ones.
 	  The view volume must be in the world coordinate systems.
 	*/
-	public void
+	public static void
 	setViewVolume(SoState state, final SbViewVolume vv)
 	{
 	  SoCullElement elem = (SoCullElement)

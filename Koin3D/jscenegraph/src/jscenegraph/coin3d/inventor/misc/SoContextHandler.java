@@ -64,4 +64,25 @@ public class SoContextHandler {
 		
 	}
 
+	// *************************************************************************
+
+	/*!
+	  This method \e must be called by client code which destructs a
+	  context, to guarantee that there are no memory leaks upon context
+	  destruction.
+
+	  This will take care of correctly freeing context-bound resources,
+	  like OpenGL texture objects and display lists.
+
+	  Before calling this function, the context \e must be made current.
+
+	  Note that if you are using one of the standard GUI-binding libraries from
+	  Kongsberg Oil & Gas Technologies, this is taken care of automatically for
+	  contexts for canvases set up by SoQt, SoWin, etc.
+	*/
+	public static void
+	destructingContext(int contextid)
+	{
+		//TODO
+	}
 }

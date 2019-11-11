@@ -67,6 +67,11 @@ public class SoGLBigImage extends SoGLImage {
 	
   private static final SoType classTypeId = new SoType();
 
+//the number of subtextures that can be changed (resized) each frame.
+//By keeping this number small, we avoid slow updates when zooming in
+//on an image, as only few textures are changed each frame.
+static int CHANGELIMIT = 4;
+
 	
 
 /*!
@@ -94,6 +99,20 @@ public SoType
 getTypeId() 
 {
   return SoGLBigImage.getClassTypeId();
+}
+
+/*!
+  Sets the change limit. Returns the old limit.
+  
+  \sa exceededChangeLimit()
+  \since Coin 2.3
+*/
+public static int
+setChangeLimit( int limit)
+{
+  int old = CHANGELIMIT;
+  CHANGELIMIT = limit;
+  return old;
 }
 
 }

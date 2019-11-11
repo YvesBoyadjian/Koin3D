@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor;
 
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Mutable;
 
 
@@ -345,6 +346,36 @@ operator_equal_equal( SbViewportRegion reg2)
 
 public boolean operator_not_equal(SbViewportRegion oldvp) {
 	return !operator_equal_equal(oldvp);
+}
+
+/*!
+  Set up the origin and size of the viewport region in pixel
+  coordinates.
+
+  \sa getViewportOriginPixels(), getViewportSizePixels(), setViewport()
+*/
+public void
+setViewportPixels(short left, short bottom,
+                                    short width, short height)
+{
+//#if COIN_DEBUG
+  if (width<0) {
+    SoDebugError.postWarning("SbViewportRegion::setViewportPixels",
+                              "width ("+width+") should be >=0. Clamped to 0.");
+    width=0;
+  }
+  if (height<0) {
+    SoDebugError.postWarning("SbViewportRegion::setViewportPixels",
+                              "height ("+height+") should be >=0. Clamped to 0."
+                              );
+    height=0;
+  }
+//#endif // COIN_DEBUG
+
+  this.vpOrigin.setValue((float)(left)/(float)(this.windowSize.getValue()[0]),
+                          (float)(bottom)/(float)(this.windowSize.getValue()[1]));
+  this.vpSize.setValue((float)(width)/(float)(this.windowSize.getValue()[0]),
+                        (float)(height)/(float)(this.windowSize.getValue()[1]));
 }
 
 }

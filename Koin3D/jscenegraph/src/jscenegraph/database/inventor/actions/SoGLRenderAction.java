@@ -184,7 +184,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 
       
     //! Possible return codes from a render abort callback
-      enum AbortCode {
+      public enum AbortCode {
           CONTINUE,               //!< Continue as usual
           ABORT,                  //!< Stop traversing the rest of the graph
           PRUNE,                  //!< Do not traverse this node or its children
@@ -1206,7 +1206,16 @@ addPreRenderCallback(SoGLPreRenderCB func, Object userdata)
 public void
 removePreRenderCallback(SoGLPreRenderCB func, Object userdata)
 {
-  this.pimpl.precblist.removeCallback((SoCallbackListCB)(func), userdata);
+	SoCallbackListCB SoCallbackListCB = new SoCallbackListCB() {
+
+		@Override
+		public void invoke(Object callbackData) {
+			func.apply(userdata, (SoGLRenderAction)callbackData);
+		}
+		  
+	  };	
+	
+  this.pimpl.precblist.removeCallback(SoCallbackListCB, userdata);
 }
 
 

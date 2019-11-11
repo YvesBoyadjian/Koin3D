@@ -66,7 +66,7 @@ public class SoVertexArrayIndexer implements Destroyable {
 	  private int targetcounter;
 	  private final SbListInt countarray = new SbListInt();
 	  private final SbList <IntArrayPtr> ciarray = new SbList<>();
-	  private final SbListInt indexarray = new SbListInt();
+	  private SbListInt indexarray;// = new SbListInt();
 	  private SoVBO vbo;
 	  private boolean use_shorts;
 	  
@@ -79,7 +79,21 @@ public class SoVertexArrayIndexer implements Destroyable {
 	    vbo = null;
 	    use_shorts = true;
 	
+	    indexarray = new SbListInt();
 	}
+
+	/**
+	 * java port
+	 * @param indexarraysize
+	 */
+	public SoVertexArrayIndexer( int indexarraysize ) {
+		  target = 0;
+		    next = null;
+		    vbo = null;
+		    use_shorts = true;
+		
+		    indexarray = new SbListInt(indexarraysize);
+		}
 
 	/*!
 	  Destructor

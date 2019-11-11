@@ -79,31 +79,31 @@ public class VoidPtr implements Destroyable {
 		if(object instanceof Array<?>) {
 			buffer = Util.toByteBuffer((Array<?>)object);
 		}
-		if(object instanceof FloatArray) {
+		else if(object instanceof FloatArray) {
 			buffer = Util.toByteBuffer((FloatArray)object);
 		}
-		if(object instanceof IntArrayPtr) {
+		else if(object instanceof IntArrayPtr) {
 			buffer = Util.toByteBuffer((IntArrayPtr)object);
 		}
-		if(object instanceof ByteBuffer) {
+		else if(object instanceof ByteBuffer) {
 			buffer = (ByteBuffer)object;
 		}
-		if(object instanceof Integer[]) {
+		else if(object instanceof Integer[]) {
 			buffer = Util.toByteBuffer((Integer[])object);
 		}
-		if(object instanceof IntBuffer) {
+		else if(object instanceof IntBuffer) {
 			buffer = (IntBuffer)object;
 		}
-		if(object instanceof SbVec4fArray) {
+		else if(object instanceof SbVec4fArray) {
 			buffer = ((SbVec4fArray)object).toFloatBuffer();
 		}
-		if(object instanceof SbVec3fArray) {
+		else if(object instanceof SbVec3fArray) {
 			buffer = ((SbVec3fArray)object).toFloatBuffer();
 		}
-		if(object instanceof SbVec2fArray) {
+		else if(object instanceof SbVec2fArray) {
 			buffer = ((SbVec2fArray)object).toFloatBuffer();
 		}
-		if(object != null && buffer == null) {
+		else if(object != null && buffer == null) {
 			throw new RuntimeException();
 		}
 		return buffer;

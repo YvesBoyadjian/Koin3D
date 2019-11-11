@@ -28,6 +28,9 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
+import jscenegraph.coin3d.TidBits;
+import jscenegraph.port.Util;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL15.*;
@@ -169,6 +172,55 @@ cc_glglue_glTexImage3D(final cc_glglue  w,
   glTexImage3D(target, level, internalformat,
                   width, height, depth, border,
                   format, type, Buffers.newDirectByteBuffer(pixels));
+}
+
+/*!
+Returns the \e theoretical maximum dimensions for an offscreen
+buffer.
+
+Note that we're still not guaranteed that allocation of this size
+will succeed, as that is also subject to e.g. memory constraints,
+which is something that will dynamically change during the running
+time of an application.
+
+So the values returned from this function should be taken as hints,
+and client code of cc_glglue_context_create_offscreen() and
+cc_glglue_context_make_current() should re-request offscreen
+contexts with lower dimensions if any of those fails.
+*/
+public static void
+cc_glglue_context_max_dimensions(int[] width, int[] height)
+{
+	width[0] = 4096;
+	height[0] = 4096;
+}
+
+/* This abomination is needed to support SoOffscreenRenderer::getDC(). */
+public static Object
+cc_glglue_win32_HDC(Object ctx)
+{
+//#if defined(HAVE_WGL)
+//  return wglglue_context_win32_HDC(ctx); TODO
+//#else /* not WGL */
+  return null;
+//#endif /* not WGL */
+}
+
+static int d = -1;
+/* Return value of COIN_DEBUG_GLGLUE environment variable. */
+public static int
+coin_glglue_debug()
+{
+  if (d == -1) { d = glglue_resolve_envvar("COIN_DEBUG_GLGLUE"); }
+  return (d > 0) ? 1 : 0;
+}
+
+/* Resolve and return the integer value of an environment variable. */
+public static int
+glglue_resolve_envvar(String txt)
+{
+  String val = TidBits.coin_getenv(txt);
+  return val != null ? Util.atoi(val) : 0;
 }
 
 }

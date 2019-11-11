@@ -3603,4 +3603,30 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 	default void glMultMatrixf(float[] fs) {
 		org.lwjgl.opengl.GL11.glMultMatrixf(fs);
 	}
+
+	default void glPixelTransferi(int arg0, int arg1) {
+		org.lwjgl.opengl.GL11.glPixelTransferi(arg0, arg1);
+	}
+
+	default void glPixelTransferf(int arg0, float arg1) {
+		org.lwjgl.opengl.GL11.glPixelTransferf(arg0, arg1);
+	}
+
+	default void glPixelMapfv(int map, int i, float[] values) {
+		if(i != values.length) {
+			throw new IllegalArgumentException();
+		}
+		org.lwjgl.opengl.GL11.glPixelMapfv(map,values);
+	}
+
+	default void glPixelMapuiv(int map, int i, int[] values) {
+		if(i != values.length) {
+			throw new IllegalArgumentException();
+		}
+		org.lwjgl.opengl.GL11.glPixelMapuiv(map, values);
+	}
+
+	default void glFinish() {
+		org.lwjgl.opengl.GL11.glFinish();
+	}
 }

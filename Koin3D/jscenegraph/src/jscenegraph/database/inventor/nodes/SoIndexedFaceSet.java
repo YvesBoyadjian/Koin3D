@@ -705,31 +705,62 @@ public void GLRender(SoGLRenderAction action)
 
 	    LOCK_VAINDEXER(this);
 	    if (pimpl.vaindexer == null) {
-	    	jscenegraph.coin3d.inventor.rendering.SoVertexArrayIndexer indexer = new jscenegraph.coin3d.inventor.rendering.SoVertexArrayIndexer(); //ptr
-	      int i = 0;
-	      while (i < numindices[0]) {
+			//long start = System.nanoTime();
+			
+		    final int numindices_0 = numindices[0]; // java port
+		      
+		    final IntArrayPtr cindices_0 = cindices[0]; // java port
+		      
+		    jscenegraph.coin3d.inventor.rendering.SoVertexArrayIndexer indexer;
 	        int cnt = 0;
-	        while (i + cnt < numindices[0] && cindices[0].get(i+cnt) >= 0) cnt++;
+	        int i = 0;
+	        while (i + cnt < numindices_0 && cindices_0.get(i+cnt) >= 0) cnt++;
+	        
+	        if(cnt == 3) {
+	        	indexer = new jscenegraph.coin3d.inventor.rendering.SoVertexArrayIndexer(numindices_0/4*3); //ptr
+	        }
+	        else if(cnt == 4) {
+	        	indexer = new jscenegraph.coin3d.inventor.rendering.SoVertexArrayIndexer(numindices_0/5*4); //ptr	        	
+	        }
+	        else {
+	        	indexer = new jscenegraph.coin3d.inventor.rendering.SoVertexArrayIndexer(); //ptr	        	
+	        }
+	        
+	      i = 0;
+	      
+	      while (i < numindices_0) {
+	        cnt = 0;
+	        while (i + cnt < numindices_0 && cindices_0.get(i+cnt) >= 0) cnt++;
 	        
 	        switch (cnt) {
 	        case 3:
-	          indexer.addTriangle(cindices[0].get(i),cindices[0].get(i+1), cindices[0].get(i+2));
+	          indexer.addTriangle(cindices_0.get(i),cindices_0.get(i+1), cindices_0.get(i+2));
 	          break;
 	        case 4:
-	          indexer.addQuad(cindices[0].get(i),cindices[0].get(i+1),cindices[0].get(i+2),cindices[0].get(i+3));
+	          indexer.addQuad(cindices_0.get(i),cindices_0.get(i+1),cindices_0.get(i+2),cindices_0.get(i+3));
 	          break;
 	        default:
 	          if (cnt > 4) {
 	            indexer.beginTarget(GL2.GL_POLYGON);
 	            for (int j = 0; j < cnt; j++) {
-	              indexer.targetVertex(GL2.GL_POLYGON, cindices[0].get(i+j));
+	              indexer.targetVertex(GL2.GL_POLYGON, cindices_0.get(i+j));
 	            }
 	            indexer.endTarget(GL2.GL_POLYGON);
 	          }
 	        }
 	        i += cnt + 1;
 	      }
+			//long inter = System.nanoTime();
 	      indexer.close();
+			//long stop = System.nanoTime();
+			//long delta1 = inter - start;
+			//long delta2 = stop - inter;
+			
+//			if((delta1 + delta2) > 5e6) {
+//				System.out.println("SoTouchLOD2 " + delta1/1e6 +"-"+delta2/1e6+" ms");
+//			}
+			
+			
 	      if (indexer.getNumVertices() != 0) {
 	        pimpl.vaindexer = indexer;
 	      }
