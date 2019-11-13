@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-javadoc.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengl-javadoc.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengl-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengl-sources.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-natives-windows.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengl-natives-windows.jar"/>

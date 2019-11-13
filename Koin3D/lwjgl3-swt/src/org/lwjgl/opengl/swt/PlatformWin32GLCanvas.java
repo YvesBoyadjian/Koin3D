@@ -51,107 +51,11 @@ import org.lwjgl.system.windows.User32;
  * 
  * @author Kai Burjack
  */
-class PlatformWin32GLCanvas implements PlatformGLCanvas {
+class PlatformWin32GLCanvas extends AbstractPlatformGLCanvas {
     private static final String USE_OWNDC_KEY = "org.eclipse.swt.internal.win32.useOwnDC";
 
     private long wglDelayBeforeSwapNVAddr = 0L;
     private boolean wglDelayBeforeSwapNVAddr_set = false;
-
-    private static boolean atLeast32(int major, int minor) {
-        return major == 3 && minor >= 2 || major > 3;
-    }
-
-    private static boolean atLeast30(int major, int minor) {
-        return major == 3 && minor >= 0 || major > 3;
-    }
-
-    private static boolean validVersionGL(int major, int minor) {
-        return (major == 0 && minor == 0) || // unspecified gets highest supported version on Nvidia
-               (major >= 1 && minor >= 0) &&
-               (major != 1 || minor <= 5) &&
-               (major != 2 || minor <= 1) &&
-               (major != 3 || minor <= 3) &&
-               (major != 4 || minor <= 5);
-    }
-
-    private static boolean validVersionGLES(int major, int minor) {
-        return (major == 0 && minor == 0) || // unspecified gets 1.1 on Nvidia
-               (major >= 1 && minor >= 0) &&
-               (major != 1 || minor <= 1) &&
-               (major != 2 || minor <= 0);
-    }
-
-    /**
-     * Validate the given {@link GLData} and throw an exception on validation error.
-     * 
-     * @param attribs
-     *            the {@link GLData} to validate
-     */
-    public static void validateAttributes(GLData attribs) {
-        if (attribs.alphaSize < 0) {
-            throw new IllegalArgumentException("Alpha bits cannot be less than 0");
-        }
-        if (attribs.redSize < 0) {
-            throw new IllegalArgumentException("Red bits cannot be less than 0");
-        }
-        if (attribs.greenSize < 0) {
-            throw new IllegalArgumentException("Green bits cannot be less than 0");
-        }
-        if (attribs.blueSize < 0) {
-            throw new IllegalArgumentException("Blue bits cannot be less than 0");
-        }
-        if (attribs.stencilSize < 0) {
-            throw new IllegalArgumentException("Stencil bits cannot be less than 0");
-        }
-        if (attribs.depthSize < 0) {
-            throw new IllegalArgumentException("Depth bits cannot be less than 0");
-        }
-        if (attribs.forwardCompatible && !atLeast30(attribs.majorVersion, attribs.minorVersion)) {
-            throw new IllegalArgumentException("Forward-compatibility is only defined for OpenGL version 3.0 and above");
-        }
-        if (attribs.samples < 0) {
-            throw new IllegalArgumentException("Invalid samples count");
-        }
-        if (attribs.profile != null && !atLeast32(attribs.majorVersion, attribs.minorVersion)) {
-            throw new IllegalArgumentException("Context profiles are only defined for OpenGL version 3.2 and above");
-        }
-        if (attribs.api == null) {
-            throw new IllegalArgumentException("Unspecified client API");
-        }
-        if (attribs.api == API.GL && !validVersionGL(attribs.majorVersion, attribs.minorVersion)) {
-            throw new IllegalArgumentException("Invalid OpenGL version");
-        }
-        if (attribs.api == API.GLES && !validVersionGLES(attribs.majorVersion, attribs.minorVersion)) {
-            throw new IllegalArgumentException("Invalid OpenGL ES version");
-        }
-        if (!attribs.doubleBuffer && attribs.swapInterval != null) {
-            throw new IllegalArgumentException("Swap interval set but not using double buffering");
-        }
-        if (attribs.colorSamplesNV < 0) {
-            throw new IllegalArgumentException("Invalid color samples count");
-        }
-        if (attribs.colorSamplesNV > attribs.samples) {
-            throw new IllegalArgumentException("Color samples greater than number of (coverage) samples");
-        }
-        if (attribs.swapGroupNV < 0) {
-            throw new IllegalArgumentException("Invalid swap group");
-        }
-        if (attribs.swapBarrierNV < 0) {
-            throw new IllegalArgumentException("Invalid swap barrier");
-        }
-        if ((attribs.swapGroupNV > 0 || attribs.swapBarrierNV > 0) && !attribs.doubleBuffer) {
-            throw new IllegalArgumentException("Swap group or barrier requested but not using double buffering");
-        }
-        if (attribs.swapBarrierNV > 0 && attribs.swapGroupNV == 0) {
-            throw new IllegalArgumentException("Swap barrier requested but no valid swap group set");
-        }
-        if (attribs.loseContextOnReset && !attribs.robustness) {
-            throw new IllegalArgumentException("Lose context notification requested but not using robustness");
-        }
-        if (attribs.contextResetIsolation && !attribs.robustness) {
-            throw new IllegalArgumentException("Context reset isolation requested but not using robustness");
-        }
-    }
 
     /**
      * Encode the pixel format attributes stored in the given {@link GLData} into the given {@link IntBuffer} for wglChoosePixelFormatARB to
@@ -205,9 +109,9 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
         // Somehow we need to temporarily set 'org.eclipse.swt.internal.win32.useOwnDC'
         // to true or else context creation on Windows fails...
         if (parent != null) {
-            if (org.eclipse.swt.internal.win32.OS.WIN32_VERSION >= org.eclipse.swt.internal.win32.OS.VERSION(6, 0)) {
-                parent.getDisplay().setData(USE_OWNDC_KEY, Boolean.TRUE);
-            }
+        	// Removed windows version check - SWT dropped support for windows before Vista
+        	// https://github.com/eclipse/eclipse.platform.swt/commit/84c9e305cb087110cb300a5e58f86583cf80914d#diff-bb4584995e162b851fafacf3b046cc35
+            parent.getDisplay().setData(USE_OWNDC_KEY, Boolean.TRUE);
         }
         return style;
     }
@@ -232,7 +136,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             public void handleEvent(Event event) {
                 switch (event.type) {
                 case SWT.Dispose:
-                    deleteContext(finalContext);
+                    deleteContext(canvas, finalContext);
                     break;
                 }
             }
@@ -306,7 +210,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
         String wglExtensions = null;
         long wglGetExtensionsStringARBAddr = WGL.wglGetProcAddress("wglGetExtensionsStringARB");
         if (wglGetExtensionsStringARBAddr != 0L) {
-            long str = JNI.callPP(wglGetExtensionsStringARBAddr, hDCdummy);
+            long str = JNI.callPP(hDCdummy, wglGetExtensionsStringARBAddr);
             if (str != 0L) {
                 wglExtensions = MemoryUtil.memASCII(str);
             } else {
@@ -380,7 +284,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
                 }
                 long wglSwapIntervalEXTAddr = WGL.wglGetProcAddress("wglSwapIntervalEXT");
                 if (wglSwapIntervalEXTAddr != 0L) {
-                    JNI.callI(wglSwapIntervalEXTAddr, attribs.swapInterval);
+                    JNI.callI(attribs.swapInterval, wglSwapIntervalEXTAddr);
                 }
             }
 
@@ -523,7 +427,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             }
             // Query matching pixel formats
             encodePixelFormatAttribs(attribList, attribs);
-            success = JNI.callPPPPPI(wglChoosePixelFormatAddr, hDC, attribListAddr, 0L, 1, bufferAddr + 4, bufferAddr) == 1;
+            success = JNI.callPPPPPI(hDC, attribListAddr, 0L, 1, bufferAddr + 4, bufferAddr, wglChoosePixelFormatAddr) == 1;
             int numFormats = MemoryUtil.memGetInt(bufferAddr);
             if (!success || numFormats == 0) {
                 User32.ReleaseDC(windowHandle, hDC);
@@ -568,8 +472,8 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             attribList.put(WGLARBPixelFormat.WGL_STENCIL_BITS_ARB);
             IntBuffer attribValues = BufferUtils.createIntBuffer(attribList.position());
             long attribValuesAddr = MemoryUtil.memAddress(attribValues);
-            success = JNI.callPPPI(wglGetPixelFormatAttribivAddr, hDC, pixelFormat, GDI32.PFD_MAIN_PLANE, attribList.position(), attribListAddr,
-                    attribValuesAddr) == 1;
+            success = JNI.callPPPI(hDC, pixelFormat, GDI32.PFD_MAIN_PLANE, attribList.position(), attribListAddr,
+                    attribValuesAddr, wglGetPixelFormatAttribivAddr) == 1;
             if (!success) {
                 User32.ReleaseDC(windowHandle, hDC);
                 WGL.wglDeleteContext(dummyContext);
@@ -691,7 +595,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             throw new SWTException("Failed to set pixel format.");
         }
         // And create new context with it
-        long newCtx = JNI.callPPPP(wglCreateContextAttribsARBAddr, hDC, attribs.shareContext != null ? attribs.shareContext.context : 0L, attribListAddr);
+        long newCtx = JNI.callPPPP(hDC, attribs.shareContext != null ? attribs.shareContext.context : 0L, attribListAddr, wglCreateContextAttribsARBAddr);
         WGL.wglDeleteContext(dummyContext);
         if (newCtx == 0L) {
             User32.ReleaseDC(windowHandle, hDC);
@@ -720,7 +624,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             }
             long wglSwapIntervalEXTAddr = WGL.wglGetProcAddress("wglSwapIntervalEXT");
             if (wglSwapIntervalEXTAddr != 0L) {
-                JNI.callI(wglSwapIntervalEXTAddr, attribs.swapInterval);
+                JNI.callI(attribs.swapInterval, wglSwapIntervalEXTAddr);
             }
         }
         if (attribs.swapGroupNV > 0 || attribs.swapBarrierNV > 0) {
@@ -746,26 +650,26 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
         long getString = GL.getFunctionProvider().getFunctionAddress("glGetString");
         effective.api = attribs.api;
         if (atLeast30(attribs.majorVersion, attribs.minorVersion)) {
-            JNI.callPV(getInteger, GL30.GL_MAJOR_VERSION, bufferAddr);
+            JNI.callPV(GL30.GL_MAJOR_VERSION, bufferAddr, getInteger);
             effective.majorVersion = MemoryUtil.memGetInt(bufferAddr);
-            JNI.callPV(getInteger, GL30.GL_MINOR_VERSION, bufferAddr);
+            JNI.callPV(GL30.GL_MINOR_VERSION, bufferAddr, getInteger);
             effective.minorVersion = MemoryUtil.memGetInt(bufferAddr);
-            JNI.callPV(getInteger, GL30.GL_CONTEXT_FLAGS, bufferAddr);
+            JNI.callPV(GL30.GL_CONTEXT_FLAGS, bufferAddr, getInteger);
             int effectiveContextFlags = MemoryUtil.memGetInt(bufferAddr);
             effective.debug = (effectiveContextFlags & GL43.GL_CONTEXT_FLAG_DEBUG_BIT) != 0;
             effective.forwardCompatible = (effectiveContextFlags & GL30.GL_CONTEXT_FLAG_FORWARD_COMPATIBLE_BIT) != 0;
             effective.robustness = (effectiveContextFlags & ARBRobustness.GL_CONTEXT_FLAG_ROBUST_ACCESS_BIT_ARB) != 0;
         } else if (attribs.api == API.GL) {
-            APIVersion version = APIUtil.apiParseVersion(MemoryUtil.memUTF8(Checks.check(JNI.callP(getString, GL11.GL_VERSION))));
+            APIVersion version = APIUtil.apiParseVersion(MemoryUtil.memUTF8(Checks.check(JNI.callP(GL11.GL_VERSION, getString))));
             effective.majorVersion = version.major;
             effective.minorVersion = version.minor;
         } else if (attribs.api == API.GLES) {
-            APIVersion version = APIUtil.apiParseVersion(MemoryUtil.memUTF8(Checks.check(JNI.callP(getString, GL11.GL_VERSION))), "OpenGL ES");
+            APIVersion version = APIUtil.apiParseVersion(MemoryUtil.memUTF8(Checks.check(JNI.callP(GL11.GL_VERSION, getString))), "OpenGL ES");
             effective.majorVersion = version.major;
             effective.minorVersion = version.minor;
         }
         if (attribs.api == API.GL && atLeast32(effective.majorVersion, effective.minorVersion)) {
-            JNI.callPV(getInteger, GL32.GL_CONTEXT_PROFILE_MASK, bufferAddr);
+            JNI.callPV(GL32.GL_CONTEXT_PROFILE_MASK, bufferAddr, getInteger);
             int effectiveProfileMask = MemoryUtil.memGetInt(bufferAddr);
             boolean core = (effectiveProfileMask & GL32.GL_CONTEXT_CORE_PROFILE_BIT) != 0;
             boolean comp = (effectiveProfileMask & GL32.GL_CONTEXT_COMPATIBILITY_PROFILE_BIT) != 0;
@@ -778,13 +682,13 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             }
         }
         if (attribs.samples >= 1) {
-            JNI.callPV(getInteger, ARBMultisample.GL_SAMPLES_ARB, bufferAddr);
+            JNI.callPV(ARBMultisample.GL_SAMPLES_ARB, bufferAddr, getInteger);
             effective.samples = MemoryUtil.memGetInt(bufferAddr);
-            JNI.callPV(getInteger, ARBMultisample.GL_SAMPLE_BUFFERS_ARB, bufferAddr);
+            JNI.callPV(ARBMultisample.GL_SAMPLE_BUFFERS_ARB, bufferAddr, getInteger);
             effective.sampleBuffers = MemoryUtil.memGetInt(bufferAddr);
             boolean has_WGL_NV_multisample_coverage = wglExtensionsList.contains("WGL_NV_multisample_coverage");
             if (has_WGL_NV_multisample_coverage) {
-                JNI.callPV(getInteger, NVMultisampleCoverage.GL_COLOR_SAMPLES_NV, bufferAddr);
+                JNI.callPV(NVMultisampleCoverage.GL_COLOR_SAMPLES_NV, bufferAddr, getInteger);
                 effective.colorSamplesNV = MemoryUtil.memGetInt(bufferAddr);
             }
         }
@@ -796,7 +700,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
     private void wglNvSwapGroupAndBarrier(GLData attribs, long bufferAddr, long hDC) throws SWTException {
         int success;
         long wglQueryMaxSwapGroupsNVAddr = WGL.wglGetProcAddress("wglQueryMaxSwapGroupsNV");
-        success = JNI.callPPPI(wglQueryMaxSwapGroupsNVAddr, hDC, bufferAddr, bufferAddr + 4);
+        success = JNI.callPPPI(hDC, bufferAddr, bufferAddr + 4, wglQueryMaxSwapGroupsNVAddr);
         int maxGroups = MemoryUtil.memGetInt(bufferAddr);
         if (maxGroups < attribs.swapGroupNV) {
             throw new SWTException("Swap group exceeds maximum group index");
@@ -810,7 +714,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             if (wglJoinSwapGroupNVAddr == 0L) {
                 throw new SWTException("WGL_NV_swap_group available but wglJoinSwapGroupNV is NULL");
             }
-            success = JNI.callPI(wglJoinSwapGroupNVAddr, hDC, attribs.swapGroupNV);
+            success = JNI.callPI(hDC, attribs.swapGroupNV, wglJoinSwapGroupNVAddr);
             if (success == 0) {
                 throw new SWTException("Failed to join swap group");
             }
@@ -819,7 +723,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
                 if (wglBindSwapBarrierNVAddr == 0L) {
                     throw new SWTException("WGL_NV_swap_group available but wglBindSwapBarrierNV is NULL");
                 }
-                success = JNI.callI(wglBindSwapBarrierNVAddr, attribs.swapGroupNV, attribs.swapBarrierNV);
+                success = JNI.callI(attribs.swapGroupNV, attribs.swapBarrierNV, wglBindSwapBarrierNVAddr);
                 if (success == 0) {
                     throw new SWTException("Failed to bind swap barrier. Probably no G-Sync card installed.");
                 }
@@ -839,7 +743,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
         return ret;
     }
 
-    public boolean deleteContext(long context) {
+    public boolean deleteContext(GLCanvas canvas, long context) {
         boolean ret = WGL.wglDeleteContext(context);
         return ret;
     }
@@ -860,7 +764,7 @@ class PlatformWin32GLCanvas implements PlatformGLCanvas {
             throw new UnsupportedOperationException("wglDelayBeforeSwapNV is unavailable");
         }
         long hDC = User32.GetDC(canvas.handle);
-        int ret = JNI.callPI(wglDelayBeforeSwapNVAddr, hDC, seconds);
+        int ret = JNI.callPI(hDC, seconds, wglDelayBeforeSwapNVAddr);
         User32.ReleaseDC(canvas.handle, hDC);
         return ret == 1;
     }

@@ -18,7 +18,9 @@ import java.util.Random;
 import application.objects.DouglasFir;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
+import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoSeparator;
@@ -261,37 +263,86 @@ public class DouglasForest {
 //		}
 	}
 
-	public SoSeparator getDouglasTrees(float distance) {
+	public SoSeparator getDouglasTreesT(float distance) {
 		SoSeparator separator = new SoSeparator();
 		
 		for( DouglasChunk chunk : douglasChunks ) {
+			{
+			SoLODIndexedFaceSet indexedFaceSetT = new SoLODIndexedFaceSet() {
+				public void GLRender(SoGLRenderAction action)
+				{
+					super.GLRender(action);
+				}
+				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+					super.computeBBox(action, box, center);
+				}
+			};
+			
+			indexedFaceSetT.coordIndex.setValuesPointer(chunk.douglasIndicesT);
+			
+			SoVertexProperty vertexProperty = new SoVertexProperty();
+			
+			vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesT);
+			
+			vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+			
+			vertexProperty.normal.setValuesPointer(chunk.douglasNormalsT);
+			
+			vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+			
+			vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsT);
+			
+			indexedFaceSetT.vertexProperty.setValue(vertexProperty);
+			
+			indexedFaceSetT.maxDistance = distance;
+			
+			separator.addChild(indexedFaceSetT);			
+			}
+		}		
+		
+		return separator;
+	}
 
-			SoLODIndexedFaceSet indexedFaceSet = new SoLODIndexedFaceSet() {
+	public SoSeparator getDouglasTreesF(float distance, boolean withColors) {
+		SoSeparator separator = new SoSeparator();
+		
+		for( DouglasChunk chunk : douglasChunks ) {
+			{
+			SoLODIndexedFaceSet indexedFaceSetF = new SoLODIndexedFaceSet() {
 				public void GLRender(SoGLRenderAction action)
 				{
 					super.GLRender(action);
 				}			
+				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+					super.computeBBox(action, box, center);
+				}
 			};
 			
-			indexedFaceSet.coordIndex.setValuesPointer(chunk.douglasIndices);
+			indexedFaceSetF.coordIndex.setValuesPointer(chunk.douglasIndicesF);
 			
 			SoVertexProperty vertexProperty = new SoVertexProperty();
 			
-			vertexProperty.vertex.setValuesPointer(chunk.douglasVertices);
+			vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesF);
 			
 			vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
 			
-			vertexProperty.normal.setValuesPointer(chunk.douglasNormals);
+			vertexProperty.normal.setValuesPointer(chunk.douglasNormalsF);
 			
-			vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+			if(withColors) {
+				vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+				vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsF);
+			}
+			else {
+				vertexProperty.texCoord.setValuesPointer(chunk.douglasTexCoordsF);
+				vertexProperty.orderedRGBA.setValue(new SbColor(0.8f,0.85f,0.4f)/*SbColor(1,0.0f,0.0f)*/.getPackedValue());
+			}
 			
-			vertexProperty.orderedRGBA.setValues(0, chunk.douglasColors);
+			indexedFaceSetF.vertexProperty.setValue(vertexProperty);
 			
-			indexedFaceSet.vertexProperty.setValue(vertexProperty);
+			indexedFaceSetF.maxDistance = distance;
 			
-			separator.addChild(indexedFaceSet);
-			
-			indexedFaceSet.maxDistance = distance;
+			separator.addChild(indexedFaceSetF);
+			}
 		}		
 		
 		return separator;

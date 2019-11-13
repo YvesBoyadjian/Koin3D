@@ -4,10 +4,17 @@
 package application.scenegraph;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.awt.image.Raster;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.imageio.ImageIO;
 
 import com.jogamp.opengl.GL2;
 
@@ -18,12 +25,14 @@ import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
+import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbRotation;
+import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -145,9 +154,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	float current_z;
 	
-	SoSeparator douglasTrees;
+	SoSeparator douglasTreesF;
+	SoSeparator douglasTreesT;
 	
-	SoSeparator douglasTreesS;
+	SoSeparator douglasTreesST;
+	SoSeparator douglasTreesSF;
 	
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
@@ -503,11 +514,64 @@ for(int is=0;is<4;is++) {
 	    shapeHints.vertexOrdering.setValue(SoShapeHints.VertexOrdering.COUNTERCLOCKWISE);
 	    douglasSep.addChild(shapeHints);
 	    
+	    
+	    SoTexture2 douglasTexture = new SoTexture2();
+	    
+	    //douglasTexture.filename.setValue("ressource/texture-2058269_Steve_Wittmann_thethreedguy.jpg");
+	    //douglasTexture.filename.setValue("ressource/texture-2058270_Steve_Wittmann_thethreedguy.jpg");
+	    
+	    File f = new File("ressource/texture-2058270_Steve_Wittmann_thethreedguy.jpg");
+	    
+	    try {
+		    InputStream is = new FileInputStream(f);
+			BufferedImage image = ImageIO.read(is);
+			
+			if(image != null) {
+			int wi = image.getWidth();
+			int hi = image.getHeight();
+		    
+		    int nc = 3;
+		    
+		    int nbPixels = wi*hi;
+		    
+		    byte[] bytesRGB = new byte[nbPixels*3];
+		    int j=0;
+		    for(int i=0; i< nbPixels;i++) {
+		    	int x = i%wi;
+		    	int y = hi - i/wi -1;
+		    	int rgb = image.getRGB(x, y);
+		    	bytesRGB[j] = (byte)(Math.pow(((rgb & 0x00FF0000) >>> 16)/255.0f,2.2f)*255.0f) ; j++;
+		    	bytesRGB[j] = (byte)(Math.pow(((rgb & 0x0000FF00) >>> 8)/255.0f,2.2f)*255.0f); j++;
+		    	bytesRGB[j] = (byte)(Math.pow(((rgb & 0x000000FF) >>> 0)/255.0f,2.2f)*255.0f); j++;	    	
+		    }
+		    byte[] b = bytesRGB;
+		    
+		    SbVec2s s = new SbVec2s((short)wi,(short)hi);
+		    
+		    douglasTexture.image.setValue(s, nc, b);
+		    
+			}
+		    is.close();
+		} catch (IOException e) {
+		}
+	    
+	    
 	    douglasSep.addChild(transl);
 	    
-		douglasTrees = getDouglasTrees(7000);
+		douglasTreesT = getDouglasTreesT(7000);
 		
-		douglasSep.addChild(douglasTrees);
+	    SoSeparator douglasSepF = new SoSeparator();
+	    
+		douglasSep.addChild(douglasTreesT);
+		
+		douglasTreesF = getDouglasTreesF(7000,false);
+		
+	    douglasSepF.addChild(douglasTexture);
+	    
+		douglasSepF.addChild(douglasTreesF);
+		
+		douglasSep.addChild(douglasSepF);
+		
 		shadowGroup.addChild(douglasSep);
 
 		addWater(shadowGroup,185 + zTranslation, 0.0f, true,false);
@@ -556,9 +620,13 @@ for(int is=0;is<4;is++) {
 	    
 	    douglasSepS.addChild(transl);
 	    
-		douglasTreesS = getDouglasTrees(3000);
+		douglasTreesST = getDouglasTreesT(3000);
 		
-		douglasSepS.addChild(douglasTreesS);
+		douglasSepS.addChild(douglasTreesST);
+		
+		douglasTreesSF = getDouglasTreesF(3000, false);
+		
+		douglasSepS.addChild(douglasTreesSF);
 		
 		castingShadowScene.addChild(douglasSepS);
 		
@@ -754,7 +822,7 @@ for(int is=0;is<4;is++) {
 		
 		float zTransl = - transl.translation.getValue().getZ();
 		
-		for(SoNode node : douglasTrees.getChildren()) {
+		for(SoNode node : douglasTreesT.getChildren()) {
 			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
 			lifs.referencePoint.setValue(
 					current_x + xTransl+3000*world_camera_direction.getX(),
@@ -762,7 +830,23 @@ for(int is=0;is<4;is++) {
 					current_z + zTransl);
 		}
 				
-		for (SoNode node : douglasTreesS.getChildren()) {
+		for(SoNode node : douglasTreesF.getChildren()) {
+			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+			lifs.referencePoint.setValue(
+					current_x + xTransl+3000*world_camera_direction.getX(),
+					current_y + yTransl+3000*world_camera_direction.getY(),
+					current_z + zTransl);
+		}
+				
+		for (SoNode node : douglasTreesST.getChildren()) {
+			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+			lifs.referencePoint.setValue(
+					current_x + xTransl+1000*world_camera_direction.getX(), 
+					current_y + yTransl+1000*world_camera_direction.getY(), 
+					current_z + zTransl);
+		}
+				
+		for (SoNode node : douglasTreesSF.getChildren()) {
 			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
 			lifs.referencePoint.setValue(
 					current_x + xTransl+1000*world_camera_direction.getX(), 
@@ -929,13 +1013,22 @@ for(int is=0;is<4;is++) {
 		
 	}
 		
-	SoSeparator getDouglasTrees(float distance) {
+	SoSeparator getDouglasTreesT(float distance) {
 		
 		if( forest == null) {
 			computeDouglas();
 		}
 		
-		return forest.getDouglasTrees(distance);			
+		return forest.getDouglasTreesT(distance);			
+	}	
+	
+	SoSeparator getDouglasTreesF(float distance, boolean withColors) {
+		
+		if( forest == null) {
+			computeDouglas();
+		}
+		
+		return forest.getDouglasTreesF(distance, withColors);			
 	}	
 	
 	static Random random = new Random(42);

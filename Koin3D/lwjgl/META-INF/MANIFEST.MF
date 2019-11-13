@@ -22,4 +22,10 @@ Bundle-ClassPath: .,
  lib/lwjgl-glfw-javadoc.jar,
  lib/lwjgl-glfw-natives-windows.jar,
  lib/lwjgl-glfw-sources.jar,
- lib/lwjgl-glfw.jar
+ lib/lwjgl-glfw.jar,
+ lib/lwjgl-javadoc.jar,
+ lib/lwjgl-natives-linux.jar,
+ lib/lwjgl-opengl-javadoc.jar,
+ lib/lwjgl-opengl-natives-linux.jar,
+ lib/lwjgl-opengl-sources.jar,
+ lib/lwjgl-sources.jar
