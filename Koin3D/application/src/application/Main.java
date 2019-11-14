@@ -41,8 +41,8 @@ public class Main {
 		shell.setLayout(new FillLayout());
 		
 		TerrainLoader l = new TerrainLoader();
-		Raster rw = l.load("ned19_n47x00_w122x00_wa_mounttrainier_2008\\ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
-		Raster re = l.load("ned19_n47x00_w121x75_wa_mounttrainier_2008\\ned19_n47x00_w121x75_wa_mounttrainier_2008.tif");
+		Raster rw = l.load("ned19_n47x00_w122x00_wa_mounttrainier_2008/ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
+		Raster re = l.load("ned19_n47x00_w121x75_wa_mounttrainier_2008/ned19_n47x00_w121x75_wa_mounttrainier_2008.tif");
 		
 		SoQt.init("demo");
 		

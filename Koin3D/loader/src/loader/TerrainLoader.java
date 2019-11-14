@@ -26,7 +26,7 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 public class TerrainLoader {
 	
 	public static void main(String[] args) {
-		new TerrainLoader().load("ned19_n47x00_w122x00_wa_mounttrainier_2008\\\\ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
+		new TerrainLoader().load("ned19_n47x00_w122x00_wa_mounttrainier_2008/ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
 	}
 
     public Raster load(String fileName)
@@ -36,9 +36,9 @@ public class TerrainLoader {
         //System.setProperty(GeoTiffReader.OVERRIDE_CRS_SWITCH, "False");
         //File tiffFile = new File("..\\loader\\ressource\\ned19_n47x00_w122x00_wa_mounttrainier_2008\\ned19_n47x00_w122x00_wa_mounttrainier_2008.tif");
         //File tiffFile = new File("..\\loader\\ressource\\ned19_n47x00_w121x75_wa_mounttrainier_2008\\ned19_n47x00_w121x75_wa_mounttrainier_2008.tif");
-        File tiffFile = new File("..\\loader\\ressource\\"+fileName);
+        File tiffFile = new File("../loader/ressource/"+fileName);
         if(!tiffFile.exists()) {
-        	tiffFile = new File("ressource\\"+fileName);
+        	tiffFile = new File("ressource/"+fileName);
         }
         try {
 			GeoTiffReader reader = new GeoTiffReader(tiffFile);
