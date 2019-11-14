@@ -43,6 +43,7 @@ import com.jogamp.opengl.GL2;
 
 import application.scenegraph.HeightProvider;
 import jscenegraph.database.inventor.SbRotation;
+import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.events.SoEvent;
@@ -79,7 +80,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float EYES_HEIGHT = 1.7f;
 
-	final SbVec2s old_position = new SbVec2s();
+	final SbVec2f old_position = new SbVec2f();
 
 	protected float sensitivity = 1;
 	protected boolean invert = false;
@@ -108,33 +109,33 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	public void buildWidget(int style) {
 		super.buildWidget(style);
 		
-		getDeviceWidget().
-		addMouseMoveListener(new MouseMoveListener() {
-
-			@Override
-			public void mouseMove(MouseEvent e) {
-				if(focus)
-					processMouseMoveEvent(/*e*/);
-			}
-			
-		});
+//		getDeviceWidget().
+//		addMouseMoveListener(new MouseMoveListener() {
+//
+//			@Override
+//			public void mouseMove(MouseEvent e) {
+//				if(focus)
+//					processMouseMoveEvent(/*e*/);
+//			}
+//			
+//		});
 		old_position.copyFrom(getCursorPosition());
 
 		
 	}
 	
-	final SbVec2s diff = new SbVec2s();
+	final SbVec2f diff = new SbVec2f();
 	
 	protected void processMouseMoveEvent(/*MouseEvent e*/) {
 		
 		  /* Zjisteni zmeny pozice kurzoru. */
-		  SbVec2s position = getCursorPosition();
+		  SbVec2f position = getCursorPosition();
 		  
 		  diff.operator_add_equal(old_position.operator_minus(position));
 		  
 		  old_position.copyFrom( getPosition().operator_add( getCenter()));
 		  
-		  setCursorPosition(old_position); //YB
+		  //setCursorPosition(old_position); //YB
 
 		  position = getCursorPosition();
 		  
@@ -151,9 +152,12 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  return;
 		  }
 
-		  float rotation_x = sensitivity * 0.001f * diff.getValue()[1];
+			if(focus)
+				processMouseMoveEvent(/*e*/);
+			
+		  float rotation_x = sensitivity * 0.001f * diff.getValueRead()[1];
 		  rotation_x = invert ? -rotation_x : rotation_x;
-		  float rotation_z = sensitivity * 0.001f * diff.getValue()[0];
+		  float rotation_z = sensitivity * 0.001f * diff.getValueRead()[0];
 		  
 		  diff.setValue((short)0, (short)0);
 
@@ -166,14 +170,14 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		    new SbRotation(new SbVec3f(0.0f, 0.0f, 1.0f), rotation_z)));
 	}
 	
-	private SbVec2s getCenter()
+	private SbVec2f getCenter()
 	{
 	  /* Ziskani stredu okna relativne. */
 	  Composite widget = getGLWidget();
-	  return new SbVec2s((short)(widget.getSize().getX() / 2), (short)(widget.getSize().getY() / 2));
+	  return new SbVec2f((float)(widget.getSize().getX() / 2), (float)(widget.getSize().getY() / 2));
 	}
 
-	private SbVec2s getPosition()
+	private SbVec2f getPosition()
 	{
 	  /* Ziskani pocatku okna vuci obrazovce. */
 	  Composite widget = getParentWidget();
@@ -182,7 +186,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	  
 	  
 	  Point position = new Point(0,0);//widget.toDisplay(0, 0);
-	  return new SbVec2s((short)position.getX(), (short)position.getY());
+	  return new SbVec2f((float)position.getX(), (float)position.getY());
 	}
 
 	private void setCursorPosition(final SbVec2s position)
@@ -197,7 +201,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	  
 	}
 
-	 private SbVec2s getCursorPosition()
+	 private SbVec2f getCursorPosition()
 	 {
 	   /* Ziskani absolutni pozice kurzoru. */
 	   //QPoint position = QCursor.pos();
@@ -205,7 +209,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		 DoubleBuffer bufy = BufferUtils.createDoubleBuffer(1);
 		 glfwGetCursorPos(getGLWidget().getWindow(),bufx,bufy);
 	   //Point position = Display.getCurrent().getCursorLocation();		  
-	   return new SbVec2s((short)bufx.get(), (short)bufy.get());
+	   return new SbVec2f((float)bufx.get(), (float)bufy.get());
 	 }
 	 	
 	protected boolean processSoKeyboardEvent( SoKeyboardEvent event)

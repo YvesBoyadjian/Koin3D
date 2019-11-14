@@ -118,8 +118,10 @@ public class GLCanvas extends Composite {
         	
         });
         
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-	}
+        glfwSetInputMode(window, GLFW_CURSOR, format.grabCursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_HIDDEN);
+//        if ( format.grabCursor && glfwRawMouseMotionSupported()) does not work
+//            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);	
+        }
 	
 	public void setCurrent() {
 		glfwMakeContextCurrent(window);

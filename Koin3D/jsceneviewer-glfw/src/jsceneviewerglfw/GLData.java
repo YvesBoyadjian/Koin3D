@@ -43,4 +43,5 @@ public class GLData {
 	public int accumBlueSize;
 	public int accumRedSize;
 
+	public boolean grabCursor;
 }

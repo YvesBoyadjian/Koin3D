@@ -125,7 +125,8 @@ public class MainGLFW {
 	    glf.minorVersion = 3;
 	    glf.api = GLData.API.GL;
 	    glf.profile = GLData.Profile.COMPATIBILITY;
-	    glf.debug = true;
+	    glf.debug = false;//true; has no effect
+	    glf.grabCursor = true;
 	    viewer.setFormat(glf, style);
 
 		viewer.buildWidget(style);
