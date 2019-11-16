@@ -84,12 +84,12 @@ public class SoSFFloat extends SoSField<Float> {
 		super.setValue(Float.valueOf(newValue));
 	}
 
-	@Override
-	public void copyFrom(SoField f) {
-		SoSFFloat ff = (SoSFFloat)f;
-		value = ff.value;
-		super.copy(f);
-	}
+//	@Override
+//	public void copyFrom(SoField f) {
+//		SoSFFloat ff = (SoSFFloat)f;
+//		value = ff.value;
+//		//super.copy(f);
+//	}
 
 	@Override
 	protected Float constructor() {		

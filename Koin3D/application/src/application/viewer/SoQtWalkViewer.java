@@ -21,6 +21,7 @@ import org.eclipse.swt.widgets.Display;
 import org.lwjgl.opengl.swt.GLCanvas;
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.inventor.SbVec2i32;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
@@ -51,7 +52,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float SPEED = GOD;
 
-	final SbVec2s old_position = new SbVec2s();
+	final SbVec2i32 old_position = new SbVec2i32();
 
 	protected float sensitivity = 1;
 	protected boolean invert = false;
@@ -86,17 +87,18 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		
 	}
 	
-	final SbVec2s diff = new SbVec2s();
+	final SbVec2i32 diff = new SbVec2i32();
 	
 	protected void processMouseMoveEvent(/*MouseEvent e*/) {
 		
 		  /* Zjisteni zmeny pozice kurzoru. */
-		  final SbVec2s position = getCursorPosition();
+		  final SbVec2i32 position = getCursorPosition();
 
 		  diff.operator_add_equal(old_position.operator_minus(position));
 		  
-		  old_position.copyFrom( getPosition().operator_add( getCenter()));
-		  setCursorPosition(old_position); //YB
+		  //old_position.copyFrom( getPosition().operator_add( getCenter()));
+		  old_position.copyFrom( position );
+		  //setCursorPosition(old_position); //YB
 		  //idle();
 	}
 	
@@ -108,7 +110,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  rotation_x = invert ? -rotation_x : rotation_x;
 		  float rotation_z = sensitivity * 0.001f * diff.getValue()[0];
 		  
-		  diff.setValue((short)0, (short)0);
+		  diff.setValue((int)0, (int)0);
 
 		  /* Rotace v X ose. */
 		  camera.orientation.setValue( new SbRotation(new SbVec3f(1.0f, 0.0f, 0.0f), rotation_x).operator_mul(
@@ -121,22 +123,22 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  
 	}
 	
-	private SbVec2s getCenter()
+	private SbVec2i32 getCenter()
 	{
 	  /* Ziskani stredu okna relativne. */
 	  Composite widget = getParentWidget();
-	  return new SbVec2s((short)(widget.getSize().x / 2), (short)(widget.getSize().y / 2));
+	  return new SbVec2i32((int)(widget.getSize().x / 2), (int)(widget.getSize().y / 2));
 	}
 
-	private SbVec2s getPosition()
+	private SbVec2i32 getPosition()
 	{
 	  /* Ziskani pocatku okna vuci obrazovce. */
 	  Composite widget = getParentWidget();
 	  Point position = widget.toDisplay(0, 0);
-	  return new SbVec2s((short)position.x, (short)position.y);
+	  return new SbVec2i32((int)position.x, (int)position.y);
 	}
 
-	private void setCursorPosition(final SbVec2s position)
+	private void setCursorPosition(final SbVec2i32 position)
 	{
 	  /* Nastaveni absolutni pozice kurzoru. */
 		try {
@@ -148,12 +150,12 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	  
 	}
 
-	 private SbVec2s getCursorPosition()
+	 private SbVec2i32 getCursorPosition()
 	 {
 	   /* Ziskani absolutni pozice kurzoru. */
 	   //QPoint position = QCursor.pos();
 	   Point position = Display.getCurrent().getCursorLocation();		  
-	   return new SbVec2s((short)position.x, (short)position.y);
+	   return new SbVec2i32(position.x, position.y);
 	 }
 	 	
 	protected boolean processSoKeyboardEvent( SoKeyboardEvent event)

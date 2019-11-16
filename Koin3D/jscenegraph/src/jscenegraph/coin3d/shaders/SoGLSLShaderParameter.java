@@ -24,7 +24,11 @@
 
 package jscenegraph.coin3d.shaders;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
+import org.lwjgl.BufferUtils;
 
 import com.jogamp.opengl.GL2;
 
@@ -288,10 +292,14 @@ isValid( SoGLShaderObject  shader,
   final int[] tmpSize = new int[1];
   /*GLenum*/final int[] tmpType = new int[1];
   /*GLsizei*/final int[] length = new int[1];
-  /*COIN_GLchar*/byte[] myName = new byte[256];
+  /*COIN_GLchar*///byte[] myName = new byte[256];
+	ByteBuffer myName = BufferUtils.createByteBuffer(256);
   
   this.cacheName = name;
   this.isActive = false; // set uniform to inactive while searching
+  
+	ByteBuffer cacheNameBB = ByteBuffer.wrap(this.cacheName.getBytes(StandardCharsets.UTF_8));//BufferUtils.createByteBuffer(256);
+  
   
   // this will only happen once after the variable has been added so
   // it's not a performance issue that we have to search for it here.
@@ -300,12 +308,13 @@ isValid( SoGLShaderObject  shader,
                              tmpType, myName);
     int zeroIndex = 0;
     for(int index=0;index<256;index++) {
-    	if(myName[index]==0 || myName[index]=='[') { // YB : trim the [x]
+    	if(myName.get(index)==0 || myName.get(index)=='[') { // YB : trim the [x]
     		zeroIndex = index;
     		break;
     	}
     }
-    if (Objects.equals(this.cacheName , new String(myName,0,zeroIndex))) {
+    int mismatch = cacheNameBB.mismatch(myName);
+    if (mismatch == -1 || mismatch >= zeroIndex/*Objects.equals(this.cacheName , new String(myName,0,zeroIndex))*/) {
       this.cacheSize = tmpSize[0];
       this.cacheType = tmpType[0];
       this.isActive = true;

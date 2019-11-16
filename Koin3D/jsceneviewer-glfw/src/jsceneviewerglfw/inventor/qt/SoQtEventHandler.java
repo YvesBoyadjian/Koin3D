@@ -113,9 +113,9 @@ setUpCallbacks()
         // current one.
         if (!qtTimer.isActive() || nextEvent.operator_not_equal(currentDeadline)) {
             currentDeadline.copyFrom(nextEvent);
-            long msec = (nextEvent.operator_minus(SbTime.getTimeOfDay())).getMsecValue();
-            if (msec < 0) { msec = 0; }
-            qtTimer.start (msec);
+            long microsec = (nextEvent.operator_minus(SbTime.getTimeOfDay())).getMicrosecValue();
+            if (microsec < 0) { microsec = 0; }
+            qtTimer.start (microsec);
         }
     } else if (qtTimer.isActive()) {           // get rid of existing timer
         qtTimer.stop();

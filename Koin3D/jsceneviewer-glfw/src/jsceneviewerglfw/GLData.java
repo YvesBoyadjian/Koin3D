@@ -44,4 +44,5 @@ public class GLData {
 	public int accumRedSize;
 
 	public boolean grabCursor;
+	public boolean waitForRefresh;
 }

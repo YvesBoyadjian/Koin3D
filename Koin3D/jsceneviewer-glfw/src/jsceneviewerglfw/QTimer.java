@@ -36,10 +36,14 @@ public class QTimer {
 		return isActive;
 	}
 
-	public void start(long msec) {
+	/**
+	 * Java port : microsec instead of millisec
+	 * @param microsec
+	 */
+	public void start(long microsec) {
 		
 		isActive = true;
-		display.timerExec((int)msec, ()->{
+		display.timerExec( microsec, ()->{
 			if(isActive){
 				isActive = false;
 				callback.run(object);

@@ -63,6 +63,8 @@ public class Main {
 		viewer.setUpDirection(new SbVec3f(0,0,1));
 		SoCamera camera = viewer.getCameraController().getCamera();
 		
+		sg.setCamera(camera);
+		
 		camera.position.setValue(0,0,0);
 		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
 		

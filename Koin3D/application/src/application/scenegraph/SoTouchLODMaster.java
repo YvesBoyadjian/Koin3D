@@ -4,6 +4,7 @@
 package application.scenegraph;
 
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoNode;
 
 /**
@@ -13,6 +14,8 @@ import jscenegraph.database.inventor.nodes.SoNode;
 public class SoTouchLODMaster extends SoNode {
 	
 	private int counter;
+	
+	private SoCamera camera;
 
 	public void reset() {
 		counter = 0;
@@ -30,5 +33,12 @@ public class SoTouchLODMaster extends SoNode {
 		
 		reset();
 		super.GLRender(action);
+	}
+	public void setCamera(SoCamera camera) {
+		this.camera = camera;
+	}
+
+	public SoCamera getCamera() {
+		return camera;
 	}
 }

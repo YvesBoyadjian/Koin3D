@@ -160,10 +160,10 @@ public class RecursiveChunk {
 			SoCameraLOD cnode = (SoCameraLOD) node;			
 			cnode.setCamera(camera);
 		}
-		if( node instanceof SoTouchLOD2) {
-			SoTouchLOD2 cnode = (SoTouchLOD2) node;			
-			cnode.setCamera(camera);
-		}
+//		if( node instanceof SoTouchLOD2) {
+//			SoTouchLOD2 cnode = (SoTouchLOD2) node;			
+//			cnode.setCamera(camera);
+//		}
 		if( node instanceof SoGroup) {
 			SoGroup cnode = (SoGroup) node;			
 			for(int i= 0; i<cnode.getNumChildren();i++) {

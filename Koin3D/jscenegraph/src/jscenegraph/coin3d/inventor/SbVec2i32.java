@@ -23,6 +23,7 @@
 
 package jscenegraph.coin3d.inventor;
 
+import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.port.Mutable;
 
 /*!
@@ -63,5 +64,40 @@ public void copyFrom(Object other) {
 	 */
 	public int[] getValue() {
 		return vec;
+	}
+	
+	// java port
+	public int getX() {
+		return vec[0];
+	}
+
+	//java port
+	public int getY() {
+		return vec[1];
+	}
+
+	public SbVec2i32 operator_minus(SbVec2i32 v2) {
+		final SbVec2i32 v1 = this;
+	    return new SbVec2i32((int)(v1.vec[0] - v2.vec[0]),
+	                  (int)(v1.vec[1] - v2.vec[1]));
+	}
+	
+	public void operator_add_equal(SbVec2i32 other) {
+		vec[0] += other.getX();
+		vec[1] += other.getY();
+	}
+	
+	public SbVec2i32 setValue(int x, int y) {
+		
+		  vec[0] = x;
+		  vec[1] = y;
+		   
+		    return this;
+	}
+	
+	public SbVec2i32 operator_add(SbVec2i32 v2) {
+		final SbVec2i32 v1 = this;
+	    return new SbVec2i32((int)(v1.vec[0] + v2.vec[0]),
+	                  (int)(v1.vec[1] + v2.vec[1]));
 	}
 }

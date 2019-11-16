@@ -62,14 +62,14 @@ public class Display {
 		return current;
 	}
 
-	public void timerExec(int msec, Runnable object) {
-		long currentTimeMillis = Instant.now().toEpochMilli();
-		long startTime = currentTimeMillis + msec;
+	public void timerExec(long microsec, Runnable object) {
+		long currentTimeMicro = System.nanoTime()/1000;//Instant.now().toEpochMilli();
+		long startTimeMicro = currentTimeMicro + microsec;
 		
-		List<Runnable> runnablesForTime = timers.get(startTime);
+		List<Runnable> runnablesForTime = timers.get(startTimeMicro);
 		if( runnablesForTime == null) {
 			runnablesForTime = new ArrayList<>();
-			timers.put(startTime, runnablesForTime);
+			timers.put(startTimeMicro, runnablesForTime);
 		}
 		runnablesForTime.add(object);
 	}
@@ -111,13 +111,13 @@ public class Display {
 		})) {
 			glfwPollEvents();
 			
-			long currentTimeMillis = Instant.now().toEpochMilli();
+			long currentTimeMicro = System.nanoTime()/1000;//Instant.now().toEpochMilli();
 			
 			boolean treated;
 			//do {
 				treated = false;
 				for(Long timerStartTime : timers.keySet()) {
-					if(timerStartTime <= currentTimeMillis) {
+					if(timerStartTime <= currentTimeMicro) {
 						List<Runnable> runnables = timers.get(timerStartTime);
 						timers.remove(timerStartTime);
 						runnables.forEach(Runnable::run);

@@ -555,7 +555,7 @@ public void destructor()
 
 public void GLRender(SoGLRenderAction action)
 {
-	GL2 gl2 = new GL2() {};
+	GL2 gl2 = action.getState().getGL2();
 	
 	  if (this.coordIndex.getNum() < 3) return;
 	  SoState state = action.getState();

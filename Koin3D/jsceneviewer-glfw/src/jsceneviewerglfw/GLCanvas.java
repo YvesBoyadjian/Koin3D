@@ -80,8 +80,8 @@ public class GLCanvas extends Composite {
 
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
-		// Enable v-sync
-		glfwSwapInterval(1);
+		// Enable v-sync (or not)
+		glfwSwapInterval(format.waitForRefresh ? 1 : 0);
 
 		// Make the window visible
 		glfwShowWindow(window);

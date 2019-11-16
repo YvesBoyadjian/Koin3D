@@ -178,9 +178,11 @@ public abstract class SoSField<T extends Object> extends SoField {
     protected abstract T constructor();
     
     // java port
-	public void copyFrom(final SoField f) {
+	public final void copyFrom(final SoField f) {
 		SoSField<T> sf = (SoSField<T>)f;
-		copyValue(sf.value);
+		//copyValue(sf.value);
+		
+		setValue(sf.getValue()); // SO_SFIELD_REQUIRED_SOURCE
 	}
 	
 	// java port

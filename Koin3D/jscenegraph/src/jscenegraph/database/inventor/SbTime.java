@@ -228,6 +228,11 @@ public class SbTime implements Mutable {
 		return t.getSeconds() * 1000 + t.getMicroSeconds() / 1000;
 	}
 
+	public long getMicrosecValue() // System long
+	{
+		return t.getSeconds() * 1000000 + t.getMicroSeconds();
+	}
+
 	// ! Equality operators.
 	public boolean operator_not_equal(final SbTime tm) {
 		return !(this.operator_equal(tm));

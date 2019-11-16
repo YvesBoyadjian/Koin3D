@@ -56,6 +56,8 @@ public class SoCameraLOD extends SoGroup {
 	  public final SoSFVec3f center = new SoSFVec3f();
 
 	  private SoLODP pimpl;
+	  
+	  public static final int FRONT_DISTANCE = 0;//500;
 
 	  
 class SoLODP /*: public SoSoundElementHelper*/implements Destroyable
@@ -325,7 +327,7 @@ whichToTraverse(SoAction action)
   
   world_camera_direction.normalize();
   
-  model_xyz.add(world_camera_direction.operator_mul(500));
+  model_xyz.add(world_camera_direction.operator_mul(FRONT_DISTANCE));
   
   model_x = model_xyz.getX();
   model_y = model_xyz.getY();

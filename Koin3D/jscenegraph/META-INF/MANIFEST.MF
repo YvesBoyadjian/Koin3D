@@ -7,7 +7,7 @@ Bundle-Activator: jscenegraph.Activator
 Require-Bundle: lwjgl;bundle-version="1.0.0";visibility:=reexport,
  org.lwjglx;bundle-version="1.0.0",
  lwjgl-glfw;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.jogamp.common.nio,
  com.jogamp.opengl,
  com.jogamp.opengl.fixedfunc,

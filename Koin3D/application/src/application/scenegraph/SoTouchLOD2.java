@@ -21,8 +21,8 @@ import jscenegraph.database.inventor.nodes.SoNode;
  *
  */
 public class SoTouchLOD2 extends SoLOD {
-
-	public SoCamera camera; // ptr
+	
+	public static final int FRONT_DISTANCE = 0;//1000;
 
 	private int previousChild = -1;
 	
@@ -91,6 +91,8 @@ public class SoTouchLOD2 extends SoLOD {
 	  
 	  SbVec3f model_xyz = new SbVec3f();
 	  
+	  SoCamera camera = master.getCamera();
+
 	  SbVec3f world_camera_position = camera.position.getValue();
 
 	  SbVec3f world_camera_direction = camera.orientation.getValue().multVec(new SbVec3f(0,0,-1)); 
@@ -99,7 +101,7 @@ public class SoTouchLOD2 extends SoLOD {
 	  
 	  world_camera_direction.normalize();
 	  
-	  model_xyz.add(world_camera_direction.operator_mul(1000));
+	  model_xyz.add(world_camera_direction.operator_mul(FRONT_DISTANCE));
 	  
 	  model_x = model_xyz.getX();
 	  model_y = model_xyz.getY();
@@ -124,9 +126,4 @@ public class SoTouchLOD2 extends SoLOD {
 	  if (i >= this.getNumChildren()) i = this.getNumChildren() - 1;
 	  return i;
 	}
-
-	public void setCamera(SoCamera camera) {
-		this.camera = camera;
-	}
-
 }

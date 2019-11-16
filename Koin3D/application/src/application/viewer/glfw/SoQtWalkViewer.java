@@ -80,7 +80,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float EYES_HEIGHT = 1.7f;
 
-	final SbVec2f old_position = new SbVec2f();
+	final SbVec2f old_position = new SbVec2f(Float.NaN, Float.NaN);
 
 	protected float sensitivity = 1;
 	protected boolean invert = false;
@@ -119,7 +119,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 //			}
 //			
 //		});
-		old_position.copyFrom(getCursorPosition());
+//		old_position.copyFrom(getCursorPosition());
 
 		
 	}
@@ -131,14 +131,16 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  /* Zjisteni zmeny pozice kurzoru. */
 		  SbVec2f position = getCursorPosition();
 		  
-		  diff.operator_add_equal(old_position.operator_minus(position));
+		  if( ! Float.isNaN(old_position.getX())) {
 		  
-		  old_position.copyFrom( getPosition().operator_add( getCenter()));
+			  diff.operator_add_equal(old_position.operator_minus(position));
+		  
+		  //old_position.copyFrom( getPosition().operator_add( getCenter()));
 		  
 		  //setCursorPosition(old_position); //YB
 
-		  position = getCursorPosition();
-		  
+		  //position = getCursorPosition();
+		  }
 		  old_position.setValue(position.getX(), position.getY());
 		  
 		  //idle();

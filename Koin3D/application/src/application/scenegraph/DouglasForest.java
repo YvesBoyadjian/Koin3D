@@ -22,6 +22,7 @@ import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 
@@ -263,8 +264,8 @@ public class DouglasForest {
 //		}
 	}
 
-	public SoSeparator getDouglasTreesT(float distance) {
-		SoSeparator separator = new SoSeparator();
+	public SoGroup getDouglasTreesT(float distance) {
+		SoGroup separator = new SoGroup();
 		
 		for( DouglasChunk chunk : douglasChunks ) {
 			{
@@ -303,8 +304,8 @@ public class DouglasForest {
 		return separator;
 	}
 
-	public SoSeparator getDouglasTreesF(float distance, boolean withColors) {
-		SoSeparator separator = new SoSeparator();
+	public SoGroup getDouglasTreesF(float distance, boolean withColors) {
+		SoGroup separator = new SoGroup();
 		
 		for( DouglasChunk chunk : douglasChunks ) {
 			{

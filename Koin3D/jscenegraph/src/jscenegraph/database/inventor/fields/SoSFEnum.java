@@ -260,15 +260,15 @@ findEnumName(int val, final SbName[] name)
 
 	  
 	   	
-    // java port
-	public void copyFrom(final SoField f) {
-		super.copyFrom(f);
-		SoSFEnum ef = (SoSFEnum)f;
-        legalValuesSet = ef.legalValuesSet; //!< TRUE if setEnums called
-        numEnums = ef.numEnums;       //!< Number of enumeration values
-        enumValues = ef.enumValues;    //!< Enumeration values
-        enumNames = ef.enumNames;     //!< Mnemonic names of values
-	}	  
+    // java port (no)
+//	public void copyFrom(final SoField f) {
+//		super.copyFrom(f);
+//		SoSFEnum ef = (SoSFEnum)f;
+//        legalValuesSet = ef.legalValuesSet; //!< TRUE if setEnums called
+//        numEnums = ef.numEnums;       //!< Number of enumeration values
+//        enumValues = ef.enumValues;    //!< Enumeration values
+//        enumNames = ef.enumNames;     //!< Mnemonic names of values
+//	}	  
 
 
 ////////////////////////////////////////////////////////////////////////

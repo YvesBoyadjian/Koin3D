@@ -235,9 +235,21 @@ public static final int VALUE_CHUNK_SIZE        =32;
 												// is not notified on Field
 												// changed
 
-		@Override
-		protected Object clone() throws CloneNotSupportedException {
-			return super.clone();
+		public void copyFrom(Flags other) {
+			hasDefault = other.hasDefault; // !< Field is set to default value
+			ignored = other.ignored; // !< Field value is to be ignored
+			connected = other.connected; // !< Field connected from something
+			converted = other.converted; // !< Connection required converter
+			fromEngine = other.fromEngine; // !< Connection is from engine
+			connectionEnabled = other.connectionEnabled;// !< Connection is enabled
+			notifyEnabled = other.notifyEnabled; // !< Notification is enabled
+			hasAuditors = other.hasAuditors; // !< Connected, or FieldSensor
+			isEngineModifying = other.isEngineModifying;// !< Engine evaluating
+			readOnly = other.readOnly; // !< Must not write into
+										// ! this field
+			dirty = other.dirty; // !< Field was notified and
+									// ! needs evaluation
+			notifyContainerEnabled = other.notifyContainerEnabled; // !< If set to 0, the container
 		}
 	};
 
@@ -270,21 +282,17 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		}
 	}
 
-	public Flags flags = new Flags();
+	public final Flags flags = new Flags();
 
-	private SoFieldContainer container;
-	private SoFieldAuditorInfo auditorInfo;
+	private SoFieldContainer container; // ptr
+	private SoFieldAuditorInfo auditorInfo; // ptr
 
-	// java port
-	protected void copy(SoField other) {
-		try {
-			flags = (Flags) other.flags.clone();
-		} catch (CloneNotSupportedException e) {
-			throw new IllegalStateException(e);
-		}
-		container = other.container;
-		auditorInfo = other.auditorInfo;
-	}
+	// java port : no
+//	protected void copy(SoField other) {
+//			flags.copyFrom( other.flags);
+//		container = other.container;
+//		auditorInfo = other.auditorInfo;
+//	}
 
 	// Return the type identifier for this field instance (SoField *).
 	public final SoType getTypeId() {

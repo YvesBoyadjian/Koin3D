@@ -111,6 +111,8 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 	
 	int jstart;
 	
+	SoTouchLODMaster master;
+	
 	public SceneGraphIndexedFaceSet(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
 		this.zTranslation = zTranslation;
@@ -398,7 +400,7 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    SoTouchLODMaster master = new SoTouchLODMaster(); 
+	    master = new SoTouchLODMaster(); 
 	    
 	    landSep.addChild(rc.getGroup(master,250,true));
 	    
@@ -650,7 +652,7 @@ for(int is=0;is<4;is++) {
 	@Override
 	public void setCamera(SoCamera camera) {
 		// TODO Auto-generated method stub
-		
+	    master.setCamera(camera);	
 	}
 
 	@Override

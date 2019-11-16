@@ -154,11 +154,13 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	float current_z;
 	
-	SoSeparator douglasTreesF;
-	SoSeparator douglasTreesT;
+	SoGroup douglasTreesF;
+	SoGroup douglasTreesT;
 	
-	SoSeparator douglasTreesST;
-	SoSeparator douglasTreesSF;
+	SoGroup douglasTreesST;
+	SoGroup douglasTreesSF;
+	
+	SoTouchLODMaster master;
 	
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
@@ -498,7 +500,7 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    SoTouchLODMaster master = new SoTouchLODMaster();
+	    master = new SoTouchLODMaster();
 	    
 	    landSep.addChild(master);
 	    
@@ -604,7 +606,7 @@ for(int is=0;is<4;is++) {
 	    
 	    //RecursiveChunk rcS = chunks.getRecursiveChunk();
 	    
-	    shadowTree = rc.getShadowGroup(5000,false);
+	    shadowTree = rc.getShadowGroup(3000,false);
 	    shadowLandSep.addChild(shadowTree);
 	    
 	    //shadowLandSep.addChild(chunks.getShadowGroup());
@@ -822,35 +824,41 @@ for(int is=0;is<4;is++) {
 		
 		float zTransl = - transl.translation.getValue().getZ();
 		
+		float trees_x = current_x + xTransl+3000*world_camera_direction.getX();
+		float trees_y = current_y + yTransl+3000*world_camera_direction.getY();
+		
 		for(SoNode node : douglasTreesT.getChildren()) {
 			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
 			lifs.referencePoint.setValue(
-					current_x + xTransl+3000*world_camera_direction.getX(),
-					current_y + yTransl+3000*world_camera_direction.getY(),
+					/*current_x + xTransl+3000*world_camera_direction.getX()*/trees_x,
+					/*current_y + yTransl+3000*world_camera_direction.getY()*/trees_y,
 					current_z + zTransl);
 		}
 				
 		for(SoNode node : douglasTreesF.getChildren()) {
 			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
 			lifs.referencePoint.setValue(
-					current_x + xTransl+3000*world_camera_direction.getX(),
-					current_y + yTransl+3000*world_camera_direction.getY(),
+					/*current_x + xTransl+3000*world_camera_direction.getX()*/trees_x,
+					/*current_y + yTransl+3000*world_camera_direction.getY()*/trees_y,
 					current_z + zTransl);
 		}
 				
+		float treesS_x = current_x + xTransl+1000*world_camera_direction.getX();
+		float treesS_y = current_y + yTransl+1000*world_camera_direction.getY();
+		
 		for (SoNode node : douglasTreesST.getChildren()) {
 			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
 			lifs.referencePoint.setValue(
-					current_x + xTransl+1000*world_camera_direction.getX(), 
-					current_y + yTransl+1000*world_camera_direction.getY(), 
+					/*current_x + xTransl+1000*world_camera_direction.getX()*/treesS_x, 
+					/*current_y + yTransl+1000*world_camera_direction.getY()*/treesS_y, 
 					current_z + zTransl);
 		}
 				
 		for (SoNode node : douglasTreesSF.getChildren()) {
 			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
 			lifs.referencePoint.setValue(
-					current_x + xTransl+1000*world_camera_direction.getX(), 
-					current_y + yTransl+1000*world_camera_direction.getY(), 
+					/*current_x + xTransl+1000*world_camera_direction.getX()*/treesS_x, 
+					/*current_y + yTransl+1000*world_camera_direction.getY()*/treesS_y, 
 					current_z + zTransl);
 		}
 				
@@ -1013,7 +1021,7 @@ for(int is=0;is<4;is++) {
 		
 	}
 		
-	SoSeparator getDouglasTreesT(float distance) {
+	SoGroup getDouglasTreesT(float distance) {
 		
 		if( forest == null) {
 			computeDouglas();
@@ -1022,7 +1030,7 @@ for(int is=0;is<4;is++) {
 		return forest.getDouglasTreesT(distance);			
 	}	
 	
-	SoSeparator getDouglasTreesF(float distance, boolean withColors) {
+	SoGroup getDouglasTreesF(float distance, boolean withColors) {
 		
 		if( forest == null) {
 			computeDouglas();
@@ -1051,6 +1059,7 @@ for(int is=0;is<4;is++) {
 	@Override
 	public void setCamera(SoCamera camera) {
 		this.camera = camera;
+	    master.setCamera(camera);	
 		RecursiveChunk.setCamera(chunkTree, camera);
 		RecursiveChunk.setCamera(shadowTree, camera);		
 	}

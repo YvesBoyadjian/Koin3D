@@ -158,6 +158,13 @@ public class cc_glglue {
 		bb.get(myName);
 	}
 
+	public void glGetActiveUniformARB(int pHandle, int index, int[] length, int[] tmpSize, int[] tmpType,
+			ByteBuffer name) {
+		//ByteBuffer bb = Buffers.newDirectByteBuffer(myName);
+		ARBShaderObjects.glGetActiveUniformARB(pHandle,index,length,tmpSize,tmpType,name);
+		//bb.get(myName);
+	}
+
 	  static final String INVALID_VALUE = "GL_INVALID_VALUE";
 	  static final String INVALID_ENUM = "GL_INVALID_ENUM";
 	  static final String INVALID_OPERATION = "GL_INVALID_OPERATION";
