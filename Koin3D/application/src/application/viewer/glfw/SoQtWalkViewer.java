@@ -78,7 +78,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float SPEED = /*GOD;*/USAIN_BOLT_RUN;
 	
-	private final static float EYES_HEIGHT = 1.7f;
+	private final static float EYES_HEIGHT = 1.65f;
 
 	final SbVec2f old_position = new SbVec2f(Float.NaN, Float.NaN);
 
@@ -104,6 +104,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
+		setKeyCommandsEnabled(false);
 	}
 
 	public void buildWidget(int style) {
@@ -264,7 +265,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  glfwSetWindowShouldClose(getGLWidget().getWindow(), true);
 		    return true;
 		  }
-		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.W))
+		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.W) ||
+				  SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.UP_ARROW))
 		  {
 			  if(!keysDown.contains(SoKeyboardEvent.Key.W)) {
 				  lastTimeSec = System.nanoTime()/1.0e9;
@@ -272,7 +274,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  }
 			  return true;
 		  }
-		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.S))
+		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.S) ||
+				  SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.DOWN_ARROW))
 		  {
 			  //lastTimeSec = System.nanoTime()/1.0e9;
 			  if(!keysDown.contains(SoKeyboardEvent.Key.S)) {
@@ -281,7 +284,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  }
 			  return true;
 		  }
-		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.A))
+		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.A) ||
+				  SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.LEFT_ARROW))
 		  {
 			  //lastTimeSec = System.nanoTime()/1.0e9;
 			  if(!keysDown.contains(SoKeyboardEvent.Key.A)) {
@@ -290,7 +294,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  }
 			  return true;
 		  }
-		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.D))
+		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.D) ||
+				  SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.RIGHT_ARROW))
 		  {
 			  //lastTimeSec = System.nanoTime()/1.0e9;
 			  if(!keysDown.contains(SoKeyboardEvent.Key.D)) {
@@ -299,23 +304,27 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  }
 			  return true;
 		  }
-		  else if (SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.W)) {
+		  else if (SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.W) ||
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.UP_ARROW)) {
 			  keysDown.remove(SoKeyboardEvent.Key.W);
 			  return true;
 			  
 		  }
 		  else if(
-				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.S) ) {
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.S) ||
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.DOWN_ARROW)) {
 			  keysDown.remove(SoKeyboardEvent.Key.S);			  					  
 			  return true;
 				  }
 		  else if(
-				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.A) ) {
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.A) ||
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.LEFT_ARROW)) {
 			  keysDown.remove(SoKeyboardEvent.Key.A);			  
 			  return true;
 		  }
 		  else if(
-				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.D)) {
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.D) ||
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.RIGHT_ARROW)) {
 			  keysDown.remove(SoKeyboardEvent.Key.D);			 			  
 			  return true;
 		  }

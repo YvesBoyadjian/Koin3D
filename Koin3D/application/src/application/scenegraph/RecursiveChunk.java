@@ -253,6 +253,8 @@ public class RecursiveChunk {
 				}
 				sceneCenter.setValue(sceneBox.getCenter());
 				//saveDecimatedVertices(); // load does not accelerate loading
+				
+				//System.out.println("loadRC");
 			}
 		}
 		return decimatedVertices;
