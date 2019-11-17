@@ -18,7 +18,7 @@ public class SoShaderGenerator {
 		  String defines;
 		  String declarations;
 		  String functions;
-		  String main;
+		  StringBuilder main;
 		  
 		  boolean dirty;
 		  String combined;
@@ -45,7 +45,7 @@ public class SoShaderGenerator {
 		  this.defines = "";//.makeEmpty(freeoldstrings);
 		  this.declarations = "";//.makeEmpty(freeoldstrings);
 		  this.functions = "";//.makeEmpty(freeoldstrings);
-		  this.main = "";//.makeEmpty(freeoldstrings);
+		  this.main = new StringBuilder();//.makeEmpty(freeoldstrings);
 		  this.combined = "";//.makeEmpty(freeoldstrings);
 		  this.dirty = false;
 		}
@@ -126,8 +126,8 @@ public class SoShaderGenerator {
 		addMainStatement( String str)
 		{
 		  this.dirty = true;
-		  this.main += str;
-		  this.main += "\n";
+		  this.main.append( str);
+		  this.main.append( "\n");
 		}
 
 		/*!
@@ -144,7 +144,7 @@ public class SoShaderGenerator {
 		    this.combined += this.declarations;
 		    this.combined += this.functions;
 		    this.combined += "void main(void) {\n";
-		    this.combined += this.main;
+		    this.combined += this.main.toString();
 		    this.combined += "}\n";
 		  }
 		  return this.combined;
