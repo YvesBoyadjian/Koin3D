@@ -205,7 +205,7 @@ GLRenderBelowPath(SoGLRenderAction action)
   int idx = this.whichToTraverse(action);
   if (idx >= 0) {
     SoNode child = (SoNode) this.children.get(idx);
-    action.pushCurPath(idx/*, child*/);//TODO
+    action.pushCurPath(idx, child);
     if (!action.abortNow()) {
       //SoNodeProfiling profiling; TODO
       //profiling.preTraversal(action);
@@ -231,7 +231,7 @@ GLRenderInPath(SoGLRenderAction action)
     for (int i = 0; (i < numindices[0]) && !action.hasTerminated(); i++) {
       int idx = indices[0][i];
       SoNode node = this.getChild(idx);
-      action.pushCurPath(idx/*, node*/); //TODO
+      action.pushCurPath(idx, node);
       if (!action.abortNow()) {
         //SoNodeProfiling profiling; TODO
         //profiling.preTraversal(action);
@@ -255,7 +255,7 @@ GLRenderOffPath(SoGLRenderAction action)
   if (idx >= 0) {
     SoNode node = this.getChild(idx);
     if (node.affectsState()) {
-      action.pushCurPath(idx/*, node*/); //TODO
+      action.pushCurPath(idx, node);
       if (!action.abortNow()) {
         //SoNodeProfiling profiling; TODO
         //profiling.preTraversal(action);

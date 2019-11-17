@@ -250,6 +250,16 @@ public void GLRender(SoGLRenderAction action)
     SoLightAttenuationElement.set(action.getState(), this,
                                    attenuation.getValue());
 
+    // Coin3D
+    SoEnvironmentElement.set(action.getState(),
+            this,
+            this.ambientIntensity.getValue(),
+            this.ambientColor.getValue(),
+            this.attenuation.getValue(),
+            (int)fogType.getValue(),
+            this.fogColor.getValue(),
+            this.fogVisibility.getValue());
+    
     //////////////////////
     //
     // Set up fog.
@@ -313,6 +323,14 @@ public void callback(SoCallbackAction action)
 {
     SoLightAttenuationElement.set(action.getState(), this,
                                    attenuation.getValue());
+    SoEnvironmentElement.set(action.getState(),
+            this,
+            this.ambientIntensity.getValue(),
+            this.ambientColor.getValue(),
+            this.attenuation.getValue(),
+            (int)fogType.getValue(),
+            this.fogColor.getValue(),
+            this.fogVisibility.getValue());
 }
 
 ////////////////////////////////////////////////////////////////////////

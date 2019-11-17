@@ -57,7 +57,14 @@ package jscenegraph.database.inventor.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import jscenegraph.coin3d.inventor.annex.profiler.SbProfilingData;
+import jscenegraph.coin3d.inventor.annex.profiler.SoProfiler;
+import jscenegraph.coin3d.inventor.annex.profiler.SoProfilerP;
+import jscenegraph.coin3d.inventor.annex.profiler.elements.SoProfilerElement;
+import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SbTime;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoFullPath;
 import jscenegraph.database.inventor.SoLightPath;
@@ -143,39 +150,39 @@ public abstract class SoAction implements Destroyable {
     	     
       private    	       static SoType       classTypeId;            
     	   
-      private    	       class AppliedTo {
-    	           AppliedCode             code;
-    	           SoNode                  node;          
-    	           SoPath                  path;          
-    	           SoPathList        pathList;      
-    	           SoPathList        origPathList;
-    	           SoCompactPathList       compactPathList;
-    	           boolean                     isLastPathList;
-    	          PathCode                curPathCode;
-    	          
-    	          public void copyFrom(AppliedTo from) {
-    	        	  code = from.code;
-    	        	  node = from.node;
-    	        	  path = from.path;
-    	        	  pathList = from.pathList;
-    	        	  origPathList = from.origPathList;
-    	        	  compactPathList = from.compactPathList;
-    	        	  isLastPathList = from.isLastPathList;
-    	        	  curPathCode = from.curPathCode;
-    	          }
-    	       }
-      private final AppliedTo appliedTo = new AppliedTo();
+//      private    	       class AppliedTo {
+//    	           AppliedCode             code;
+//    	           SoNode                  node;          
+//    	           SoPath                  path;          
+//    	           SoPathList        pathList;      
+//    	           SoPathList        origPathList;
+//    	           SoCompactPathList       compactPathList;
+//    	           boolean                     isLastPathList;
+//    	          //PathCode                curPathCode;
+//    	          
+//    	          public void copyFrom(AppliedTo from) {
+//    	        	  code = from.code;
+//    	        	  node = from.node;
+//    	        	  path = from.path;
+//    	        	  pathList = from.pathList;
+//    	        	  origPathList = from.origPathList;
+//    	        	  compactPathList = from.compactPathList;
+//    	        	  isLastPathList = from.isLastPathList;
+//    	        	  //curPathCode = from.curPathCode;
+//    	          }
+//    	       }
+//      private final AppliedTo appliedTo = new AppliedTo();
     	   
-      private    	       boolean              isBeingApplied;
+      //private    	       boolean              isBeingApplied;
     	   
       //private    	       final SoLightPath         curPath;
     	   
-      private    	       SoTempPath         tempPath;
+      //private    	       SoTempPath         tempPath;
     	    
     	   
-      private    	       int                 enabledElementsCounter;
+      //private    	       int                 enabledElementsCounter;
 	   
-      private    	       boolean              terminated;
+      //private    	       boolean              terminated;
 	   
       private    	       int                 index;
 
@@ -196,7 +203,10 @@ public abstract class SoAction implements Destroyable {
     	       protected SoAction() {
     	    	   //curPath = new SoLightPath(32);
     	    	   //SO_ACTION_CONSTRUCTOR(SoAction);
-    	    	   traversalMethods = methods;
+    	    	   state = null;
+    	    	   traversalMethods = null; // methods; COIN3D
+    	    	   //currentpath = new SoTempPath(8);
+    	    	   currentpathcode = PathCode.NO_PATH;
     	    	   
 //    	    	   #ifdef DEBUG
     	    	        if (! SoDB.isInitialized())
@@ -204,18 +214,20 @@ public abstract class SoAction implements Destroyable {
     	    	                               "Cannot construct actions before "+
     	    	                               "calling SoDB.init()");
 //    	    	    #endif /* DEBUG */
+    	    	        
+    	    	        pimpl.appliedcode = AppliedCode.NODE;
+    	    	        pimpl.applieddata.node = null;
+    	    	        pimpl.terminated = false;
+    	    	        pimpl.prevenabledelementscounter = 0;
+    	    	        
+    	    	        currentpath.ref(); // to avoid having a zero refcount instance
     	    	    
-    	    	        isBeingApplied      = false;
-    	    	        appliedTo.node      = null;
-    	    	        appliedTo.path      = null;
-    	    	        appliedTo.pathList  = null;
-    	    	        state               = null;
-    	    	        terminated          = false;
-    	    	        tempPath            = null;
+    	    	        //isBeingApplied      = false;
+    	    	        //tempPath            = null;
     	    	    
     	    	        // Make sure enabled elements list is set up the first time this
     	    	        // is applied.
-    	    	        enabledElementsCounter = -1;
+    	    	        //enabledElementsCounter = -1;
     	    	       	       }
     	       
 ////////////////////////////////////////////////////////////////////////
@@ -226,78 +238,230 @@ public abstract class SoAction implements Destroyable {
 //Use: protected
 
     	       public void destructor() {
-    if (appliedTo.node != null)
-        appliedTo.node.unref();
-
-    if (appliedTo.path != null)
-        appliedTo.path.unref();
-
-    if (state != null)
-        state.destructor();
-    if (tempPath != null)
-        tempPath.unref();      
     	    	   
+    	    	   int n = pimpl.pathcodearray.getLength();
+    	    	   for (int i = 0; i < n; i++) Destroyable.delete( pimpl.pathcodearray.operator_square_bracket(i));
+    	    	   Destroyable.delete( this.state);
+
+    	    	   this.currentpath.unrefNoDelete(); // to match the ref() in the constructor
+    	    	   
+    	    	   Destroyable.delete(currentpath); // java port    	    	   
+    	    	   Destroyable.delete(pimpl); // java port
     	       }
     	
     	       //! Returns code indicating what action is being applied to
-    	     public       AppliedCode         getWhatAppliedTo()    { return appliedTo.code; }
+    	       /*!
+    	       Returns a code indicating what (node, path, or pathlist) the action
+    	       instance is being applied to.
+    	     */
+    	     public       AppliedCode         getWhatAppliedTo()    {
+    	    	  return pimpl.appliedcode;
+    	    	 }
     	        
     	            //! These returns a pointer to the node, path, or path list the
     	            //! action is being applied to. Each returns NULL if the action is
     	            //! not being applied to the appropriate class.
-    	     public SoNode             getNodeAppliedTo()   { return appliedTo.node; }
-    	     public SoPath             getPathAppliedTo()   { return appliedTo.path; }
-    	           	       
+    	     public SoNode             getNodeAppliedTo()   {
+    	    	  return pimpl.appliedcode == SoAction.AppliedCode.NODE ? pimpl.applieddata.node : null;
+    	    	 }
+    	     public SoPath             getPathAppliedTo()   {
+    	    	  return pimpl.appliedcode == SoAction.AppliedCode.PATH ? pimpl.applieddata.path : null;
+    	    	 }
+
+	            private static boolean first = true;
+    	     
 	 //
 	   // Description:
 	   //    Applies action to the graph rooted by a node.
 	   //
 	   // Use: public
-	   	public void apply(SoNode node) {
+	   	public void apply(SoNode root) {
 		
 //	   	 #ifdef DEBUG
 	          // Check for the common user error of applying an action to an
 	          // unreferenced root. This may save some grief.
-	          if (node.getRefCount() == 0)
+	          if (root.getRefCount() == 0)
 	              SoDebugError.postWarning("SoAction.apply",
 	                                        "Action applied to a node with a 0 "+
 	                                        "reference count. Did you forget to call "+
 	                                        "ref() on the node?");
 //	      #endif /* DEBUG */
-	      
-	          // If we are already in the middle of being applied, save the
-	          // current state of what we are applied to, so we can restore it
-	          // afterwards. This happens, for example, when the
-	          // SoGLRenderAction applies itself to traverse transparent paths
-	          // after normal traversal.
-	          boolean              needToRestore = isBeingApplied;
-	          final AppliedTo    saveAppliedTo = new AppliedTo();
-	      
-	          if (isBeingApplied)
-	              saveAppliedTo.copyFrom(appliedTo);
-	      
-	          isBeingApplied = true;
-	      
-	          appliedTo.code = AppliedCode.NODE;
-	          appliedTo.node = node;
-	          appliedTo.node.ref();
-	          appliedTo.curPathCode = PathCode.NO_PATH;
-	      
-	          currentpath.setHead(node);
-	          terminated = false;
-	      
-	          setUpState();
-	      
-	          beginTraversal(node);
-	          endTraversal(node); // COIN3D
-	      
-	          cleanUp();
-	      
-	          // Restore to previous state if necessary
-	          if (needToRestore)
-	              appliedTo.copyFrom(saveAppliedTo);
-	      
-	          isBeingApplied = needToRestore;
+//	      
+//	          // If we are already in the middle of being applied, save the
+//	          // current state of what we are applied to, so we can restore it
+//	          // afterwards. This happens, for example, when the
+//	          // SoGLRenderAction applies itself to traverse transparent paths
+//	          // after normal traversal.
+//	          boolean              needToRestore = isBeingApplied;
+//	          final AppliedTo    saveAppliedTo = new AppliedTo();
+//	          PathCode storedcurr = this.currentpathcode;
+//	      
+//	          if (isBeingApplied)
+//	              saveAppliedTo.copyFrom(appliedTo);
+//	      
+//	          isBeingApplied = true;
+//	      
+//	          appliedTo.code = AppliedCode.NODE;
+//	          appliedTo.node = node;
+//	          appliedTo.node.ref();
+//	          /*appliedTo.curPathCode*/currentpathcode = PathCode.NO_PATH;
+//	      
+//	          currentpath.setHead(node);
+//	          terminated = false;
+//	      
+//	          setUpState();
+//	      
+//	          beginTraversal(node);
+//	          endTraversal(node); // COIN3D
+//	      
+//	          cleanUp();
+//	      
+//	          // Restore to previous state if necessary
+//	          if (needToRestore)
+//	              appliedTo.copyFrom(saveAppliedTo);
+//	          
+//	          this.currentpathcode = storedcurr; // COIN3D
+//	      
+//	          isBeingApplied = needToRestore;
+	          
+	          SoDB.readlock();
+	          // need to store these in case action is re-applied
+	          AppliedCode storedcode = pimpl.appliedcode;
+	          SoActionP.AppliedData storeddata = new SoActionP.AppliedData();
+	          storeddata.copyFrom(pimpl.applieddata);
+	          PathCode storedcurr = this.currentpathcode;
+
+	          // This is a pretty good indicator on whether or not we remembered
+	          // to use the SO_ACTION_CONSTRUCTOR() macro in the constructor of
+	          // the SoAction subclass.
+	          assert(this.traversalMethods != null);
+	          this.traversalMethods.setUp();
+
+	          pimpl.terminated = false;
+
+	          this.currentpathcode = SoAction.PathCode.NO_PATH;
+	          pimpl.applieddata.node = root;
+	          pimpl.appliedcode = SoAction.AppliedCode.NODE;
+
+	          if (root != null) {
+	        //#if COIN_DEBUG
+	            if ((root.getRefCount() == 0) && first) {
+
+	              // This problem has turned out to be a FAQ, the reason probably
+	              // being that it "works" under SGI / TGS Inventor with no
+	              // warning that the client application code is actually buggy.
+	              //
+	              // We prefer to spit out a verbose warning to aid the
+	              // application programmer in finding the bug quickly instead of
+	              // her having to track down the bug due to some _really_ nasty
+	              // sideeffects later.
+
+	              SoDebugError.postWarning("SoAction::apply",
+
+	                                        "The root node that the "+this.getTypeId().getName().getString()+" was applied to "+
+	                                        "has a reference count equal to zero. "+
+
+	                                        "This is a bug in your application code which "+
+	                                        "you should rectify: you need to ref() (and "+
+	                                        "later unref()) the top-level root node to "+
+	                                        "make sure you avoid memory leaks (bad) and "+
+	                                        "/ or premature memory destruction (*really* "+
+	                                        "bad) under certain conditions. "+
+
+	                                        "Coin has an internal workaround to avoid "+
+	                                        "just responding with mysterious crashes, "+
+	                                        "but as it is not possible to cover _all_ "+
+	                                        "cases of what can go wrong with this "+
+	                                        "workaround you are *strongly* advised to "+
+	                                        "fix the bug in your application code."
+
+	                                        );
+	              first = false;
+	            }
+	        //#endif // COIN_DEBUG
+	            // So the graph is not deallocated during traversal.
+	            root.ref();
+	            this.currentpath.setHead(root);
+
+	            // make sure state is created before traversing
+	            this.getState();
+
+	            // send events to overlay graph first
+	            if (SoProfiler.isEnabled() &&
+	                SoProfiler.isOverlayActive() &&
+	                this.isOfType(SoHandleEventAction.getClassTypeId()))
+	            {
+	              // FIXME: also check that the scene graph view is actually enabled, or
+	              // else this is of no point - sending events to the overlay scene
+	              // graph.
+
+	              SoNode profileroverlay = SoActionP.getProfilerOverlay();
+	              if (profileroverlay != null) {
+	                SoProfiler.enable(false);
+	                this.beginTraversal(profileroverlay);
+	                this.endTraversal(profileroverlay);
+	                SoProfiler.enable(true);
+	              }
+
+	              // FIXME: if there was a hit on the overlay scene graph view and
+	              // the scene graph view is modified, then we should schedule a
+	              // redraw.  However, the isHandled() flag isn't affected by that
+	              // change for now, so there's no way to detect it.
+	              //if (static_cast<SoHandleEventAction *>(this)->isHandled()) {
+	              //  root->touch();
+	              //}
+
+	            }
+
+	            // start profiling
+	            if (SoProfiler.isEnabled() &&
+	                state.isElementEnabled(SoProfilerElement.getClassStackIndex(SoProfilerElement.class))) {
+	              SoProfilerElement elt = SoProfilerElement.get(state);
+	              assert(elt != null);
+	              SbProfilingData data = elt.getProfilingData();
+	              data.reset();
+	              data.setActionType(this.getTypeId());
+	              data.setActionStartTime(SbTime.getTimeOfDay());
+	            }
+
+	            this.beginTraversal(root);
+	            this.endTraversal(root);
+
+	            if (SoProfiler.isEnabled() &&
+	                state.isElementEnabled(SoProfilerElement.getClassStackIndex(SoProfilerElement.class))) {
+	              SoProfilerElement elt = SoProfilerElement.get(state);
+	              assert(elt != null);
+	              SbProfilingData data = elt.getProfilingData();
+	              data.setActionStopTime(SbTime.getTimeOfDay());
+	            }
+
+	            if (SoProfiler.isOverlayActive() &&
+	                !this.isOfType(SoGLRenderAction.getClassTypeId())) {
+	              // update profiler stats node with the profiling data from the traversal
+	              SoNode profilerstats = SoActionP.getProfilerStatsNode();
+	              SoProfiler.enable(false);
+	              this.traverse(profilerstats);
+	              SoProfiler.enable(true);
+	            }
+
+	            if (SoProfiler.isConsoleActive()) {
+	              SoType profileactiontype = SoProfilerP.getActionType();
+	              if (this.isOfType(SoProfilerP.getActionType())) {
+	                SoProfilerElement pelt = SoProfilerElement.get(state);
+	                if (pelt != null) {
+	                  SbProfilingData pdata = pelt.getProfilingData();
+	                  SoProfilerP.dumpToConsole(pdata);
+	                }
+	              }
+	            }
+
+	            pimpl.applieddata.node = null;
+	            root.unrefNoDelete();
+	          }
+	          pimpl.appliedcode = storedcode;
+	          pimpl.applieddata.copyFrom( storeddata);
+	          this.currentpathcode = storedcurr;
+	          SoDB.readunlock();
 	      	}
 	   	
 
@@ -308,6 +472,18 @@ public abstract class SoAction implements Destroyable {
 	     //
 	     // Use: public
 	     
+	   	/*!
+	    Applies the action to the parts of the graph defined by \a path.
+
+	    Note that an SoPath will also contain all nodes that may influence
+	    e.g. geometry nodes in the path. So for instance applying an
+	    SoGLRenderAction on an SoPath will render that path as expected in
+	    the view, where geometry will get its materials, textures, and other
+	    appearance settings correctly.
+
+	    If the \a path ends in an SoGroup node, the action will also
+	    traverse the tail node's children.
+	  */
 	    public void
 	     apply(SoPath path)
 	     //
@@ -324,53 +500,101 @@ public abstract class SoAction implements Destroyable {
 	         }
 //	     #endif /* DEBUG */
 	     
-	         // If we are already in the middle of being applied, save the
-	         // current state of what we are applied to, so we can restore it
-	         // afterwards. This happens, for example, when the
-	         // SoGLRenderAction applies itself to traverse transparent paths
-	         // after normal traversal.
-	         boolean              needToRestore = isBeingApplied;
-	         final AppliedTo    saveAppliedTo = new AppliedTo();
-	     
-	         if (isBeingApplied)
-	             saveAppliedTo.copyFrom(appliedTo);
-	     
-	         isBeingApplied = true;
-	     
-	         appliedTo.code = AppliedCode.PATH;
-	         appliedTo.path = path;
-	         appliedTo.path.ref();
-	         appliedTo.curPathCode = ((SoFullPath.cast(path).getLength() == 1) ?
-	                                  PathCode.BELOW_PATH : PathCode.IN_PATH);
-	     
-	         currentpath.setHead(path.getHead());
-	         terminated    = false;
-	     
-	         setUpState();
-	     
-	         beginTraversal(path.getHead());
-	         endTraversal(path.getHead()); // COIN3D
-	     
-	         cleanUp();
-	    
-	         // Restore to previous state if necessary
-	         if (needToRestore) {
-	             appliedTo.copyFrom(saveAppliedTo);
-	     
-	             // Restore the head of the path - we assume this is what was
-	             // in the current path when we got here. NOTE: This rules out
-	             // the possibility that the action was in the middle of being
-	             // applied to some graph; it requires that the recursive
-	             // apply() was called after the graph was traversed, so the
-	             // current path had only the head node in it (the cleanUp()
-	             // for the first apply() was not yet called).
-	             SoNode head = (appliedTo.code == AppliedCode.NODE ? appliedTo.node :
-	                             appliedTo.code == AppliedCode.PATH ? appliedTo.path.getHead() :
-	                             appliedTo.pathList.operator_square_bracket(0).getHead());
-	             currentpath.setHead(head);
+//	         // If we are already in the middle of being applied, save the
+//	         // current state of what we are applied to, so we can restore it
+//	         // afterwards. This happens, for example, when the
+//	         // SoGLRenderAction applies itself to traverse transparent paths
+//	         // after normal traversal.
+//	         boolean              needToRestore = isBeingApplied;
+//	         final AppliedTo    saveAppliedTo = new AppliedTo();
+//	     
+//	         if (isBeingApplied)
+//	             saveAppliedTo.copyFrom(appliedTo);
+//	         
+//	         PathCode storedcurr = this.currentpathcode;	         
+//	     
+//	         isBeingApplied = true;
+//	     
+//	         appliedTo.code = AppliedCode.PATH;
+//	         appliedTo.path = path;
+//	         appliedTo.path.ref();
+//	         /*appliedTo.curPathCode*/currentpathcode = ((SoFullPath.cast(path).getLength() == 1) ?
+//	                                  PathCode.BELOW_PATH : PathCode.IN_PATH);
+//	     
+//	         currentpath.setHead(path.getHead());
+//	         terminated    = false;
+//	     
+//	         setUpState();
+//	     
+//	         beginTraversal(path.getHead());
+//	         endTraversal(path.getHead()); // COIN3D
+//	     
+//	         cleanUp();
+//	    
+//	         // Restore to previous state if necessary
+//	         if (needToRestore) {
+//	             appliedTo.copyFrom(saveAppliedTo);
+//	     
+//	             // Restore the head of the path - we assume this is what was
+//	             // in the current path when we got here. NOTE: This rules out
+//	             // the possibility that the action was in the middle of being
+//	             // applied to some graph; it requires that the recursive
+//	             // apply() was called after the graph was traversed, so the
+//	             // current path had only the head node in it (the cleanUp()
+//	             // for the first apply() was not yet called).
+//	             SoNode head = (appliedTo.code == AppliedCode.NODE ? appliedTo.node :
+//	                             appliedTo.code == AppliedCode.PATH ? appliedTo.path.getHead() :
+//	                             appliedTo.pathList.operator_square_bracket(0).getHead());
+//	             currentpath.setHead(head);
+//	         }
+//	         this.currentpathcode = storedcurr;
+//	     
+//	         isBeingApplied = needToRestore;
+	         SoDB.readlock();
+	         // need to store these in case action in reapplied
+	         AppliedCode storedcode = pimpl.appliedcode;
+	         SoActionP.AppliedData storeddata = new SoActionP.AppliedData();
+	         storeddata.copyFrom(pimpl.applieddata);
+	         PathCode storedcurr = this.currentpathcode;
+
+	         // This is a pretty good indicator on whether or not we remembered
+	         // to use the SO_ACTION_CONSTRUCTOR() macro in the constructor of
+	         // the SoAction subclass.
+	         assert(this.traversalMethods != null);
+	         this.traversalMethods.setUp();
+
+	         pimpl.terminated = false;
+
+	       //#if COIN_DEBUG
+	         if (path.getRefCount() == 0) {
+	           SoDebugError.postWarning("SoAction::apply",
+	                                     "path has reference count equal to zero");
 	         }
-	     
-	         isBeingApplied = needToRestore;
+	       //#endif // COIN_DEBUG
+
+	         // So the path is not deallocated during traversal.
+	         path.ref();
+
+	         this.currentpathcode =
+	           path.getFullLength() > 1 ? SoAction.PathCode.IN_PATH : SoAction.PathCode.BELOW_PATH;
+	         pimpl.applieddata.path = path;
+	         pimpl.appliedcode = SoAction.AppliedCode.PATH;
+
+	         // make sure state is created before traversing
+	         this.getState();
+
+	         if (path.getLength() != 0 && path.getNode(0) != null) {
+	           SoNode node = path.getNode(0);
+	           this.currentpath.setHead(node);
+	           this.beginTraversal(node);
+	           this.endTraversal(node);
+	         }
+
+	         path.unrefNoDelete();
+	         pimpl.appliedcode = storedcode;
+	         pimpl.applieddata.copyFrom( storeddata);
+	         this.currentpathcode = storedcurr;
+	         SoDB.readunlock();
 	     }
 	     	   	
 	   	
@@ -381,10 +605,10 @@ public abstract class SoAction implements Destroyable {
 	     //! children that continue the paths and numIndices is set to the
 	     //! number of such children.
 	    public     PathCode    getPathCode(int[] numIndices, final int[][] indices)
-	             {   if (appliedTo.curPathCode == PathCode.IN_PATH) {
+	             {   if (/*appliedTo.curPathCode*/currentpathcode == PathCode.IN_PATH) {
 	                     usePathCode(numIndices, indices);
 	                 }
-	                 return appliedTo.curPathCode;
+	                 return /*appliedTo.curPathCode*/currentpathcode;
 	             }
 	     	   	
 	   	
@@ -428,45 +652,163 @@ public abstract class SoAction implements Destroyable {
 //
 // Use: public
 
-public void
-apply(final SoPathList pathList, final boolean obeysRules)
+//public void
+//apply(final SoPathList pathList, final boolean obeysRules)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    // Check for empty path list
+//    if (pathList.getLength() == 0)
+//        return;
 //
-////////////////////////////////////////////////////////////////////////
+//    // If path list obeys the rules, just apply the action to it
+//    if (obeysRules) {
+//        apply(pathList, pathList, true);
+//        return;
+//    }
+//
+//    //
+//    // Otherwise, we may have to break it into smaller lists that do
+//    // obey the rules
+//    //
+//
+//    // First, sort the paths
+//    final SoPathList  sortedPathList = new SoPathList(pathList);
+//    sortedPathList.sort();
+//
+//    // Remove any duplicate paths and any paths that continue through
+//    // the tail node of another path
+//    sortedPathList.uniquify();
+//
+//    int numPaths = sortedPathList.getLength();
+//
+//    // If all the remaining paths have the same head, just apply to
+//    // the sorted path list
+//    final SoNode firstHead = sortedPathList.operator_square_bracket(0).getHead();
+//    if (sortedPathList.operator_square_bracket(numPaths-1).getHead() == firstHead)
+//        apply(sortedPathList, pathList, true);
+//
+//    // Otherwise, we have to break the path list into smaller ones
+//    else
+//        splitPathList(sortedPathList, pathList);
+//}
+
+/*!
+  Applies action to the graphs defined by \a pathlist.  If \a
+  obeysrules is set to \c TRUE, \a pathlist must obey the following
+  four conditions (which is the case for path lists returned from
+  search actions for non-group nodes and path lists returned from
+  picking actions):
+
+  All paths must start at the same head node. All paths must be sorted
+  in traversal order. The paths must be unique. No path can continue
+  through the end point of another path.
+
+  \sa SoAction::apply(SoPath * path)
+*/
+public void
+apply(final SoPathList pathlist, boolean obeysrules)
 {
-    // Check for empty path list
-    if (pathList.getLength() == 0)
-        return;
+  SoDB.readlock();
+  // This is a pretty good indicator on whether or not we remembered
+  // to use the SO_ACTION_CONSTRUCTOR() macro in the constructor of
+  // the SoAction subclass.
+  assert(this.traversalMethods != null);
+  this.traversalMethods.setUp();
+  if (pathlist.getLength() == 0) {
+    SoDB.readunlock();
+    return;
+  }
 
-    // If path list obeys the rules, just apply the action to it
-    if (obeysRules) {
-        apply(pathList, pathList, true);
-        return;
+  // need to store these in case action in reapplied
+  AppliedCode storedcode = pimpl.appliedcode;
+  final SoActionP.AppliedData storeddata = new SoActionP.AppliedData(); storeddata.copyFrom( pimpl.applieddata);
+  PathCode storedcurr = this.currentpathcode;
+
+  pimpl.terminated = false;
+
+  // make sure state is created before traversing
+  this.getState();
+
+  pimpl.applieddata.pathlistdata.origpathlist = pathlist; // ptr
+  pimpl.applieddata.pathlistdata.pathlist = pathlist; // ptr
+  pimpl.applieddata.pathlistdata.compactlist = null;
+  pimpl.appliedcode = AppliedCode.PATH_LIST;
+  this.currentpathcode = pathlist.operator_square_bracket(0).getFullLength() > 1 ?
+    SoAction.PathCode.IN_PATH : SoAction.PathCode.BELOW_PATH;
+
+  if (obeysrules) {
+    // GoGoGo
+    if (this.shouldCompactPathList()) {
+      pimpl.applieddata.pathlistdata.compactlist = new SoCompactPathList(pathlist);
     }
+    this.currentpath.setHead(pathlist.operator_square_bracket(0).getHead());
+    this.beginTraversal(pathlist.operator_square_bracket(0).getHead());
+    this.endTraversal(pathlist.operator_square_bracket(0).getHead());
+    Destroyable.delete( pimpl.applieddata.pathlistdata.compactlist);
+    pimpl.applieddata.pathlistdata.compactlist = null;
+  }
+  else {
+    // make copy of path list and make sure it obeys rules
+    final SoPathList sortedlist = new SoPathList(pathlist);
+    // sort
+    sortedlist.sort();
+    // remove unnecessary paths
+    sortedlist.uniquify();
+    int num = sortedlist.getLength();
 
-    //
-    // Otherwise, we may have to break it into smaller lists that do
-    // obey the rules
-    //
+    // if all head nodes are the same we can traverse in one go
+    if (sortedlist.operator_square_bracket(0).getHead() == sortedlist.operator_square_bracket(num-1).getHead()) {
+      this.currentpath.setHead(sortedlist.operator_square_bracket(0).getHead());
+      pimpl.applieddata.pathlistdata.pathlist = sortedlist; // ptr
+      if (this.shouldCompactPathList()) {
+        pimpl.applieddata.pathlistdata.compactlist = new SoCompactPathList(sortedlist);
+      }
+      else {
+        pimpl.applieddata.pathlistdata.compactlist = null;
+      }
+      this.beginTraversal(sortedlist.operator_square_bracket(0).getHead());
+      this.endTraversal(sortedlist.operator_square_bracket(0).getHead());
+      Destroyable.delete( pimpl.applieddata.pathlistdata.compactlist);
+      pimpl.applieddata.pathlistdata.compactlist = null;
+    }
+    else {
+      // make one pass per head node. sortedlist is sorted on
+      // different head nodes first, so this is very easy
+      SoNode head; // ptr
+      final SoPathList templist = new SoPathList();
+      int i = 0;
+      while (i < num && !this.hasTerminated()) {
+        head = sortedlist.operator_square_bracket(i).getHead();
+        templist.append(sortedlist.operator_square_bracket(i));
+        i++;
+        while (i < num && sortedlist.operator_square_bracket(i).getHead() == head) {
+          templist.append(sortedlist.operator_square_bracket(i));
+          i++;
+        }
+        pimpl.applieddata.pathlistdata.pathlist = templist; // ptr
+        pimpl.appliedcode = AppliedCode.PATH_LIST;
+        this.currentpathcode = templist.operator_square_bracket(0).getFullLength() > 1 ?
+          SoAction.PathCode.IN_PATH : SoAction.PathCode.BELOW_PATH;
+        this.currentpath.setHead(templist.operator_square_bracket(0).getHead());
 
-    // First, sort the paths
-    final SoPathList  sortedPathList = new SoPathList(pathList);
-    sortedPathList.sort();
-
-    // Remove any duplicate paths and any paths that continue through
-    // the tail node of another path
-    sortedPathList.uniquify();
-
-    int numPaths = sortedPathList.getLength();
-
-    // If all the remaining paths have the same head, just apply to
-    // the sorted path list
-    final SoNode firstHead = sortedPathList.operator_square_bracket(0).getHead();
-    if (sortedPathList.operator_square_bracket(numPaths-1).getHead() == firstHead)
-        apply(sortedPathList, pathList, true);
-
-    // Otherwise, we have to break the path list into smaller ones
-    else
-        splitPathList(sortedPathList, pathList);
+        if (this.shouldCompactPathList()) {
+          pimpl.applieddata.pathlistdata.compactlist = new SoCompactPathList(templist);
+        }
+        else {
+          pimpl.applieddata.pathlistdata.compactlist = null;
+        }
+        this.beginTraversal(templist.operator_square_bracket(0).getHead());
+        Destroyable.delete( pimpl.applieddata.pathlistdata.compactlist);
+        pimpl.applieddata.pathlistdata.compactlist = null;
+        templist.truncate(0);
+      }
+    }
+  }
+  pimpl.appliedcode = storedcode;
+  pimpl.applieddata.copyFrom( storeddata);
+  this.currentpathcode = storedcurr;
+  SoDB.readunlock();
 }
 
 	   	
@@ -480,43 +822,43 @@ apply(final SoPathList pathList, final boolean obeysRules)
 //
 // Use: private
 
-private void
-splitPathList(final SoPathList sortedList,
-                        final SoPathList origPathList)
+//private void
+//splitPathList(final SoPathList sortedList,
+//                        final SoPathList origPathList)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    int         numPaths, curStart, i;
+//    SoNode      curHead;
 //
-////////////////////////////////////////////////////////////////////////
-{
-    int         numPaths, curStart, i;
-    SoNode      curHead;
-
-    numPaths = sortedList.getLength();
-
-    // Create a list to hold one of the split lists
-    final SoPathList  splitList = new SoPathList(numPaths);
-
-    // Split list while there are still paths to examine
-    curStart = 0;
-    while (curStart < numPaths) {
-
-        // Gather all paths with same head
-        curHead = sortedList.operator_square_bracket(curStart).getHead();
-        splitList.append(sortedList.operator_square_bracket(curStart));
-
-        for (i = curStart + 1; i < numPaths; i++) {
-            if (sortedList.operator_square_bracket(i).getHead() != curHead)
-                break;
-            splitList.append(sortedList.operator_square_bracket(i));
-        }
-
-        // Apply action to split list. Indicate that it's the last
-        // path list if there are no more paths after these.
-        apply(splitList, origPathList, i >= numPaths);
-
-        // Prepare for next set of paths
-        splitList.truncate(0);
-        curStart = i;
-    }
-}
+//    numPaths = sortedList.getLength();
+//
+//    // Create a list to hold one of the split lists
+//    final SoPathList  splitList = new SoPathList(numPaths);
+//
+//    // Split list while there are still paths to examine
+//    curStart = 0;
+//    while (curStart < numPaths) {
+//
+//        // Gather all paths with same head
+//        curHead = sortedList.operator_square_bracket(curStart).getHead();
+//        splitList.append(sortedList.operator_square_bracket(curStart));
+//
+//        for (i = curStart + 1; i < numPaths; i++) {
+//            if (sortedList.operator_square_bracket(i).getHead() != curHead)
+//                break;
+//            splitList.append(sortedList.operator_square_bracket(i));
+//        }
+//
+//        // Apply action to split list. Indicate that it's the last
+//        // path list if there are no more paths after these.
+//        apply(splitList, origPathList, i >= numPaths);
+//
+//        // Prepare for next set of paths
+//        splitList.truncate(0);
+//        curStart = i;
+//    }
+//}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -530,79 +872,94 @@ splitPathList(final SoPathList sortedList,
 //
 // Use: private
 
-private void
-apply(final SoPathList sortedList,
-                final SoPathList origPathList, boolean isLastPathList)
+//private void
+//apply(final SoPathList sortedList,
+//                final SoPathList origPathList, boolean isLastPathList)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    // If we are already in the middle of being applied, save the
+//    // current state of what we are applied to, so we can restore it
+//    // afterwards. This happens, for example, when the
+//    // SoGLRenderAction applies itself to traverse transparent paths
+//    // after normal traversal.
+//    boolean              needToRestore = isBeingApplied;
+//    final AppliedTo    saveAppliedTo = new AppliedTo();
 //
-////////////////////////////////////////////////////////////////////////
-{
-    // If we are already in the middle of being applied, save the
-    // current state of what we are applied to, so we can restore it
-    // afterwards. This happens, for example, when the
-    // SoGLRenderAction applies itself to traverse transparent paths
-    // after normal traversal.
-    boolean              needToRestore = isBeingApplied;
-    final AppliedTo    saveAppliedTo = new AppliedTo();
-
-    if (isBeingApplied)
-        saveAppliedTo.copyFrom(appliedTo);
-
-    isBeingApplied = true;
-
-    appliedTo.code = AppliedCode.PATH_LIST;
-    appliedTo.pathList       = sortedList;
-    appliedTo.origPathList   = origPathList;
-    appliedTo.isLastPathList = isLastPathList;
-    appliedTo.curPathCode    =
-        ((SoFullPath.cast( sortedList.operator_square_bracket(0))).getLength() == 1 ?
-         PathCode.BELOW_PATH : PathCode.IN_PATH);
-
-    currentpath.setHead(sortedList.operator_square_bracket(0).getHead());
-    terminated = false;
-
-    setUpState();
-
-    // If requested, create compact path lists for easier traversal
-    // and apply to them
-    if (shouldCompactPathLists())
-        appliedTo.compactPathList = new SoCompactPathList(sortedList);
-    else
-        appliedTo.compactPathList = null;
-
-    beginTraversal(sortedList.operator_square_bracket(0).getHead());
-    endTraversal(sortedList.operator_square_bracket(0).getHead());
-
-    cleanUp();
-
-    if (appliedTo.compactPathList != null)
-        /*delete*/ appliedTo.compactPathList.close();
-
-    // Restore to previous state if necessary
-    if (needToRestore) {
-        appliedTo.copyFrom(saveAppliedTo);
-
-        // Restore the head of the path - we assume this is what was
-        // in the current path when we got here. NOTE: This rules out
-        // the possibility that the action was in the middle of being
-        // applied to some graph; it requires that the recursive
-        // apply() was called after the graph was traversed, so the
-        // current path had only the head node in it (the cleanUp()
-        // for the first apply() was not yet called).
-        SoNode head = (appliedTo.code == AppliedCode.NODE ? appliedTo.node :
-                        appliedTo.code == AppliedCode.PATH ? appliedTo.path.getHead() :
-                        (appliedTo.pathList).operator_square_bracket(0).getHead());
-        currentpath.setHead(head);
-    }
-
-    isBeingApplied = needToRestore;
-}
+//    if (isBeingApplied)
+//        saveAppliedTo.copyFrom(appliedTo);
+//
+//    PathCode storedcurr = this.currentpathcode;    
+//    
+//    isBeingApplied = true;
+//
+//    appliedTo.code = AppliedCode.PATH_LIST;
+//    appliedTo.pathList       = sortedList;
+//    appliedTo.origPathList   = origPathList;
+//    appliedTo.isLastPathList = isLastPathList;
+//    /*appliedTo.curPathCode*/currentpathcode    =
+//        ((SoFullPath.cast( sortedList.operator_square_bracket(0))).getLength() == 1 ?
+//         PathCode.BELOW_PATH : PathCode.IN_PATH);
+//
+//    currentpath.setHead(sortedList.operator_square_bracket(0).getHead());
+//    terminated = false;
+//
+//    setUpState();
+//
+//    // If requested, create compact path lists for easier traversal
+//    // and apply to them
+//    if (shouldCompactPathLists())
+//        appliedTo.compactPathList = new SoCompactPathList(sortedList);
+//    else
+//        appliedTo.compactPathList = null;
+//
+//    beginTraversal(sortedList.operator_square_bracket(0).getHead());
+//    endTraversal(sortedList.operator_square_bracket(0).getHead());
+//
+//    cleanUp();
+//
+//    if (appliedTo.compactPathList != null)
+//        /*delete*/ appliedTo.compactPathList.close();
+//
+//    // Restore to previous state if necessary
+//    if (needToRestore) {
+//        appliedTo.copyFrom(saveAppliedTo);
+//
+//        // Restore the head of the path - we assume this is what was
+//        // in the current path when we got here. NOTE: This rules out
+//        // the possibility that the action was in the middle of being
+//        // applied to some graph; it requires that the recursive
+//        // apply() was called after the graph was traversed, so the
+//        // current path had only the head node in it (the cleanUp()
+//        // for the first apply() was not yet called).
+//        SoNode head = (appliedTo.code == AppliedCode.NODE ? appliedTo.node :
+//                        appliedTo.code == AppliedCode.PATH ? appliedTo.path.getHead() :
+//                        (appliedTo.pathList).operator_square_bracket(0).getHead());
+//        currentpath.setHead(head);
+//    }
+//    this.currentpathcode = storedcurr;
+//
+//    isBeingApplied = needToRestore;
+//}
 
 
 	   	
 	   	// Returns TRUE if the traversal has reached a termination condition. 
-	   	public boolean hasTerminated() {
-	   	 return terminated; 
-	   	}
+/*!
+  Returns \c TRUE if the action was prematurely terminated.
+
+  Note that the termination flag will be \c FALSE if the action simply
+  completed its run over the scene graph in the "ordinary" fashion,
+  i.e. was not explicitly aborted from any of the nodes in the graph.
+
+  \sa setTerminated()
+*/
+public boolean
+hasTerminated()
+{
+  return pimpl.terminated;
+}
+
 	   	
 	   	/**
 	   	 * Returns a pointer to the path accumulated during traversal, i.e., 
@@ -632,9 +989,30 @@ apply(final SoPathList sortedList,
 	     	   	
 	   	
 	   	// Get the state from the action. 
-	   	public SoState getState() {
-	   	 return state; 
-	   	}
+	     /*!
+	     Returns a pointer to the state of the action instance. The state
+	     contains the current set of elements used during traversal.
+	   */
+	   public SoState 
+	   getState() 
+	   {
+	     // if a new element has been enabled, we need to recreate the state
+	     if (this.state != null &&
+	         (SoEnabledElementsList.getCounter() != pimpl.prevenabledelementscounter)) {
+	       SoAction thisp = (SoAction) (this);
+	       Destroyable.delete( thisp.state);
+	       thisp.state = null;
+	     }
+	     if (this.state == null) {
+	       // cast away constness to set state
+	       ((SoAction)(this)).state =
+	         new SoState((SoAction)(this), this.getEnabledElements().getElements());
+	       SoActionP thisp = (SoActionP)(pimpl);
+	       thisp.prevenabledelementscounter = this.getEnabledElements().getCounter();
+	     }
+	     return this.state;
+	   }
+
 	   	
 	     //! These methods maintain the current path accumulated so far
 	         //! during traversal. The action needs to know whether this path is
@@ -643,7 +1021,7 @@ apply(final SoPathList sortedList,
 	         //! path, call getOnPath() to determine the current setting. The
 	         //! value of this flag should be passed in to popCurPath() so the
 	         //! onPath variable can be restored.
-	    public     PathCode            getCurPathCode() { return appliedTo.curPathCode;}
+	    public     PathCode            getCurPathCode() { return /*appliedTo.curPathCode*/currentpathcode;}
 	    	
 	    
 	    ////////////////////////////////////////////////////////////////////////
@@ -659,95 +1037,136 @@ apply(final SoPathList sortedList,
 	     // Use: extender
 	     
 	     public void
-	     usePathCode(int[] numIndices, final int[][] indices)
+	     usePathCode(int[] numindices, final int[][] indices)
 	     //
 	     ////////////////////////////////////////////////////////////////////////
 	     {
 	     
-	             if (appliedTo.code == AppliedCode.PATH) {
-	                 // Use "index" storage in instance to return next index
-	                 index = appliedTo.path.getIndex(currentpath.getFullLength());
-	                 numIndices[0]  = 1;
-	                 int[] dummy = new int[1];
-	                 dummy[0] = index;
-	                 indices[0]     = dummy;
-	             }
+//	             if (appliedTo.code == AppliedCode.PATH) {
+//	                 // Use "index" storage in instance to return next index
+//	                 index = appliedTo.path.getIndex(currentpath.getFullLength());
+//	                 numIndices[0]  = 1;
+//	                 int[] dummy = new int[1];
+//	                 dummy[0] = index;
+//	                 indices[0]     = dummy;
+//	             }
+//	     
+//	             // Path list case
+//	             else
+//	                 appliedTo.compactPathList.getChildren(numIndices, indices);
 	     
-	             // Path list case
-	             else
-	                 appliedTo.compactPathList.getChildren(numIndices, indices);
-	     
+  int curlen = this.currentpath.getFullLength();
+
+  while (pimpl.pathcodearray.getLength() < curlen) {
+    pimpl.pathcodearray.append(new SbListInt());
+  }
+
+  SbListInt myarray = pimpl.pathcodearray.operator_square_bracket(curlen-1); // ptr
+  myarray.truncate(0);
+
+  if (this.getWhatAppliedTo() == AppliedCode.PATH_LIST) {
+    if (pimpl.applieddata.pathlistdata.compactlist != null) {
+      assert(pimpl.applieddata.pathlistdata.compactlist.getDepth() == this.currentpath.getLength());
+      pimpl.applieddata.pathlistdata.compactlist.getChildren(numindices, indices);
+    }
+    else {
+      // this might be very slow if the list contains a lot of
+      // paths. See comment in pushCurPath(int, SoNode*) about this.
+      SoPathList pl = pimpl.applieddata.pathlistdata.pathlist;
+      int n = pl.getLength();
+      int previdx = -1;
+      myarray.truncate(0);
+      for (int i = 0; i < n; i++) {
+        SoPath path = (pl).operator_square_bracket(i);
+        if (path.getFullLength() > curlen &&
+            path.containsPath(this.currentpath)) {
+          int idx = path.getIndex(curlen);
+          if (idx != previdx) {
+            myarray.append(idx);
+            previdx = idx;
+          }
+        }
+      }
+      numindices[0] = myarray.getLength();
+      indices[0] = myarray.getArrayPtr().getValues();
+    }
+  }
+  else {
+    numindices[0] = 1;
+    myarray.append(pimpl.applieddata.path.getIndex(curlen));
+    indices[0] = myarray.getArrayPtr().getValues();
+  }
 	     }
 	     	    
 	    
-	    ////////////////////////////////////////////////////////////////////////
-	     //
-	     // Description:
-	     //    Pushes a node onto the current path being traversed.
-	     //
-	     // Use: internal
-	     
-	     public void
-	     pushCurPath(int childIndex)
-	     //
-	     ////////////////////////////////////////////////////////////////////////
-	     {
-	         // Push the new node
-	         currentpath.push(childIndex);
-	     
-	         // See if new node is on path being applied to. (We must have been
-	         // on the path already for this to be true.)
-	         if (appliedTo.curPathCode == PathCode.IN_PATH) {
-	     
-	             // If traversing a path list, let it know where we are and
-	             // find out if we are still on a path being traversed.
-	     
-	             if (appliedTo.code == AppliedCode.PATH_LIST) {
-	                 boolean      onPath = appliedTo.compactPathList.push(childIndex);
-	     
-	                 if (! onPath)
-	                     appliedTo.curPathCode = PathCode.OFF_PATH;
-	     
-	                 // If still on a path, see if we are at the end by seeing
-	                 // if there are any children left on the path
-	                 else {
-	                     final int[]     numChildren = new int[1];
-	                     final int[][] indices = new int[1][];
-	     
-	                     appliedTo.compactPathList.getChildren(numChildren, indices);
-	                     if (numChildren[0] == 0)
-	                         appliedTo.curPathCode = PathCode.BELOW_PATH;
-	                     else
-	                         appliedTo.curPathCode = PathCode.IN_PATH;
-	                 }
-	             }
-	     
-	             // Otherwise, we're applying to a path:
-	             else {
-	     
-	                 // Get new length of current path
-	                 int l = currentpath.getFullLength();
-	     
-	                 // There are three possible cases:
-	                 // (1) New node is the last node in the path chain    => BELOW_PATH
-	                 // (2) It's the next node (not the last) in the chain => IN_PATH
-	                 // (3) It veered off the path chain                   => OFF_PATH
-	     
-	                 // If the new node is NOT the next node in the path, we must
-	                 // be off the path
-	                 final SoNode nextPathNode = appliedTo.path.getNode(l - 1);
-	                 if (currentpath.getNode(l - 1) != nextPathNode)
-	                     appliedTo.curPathCode = PathCode.OFF_PATH;
-	     
-	                 // Otherwise, if cur path length is now the same as the path
-	                 // being applied to, we must at the last node in that path
-	                 else if (l == ( SoFullPath.cast( appliedTo.path)).getLength())
-	                     appliedTo.curPathCode = PathCode.BELOW_PATH;
-	     
-	                 // Otherwise, we're still IN_PATH
-	             }
-	         }
-	     }
+//	    ////////////////////////////////////////////////////////////////////////
+//	     //
+//	     // Description:
+//	     //    Pushes a node onto the current path being traversed.
+//	     //
+//	     // Use: internal
+//	     
+//	     public void
+//	     pushCurPath(int childIndex)
+//	     //
+//	     ////////////////////////////////////////////////////////////////////////
+//	     {
+//	         // Push the new node
+//	         currentpath.push(childIndex);
+//	     
+//	         // See if new node is on path being applied to. (We must have been
+//	         // on the path already for this to be true.)
+//	         if (/*appliedTo.curPathCode*/currentpathcode == PathCode.IN_PATH) {
+//	     
+//	             // If traversing a path list, let it know where we are and
+//	             // find out if we are still on a path being traversed.
+//	     
+//	             if (appliedTo.code == AppliedCode.PATH_LIST) {
+//	                 boolean      onPath = appliedTo.compactPathList.push(childIndex);
+//	     
+//	                 if (! onPath)
+//	                     /*appliedTo.curPathCode*/currentpathcode = PathCode.OFF_PATH;
+//	     
+//	                 // If still on a path, see if we are at the end by seeing
+//	                 // if there are any children left on the path
+//	                 else {
+//	                     final int[]     numChildren = new int[1];
+//	                     final int[][] indices = new int[1][];
+//	     
+//	                     appliedTo.compactPathList.getChildren(numChildren, indices);
+//	                     if (numChildren[0] == 0)
+//	                         /*appliedTo.curPathCode*/currentpathcode = PathCode.BELOW_PATH;
+//	                     else
+//	                         /*appliedTo.curPathCode*/currentpathcode = PathCode.IN_PATH;
+//	                 }
+//	             }
+//	     
+//	             // Otherwise, we're applying to a path:
+//	             else {
+//	     
+//	                 // Get new length of current path
+//	                 int l = currentpath.getFullLength();
+//	     
+//	                 // There are three possible cases:
+//	                 // (1) New node is the last node in the path chain    => BELOW_PATH
+//	                 // (2) It's the next node (not the last) in the chain => IN_PATH
+//	                 // (3) It veered off the path chain                   => OFF_PATH
+//	     
+//	                 // If the new node is NOT the next node in the path, we must
+//	                 // be off the path
+//	                 final SoNode nextPathNode = appliedTo.path.getNode(l - 1);
+//	                 if (currentpath.getNode(l - 1) != nextPathNode)
+//	                     /*appliedTo.curPathCode*/currentpathcode = PathCode.OFF_PATH;
+//	     
+//	                 // Otherwise, if cur path length is now the same as the path
+//	                 // being applied to, we must at the last node in that path
+//	                 else if (l == ( SoFullPath.cast( appliedTo.path)).getLength())
+//	                     /*appliedTo.curPathCodecurrentpathcode*/currentpathcode = PathCode.BELOW_PATH;
+//	     
+//	                 // Otherwise, we're still IN_PATH
+//	             }
+//	         }
+//	     }
 	     
 	     /*!
 	     Get ready to traverse the \a childindex'th child. Use this method
@@ -848,18 +1267,35 @@ apply(final SoPathList sortedList,
 	      //
 	      // Use: internal
 	      
+	   /*!
+	   \fn void SoAction::popCurPath(const PathCode prevpathcode)
+	   Pops the current path, and sets the path code to \a prevpathcode.
+
+	   This method is very internal. Do not use unless you know
+	   what you're doing.
+	 */
 	     public void
-	      popCurPath(PathCode prevPathCode)
+	      popCurPath(PathCode prevpathcode)
 	      //
 	      ////////////////////////////////////////////////////////////////////////
 	      {
-	          currentpath.pop();
+//	          currentpath.pop();
 	      
-	          appliedTo.curPathCode = prevPathCode;
-	      
+//	          /*appliedTo.curPathCode*/currentpathcode = prevPathCode;
+//	      
+//	          // If we're traversing a path list, let it know where we are
+//	          if (appliedTo.code == AppliedCode.PATH_LIST && /*appliedTo.curPathCode*/currentpathcode == PathCode.IN_PATH)
+//	              appliedTo.compactPathList.pop();
+	          this.currentpath.pop();
+	          this.currentpathcode = prevpathcode;
+
 	          // If we're traversing a path list, let it know where we are
-	          if (appliedTo.code == AppliedCode.PATH_LIST && appliedTo.curPathCode == PathCode.IN_PATH)
-	              appliedTo.compactPathList.pop();
+	          if ((pimpl.appliedcode == AppliedCode.PATH_LIST) && (prevpathcode == PathCode.IN_PATH)) {
+	            if (pimpl.applieddata.pathlistdata.compactlist != null) {
+	              pimpl.applieddata.pathlistdata.compactlist.pop();
+	              assert(pimpl.applieddata.pathlistdata.compactlist.getDepth() == this.currentpath.getLength());
+	            }
+	          }
 	      }
 	      	     
 	    
@@ -937,8 +1373,29 @@ apply(final SoPathList sortedList,
 	     
 	     //! Allows subclass instance to indicate that traversal has reached
 	          //! a termination condition
-	     protected void setTerminated(boolean flag)      { terminated = flag; }
+	   /*!
+	   Set the termination flag.
+
+	   Typically set to TRUE from nodes upon special
+	   conditions being met during scene graph traversal -- like the
+	   correct node being found when doing SoSearchAction traversal or
+	   when grabbing the event from an SoHandleEventAction.
+
+	   \sa hasTerminated()
+	 */
+	     protected void setTerminated(boolean flag)      {
+	    	  pimpl.terminated = flag;
+	    	 }
 	      	   	
+	     /*!
+	     \COININTERNAL
+	   */
+	   public boolean
+	   shouldCompactPathList()
+	   {
+	     return true;
+	   }
+
 	   	
 	   	
 	    //
@@ -952,32 +1409,32 @@ apply(final SoPathList sortedList,
 	     //
 	     // Use: private
 	     
-	    private void setUpState()
-	     //
-	     {
-	         boolean profilingEntered = SoProfiling.isEnabled() && (SoProfiling.getEnterScopeApplyActionCB()!=null);
-	         if (profilingEntered) {
-	           SoProfiling.getEnterScopeApplyActionCB().run(this);
-	         }
-	     
-	         // Setup method traversal table
-	         traversalMethods.setUp();
-	     
-	         // Create state if necessary.  When an new or different element is
-	         // enabled, the recreateState flag is set.
-	         if (state == null ||
-	             enabledElementsCounter != SoEnabledElementsList.getCounter()) {
-	     
-	             if (state != null) {
-					state.destructor();
-	             }
-	     
-	             state = new SoState(this, getEnabledElements().getElements());
-	     
-	             // Store current counter in instance
-	             enabledElementsCounter = SoEnabledElementsList.getCounter();
-	         }   
-	     }
+//	    private void setUpState()
+//	     //
+//	     {
+//	         boolean profilingEntered = SoProfiling.isEnabled() && (SoProfiling.getEnterScopeApplyActionCB()!=null);
+//	         if (profilingEntered) {
+//	           SoProfiling.getEnterScopeApplyActionCB().run(this);
+//	         }
+//	     
+//	         // Setup method traversal table
+//	         traversalMethods.setUp();
+//	     
+//	         // Create state if necessary.  When an new or different element is
+//	         // enabled, the recreateState flag is set.
+//	         if (state == null ||
+//	             enabledElementsCounter != SoEnabledElementsList.getCounter()) {
+//	     
+//	             if (state != null) {
+//					state.destructor();
+//	             }
+//	     
+//	             state = new SoState(this, getEnabledElements().getElements());
+//	     
+//	             // Store current counter in instance
+//	             enabledElementsCounter = SoEnabledElementsList.getCounter();
+//	         }   
+//	     }
 
 	    //
 	     // Description:
@@ -985,39 +1442,39 @@ apply(final SoPathList sortedList,
 	     //
 	     // Use: private
 	     
-	    private void
-	     cleanUp()
-	     //
-	     {
-	         boolean profilingEntered = SoProfiling.isEnabled() && (SoProfiling.getEnterScopeApplyActionCB()!=null)
-	                                 && SoProfiling.getLeaveScopeCB() != null;
-	         if (profilingEntered) {
-	           SoProfiling.getLeaveScopeCB().run();
-	         }
-	     
-	         switch (appliedTo.code) {
-	     
-	           case NODE:
-	             if (appliedTo.node != null) {
-	                 appliedTo.node.unref();
-	                 appliedTo.node = null;
-	             }
-	             break;
-	     
-	           case PATH:
-	             if (appliedTo.path != null) {
-	                 appliedTo.path.unref();
-	                 appliedTo.path = null;
-	             }
-	             break;
-	     
-	           case PATH_LIST:
-	             appliedTo.pathList = null;
-	             break;
-	         }
-	     
-	         currentpath.truncate(0);
-	     }
+//	    private void
+//	     cleanUp()
+//	     //
+//	     {
+//	         boolean profilingEntered = SoProfiling.isEnabled() && (SoProfiling.getEnterScopeApplyActionCB()!=null)
+//	                                 && SoProfiling.getLeaveScopeCB() != null;
+//	         if (profilingEntered) {
+//	           SoProfiling.getLeaveScopeCB().run();
+//	         }
+//	     
+//	         switch (appliedTo.code) {
+//	     
+//	           case NODE:
+//	             if (appliedTo.node != null) {
+//	                 appliedTo.node.unref();
+//	                 appliedTo.node = null;
+//	             }
+//	             break;
+//	     
+//	           case PATH:
+//	             if (appliedTo.path != null) {
+//	                 appliedTo.path.unref();
+//	                 appliedTo.path = null;
+//	             }
+//	             break;
+//	     
+//	           case PATH_LIST:
+//	             appliedTo.pathList = null;
+//	             break;
+//	         }
+//	     
+//	         currentpath.truncate(0);
+//	     }
 	    
 	    ////////////////////////////////////////////////////////////////////////
 	     //

@@ -11,10 +11,16 @@ import jscenegraph.port.Destroyable;
  */
 public class SbRWMutex implements Destroyable {
 
+	public
+		  enum Precedence {
+		    READ_PRECEDENCE,
+		    WRITE_PRECEDENCE
+		  };
+
 	/**
 	 * 
 	 */
-	public SbRWMutex() {
+	public SbRWMutex(Precedence policy) {
 		// TODO Auto-generated constructor stub
 	}
 

@@ -24,7 +24,7 @@ public class SoIndexedFaceSetP implements Destroyable {
 	  // total amount of mutex resources a process (or even a user) can
 	  // allocate. so consider making this a class-wide instance instead.
 	  // -mortene.
-	  public final SbRWMutex convexmutex = new SbRWMutex();
+	  public final SbRWMutex convexmutex = new SbRWMutex(SbRWMutex.Precedence.READ_PRECEDENCE);
 	//#endif // COIN_THREADSAFE
 
 	  void readLockConvexCache() {

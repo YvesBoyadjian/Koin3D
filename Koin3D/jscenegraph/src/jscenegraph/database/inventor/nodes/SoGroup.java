@@ -54,6 +54,9 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.glue.Gl;
+import jscenegraph.coin3d.inventor.annex.profiler.SoProfiler;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
@@ -71,6 +74,7 @@ import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoChildList;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Destroyable;
 
 
@@ -477,63 +481,125 @@ callback(SoCallbackAction action)
 //
 // Use: extender
 
+static boolean chkglerr = SoGL.sogl_glerror_debugging();
+
 public void
 GLRender(SoGLRenderAction action)
 
 ////////////////////////////////////////////////////////////////////////
 {
-    final int[] numIndices = new int[1];
+    final int[] numindices = new int[1];
     final int[][] indices = new int[1][];
-    SoAction.PathCode pc = action.getPathCode(numIndices, indices);
+    SoAction.PathCode pathcode = action.getPathCode(numindices, indices);
 
-    // Perform fast-path GLRender traversal:
-    if (pc != SoAction.PathCode.IN_PATH) {
-        action.pushCurPath();
-        for (int i = 0; i < children.getLength(); i++) {
+//    // Perform fast-path GLRender traversal:
+//    if (pc != SoAction.PathCode.IN_PATH) {
+//        action.pushCurPath();
+//        for (int i = 0; i < children.getLength(); i++) {
+//
+//            action.popPushCurPath(i);
+//            if (! action.abortNow())
+//                ((SoNode)(children.get(i))).GLRender(action);
+//            else
+//                SoCacheElement.invalidate(action.getState());
+//
+//            // Stop if action has reached termination condition. (For
+//            // example, search has found what it was looking for, or event
+//            // was handled.)
+//            if (action.hasTerminated())
+//                break;
+//        }
+//        action.popCurPath();
+//    }
+//
+//    else {
+//
+//        // This is the same as SoChildList::traverse(), except that it
+//        // checks render abort for each child
+//
+//        int lastChild = indices[0][numIndices[0] - 1];
+//        for (int i = 0; i <= lastChild; i++) {
+//
+//            SoNode child = (SoNode ) children.get(i);
+//
+//            if (pc == SoAction.PathCode.OFF_PATH && ! child.affectsState())
+//                continue;
+//
+//            action.pushCurPath(i);
+//            if (action.getCurPathCode() != SoAction.PathCode.OFF_PATH ||
+//                child.affectsState()) {
+//
+//                if (! action.abortNow())
+//                    child.GLRender(action);
+//                else
+//                    SoCacheElement.invalidate(action.getState());
+//            }
+//
+//            action.popCurPath(pc);
+//
+//            if (action.hasTerminated())
+//                break;
+//        }
+//    }
+    Object[] childarray = (Object[]) this.getChildren().getArrayPtr();
+    SoState state = action.getState();
 
-            action.popPushCurPath(i);
-            if (! action.abortNow())
-                ((SoNode)(children.get(i))).GLRender(action);
-            else
-                SoCacheElement.invalidate(action.getState());
+    if (pathcode == SoAction.PathCode.IN_PATH) {
+      int lastchild = indices[0][numindices[0] - 1];
+      for (int i = 0; i <= lastchild && !action.hasTerminated(); i++) {
+        SoNode child = (SoNode)childarray[i];
 
-            // Stop if action has reached termination condition. (For
-            // example, search has found what it was looking for, or event
-            // was handled.)
-            if (action.hasTerminated())
-                break;
+        action.pushCurPath(i, child);
+        if (action.getCurPathCode() != SoAction.PathCode.OFF_PATH ||
+  	  child.affectsState()) {
+  	if (!action.abortNow()) {
+  	  (SoGroupP.glrenderfunc).invoke(this, child, action);
+  	}
+  	else {
+  	  SoCacheElement.invalidate(state);
+  	}
         }
-        action.popCurPath();
+        action.popCurPath(pathcode);
+      }
     }
-
     else {
+      action.pushCurPath();
+      int n = this.getChildren().getLength();
+      for (int i = 0; i < n && !action.hasTerminated(); i++) {
+        action.popPushCurPath(i, (SoNode)childarray[i]);
 
-        // This is the same as SoChildList::traverse(), except that it
-        // checks render abort for each child
-
-        int lastChild = indices[0][numIndices[0] - 1];
-        for (int i = 0; i <= lastChild; i++) {
-
-            SoNode child = (SoNode ) children.get(i);
-
-            if (pc == SoAction.PathCode.OFF_PATH && ! child.affectsState())
-                continue;
-
-            action.pushCurPath(i);
-            if (action.getCurPathCode() != SoAction.PathCode.OFF_PATH ||
-                child.affectsState()) {
-
-                if (! action.abortNow())
-                    child.GLRender(action);
-                else
-                    SoCacheElement.invalidate(action.getState());
-            }
-
-            action.popCurPath(pc);
-
-            if (action.hasTerminated())
-                break;
+        if (pathcode == SoAction.PathCode.OFF_PATH && !((SoNode)childarray[i]).affectsState()) {
+  	continue;
         }
+
+        if (action.abortNow()) {
+  	// only cache if we do a full traversal
+  	SoCacheElement.invalidate(state);
+  	break;
+        }
+
+        (SoGroupP.glrenderfunc).invoke(this, (SoNode)childarray[i], action);
+
+  //#if COIN_DEBUG
+        // The GL error test is default disabled for this optimized
+        // path.  If you get a GL error reporting an error in the
+        // Separator node, enable this code by setting the environment
+        // variable COIN_GLERROR_DEBUGGING to "1" to see exactly which
+        // node caused the error.
+        if (chkglerr) {
+  	final String[] str = new String[1];
+  	//cc_string_construct(str);
+  	int errs = Gl.coin_catch_gl_errors(str);
+  	if (errs > 0) {
+  	  SoDebugError.post("SoGroup::GLRender",
+  			     "glGetError()s => '"+str[0]+"', nodetype: '"+(this.getChildren()).operator_square_bracket(i).getTypeId().getName().getString()+"'");
+  	}
+  	//cc_string_clean(&str);
+        }
+  //#endif // COIN_DEBUG
+
+      }
+      action.popCurPath();
     }
 }
 
@@ -714,6 +780,13 @@ copyContents(final SoFieldContainer fromFC, boolean copyConnections)
 	    ////////////////////////////////////////////////////////////////////////
 	    {
 	        SoSubNode.SO__NODE_INIT_CLASS(SoGroup.class, "Group", SoNode.class);
+
+	        // for the built-in Coin profiler. set up the functionptr to use, so
+	        // we don't have any overhead when profiling is off:
+	        SoGroupP.glrenderfunc = SoGroupP::childGLRender;
+	        if (SoProfiler.isEnabled()) {
+	          SoGroupP.glrenderfunc = SoGroupP::childGLRenderProfiler;
+	        }
 	    }
 	    
 	   }

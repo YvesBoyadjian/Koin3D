@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.inventor.annex.profiler.SoNodeProfiling;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
@@ -649,19 +650,39 @@ getMatrix(SoGetMatrixAction action)
 //
 // Use: extender
 
+//public void
+//GLRender(SoGLRenderAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    final int[] numIndices = new int[1];
+//    final int[][] indices = new int[1][];
+//    SoAction.PathCode pc = action.getPathCode(numIndices,indices);
+//    if (pc == SoAction.PathCode.NO_PATH || pc == SoAction.PathCode.BELOW_PATH)
+//        GLRenderBelowPath(action);
+//    else if (pc == SoAction.PathCode.IN_PATH)
+//        GLRenderInPath(action);
+//}
+
+// Doc from superclass.
 public void
 GLRender(SoGLRenderAction action)
-//
-////////////////////////////////////////////////////////////////////////
 {
-    final int[] numIndices = new int[1];
-    final int[][] indices = new int[1][];
-    SoAction.PathCode pc = action.getPathCode(numIndices,indices);
-    if (pc == SoAction.PathCode.NO_PATH || pc == SoAction.PathCode.BELOW_PATH)
-        GLRenderBelowPath(action);
-    else if (pc == SoAction.PathCode.IN_PATH)
-        GLRenderInPath(action);
+  switch (action.getCurPathCode()) {
+  case NO_PATH:
+  case BELOW_PATH:
+    this.GLRenderBelowPath(action);
+    break;
+  case OFF_PATH:
+    // do nothing. Separator will reset state.
+    break;
+  case IN_PATH:
+    this.GLRenderInPath(action);
+    break;
+  }
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -779,49 +800,100 @@ GLRenderBelowPath(SoGLRenderAction action)
 //
 // Use: extender
 
+//public void
+//GLRenderInPath(SoGLRenderAction action)
+//
+//////////////////////////////////////////////////////////////////////////
+//{
+//    final int[] numIndices = new int[1];
+//    final int[][] indices = new int[1][];
+//    SoAction.PathCode pc = action.getPathCode(numIndices, indices);
+//    if (pc == SoAction.PathCode.IN_PATH) { // still rendering in path:
+//        SoState state = action.getState();
+//        state.push();
+//        int whichChild = 0;
+//        for (int i = 0; i < numIndices[0] && !action.hasTerminated(); i++) {
+//            while (whichChild < indices[0][i] && !action.hasTerminated()) {
+//                SoNode kid = (SoNode )children.get(whichChild);
+//                if (kid.affectsState()) {
+//                    action.pushCurPath(whichChild);
+//                    if (! action.abortNow())
+//                        kid.GLRenderOffPath(action);
+//                    else
+//                        SoCacheElement.invalidate(action.getState());
+//                    action.popCurPath(pc);
+//                }
+//                ++whichChild;
+//            }
+//            action.pushCurPath(whichChild);
+//            if (action.abortNow())
+//                SoCacheElement.invalidate(action.getState());
+//            else
+//                ((SoNode )children.get(whichChild)).GLRenderInPath(action);
+//            action.popCurPath(pc);
+//            ++whichChild;
+//        }
+//        state.pop();
+//    } else if (pc == SoAction.PathCode.BELOW_PATH) { // This must be tail node
+//        GLRenderBelowPath(action);
+//    } else { // This should NEVER happen:
+////#ifdef DEBUG
+////        SoDebugError::post("SoSeparator::GLRenderInPath",
+////                           "PathCode went to NO_PATH or OFF_PATH!");
+////#endif
+//    }
+//}
 public void
 GLRenderInPath(SoGLRenderAction action)
-
-////////////////////////////////////////////////////////////////////////
 {
-    final int[] numIndices = new int[1];
-    final int[][] indices = new int[1][];
-    SoAction.PathCode pc = action.getPathCode(numIndices, indices);
-    if (pc == SoAction.PathCode.IN_PATH) { // still rendering in path:
-        SoState state = action.getState();
-        state.push();
-        int whichChild = 0;
-        for (int i = 0; i < numIndices[0] && !action.hasTerminated(); i++) {
-            while (whichChild < indices[0][i] && !action.hasTerminated()) {
-                SoNode kid = (SoNode )children.get(whichChild);
-                if (kid.affectsState()) {
-                    action.pushCurPath(whichChild);
-                    if (! action.abortNow())
-                        kid.GLRenderOffPath(action);
-                    else
-                        SoCacheElement.invalidate(action.getState());
-                    action.popCurPath(pc);
-                }
-                ++whichChild;
-            }
-            action.pushCurPath(whichChild);
-            if (action.abortNow())
-                SoCacheElement.invalidate(action.getState());
-            else
-                ((SoNode )children.get(whichChild)).GLRenderInPath(action);
-            action.popCurPath(pc);
-            ++whichChild;
+  final int[] numindices = new int[1];
+  final int[][] indices = new int[1][];
+
+  SoAction.PathCode pathcode = action.getPathCode(numindices, indices);
+
+  if (pathcode == SoAction.PathCode.IN_PATH) {
+    SoState state = action.getState();
+    Object[] childarray = (Object[]) this.children.getArrayPtr();
+    state.push();
+    int childidx = 0;
+    for (int i = 0; i < numindices[0]; i++) {
+      for (; childidx < indices[0][i] && !action.hasTerminated(); childidx++) {
+        SoNode offpath = (SoNode)childarray[childidx];
+        if (offpath.affectsState()) {
+          action.pushCurPath(childidx, offpath);
+          if (!action.abortNow()) {
+            final SoNodeProfiling profiling = new SoNodeProfiling();
+            profiling.preTraversal(action);
+            offpath.GLRenderOffPath(action); // traversal call
+            profiling.postTraversal(action);
+          }
+          else {
+            SoCacheElement.invalidate(state);
+          }
+          action.popCurPath(pathcode);
         }
-        state.pop();
-    } else if (pc == SoAction.PathCode.BELOW_PATH) { // This must be tail node
-        GLRenderBelowPath(action);
-    } else { // This should NEVER happen:
-//#ifdef DEBUG
-//        SoDebugError::post("SoSeparator::GLRenderInPath",
-//                           "PathCode went to NO_PATH or OFF_PATH!");
-//#endif
+      }
+      SoNode inpath = (SoNode)childarray[childidx];
+      action.pushCurPath(childidx, inpath);
+      if (!action.abortNow()) {
+        final SoNodeProfiling profiling = new SoNodeProfiling();
+        profiling.preTraversal(action);
+        inpath.GLRenderInPath(action); // traversal call
+        profiling.postTraversal(action);
+      }
+      else {
+        SoCacheElement.invalidate(state);
+      }
+      action.popCurPath(pathcode);
+      childidx++;
     }
+    state.pop();
+  }
+  else if (pathcode == SoAction.PathCode.BELOW_PATH) {
+    this.GLRenderBelowPath(action);
+  }
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 //

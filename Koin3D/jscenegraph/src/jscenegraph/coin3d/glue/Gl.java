@@ -223,4 +223,33 @@ glglue_resolve_envvar(String txt)
   return val != null ? Util.atoi(val) : 0;
 }
 
+/* Simple utility function for dumping the current set of error codes
+   returned from glGetError(). Returns number of errors reported by
+   OpenGL. */
+
+public static int
+coin_catch_gl_errors(String[] str)
+{
+  int errs = 0;
+  int glerr = glGetError();
+  while (glerr != GL_NO_ERROR) {
+    if (errs < 10) {
+      if (errs > 0) {
+        str[0] += ' ';
+      }
+      str[0] += cc_glglue.coin_glerror_string(glerr);
+    }
+    /* ignore > 10, so we don't run into a situation were we end up
+       practically locking up the app due to vast amounts of errors */
+    else if (errs == 10) {
+      str[0] += "... and more";
+    }
+
+    errs++;
+    glerr = glGetError();
+  }
+  return errs;
+}
+
+
 }

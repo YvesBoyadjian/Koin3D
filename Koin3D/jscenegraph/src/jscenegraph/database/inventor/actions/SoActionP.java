@@ -3,17 +3,20 @@
  */
 package jscenegraph.database.inventor.actions;
 
+import jscenegraph.coin3d.inventor.annex.profiler.nodes.SoProfilerStats;
 import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPathList;
 import jscenegraph.database.inventor.misc.SoCompactPathList;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoActionP {
+public class SoActionP implements Destroyable {
 	public SoAction.AppliedCode appliedcode;
 		  public int returnindex;
 		  public static class AppliedData {
@@ -42,14 +45,28 @@ public class SoActionP {
 		  }
 		  public final AppliedData applieddata = new AppliedData(); 
 		  public boolean terminated;
-		  public final SbList <SbList<Integer> > pathcodearray = new SbList<>();
+		  public final SbList <SbListInt > pathcodearray = new SbList<>();
 		  public int prevenabledelementscounter;
 
 		  public static SoNode getProfilerOverlay() {
 			  return null; // TODO
 		  }
-//		  public static SoProfilerStats getProfilerStatsNode() { TODO
-//			  
-//		  }
+
+		    static SoProfilerStats pstats = null;
+		    
+		  public static SoProfilerStats 
+		  getProfilerStatsNode()
+		  {
+		    if ( pstats == null ) {
+		      pstats = new SoProfilerStats();
+		      pstats.ref();
+		    }
+		    return pstats;
+		  }
+
+		@Override
+		public void destructor() {
+			pathcodearray.destructor();
+		}
 
 }

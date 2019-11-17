@@ -14,7 +14,7 @@ import org.lwjgl.BufferUtils;
  * @author Yves Boyadjian
  *
  */
-public class IntArrayPtr {
+public class IntArrayPtr implements Destroyable {
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -160,5 +160,11 @@ public class IntArrayPtr {
 		intBuffer[0].flip();
 		}
 		return intBuffer[0];		
+	}
+
+	@Override
+	public void destructor() {
+		array = null;
+		intBuffer[0] = null;
 	}
 }

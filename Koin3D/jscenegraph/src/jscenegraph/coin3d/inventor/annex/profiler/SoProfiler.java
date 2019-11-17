@@ -28,6 +28,15 @@ isOverlayActive()
   return false;//SoProfiler.isEnabled() && profiler.overlay.active; TODO
 }
 
+/*!
+  Returns whether profiling info is shown on the console or not.
+*/
+public static boolean
+isConsoleActive()
+{
+  return false;//SoProfiler.isEnabled() && profiler.console.active; TODO
+}
+
 
 /*!
   Enable/disable the profiling subsystem at runtime.

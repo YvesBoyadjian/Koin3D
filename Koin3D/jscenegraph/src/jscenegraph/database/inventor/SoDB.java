@@ -63,6 +63,7 @@ import jscenegraph.coin3d.inventor.annex.profiler.elements.SoProfilerElement;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
+import jscenegraph.coin3d.inventor.threads.SbRWMutex;
 import jscenegraph.coin3d.shaders.SoShader;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
@@ -609,6 +610,8 @@ init()
     	
         globalDB = new SoDB();
 
+        SoDBP.globalmutex = new SbRWMutex(SbRWMutex.Precedence.READ_PRECEDENCE);
+        
         // Initialize the runtime type system
         SoType.init();
 
@@ -957,6 +960,87 @@ public static boolean getHeaderData(final String header,
     postCB[0] = data.postCB;
     userData[0] = data.userData;   
     return (true);      
+}
+
+// Note that the function names of the next four functions below are
+// all lowercase to be compatible with client code written on TGS
+// Inventor.
+
+/*!
+
+  Places a read lock on the global SoDB mutex. This can be used to
+  synchronize between threads that are reading/writing Coin scene
+  graphs.
+
+  If you call this function, you must make sure that you also call
+  SoDB::readunlock(). If you fail to do this, you might experience
+  that your application locks up.
+
+  All Coin actions has a read-lock on the global SoDB mutex while
+  traversing the scene graph.
+
+  \sa SoDB::readunlock(), SoDB::writelock()
+
+  \since Coin 2.3
+  \since TGS Inventor 3.0
+*/
+public static void
+readlock()
+{
+//#ifdef COIN_THREADSAFE
+  SoDBP.globalmutex.readLock();
+//#endif // COIN_THREADSAFE
+}
+
+/*!
+  Unlocks the read lock on the global SoDB mutex.
+
+  \sa SoDB::readlock()
+  \since Coin 2.3
+  \since TGS Inventor 3.0
+*/
+public static void
+readunlock()
+{
+//#ifdef COIN_THREADSAFE
+  SoDBP.globalmutex.readUnlock();
+//#endif // COIN_THREADSAFE
+}
+
+/*!
+  Places a write lock on the global SoDB mutex. This can be used to
+  prevent that the scene graph is read or traversed while you modify
+  the scene graph.
+
+  If you call this function, you must make sure that you also call
+  SoDB::writeunlock(). If you fail to do this, you might experience
+  that your application locks up.
+
+  \sa SoDB::readlock()
+  \since Coin 2.3
+  \since TGS Inventor 3.0
+*/
+public static void
+writelock()
+{
+//#ifdef COIN_THREADSAFE
+  SoDBP.globalmutex.writeLock();
+//#endif // COIN_THREADSAFE
+}
+
+/*!
+  Unlocks the write lock on the global SoDB mutex.
+
+  \sa SoDB::writelock()
+  \since Coin 2.3
+  \since TGS Inventor 3.0
+*/
+public static void
+writeunlock()
+{
+//#ifdef COIN_THREADSAFE
+  SoDBP.globalmutex.writeUnlock();
+//#endif // COIN_THREADSAFE
 }
 
     

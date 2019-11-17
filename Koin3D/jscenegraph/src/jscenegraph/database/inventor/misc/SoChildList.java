@@ -59,6 +59,7 @@ import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoNodeList;
 import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Destroyable;
 
@@ -357,63 +358,174 @@ public      void                traverse(SoAction action, int childIndex)
   
       //! Traverses all children between two indices, inclusive. Stops if
       //! action's termination condition is reached.
-public      void                traverse(SoAction action,
-                                   int firstChild, int lastChild)
-//
- ////////////////////////////////////////////////////////////////////////
- {
-     int i;
- 
-     // Optimization:  If the node this childList is part of is not in
-     // the path, then the path code can't change as we traverse its
-     // children, and we can use a more efficient traversal:
-     SoAction.PathCode  pc = action.getCurPathCode();
- 
-     if (pc == SoAction.PathCode.NO_PATH || pc == SoAction.PathCode.BELOW_PATH) {
-         //begin by pushing nonexistent child:
-         action.pushCurPath();
-         for (i = firstChild; i <= lastChild; i++) {
-             SoNode child = (this).operator_square_bracket(i);
-             // Now pop and push in one move:
-             action.popPushCurPath(i);
-             action.traverse(child);
- 
-             // Stop if action has reached termination condition. (For
-             // example, search has found what it was looking for, or event
-             // was handled.)
-             if (action.hasTerminated())
-                 break;
-         }
-         action.popCurPath();
-     }
-     else {
-         for (i = firstChild; i <= lastChild; i++) {
-             SoNode      child = (this).operator_square_bracket(i);
- 
-             // Never traverse a child that does not affect the state
-             // if we are off the path
-             if (pc == SoAction.PathCode.OFF_PATH && ! child.affectsState())
-                 continue;
- 
-             // If we are in the path, don't traverse a child that does
-             // not affect the state if it is not on a path
-             action.pushCurPath(i);
- 
-             // If action code is now OFF_PATH, we know that the child
-             // was not on a path. Don't traverse it if it does not
-             // affect the state
-             if (action.getCurPathCode() != SoAction.PathCode.OFF_PATH ||
-                 child.affectsState())
-                 action.traverse(child);
- 
-             action.popCurPath(pc);
- 
-             // Stop if action has reached termination condition. (For
-             // example, search has found what it was looking for, or event
-             // was handled.)
-             if (action.hasTerminated())
-                 break;
-         }
-     }
- }
+//public      void                traverse(SoAction action,
+//                                   int firstChild, int lastChild)
+////
+// ////////////////////////////////////////////////////////////////////////
+// {
+//     int i;
+// 
+//     // Optimization:  If the node this childList is part of is not in
+//     // the path, then the path code can't change as we traverse its
+//     // children, and we can use a more efficient traversal:
+//     SoAction.PathCode  pc = action.getCurPathCode();
+// 
+//     if (pc == SoAction.PathCode.NO_PATH || pc == SoAction.PathCode.BELOW_PATH) {
+//         //begin by pushing nonexistent child:
+//         action.pushCurPath();
+//         for (i = firstChild; i <= lastChild; i++) {
+//             SoNode child = (this).operator_square_bracket(i);
+//             // Now pop and push in one move:
+//             action.popPushCurPath(i);
+//             action.traverse(child);
+// 
+//             // Stop if action has reached termination condition. (For
+//             // example, search has found what it was looking for, or event
+//             // was handled.)
+//             if (action.hasTerminated())
+//                 break;
+//         }
+//         action.popCurPath();
+//     }
+//     else {
+//         for (i = firstChild; i <= lastChild; i++) {
+//             SoNode      child = (this).operator_square_bracket(i);
+// 
+//             // Never traverse a child that does not affect the state
+//             // if we are off the path
+//             if (pc == SoAction.PathCode.OFF_PATH && ! child.affectsState())
+//                 continue;
+// 
+//             // If we are in the path, don't traverse a child that does
+//             // not affect the state if it is not on a path
+//             action.pushCurPath(i);
+// 
+//             // If action code is now OFF_PATH, we know that the child
+//             // was not on a path. Don't traverse it if it does not
+//             // affect the state
+//             if (action.getCurPathCode() != SoAction.PathCode.OFF_PATH ||
+//                 child.affectsState())
+//                 action.traverse(child);
+// 
+//             action.popCurPath(pc);
+// 
+//             // Stop if action has reached termination condition. (For
+//             // example, search has found what it was looking for, or event
+//             // was handled.)
+//             if (action.hasTerminated())
+//                 break;
+//         }
+//     }
+// }
+/*!
+  Traverse child nodes in the list from index \a first up to and
+  including index \a last, or until the SoAction::hasTerminated() flag
+  of \a action has been set.
+*/
+public void
+traverse(SoAction action, int first, int last)
+{
+  int i;
+  SoNode node = null;
+
+  assert((first >= 0) && (first < this.getLength()) && "index out of bounds" != null);
+  assert((last >= 0) && (last < this.getLength()) && "index out of bounds" != null);
+  assert((last >= first) && "erroneous indices" != null);
+
+//#if COIN_DEBUG
+  // Calculate a checksum over the children node pointers, to later
+  // catch attempts at changing the scene graph layout mid-traversal
+  // with an assert. (chksum reversed to initial value and controlled
+  // at the bottom end of this function.)
+  //
+  // Note: we might find this to be overly strict, because there are
+  // cases where this will stop an unharmful attempt at changing the
+  // current group node's set of children. But that's only if the
+  // application programmer _really_, _really_ know what he is doing,
+  // and it's still a slippery slope.. so "better safe than sorry" and
+  // all that.
+  //
+  // mortene.
+  int chksum = 0xdeadbeef;
+  for (i = first; i <= last; i++) { chksum ^= (int)(this).operator_square_bracket(i).hashCode(); }
+  boolean changedetected = false;
+//#endif // COIN_DEBUG
+
+  SoAction.PathCode pathcode = action.getCurPathCode();
+
+  switch (pathcode) {
+  case NO_PATH:
+  case BELOW_PATH:
+    // always traverse all nodes.
+    action.pushCurPath();
+    for (i = first; (i <= last) && !action.hasTerminated(); i++) {
+//#if COIN_DEBUG
+      if (i >= this.getLength()) {
+        changedetected = true;
+        break;
+      }
+//#endif // COIN_DEBUG
+      node = (this).operator_square_bracket(i);
+      action.popPushCurPath(i, node);
+      action.traverse(node);
+    }
+    action.popCurPath();
+    break;
+  case OFF_PATH:
+    for (i = first; (i <= last) && !action.hasTerminated(); i++) {      
+//#if COIN_DEBUG
+      if (i >= this.getLength()) {
+        changedetected = true;
+        break;
+      }
+//#endif // COIN_DEBUG
+      node = (this).operator_square_bracket(i);
+      // only traverse nodes that affects state
+      if (node.affectsState()) {
+        action.pushCurPath(i, node);
+        action.traverse(node);
+        action.popCurPath(pathcode);
+      }
+    }
+    break;
+  case IN_PATH:
+    for (i = first; (i <= last) && !action.hasTerminated(); i++) {
+//#if COIN_DEBUG
+      if (i >= this.getLength()) {
+        changedetected = true;
+        break;
+      }
+//#endif // COIN_DEBUG
+      node = (this).operator_square_bracket(i);
+      action.pushCurPath(i, node);
+      // if we're OFF_PATH after pushing, we only traverse if the node
+      // affects the state.
+      if ((action.getCurPathCode() != SoAction.PathCode.OFF_PATH) ||
+          node.affectsState()) {
+        action.traverse(node);
+      }
+      action.popCurPath(pathcode);
+    }
+    break;
+  default:
+    assert(false && "unknown path code." != null);
+    break;
+  }
+
+//#if COIN_DEBUG
+  if (!changedetected) {
+    for (i = last; i >= first; i--) { chksum ^= (int)(this).operator_square_bracket(i).hashCode(); }
+    if (chksum != 0xdeadbeef) changedetected = true;
+  }
+  if (changedetected) {
+    SoDebugError.postWarning("SoChildList::traverse",
+                              "Detected modification of scene graph layout "+
+                              "during action traversal. This is considered to "+
+                              "be hazardous and error prone, and we "+
+                              "strongly advice you to change your code "+
+                              "and/or reorganize your scene graph so that "+
+                              "this is not necessary.");
+  }
+//#endif // COIN_DEBUG
+}
  }

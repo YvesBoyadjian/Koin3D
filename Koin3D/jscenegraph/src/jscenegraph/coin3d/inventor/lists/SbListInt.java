@@ -5,13 +5,14 @@ package jscenegraph.coin3d.inventor.lists;
 
 import java.util.Arrays;
 
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.IntArrayPtr;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SbListInt {
+public class SbListInt implements Destroyable {
 	
 	private static final int DEFAULTSIZE = 4;
 
@@ -123,6 +124,13 @@ public class SbListInt {
 		if(i<numitems)
 			return itembuffer[i];
 		throw new IllegalArgumentException();
+	}
+
+	@Override
+	public void destructor() {
+		itembuffer = null;
+		Destroyable.delete(internalIntArrayPtr);
+		internalIntArrayPtr = null;
 	}
 
 	  

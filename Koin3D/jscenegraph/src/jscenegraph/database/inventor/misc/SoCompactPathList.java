@@ -60,6 +60,7 @@ import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPathList;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.port.Destroyable;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -90,7 +91,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
  * @author Yves Boyadjian
  *
  */
-public class SoCompactPathList {
+public class SoCompactPathList implements Destroyable {
 	
 	   private int[]                 array;         //!< Path list as a series of integers
 	   private int                 curNode;        //!< Index of current node in array
@@ -425,6 +426,15 @@ public int
 getDepth()
 {
   return 1 + this.stack.length;//getLength(); java port
+}
+
+
+@Override
+public void destructor() {
+	   array = null;         //!< Path list as a series of integers
+	   curNode = -1;        //!< Index of current node in array
+	   stack = null;         //!< Current traversal stack of indices
+	   stackDepth = -1;     //!< Depth of stack
 }
 
 
