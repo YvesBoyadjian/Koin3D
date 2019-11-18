@@ -462,6 +462,7 @@ for(int is=0;is<4;is++) {
 }
 	    
 	    SoSeparator landSep = new SoSeparator();
+	    //landSep.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 	    
 	    SoShapeHints shapeHints = new SoShapeHints();
 	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);

@@ -32,15 +32,25 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 	    vertexProperty.normal.setValuesPointer(/*0,*/ recursiveChunk.getDecimatedNormals(),recursiveChunk.getDecimatedNormalsBuffer());
 	    vertexProperty.texCoord.setValuesPointer(/*0,*/ recursiveChunk.getDecimatedTexCoords(),recursiveChunk.getDecimatedTexCoordsBuffer());
 		
+	    boolean wasEnabled = this.vertexProperty.enableNotify(false);
 		this.vertexProperty.setValue(vertexProperty);
+		this.vertexProperty.enableNotify(wasEnabled);
 
+		wasEnabled = coordIndex.enableNotify(false);
 	    coordIndex.setValuesPointer(/*0,*/ recursiveChunk.getDecimatedCoordIndices());
+	    coordIndex.enableNotify(wasEnabled);
 	}
 
 	public void clear() {
 		//coordIndex.setValuesPointer(recursiveChunk.getDecimatedCoordIndices());
+		boolean wasEnabled = coordIndex.enableNotify(false);
 		coordIndex.setNum(0);
+	    coordIndex.enableNotify(wasEnabled);
+	    
+	    wasEnabled = this.vertexProperty.enableNotify(false);
 		vertexProperty.setValue(null/*recursiveChunk.getVertexProperty()*/);
+		this.vertexProperty.enableNotify(wasEnabled);
+		
 		recursiveChunk.clear();
 		cleared = true;
 	}

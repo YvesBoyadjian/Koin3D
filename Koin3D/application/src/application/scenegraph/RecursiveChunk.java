@@ -23,6 +23,7 @@ import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
@@ -116,9 +117,16 @@ public class RecursiveChunk {
 			SoLOD lod = new SoTouchLOD2(master);
 			lod.center.setValue(getCenter());
 			lod.range.setValue(ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
-			SoSeparator subChunkGroup = new SoSeparator();
+			SoGroup subChunkGroup = new SoGroup() {
+//				public void notify(SoNotList list) {
+//					super.notify(list);
+//					if( getLevel() > 4) {
+//						int ii = 0;
+//					}
+//				}
+			};
 			if(culling) {
-				subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
+				//subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 			}
 			
 			subChunkGroup.addChild(childs.get(0).getGroup(master, lodFactor,culling));
@@ -140,9 +148,9 @@ public class RecursiveChunk {
 			SoCameraLOD lod = new SoTouchLOD3();
 			lod.center.setValue(getCenter());
 			lod.range.setValue(200 + ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
-			SoSeparator subChunkGroup = new SoSeparator();
+			SoGroup subChunkGroup = new SoGroup();
 			if(culling) {
-				subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
+				//subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 			}
 			
 			subChunkGroup.addChild(childs.get(0).getShadowGroup(lodFactor,culling));
