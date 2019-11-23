@@ -3,6 +3,11 @@
  */
 package jscenegraph.coin3d.fxviz.nodes;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Objects;
 
 import com.jogamp.opengl.GL2;
@@ -285,8 +290,32 @@ public class SoShadowGroupP implements Destroyable {
 	    if (this.fragmentshadercache == null || !this.fragmentshadercache.isValid(state)) {
 	      this.setFragmentShader(state);
 	    }
+	    
 	    this.shaderprogram.GLRender(action);
 
+//	    String vs = vertexshader.getSourceProgram();	    
+//	    
+//	    String fs = fragmentshader.getSourceProgram();
+//	    
+//	    File vsf = new File("shadows_vertex_fog.glsl");
+//	    
+//	    File fsf = new File("shadows_fragment_fog.glsl");
+//	    
+//	    if( ! vsf.exists()) {
+//	    try {
+//			FileWriter vos = new FileWriter(vsf);
+//			vos.write(vs);
+//			vos.close();
+//			FileWriter fos = new FileWriter(fsf);
+//			fos.write(fs);
+//			fos.close();
+//			
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	    }
+	    
 	    SoShapeStyleElement.setShadowsRendering(state, true);
 	    if (inpath) master.super_GLRenderInPath(action);
 	    else master.super_GLRenderBelowPath(action);

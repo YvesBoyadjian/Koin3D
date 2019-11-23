@@ -58,7 +58,7 @@ public class OverallTexture {
 	//				image[indexI*3+2] = ca.colorsGet(index*4+2);
 				}
 			}
-			saveImage2(image);
+			//saveImage2(image); not sufficiently efficient
 		}
 		
 		return image;

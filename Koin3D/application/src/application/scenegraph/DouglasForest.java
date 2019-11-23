@@ -94,7 +94,7 @@ public class DouglasForest {
 					nbDouglas++;
 				}
 			}
-			saveDouglas();
+			//saveDouglas(); no increase of performance
 		}
 		
 		return nbDouglas;

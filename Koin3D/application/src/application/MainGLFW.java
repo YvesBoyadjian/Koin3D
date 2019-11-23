@@ -226,11 +226,11 @@ public class MainGLFW {
 //	    shell.forceFocus();
 		
 	    viewer.setCursor(cursor);
-	    boolean success = viewer.setFocus();
 	    
 	    viewer.start();
 		viewer.updateLocation(new SbVec3f(0.0f, 0.0f, 0.0f));
 		
+	    boolean success = viewer.setFocus();
 	    
 	    //viewer.getGLWidget().maximize();
 	    

@@ -365,7 +365,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    SoEnvironment environment = new SoEnvironment();
 	    environment.ambientColor.setValue(0, 0, 0);
 	    environment.ambientIntensity.setValue(0);
-	    //environment.fogType.setValue(SoEnvironment.FogType.FOG);
+	    environment.fogType.setValue(SoEnvironment.FogType.FOG);
+	    //environment.
 	    
 	    sep.addChild(environment);
 	    

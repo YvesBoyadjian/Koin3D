@@ -48,14 +48,21 @@ public class GLCanvas extends Composite {
 	      if( format.profile != null ) {
 	    	  glfwWindowHint(GLFW_OPENGL_PROFILE, format.profile ==  GLData.Profile.COMPATIBILITY ? GLFW_OPENGL_COMPAT_PROFILE : GLFW_OPENGL_CORE_PROFILE);
 	      }
-			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
-			glfwWindowHint(GLFW_REFRESH_RATE, 120);
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
 		if(format.depthSize > 0) {
 			glfwWindowHint(GLFW_DEPTH_BITS, format.depthSize);			
 		}
+		
+		glfwWindowHint(GLFW_RED_BITS, vidMode.redBits());
+		glfwWindowHint(GLFW_GREEN_BITS, vidMode.greenBits());
+		glfwWindowHint(GLFW_BLUE_BITS, vidMode.blueBits());
+		glfwWindowHint(GLFW_REFRESH_RATE, vidMode.refreshRate());		
+		
+		System.out.println("RGB : "+ vidMode.redBits()+" "+vidMode.greenBits()+" "+vidMode.blueBits());
+		System.out.println("Refresh Rate : "+vidMode.refreshRate()+" Hz");
 			
 		// Create the window
-		window = glfwCreateWindow(width, height, "Hello World!", glfwGetPrimaryMonitor(), NULL);
+		window = glfwCreateWindow(width, height, "Hello World!", /*glfwGetPrimaryMonitor()*/NULL, NULL);
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 		
