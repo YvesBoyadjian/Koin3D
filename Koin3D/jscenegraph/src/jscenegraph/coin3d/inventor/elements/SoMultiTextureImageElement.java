@@ -33,6 +33,7 @@ import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Mutable;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -123,7 +124,7 @@ public class SoMultiTextureImageElement extends SoElement {
 	  public  int nodeid;
 	  public final SbVec3s size = new SbVec3s();
 	  public int numComponents;
-	  public byte[] bytes;
+	  public MemoryBuffer bytes;
 	  public SoMultiTextureImageElement.Wrap wrapS, wrapT, wrapR;
 	  public SoMultiTextureImageElement.Model model;
 	  public final SbColor blendColor = new SbColor();
@@ -199,7 +200,7 @@ public static void
 set(SoState state, SoNode node,
                               int unit,
                               SbVec2s size, int numComponents,
-                              byte[] bytes,
+                              MemoryBuffer bytes,
                               Wrap wrapS,
                               Wrap wrapT,
                               Model model,
@@ -223,7 +224,7 @@ public static void
 set(SoState state, SoNode node,
                               int unit,
                               SbVec3s size, int numComponents,
-                              byte[] bytes,
+                              MemoryBuffer bytes,
                                Wrap wrapS,
                                Wrap wrapT,
                                Wrap wrapR,
@@ -240,7 +241,7 @@ elem.setElt(unit, node.getNodeId(), size, numComponents, bytes, wrapS, wrapT, wr
 
 //! FIXME: write doc.
 
-public static byte[] get(SoState state,
+public static MemoryBuffer get(SoState state,
                               int unit,
                               final SbVec2s size,
                               final int[] numComponents,
@@ -270,7 +271,7 @@ FIXME: write doc.
 \COIN_FUNCTION_EXTENSION
 
 */
-public static byte[] get(SoState state,
+public static MemoryBuffer get(SoState state,
                               int unit,
                               SbVec3s size,
                               final int[] numComponents,
@@ -299,7 +300,7 @@ return getImage(state, unit, size, numComponents);
 /*!
 FIXME: write doc
 */
-public static byte[]
+public static MemoryBuffer
 getImage(SoState state,
                                    int unit,
                                    SbVec2s size,
@@ -320,7 +321,7 @@ getImage(SoState state,
 /*!
 FIXME: write doc
 */
-public static byte[] getImage(SoState state,
+public static MemoryBuffer getImage(SoState state,
                                    int unit,
                                    SbVec3s size,
                                    final int[] numComponents)
@@ -452,7 +453,7 @@ public void
 setElt( int unit,
                                  int nodeid,
                                  SbVec2s size, int numComponents,
-                                 byte[] bytes,
+                                 MemoryBuffer bytes,
                                  Wrap wrapS,
                                  Wrap wrapT,
                                  Model model,
@@ -479,7 +480,7 @@ public void
 setElt( int unit,
                                   int nodeid,
                                   SbVec3s size, int numComponents,
-                                 byte[] bytes,
+                                 MemoryBuffer bytes,
                                   Wrap wrapS,
                                   Wrap wrapT,
                                   Wrap wrapR,

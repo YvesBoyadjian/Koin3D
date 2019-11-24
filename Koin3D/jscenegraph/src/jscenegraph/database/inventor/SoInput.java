@@ -75,6 +75,7 @@ import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.port.FILE;
 import jscenegraph.port.Util;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -2616,6 +2617,17 @@ public boolean read(double[] f) {
 //    Reads an array of unsigned chars from current file/buffer.
 //
 // Use: public
+
+public boolean readBinaryArray(MemoryBuffer c, int length) {
+	
+	byte[] cb = new byte[length];
+	
+	boolean returnCode = readBinaryArray(cb,length);
+	
+	c.setBytes( cb, length);
+	
+	return returnCode;
+}
 
 public boolean readBinaryArray(byte[] c, int length)
 //

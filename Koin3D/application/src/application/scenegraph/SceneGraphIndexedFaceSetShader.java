@@ -54,6 +54,7 @@ import jscenegraph.database.inventor.nodes.SoShapeHints;
 import jscenegraph.database.inventor.nodes.SoSphere;
 import jscenegraph.database.inventor.nodes.SoTranslation;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -539,17 +540,17 @@ for(int is=0;is<4;is++) {
 		    
 		    int nbPixels = wi*hi;
 		    
-		    byte[] bytesRGB = new byte[nbPixels*3];
+		    MemoryBuffer bytesRGB = MemoryBuffer.allocateBytes(nbPixels*3);
 		    int j=0;
 		    for(int i=0; i< nbPixels;i++) {
 		    	int x = i%wi;
 		    	int y = hi - i/wi -1;
 		    	int rgb = image.getRGB(x, y);
-		    	bytesRGB[j] = (byte)(Math.pow(((rgb & 0x00FF0000) >>> 16)/255.0f,2.2f)*255.0f) ; j++;
-		    	bytesRGB[j] = (byte)(Math.pow(((rgb & 0x0000FF00) >>> 8)/255.0f,2.2f)*255.0f); j++;
-		    	bytesRGB[j] = (byte)(Math.pow(((rgb & 0x000000FF) >>> 0)/255.0f,2.2f)*255.0f); j++;	    	
+		    	bytesRGB.setByte(j, (byte)(Math.pow(((rgb & 0x00FF0000) >>> 16)/255.0f,2.2f)*255.0f)) ; j++;
+		    	bytesRGB.setByte(j, (byte)(Math.pow(((rgb & 0x0000FF00) >>> 8)/255.0f,2.2f)*255.0f)); j++;
+		    	bytesRGB.setByte(j, (byte)(Math.pow(((rgb & 0x000000FF) >>> 0)/255.0f,2.2f)*255.0f)); j++;	    	
 		    }
-		    byte[] b = bytesRGB;
+		    MemoryBuffer b = bytesRGB;
 		    
 		    SbVec2s s = new SbVec2s((short)wi,(short)hi);
 		    

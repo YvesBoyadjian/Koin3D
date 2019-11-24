@@ -8,6 +8,7 @@ import jscenegraph.database.inventor.SbVec3s;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.fields.SoSField;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -64,7 +65,7 @@ public class SoSFImage3 extends SoSField<SbImage> {
 
   // allocate image data and get new pointer back
   value.setValue(size, nc[0], null);
-  byte[] pixblock = value.getValue(size, nc);
+  MemoryBuffer pixblock = value.getValue(size, nc);
 
   // The binary image format of 2.1 and later tries to be less
   // wasteful when storing images.
@@ -84,8 +85,8 @@ public class SoSFImage3 extends SoSField<SbImage> {
         return false;
       }
       for (int j = 0; j < nc[0]; j++) {
-        pixblock[byte_++] =
-          (byte)((l[0] >> (8 * (nc[0]-j-1))) & 0xFF);
+        pixblock.setByte(byte_++,
+          (byte)((l[0] >> (8 * (nc[0]-j-1))) & 0xFF));
       }
     }
   }
@@ -96,7 +97,7 @@ public class SoSFImage3 extends SoSField<SbImage> {
   Return pixel buffer, set \a size to contain the image dimensions and
   \a nc to the number of components in the image.
 */
-public byte[]
+public MemoryBuffer
 getValue(final SbVec3s size, final int[]  nc) 
 {
   return this.value.getValue(size, nc);
@@ -113,7 +114,7 @@ getValue(final SbVec3s size, final int[]  nc)
 */
 public void
 setValue(final SbVec3s size, int nc,
-                     byte[] bytes)
+                     MemoryBuffer bytes)
 {
   this./*image*/value.setValue(size, nc, bytes);
   this.valueChanged();
@@ -126,7 +127,7 @@ setValue(final SbVec3s size, int nc,
   The field's container will not be notified about the changes
   until you call finishEditing().
 */
-public byte[]
+public MemoryBuffer
 startEditing(final SbVec3s size, final int[] nc)
 {
   return this./*image*/value.getValue(size, nc);

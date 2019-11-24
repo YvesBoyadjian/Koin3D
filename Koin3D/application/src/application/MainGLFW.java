@@ -3,6 +3,13 @@
  */
 package application;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.image.Raster;
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +18,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Properties;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JWindow;
+import javax.swing.SwingConstants;
 
 import com.jogamp.opengl.GL2;
 
@@ -69,6 +83,38 @@ public class MainGLFW {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+//		ImageIcon ii = new ImageIcon();
+//		
+//		try {
+//			ii = new ImageIcon(new URL("https://github.com/YvesBoyadjian/Koin3D/blob/master/MountRainierIslandScreenShot.jpg"));
+//		} catch (MalformedURLException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		
+//		Image splashScreen = ii.getImage();
+		
+		JWindow window = new JWindow();/* {
+			public void paint(Graphics g) {
+			      super.paint(g);
+			      g.drawImage(splashScreen, 0, 0, this);
+			   }			
+		};*/
+		window.getContentPane().add(
+			    new JLabel("Mount Rainier Island, an Adventure Game", null, SwingConstants.CENTER));
+		window.getContentPane().setBackground(Color.BLACK);
+		window.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
+		//window.getContentPane().setForeground(Color.white);
+		
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		double width = screenSize.getWidth();
+		double height = screenSize.getHeight();
+		
+		window.setBounds(0, 0, (int)width, (int)height);
+		
+		window.setVisible(true);
+		
 		Display display = new Display();
 		//Shell shell = new Shell(display);
 		//shell.setLayout(new FillLayout());
@@ -230,7 +276,6 @@ public class MainGLFW {
 	    viewer.start();
 		viewer.updateLocation(new SbVec3f(0.0f, 0.0f, 0.0f));
 		
-	    boolean success = viewer.setFocus();
 	    
 	    //viewer.getGLWidget().maximize();
 	    
@@ -256,6 +301,11 @@ public class MainGLFW {
 	    
 	    System.out.println("Depth Buffer : "+depthBits[0]);
 	    
+	    window.setVisible(false);
+	    window.dispose();
+	    
+	    boolean success = viewer.setFocus();
+	    
 	    display.loop();
 	    
 	    sg.preDestroy();
@@ -263,7 +313,9 @@ public class MainGLFW {
 	    viewer.destructor();
 
 		// disposes all associated windows and their components
-		display.dispose();		
+		display.dispose();
+		
+		
 	}
 
 }

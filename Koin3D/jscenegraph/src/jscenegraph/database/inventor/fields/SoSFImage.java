@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Util;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,7 +124,7 @@ public class SoSFImage extends SoSField<Object> {
   private
     final SbVec2s             size = new SbVec2s();           //!< Width and height of image
     private int         numComponents;  //!< Number of components per pixel
-    private byte[]     bytes;          //!< Array of pixels
+    private MemoryBuffer     bytes;          //!< Array of pixels
 
 	@Override
 	protected Object constructor() {
@@ -170,11 +171,11 @@ public void destructor()
 // Use: public
 
 public void
-setValue(final SbVec2s s, int nc, byte[] b) {
+setValue(final SbVec2s s, int nc, MemoryBuffer b) {
 	setValue(s,nc,b,false);
 }
 public void
-setValue(final SbVec2s s, int nc, byte[] b, boolean dontCopy)
+setValue(final SbVec2s s, int nc, MemoryBuffer b, boolean dontCopy)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -190,13 +191,13 @@ setValue(final SbVec2s s, int nc, byte[] b, boolean dontCopy)
 
     if (numBytes != 0) {
     	if(dontCopy) {
-    		if(numBytes != b.length) {
+    		if(numBytes != b.numBytes()) {
     			throw new IllegalArgumentException("wrong array size");
     		}
     		bytes = b;
     	}
     	else {
-    		bytes = new byte[numBytes];
+    		bytes = MemoryBuffer.allocateBytes(numBytes);
     		Util.memcpy(bytes, b, numBytes);
     	}
     }
@@ -213,7 +214,7 @@ setValue(final SbVec2s s, int nc, byte[] b, boolean dontCopy)
 //
 // Use: public
 
-public byte[] getValue(final SbVec2s s, final int[] nc)
+public MemoryBuffer getValue(final SbVec2s s, final int[] nc)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -238,7 +239,7 @@ public SoSFImage operator_equal(final SoSFImage f)
 {
     final SbVec2s s = new SbVec2s();
     final int[] nc = new int[1];
-    byte[] b = f.getValue(s, nc);
+    MemoryBuffer b = f.getValue(s, nc);
     setValue(s, nc[0], b);
 
     return this;
@@ -273,7 +274,7 @@ public boolean operator_equal_equal(
 //
 // Use: public
 
-public byte[] startEditing(final SbVec2s s, final int[] nc)
+public MemoryBuffer startEditing(final SbVec2s s, final int[] nc)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -314,7 +315,7 @@ public boolean readValue(SoInput in)
         return false;
     
     //if (bytes != NULL) delete[] bytes; java port
-    bytes = new byte[(int)size.getValue()[0]*size.getValue()[1]*numComponents];
+    bytes = MemoryBuffer.allocateBytes((int)size.getValue()[0]*size.getValue()[1]*numComponents);
 
     int _byte = 0;
     if (in.isBinary()) {
@@ -332,8 +333,8 @@ public boolean readValue(SoInput in)
 
                 if (!in.read(l)) return false;
                 for (int j = 0; j < numComponents; j++) {
-                    bytes[_byte++] = (byte)(
-                        (l[0] >> (8*(numComponents-j-1))) & 0xFF);
+                    bytes.setByte(_byte++, (byte)(
+                        (l[0] >> (8*(numComponents-j-1))) & 0xFF));
                 }
             }
         }
@@ -344,8 +345,8 @@ public boolean readValue(SoInput in)
     
             if (!in.readHex(l)) return false;
             for (int j = 0; j < numComponents; j++) {
-                bytes[_byte++] = (byte)(
-                    (l[0] >> (8*(numComponents-j-1))) & 0xFF);
+                bytes.setByte(_byte++, (byte)(
+                    (l[0] >> (8*(numComponents-j-1))) & 0xFF));
             }
         }
     }

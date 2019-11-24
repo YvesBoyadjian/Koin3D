@@ -21,6 +21,7 @@ import com.jogamp.common.nio.Buffers;
 
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.VoidPtr;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -3440,6 +3441,13 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		ByteBuffer bb = BufferUtils.createByteBuffer(capacity);
 		org.lwjgl.opengl.GL11.glReadPixels(x,y,width,height,format,type, bb);
 		bb.get(offscreenbuffer);
+	}
+
+	default void glReadPixels(int x, int y, short width, short height, int format, int type, MemoryBuffer offscreenbuffer) {
+		//int capacity = offscreenbuffer.length;
+		ByteBuffer bb = offscreenbuffer.toByteBuffer();//BufferUtils.createByteBuffer(capacity);
+		org.lwjgl.opengl.GL11.glReadPixels(x,y,width,height,format,type, bb);
+		//bb.get(offscreenbuffer);
 	}
 
 	default boolean glIsEnabled(int function) {

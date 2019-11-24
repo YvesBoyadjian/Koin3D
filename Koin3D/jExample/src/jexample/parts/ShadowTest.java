@@ -12,6 +12,7 @@ import jscenegraph.database.inventor.nodes.SoDirectionalLight;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoLight;
 import jscenegraph.database.inventor.nodes.SoSeparator;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -86,7 +87,7 @@ public class ShadowTest {
 			array[i] = -1;
 		}
 	    array[1] = array[3] = array[5] = 0;
-		tex.image.setValue(new SbVec2s((short)size,(short)size),3,array);
+		tex.image.setValue(new SbVec2s((short)size,(short)size),3,MemoryBuffer.allocateFromByteArray(array));
 	    
 	    sep2.addChild(tex);
 	    

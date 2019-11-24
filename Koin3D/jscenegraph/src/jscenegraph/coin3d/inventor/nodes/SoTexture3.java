@@ -59,6 +59,7 @@ import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.port.Util;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -291,7 +292,7 @@ GLRender(SoGLRenderAction  action)
   if (!this.glimagevalid) {
     final int[] nc = new int[1];
     final SbVec3s size = new SbVec3s();
-    final byte[] bytes = this.images.getValue(size, nc);
+    final MemoryBuffer bytes = this.images.getValue(size, nc);
     //FIXME: 3D support in SoGLBigImage (kintel 20011113)
 //      SbBool needbig =
 //        SoTextureScalePolicyElement::get(state) ==
@@ -354,7 +355,7 @@ SoTexture3_doAction(SoAction action)
 
   final int[] nc = new int[1];
   final SbVec3s size = new SbVec3s();
-  final byte[] bytes = this.images.getValue(size, nc);
+  final MemoryBuffer bytes = this.images.getValue(size, nc);
 
   if (size.operator_not_equal(new SbVec3s((short)0,(short)0,(short)0))) {
     SoMultiTextureImageElement.set(state, this, unit,
@@ -370,8 +371,8 @@ SoTexture3_doAction(SoAction action)
   else if (this.images.isDefault() &&
            this.filenames.getNum()>0 &&
            this.filenames.operator_square_bracket(0).length() != 0) {
-    /*static*/ final byte dummytex[] = {(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,
-    		(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
+    /*static*/ final MemoryBuffer dummytex = MemoryBuffer.allocateBytes(8,(byte)0xff);//{(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff,
+    		//(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
     SoMultiTextureImageElement.set(state, this, unit,
                                new SbVec3s((short)2,(short)2,(short)2), 1, dummytex,
                                SoMultiTextureImageElement.Wrap.fromValue((int)this.wrapT.getValue()),
@@ -464,7 +465,7 @@ loadFilenames(SoInput  in)
       if (tmpimage.readFile(filename, sl.getArrayPtr(), sl.getLength())) {
         final int[] nc = new int[1];
         final SbVec3s size = new SbVec3s();
-        byte[] imgbytes = tmpimage.getValue(size, nc);
+        MemoryBuffer imgbytes = tmpimage.getValue(size, nc);
         if (size.getValue()[2]==0) size.getValue()[2]=1;
         if (this.images.isDefault()) { // First time => allocate memory
           volumeSize.setValue(size.getValue()[0],
@@ -495,7 +496,7 @@ loadFilenames(SoInput  in)
           // disable notification on images while setting data from the
           // filenames as a notify will cause a filenames.setDefault(TRUE).
           boolean oldnotify = this.images.enableNotify(false);
-          byte[] volbytes = this.images.startEditing(volumeSize,
+          MemoryBuffer volbytes = this.images.startEditing(volumeSize,
                                                               volumenc);
           Util.memcpy(volbytes,(int)(size.getValue()[0])*(int)(size.getValue()[1])*(int)(size.getValue()[2])*nc[0]*n,
                  imgbytes, (int)(size.getValue()[0])*(int)(size.getValue()[1])*(int)(size.getValue()[2])*nc[0]);

@@ -34,6 +34,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -98,7 +99,7 @@ public class SoSceneTexture2P implements Destroyable {
 		  public final SbMutex mutex = new SbMutex();
 		//#endif // COIN_THREADSAFE
 		  public boolean canrendertotexture;
-		  public byte[] offscreenbuffer;
+		  public MemoryBuffer offscreenbuffer;
 		  public int offscreenbuffersize;
 		  
 		  
@@ -433,7 +434,7 @@ public class SoSceneTexture2P implements Destroyable {
 		        int reqbytes = ((int)size1.getValue()[0])*size1.getValue()[1]*4;
 		        if (reqbytes > this.offscreenbuffersize) {
 		          //delete[] this.offscreenbuffer; java port
-		          this.offscreenbuffer = new /*unsigned char*/byte[reqbytes];
+		          this.offscreenbuffer = MemoryBuffer.allocateBytes(reqbytes);//new /*unsigned char*/byte[reqbytes];
 		          this.offscreenbuffersize = reqbytes;
 		        }
 		        gl2.glPixelStorei(GL2.GL_PACK_ALIGNMENT, 1);

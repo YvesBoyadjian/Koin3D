@@ -147,6 +147,8 @@ public class SoType implements Mutable {
 	
 	private final Storage storage = new Storage();
 	
+	private boolean immutable;
+	
 	// Dictionary mapping SbNames to pointers into indices in the typeData
 	// array (pointers into the array would be bad, since the array can
 	// move around as it gets expanded, but indices are OK):
@@ -421,6 +423,9 @@ makeInternal()
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	if( immutable ) {
+		throw new IllegalStateException("SoType is immutable");
+	}
     // This is gross, but necessary.  After creation, copies of the
     // type exist in two places:  the classes' classTypeId member, and
     // in the typeData array.  So, we need to change them both:
@@ -474,6 +479,9 @@ makeInternal()
 	
 	// java port
 	public void copyFrom(Object other) {
+		if( immutable ) {
+			throw new IllegalStateException("SoType is immutable");
+		}
 		SoType otherType = (SoType)other;
 		storage.data = otherType.storage.data;
 		storage.index = otherType.storage.index;
@@ -566,5 +574,9 @@ makeInternal()
 			} catch (NoSuchMethodException | SecurityException|IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new IllegalStateException();
 			}
+		}
+		
+		public void markImmutable() {
+			immutable = true;
 		}
 }

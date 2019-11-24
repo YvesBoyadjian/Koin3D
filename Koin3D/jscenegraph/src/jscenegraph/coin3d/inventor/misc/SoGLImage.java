@@ -57,6 +57,7 @@ import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Mutable;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -253,9 +254,9 @@ private static int COIN_ENABLE_CONFORMANT_GL_CLAMP = -1;
 static SbStorage glimage_bufferstorage = null;
 
 private static class soglimage_buffer {
-  byte[] buffer;
+  MemoryBuffer buffer;
   int buffersize;
-  byte[] mipmapbuffer;
+  MemoryBuffer mipmapbuffer;
   int mipmapbuffersize;
 }; 
 
@@ -644,7 +645,7 @@ checkTransparency()
 
   final SbVec3s size = new SbVec3s();
   final int[] numcomponents = new int[1];
-  byte[] bytes = (this.image!=null) ?
+  MemoryBuffer bytes = (this.image!=null) ?
     this.image.getValue(size, numcomponents) : null;
 
   if (bytes == null) {
@@ -661,8 +662,8 @@ checkTransparency()
       int ptr = /* bytes +*/ nc - 1; // java port
 
       while (n!=0) {
-        if (bytes[ptr] != 255 && bytes[ptr] != 0) break;
-        if (bytes[ptr] == 0) this.usealphatest = true;
+        if (bytes.getUnsignedByte(ptr) != 255 && bytes.getByte(ptr) != 0) break;
+        if (bytes.getByte(ptr) == 0) this.usealphatest = true;
         ptr += nc;
         n--;
       }
@@ -718,7 +719,7 @@ createGLDisplayList(SoState state)
 {
   final SbVec3s size = new SbVec3s();
   final int[] numcomponents = new int[1];
-  byte[] bytes =
+  MemoryBuffer bytes =
     this.image != null ? this.image.getValue(size, numcomponents) : null;
 
   if (this.pbuffer == null && bytes == null) return null;
@@ -729,7 +730,7 @@ createGLDisplayList(SoState state)
   boolean is3D = (size.getValue()[2]==0)?false:true;
 
   // these might change if image is resized
-  byte[] imageptr = bytes;
+  MemoryBuffer imageptr = bytes;
 
   cc_glglue glw = SoGL.sogl_glue_instance(state);
   boolean mipmap = this.shouldCreateMipmap();
@@ -872,7 +873,7 @@ translate_wrap(SoState state, SoGLImage.Wrap wrap)
 
 public void
 /*SoGLImageP::*/reallyCreateTexture(SoState state,
-                                byte[] texture,
+                                MemoryBuffer texture,
                                 int numComponents,
                                 int w, int h, int d,
                                 boolean dlist, //FIXME: Not in use (kintel 20011129)
@@ -970,7 +971,7 @@ public void
     if (!mipmapimage) {
       // Create only level 0 texture. Mimpamps might be created by glGenerateMipmap
       gl2.glTexImage2D(target, 0, internalFormat, w, h,
-                   border, dataFormat, GL2.GL_UNSIGNED_BYTE, Buffers.newDirectByteBuffer(texture));
+                   border, dataFormat, GL2.GL_UNSIGNED_BYTE, texture.toByteBuffer() /*Buffers.newDirectByteBuffer(texture)*/);
 
       if (generatemipmap) {
         boolean wasenabled = true;
@@ -1045,14 +1046,14 @@ contextCleanup(int context, Object closure)
 //#endif // COIN_THREADSAFE
 }
 
-public void setData(byte[] bytes,
+public void setData(MemoryBuffer bytes,
         final SbVec3s  size,
         final int numcomponents) {
 	setData(bytes,size,numcomponents, Wrap.REPEAT,Wrap.REPEAT,Wrap.REPEAT,0.5f,0,null);
 }
 
 public void
-setData(byte[] bytes,
+setData(MemoryBuffer bytes,
                    final SbVec3s  size,
                    final int numcomponents,
                     Wrap wraps,
@@ -1068,7 +1069,7 @@ setData(byte[] bytes,
   \overload
 */
 public void
-setData(byte[] bytes,
+setData(MemoryBuffer bytes,
                    final SbVec3s  size,
                    final int numcomponents,
                     Wrap wraps,
@@ -1163,7 +1164,7 @@ setData(final SbImage image,
 
     final SbVec3s size = new SbVec3s();
     final int[] nc = new int[1];
-    byte[] bytes = image.getValue(size, nc);
+    MemoryBuffer bytes = image.getValue(size, nc);
     copyok = copyok && bytes != null && (size == this.glsize) && (nc[0] == this.glcomp);
 
     boolean is3D = (size.getValue()[2]==0)?false:true;
@@ -1242,7 +1243,7 @@ an SbImage. Creates a temporary image, then calls the read setData().
 \overload
 */
 
-public void setData(byte[] bytes,
+public void setData(MemoryBuffer bytes,
         final SbVec2s size,
         final int numcomponents,
         final Wrap wraps,
@@ -1252,7 +1253,7 @@ public void setData(byte[] bytes,
 }
 
 public void
-setData(byte[] bytes,
+setData(MemoryBuffer bytes,
                  final SbVec2s size,
                  final int numcomponents,
                  final Wrap wraps,
@@ -1385,7 +1386,7 @@ isOfType(SoType type)
 // fast mipmap creation. no repeated memory allocations.
 public static void
 fast_mipmap(SoState state, int width, int height, int nc,
-            byte[] data, boolean useglsubimage,
+            MemoryBuffer data, boolean useglsubimage,
             boolean compress)
 {
 	GL2 gl2 = state.getGL2();
@@ -1398,7 +1399,7 @@ fast_mipmap(SoState state, int width, int height, int nc,
   if (level > levels) levels = level;
 
   int memreq = (Math.max(width>>1,1))*(Math.max(height>>1,1))*nc;
-  byte[] mipmap_buffer = glimage_get_buffer(memreq, true);
+  MemoryBuffer mipmap_buffer = glimage_get_buffer(memreq, true);
 
   if (useglsubimage) {
     if (SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_TEXSUBIMAGE)) {
@@ -1409,9 +1410,9 @@ fast_mipmap(SoState state, int width, int height, int nc,
   }
   else {
     gl2.glTexImage2D(GL2.GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format,
-    		GL2.GL_UNSIGNED_BYTE, Buffers.newDirectByteBuffer(data));
+    		GL2.GL_UNSIGNED_BYTE, data.toByteBuffer()/*Buffers.newDirectByteBuffer(data)*/);
   }
-  byte[] src = data;
+  MemoryBuffer src = data;
   for (level = 1; level <= levels; level++) {
     halve_image(width, height, nc, src, mipmap_buffer);
     if (width > 1) width >>= 1;
@@ -1427,7 +1428,7 @@ fast_mipmap(SoState state, int width, int height, int nc,
     else {
       gl2.glTexImage2D(GL2.GL_TEXTURE_2D, level, internalFormat, width,
                    height, 0, format, GL2.GL_UNSIGNED_BYTE,
-                    Buffers.newDirectByteBuffer(src));
+                    src.toByteBuffer()/*Buffers.newDirectByteBuffer(src)*/);
     }
   }
 }
@@ -1436,7 +1437,7 @@ fast_mipmap(SoState state, int width, int height, int nc,
 //FIXME: Use as a special case of 3D image to reduce codelines ? (kintel 20011115)
 public static void
 halve_image( int width,  int height,  int nc,
-            byte[] datain, byte[] dataout)
+            MemoryBuffer datain, MemoryBuffer dataout)
 {
   assert(width > 1 || height > 1);
 
@@ -1451,7 +1452,7 @@ halve_image( int width,  int height,  int nc,
     int n = Math.max(newwidth, newheight);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < nc; j++) {
-        dataout[dst] = (byte)((datain[src+0] + datain[src+nc]) >> 1); // TODO >>> ?
+        dataout.setByte(dst, (byte)((datain.getUnsignedByte(src+0) + datain.getUnsignedByte(src+nc)) >> 1)); // TODO >>> ?
         dst++; src++;
       }
       src += nc; // skip to next pixel
@@ -1461,7 +1462,7 @@ halve_image( int width,  int height,  int nc,
     for (int i = 0; i < newheight; i++) {
       for (int j = 0; j < newwidth; j++) {
         for (int c = 0; c < nc; c++) {
-        	dataout[dst] = (byte)((datain[src+0] + datain[src+nc] + datain[src+nextrow] + datain[src+nextrow+nc] + 2) >> 2); // TODO >>> ?
+        	dataout.setByte(dst, (byte)((datain.getUnsignedByte(src+0) + datain.getUnsignedByte(src+nc) + datain.getUnsignedByte(src+nextrow) + datain.getUnsignedByte(src+nextrow+nc) + 2) >> 2)); // TODO >>> ?
           dst++; src++;
         }
         src += nc; // skip to next pixel
@@ -1476,7 +1477,7 @@ halve_image( int width,  int height,  int nc,
 // fast mipmap creation. no repeated memory allocations. 3D version.
 public static void
 fast_mipmap(SoState  state, int width, int height, int depth,
-            int nc, byte[] data, boolean useglsubimage,
+            int nc, MemoryBuffer data, boolean useglsubimage,
             boolean compress)
 {
   final cc_glglue glw = SoGL.sogl_glue_instance(state);
@@ -1485,7 +1486,7 @@ fast_mipmap(SoState  state, int width, int height, int depth,
   int levels = compute_log(Math.max(Math.max(width, height), depth));
 
   int memreq = (Math.max(width>>1,1))*(Math.max(height>>1,1))*(Math.max(depth>>1,1))*nc;
-  byte[] mipmap_buffer = glimage_get_buffer(memreq, true);
+  MemoryBuffer mipmap_buffer = glimage_get_buffer(memreq, true);
 
   // Send level 0 (original image) to OpenGL
   if (useglsubimage) {
@@ -1502,7 +1503,7 @@ fast_mipmap(SoState  state, int width, int height, int depth,
                              GL2.GL_UNSIGNED_BYTE, data);
     }
   }
-  byte[] src = (byte[]) data;
+  MemoryBuffer src = (MemoryBuffer) data;
   for (int level = 1; level <= levels; level++) {
     halve_image(width, height, depth, nc, src, mipmap_buffer);
     if (width > 1) width >>= 1;
@@ -1529,7 +1530,7 @@ fast_mipmap(SoState  state, int width, int height, int depth,
 
 public static void
 halve_image( int width,  int height,  int depth,  int nc,
-            byte[] datain, byte[] dataout)
+            MemoryBuffer datain, MemoryBuffer dataout)
 {
   assert(width > 1 || height > 1 || depth > 1);
 
@@ -1547,7 +1548,7 @@ halve_image( int width,  int height,  int depth,  int nc,
     int n = Math.max(Math.max(newwidth, newheight), newdepth);
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < nc; j++) {
-    	  dataout[dst] = (byte)((datain[src+0] + datain[src+nc]) >> 1); // TODO >>> ?
+    	  dataout.setByte(dst, (byte)((datain.getUnsignedByte(src+0) + datain.getUnsignedByte(src+nc)) >> 1)); // TODO >>> ?
         dst++; src++;
       }
       src += nc; // skip to next pixel/row/image
@@ -1568,7 +1569,7 @@ halve_image( int width,  int height,  int depth,  int nc,
     for (int j = 0; j < s2; j++) {
       for (int i = 0; i < s1; i++) {
         for (int c = 0; c < nc; c++) { // java port
-        	dataout[dst] = (byte)((datain[src+0] + datain[src+nc] + datain[src+blocksize] + datain[src+blocksize+nc] + 2) >> 2); // TODO >>> ?
+        	dataout.setByte(dst, (byte)((datain.getUnsignedByte(src+0) + datain.getUnsignedByte(src+nc) + datain.getUnsignedByte(src+blocksize) + datain.getUnsignedByte(src+blocksize+nc) + 2) >> 2)); // TODO >>> ?
           dst++; src++;
         }
         src += nc; // skip to next pixel (x or y direction)
@@ -1581,11 +1582,11 @@ halve_image( int width,  int height,  int depth,  int nc,
       for (int j = 0; j < newheight; j++) {
         for (int i = 0; i < newwidth; i++) {
           for (int c = 0; c < nc; c++) {
-        	  dataout[dst] = (byte)((datain[src+0] + datain[src+nc] +
-        			  datain[src+rowsize] + datain[src+rowsize+nc] +
-        			  datain[src+imagesize] + datain[src+imagesize+nc] +
-        			  datain[src+imagesize+rowsize] + datain[src+imagesize+rowsize+nc] +
-                    4) >> 3); // TODO >>> ?
+        	  dataout.setByte(dst, (byte)((datain.getUnsignedByte(src+0) + datain.getUnsignedByte(src+nc) +
+        			  datain.getUnsignedByte(src+rowsize) + datain.getUnsignedByte(src+rowsize+nc) +
+        			  datain.getUnsignedByte(src+imagesize) + datain.getUnsignedByte(src+imagesize+nc) +
+        			  datain.getUnsignedByte(src+imagesize+rowsize) + datain.getUnsignedByte(src+imagesize+rowsize+nc) +
+                    4) >> 3)); // TODO >>> ?
             dst++; src++;
           }
           src += nc; // skip one pixel
@@ -1608,7 +1609,7 @@ compute_log(int value)
 }
 
 
-public static byte[]
+public static MemoryBuffer
 glimage_get_buffer( int buffersize, boolean mipmap)
 {
   soglimage_buffer buf = null;
@@ -1619,7 +1620,7 @@ glimage_get_buffer( int buffersize, boolean mipmap)
   if (mipmap) {
     if (buf.mipmapbuffersize < buffersize) {
       //delete[] buf.mipmapbuffer; java port
-      buf.mipmapbuffer = new byte[buffersize];
+      buf.mipmapbuffer = MemoryBuffer.allocateBytes(buffersize);
       buf.mipmapbuffersize = buffersize;
     }
     return buf.mipmapbuffer;
@@ -1627,7 +1628,7 @@ glimage_get_buffer( int buffersize, boolean mipmap)
   else {
     if (buf.buffersize < buffersize) {
       //delete[] buf.buffer; java port
-      buf.buffer = new byte[buffersize];
+      buf.buffer = MemoryBuffer.allocateBytes(buffersize);
       buf.buffersize = buffersize;
       // FIXME: this is an extremely lame workaround for a Purify UMR
       // reported by Tore Kristiansen of HitecO.

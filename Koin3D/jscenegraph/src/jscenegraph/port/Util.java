@@ -15,6 +15,7 @@ import com.jogamp.common.nio.Buffers;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -200,16 +201,40 @@ public class Util {
 		return 0;
 	}
 
+	public static int memcmp(MemoryBuffer bytes, MemoryBuffer bytes2, int nbElem) {
+		
+		for(int i=0; i<nbElem;i++) {
+			Byte left = bytes.getByte(i);
+			Byte right = bytes2.getByte(i);
+			int compare = left.compareTo(right);
+			if(compare != 0) {
+				return compare;
+			}
+		}
+		return 0;
+	}
+
 	public static void memcpy(byte[] destBytes, byte[] srcBytes, int numBytes) {
 		for(int i = 0; i< numBytes; i++) {
 			destBytes[i] = srcBytes[i];
 		}
 	}
 
+	public static void memcpy(MemoryBuffer destBytes, MemoryBuffer srcBytes, int numBytes) {
+		destBytes.setBytes(srcBytes, numBytes);
+	}
+	
 	// java port
 	public static void memcpy(byte[] destBytes, int destIndex, byte[] srcBytes, int numBytes) {
 		for(int i = 0; i< numBytes; i++) {
 			destBytes[i+destIndex] = srcBytes[i];
+		}
+	}
+
+	// java port
+	public static void memcpy(MemoryBuffer destBytes, int destIndex, MemoryBuffer srcBytes, int numBytes) {
+		for(int i = 0; i< numBytes; i++) {
+			destBytes.setByte(i+destIndex, srcBytes.getByte(i));
 		}
 	}
 

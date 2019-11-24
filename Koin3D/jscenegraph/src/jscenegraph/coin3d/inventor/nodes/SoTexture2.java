@@ -45,6 +45,7 @@ import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -290,7 +291,7 @@ GLRender(SoGLRenderAction action)
       (!needbig && glimagetype.operator_not_equal(SoGLImage.getClassTypeId()))) {
     final int[] nc = new int[1];
     final SbVec2s size = new SbVec2s();
-    byte[] bytes =
+    MemoryBuffer bytes =
       this.image.getValue(size, nc);
     
     if (needbig &&
@@ -369,7 +370,7 @@ GLRender(SoGLRenderAction action)
   }
 }
 
-static byte dummytex[] = {(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
+static MemoryBuffer dummytex = MemoryBuffer.allocateBytes(4,(byte)0xff);// {(byte)0xff,(byte)0xff,(byte)0xff,(byte)0xff};
 // Documented in superclass.
 public void
 SoTexture2_doAction(SoAction action)
@@ -382,7 +383,7 @@ SoTexture2_doAction(SoAction action)
 
   final int[] nc = new int[1];
   final SbVec2s size = new SbVec2s();
-  byte[] bytes = this.image.getValue(size, nc);
+  MemoryBuffer bytes = this.image.getValue(size, nc);
   
   // if a filename has been set, but the file has not been loaded, supply
   // a dummy texture image to make sure texture coordinates are generated.
@@ -487,7 +488,7 @@ loadFilename()
                           sl.getArrayPtr(), sl.getLength())) {
       final int[] nc = new int[1];
       final SbVec2s size = new SbVec2s();
-      byte[] bytes = tmpimage.getValue(size, nc);
+      MemoryBuffer bytes = tmpimage.getValue(size, nc);
       // disable notification on image while setting data from filename
       // as a notify will cause a filename.setDefault(TRUE).
       boolean oldnotify = this.image.enableNotify(false);

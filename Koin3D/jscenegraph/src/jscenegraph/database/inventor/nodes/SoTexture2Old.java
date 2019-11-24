@@ -89,6 +89,7 @@ import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.database.inventor.sensors.SoSensorCB;
 import jscenegraph.port.FILE;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -442,7 +443,7 @@ filenameChangedCB(Object data, SoSensor sensor)
 
     // Read in image file right away...
     final int[] nx = new int[1], ny = new int[1], nc = new int[1];
-    final byte[][] bytes = new byte[1][];
+    final MemoryBuffer[] bytes = new MemoryBuffer[1];
     boolean result = readImage(tex.filename.getValue(), nx, ny, nc, bytes);
     if (!result) {
         // Read error is taken care of by readImage() call
@@ -493,7 +494,7 @@ SoTexture2_doAction(SoAction action)
 
     final SbVec2s size = new SbVec2s();
     final int[] nc = new int[1];
-    byte[] bytes = image.getValue(size, nc);
+    MemoryBuffer bytes = image.getValue(size, nc);
     
     SoMultiTextureImageElement.set(state, this, 0, size, nc[0], bytes,
     		SoMultiTextureImageElement.Wrap.fromValue(wrapS.getValue()), SoMultiTextureImageElement.Wrap.fromValue(wrapT.getValue()),
@@ -539,7 +540,7 @@ GLRender(SoGLRenderAction action)
 
     final SbVec2s size = new SbVec2s();
     final int[] nc = new int[1];
-    byte[] bytes = image.getValue(size, nc);
+    MemoryBuffer bytes = image.getValue(size, nc);
     int numBytes = size.getValue()[0]*size.getValue()[1]*nc[0];
 
     float texQuality = SoTextureQualityElement.get(state);
@@ -618,7 +619,7 @@ GLRender(SoGLRenderAction action)
 // Use: static, protected
 
 static boolean readImage(final String fname, final int[] w, final int[] h, final int[] nc, 
-                      final byte[][] bytes)
+                      final MemoryBuffer[] bytes)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -666,7 +667,7 @@ static boolean readImage(final String fname, final int[] w, final int[] h, final
 }
 
 private static boolean ReadImage(final SoInput in, final int[] w, final int[] h, final int[] nc,  
-        byte[][] bytes) {
+        MemoryBuffer[] bytes) {
 
     FILE fp = in.getCurFile();
     
@@ -695,7 +696,7 @@ private static boolean ReadImage(final SoInput in, final int[] w, final int[] h,
 	    	bytesRGB[j] = (byte)((rgb & 0x0000FF00) >>> 8); j++;
 	    	bytesRGB[j] = (byte)((rgb & 0x000000FF) >>> 0); j++;	    	
 	    }
-	    bytes[0] = bytesRGB;
+	    bytes[0] = MemoryBuffer.allocateBytes(nbPixels*3); bytes[0].setBytes(bytesRGB,nbPixels*3);
 	    
 	    return true;
 	} catch (IOException e) {

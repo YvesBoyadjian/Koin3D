@@ -37,6 +37,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.FILE;
 import jscenegraph.port.Util;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -44,7 +45,7 @@ import jscenegraph.port.Util;
  */
 public class SbImage implements Destroyable {
 	
-	  private byte[]  bytes;
+	  private MemoryBuffer  bytes;
 	  //DataType datatype;
 	  private final SbVec3s size = new SbVec3s();
 	  int bpp;
@@ -64,7 +65,7 @@ public class SbImage implements Destroyable {
   \sa setValue()
   \since Coin 2.0
 */
-public SbImage(byte[] bytes,
+public SbImage(MemoryBuffer bytes,
                  final SbVec3s size, final int bytesperpixel)
 {
   //PRIVATE(this) = new SbImageP;
@@ -91,7 +92,7 @@ public SbImage(byte[] bytes,
 */
 public void
 setValue(final SbVec3s size, int bytesperpixel,
-                  byte[] bytes)
+                  MemoryBuffer bytes)
 {
   //writeLock();
   schedulename = "";
@@ -115,7 +116,7 @@ setValue(final SbVec3s size, int bytesperpixel,
     // Align buffers because the binary file format has the data aligned
     // (simplifies export code in SoSFImage).
     buffersize = ((buffersize + 3) / 4) * 4;
-    bytes = new byte[buffersize];
+    bytes = MemoryBuffer.allocateBytes(buffersize);
     //datatype = SbImageP::INTERNAL_DATA;
 
     if (bytes != null) {
@@ -135,11 +136,11 @@ private void freeData() {
 /*!
   Returns the 2D image data.
 */
-public byte[]
+public MemoryBuffer
 getValue(SbVec2s size, final int[] bytesperpixel)
 {
   final SbVec3s tmpsize = new SbVec3s();
-  byte[] bytes = this.getValue(tmpsize, bytesperpixel);
+  MemoryBuffer bytes = this.getValue(tmpsize, bytesperpixel);
   size.setValue(tmpsize.getValue()[0], tmpsize.getValue()[1]);
   return bytes;
 }
@@ -151,7 +152,7 @@ getValue(SbVec2s size, final int[] bytesperpixel)
 
   \since Coin 2.0
 */
-public byte[]
+public MemoryBuffer
 getValue(final SbVec3s  size, final int[] bytesperpixel)
 {
   //this.readLock();
@@ -165,7 +166,7 @@ getValue(final SbVec3s  size, final int[] bytesperpixel)
 //  }
   size.copyFrom(this.size);
   bytesperpixel[0] = bpp;
-  byte[] bytes = this.bytes;
+  MemoryBuffer bytes = this.bytes;
   //this.readUnlock();
   return bytes;
 
@@ -270,7 +271,7 @@ readFile(final String  filename,
 //    simage_wrapper().simage_read_image(finalname, 
 //                                        w, h, nc);
   final int[] w = new int[1], h = new int[1], nc = new int[1];
-  final byte[][] simagedata = new byte[1][];
+  final MemoryBuffer[] simagedata = new MemoryBuffer[1];
   readImage(finalname, w, h, nc, 
 		  simagedata);
   if (simagedata[0] != null) {
@@ -346,7 +347,7 @@ readUnlock()
 */
 public void
 setValuePtr(final SbVec2s size, final int bytesperpixel,
-                     byte[] bytes)
+                     MemoryBuffer bytes)
 {
   final SbVec3s tmpsize = new SbVec3s(size.getValue()[0], size.getValue()[1], (short)0);
   this.setValuePtr(tmpsize, bytesperpixel, bytes);
@@ -366,7 +367,7 @@ setValuePtr(final SbVec2s size, final int bytesperpixel,
 */
 public void
 setValuePtr(final SbVec3s size, int bytesperpixel,
-                     byte[] bytes)
+                     MemoryBuffer bytes)
 {
   this.writeLock();
   this.schedulename = "";
@@ -427,7 +428,7 @@ public void destructor() {
 // Use: static, protected
 
 public static boolean readImage(final String fname, final int[] w, final int[] h, final int[] nc, 
-                      final byte[][] bytes)
+                      final MemoryBuffer[] bytes)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -475,7 +476,7 @@ public static boolean readImage(final String fname, final int[] w, final int[] h
 }
 
 private static boolean ReadImage(final SoInput in, final int[] w, final int[] h, final int[] nc,  
-        byte[][] bytes) {
+        MemoryBuffer[] bytes) {
 
     FILE fp = in.getCurFile();
     
@@ -504,7 +505,7 @@ private static boolean ReadImage(final SoInput in, final int[] w, final int[] h,
 	    	bytesRGB[j] = (byte)((rgb & 0x0000FF00) >>> 8); j++;
 	    	bytesRGB[j] = (byte)((rgb & 0x000000FF) >>> 0); j++;	    	
 	    }
-	    bytes[0] = bytesRGB;
+	    bytes[0] = MemoryBuffer.allocateBytes(nbPixels*3); bytes[0].setBytes(bytesRGB,nbPixels*3);
 	    
 	    return true;
 	} catch (IOException e) {

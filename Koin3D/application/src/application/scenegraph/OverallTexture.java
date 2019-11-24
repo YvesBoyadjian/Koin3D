@@ -13,6 +13,7 @@ import java.util.BitSet;
 import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -31,7 +32,7 @@ public class OverallTexture {
 		texture.image.setValue(new SbVec2s((short)ca.getW(),(short)ca.getH()),3,getImage2(), true);
 	}
 
-	private byte[] getImage2() {
+	private MemoryBuffer getImage2() {
 		int w = ca.getW();
 		int h = ca.getH();
 		
@@ -58,10 +59,10 @@ public class OverallTexture {
 	//				image[indexI*3+2] = ca.colorsGet(index*4+2);
 				}
 			}
-			//saveImage2(image); not sufficiently efficient
+			saveImage2(image); //not very efficient ( 3 seconds gain)
 		}
 		
-		return image;
+		return MemoryBuffer.allocateFromByteArray(image);
 	}
 	
 	private void saveImage2(byte[] image) {

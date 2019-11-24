@@ -131,7 +131,7 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 
 	@Override
 	public SoType getTypeId() {
-		return new SoType(classTypeId);
+		return /* new SoType(*/classTypeId/*)*/; // java port : performance optimization
 	}
     public static SoType getClassTypeId()
                                     { return classTypeId; }
@@ -684,6 +684,8 @@ public class SoGLRenderAction extends SoAction implements Destroyable {
 	       methods = new SoActionMethodList(SoAction.methods);
 	       classTypeId    = SoType.createType(SoAction.getClassTypeId(),
 	                                           new SbName("SoGLRenderAction"), null);
+	       
+	       classTypeId.markImmutable();
 
            //SO_ENABLE(SoGLRenderAction, SoGLLazyElement);
 	       SoGLRenderAction.enableElement(SoGLLazyElement.class);

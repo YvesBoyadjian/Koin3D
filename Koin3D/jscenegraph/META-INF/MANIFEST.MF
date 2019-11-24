@@ -50,4 +50,5 @@ Export-Package: com.jogamp.common.nio,
  jscenegraph.nodekits.inventor,
  jscenegraph.nodekits.inventor.nodekits,
  jscenegraph.port,
+ jscenegraph.port.memorybuffer,
  net.sourceforge.jpcap.util

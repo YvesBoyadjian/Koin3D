@@ -30,6 +30,7 @@ import com.jogamp.opengl.GL3;
 
 import jscenegraph.coin3d.TidBits;
 import jscenegraph.port.Util;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
@@ -88,6 +89,26 @@ cc_glglue_glTexSubImage3D(final cc_glglue w,
                      type, Buffers.newDirectByteBuffer(pixels));
 }
 
+public static void
+cc_glglue_glTexSubImage3D(final cc_glglue w,
+                          /*GLenum*/int target,
+                          int level,
+                          int xoffset,
+                          int yoffset,
+                          int zoffset,
+                          /*GLsizei*/int width,
+                          /*GLsizei*/int height,
+                          /*GLsizei*/int depth,
+                          /*GLenum*/int format,
+                          /*GLenum*/int type,
+                          MemoryBuffer  pixels)
+{
+  //assert(w.glTexSubImage3D);
+  glTexSubImage3D(target, level, xoffset, yoffset,
+                     zoffset, width, height, depth, format,
+                     type, pixels.toByteBuffer()/*Buffers.newDirectByteBuffer(pixels)*/);
+}
+
 
 public static void
 cc_glglue_glTexSubImage2D(final cc_glglue w,
@@ -104,6 +125,24 @@ cc_glglue_glTexSubImage2D(final cc_glglue w,
   //assert(w->glTexSubImage2D);
   glTexSubImage2D(target, level, xoffset, yoffset,
                      width, height, format, type, Buffers.newDirectByteBuffer(pixels));
+}
+
+
+public static void
+cc_glglue_glTexSubImage2D(final cc_glglue w,
+                          /*GLenum*/int target,
+                          int level,
+                          int xoffset,
+                          int yoffset,
+                          /*GLsizei*/int width,
+                          /*GLsizei*/int height,
+                          /*GLenum*/int format,
+                          /*GLenum*/int type,
+                          MemoryBuffer pixels)
+{
+  //assert(w->glTexSubImage2D);
+  glTexSubImage2D(target, level, xoffset, yoffset,
+                     width, height, format, type, pixels.toByteBuffer()/*Buffers.newDirectByteBuffer(pixels)*/);
 }
 
 
@@ -172,6 +211,25 @@ cc_glglue_glTexImage3D(final cc_glglue  w,
   glTexImage3D(target, level, internalformat,
                   width, height, depth, border,
                   format, type, Buffers.newDirectByteBuffer(pixels));
+}
+
+public static void
+cc_glglue_glTexImage3D(final cc_glglue  w,
+                       /*GLenum*/int target,
+                       int level,
+                       /*GLenum*/int internalformat,
+                       /*GLsizei*/int width,
+                       /*GLsizei*/int height,
+                       /*GLsizei*/int depth,
+                       int border,
+                       /*GLenum*/int format,
+                       /*GLenum*/int type,
+                       MemoryBuffer pixels)
+{
+  //assert(w->glTexImage3D);
+  glTexImage3D(target, level, internalformat,
+                  width, height, depth, border,
+                  format, type, pixels.toByteBuffer() /*Buffers.newDirectByteBuffer(pixels)*/);
 }
 
 /*!
