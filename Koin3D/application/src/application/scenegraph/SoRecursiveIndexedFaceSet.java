@@ -27,10 +27,10 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 	private void doLoad() {
 				
 		SoVertexProperty vertexProperty = new SoVertexProperty();
-		vertexProperty.vertex.setValuesPointer(recursiveChunk.getDecimatedVertices(),recursiveChunk.getDecimatedVerticesBuffer());
+		vertexProperty.vertex.setValuesPointer(recursiveChunk.getDecimatedVertices()/*,recursiveChunk.getDecimatedVerticesBuffer()*/);
 	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ recursiveChunk.getDecimatedNormals(),recursiveChunk.getDecimatedNormalsBuffer());
-	    vertexProperty.texCoord.setValuesPointer(/*0,*/ recursiveChunk.getDecimatedTexCoords(),recursiveChunk.getDecimatedTexCoordsBuffer());
+	    vertexProperty.normal.setValuesPointer(/*0,*/ recursiveChunk.getDecimatedNormals()/*,recursiveChunk.getDecimatedNormalsBuffer()*/);
+	    vertexProperty.texCoord.setValuesPointer(/*0,*/ recursiveChunk.getDecimatedTexCoords()/*,recursiveChunk.getDecimatedTexCoordsBuffer()*/);
 		
 	    boolean wasEnabled = this.vertexProperty.enableNotify(false);
 		this.vertexProperty.setValue(vertexProperty);
@@ -42,15 +42,15 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 	}
 
 	public void clear() {
-		//coordIndex.setValuesPointer(recursiveChunk.getDecimatedCoordIndices());
-		boolean wasEnabled = coordIndex.enableNotify(false);
-		coordIndex.setNum(0);
-	    coordIndex.enableNotify(wasEnabled);
-	    
-	    wasEnabled = this.vertexProperty.enableNotify(false);
+	    boolean wasEnabled = this.vertexProperty.enableNotify(false);
 		vertexProperty.setValue(null/*recursiveChunk.getVertexProperty()*/);
 		this.vertexProperty.enableNotify(wasEnabled);
 		
+		//coordIndex.setValuesPointer(recursiveChunk.getDecimatedCoordIndices());
+		//boolean wasEnabled = coordIndex.enableNotify(false);
+		coordIndex.setNum(0);
+	    //coordIndex.enableNotify(wasEnabled);
+	    
 		recursiveChunk.clear();
 		cleared = true;
 	}

@@ -3,6 +3,8 @@
  */
 package jscenegraph.database.inventor;
 
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
+
 /**
  * @author Yves Boyadjian
  *
@@ -25,4 +27,7 @@ public class SbVec3fSingle extends SbVec3f {
     	return getValueRef(); 
     }
     
+	public final FloatMemoryBuffer getValueBuffer() {
+		return vec;
+	}
 }

@@ -73,6 +73,7 @@ package jscenegraph.database.inventor;
 import java.util.function.DoubleConsumer;
 
 import jscenegraph.port.Mutable;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! 4D vector class.
@@ -95,7 +96,7 @@ SbVec2f, SbVec3f, SbVec2s, SbRotation
  */
 public class SbVec4f implements Mutable {
 	
-	   protected float[] vec4;         //!< Storage for vector components
+	   protected FloatMemoryBuffer vec4;         //!< Storage for vector components
 	   protected int indice;
 		   	
 		public static int sizeof() {
@@ -104,7 +105,7 @@ public class SbVec4f implements Mutable {
 		
     //! Default constructor.
 		public SbVec4f()                                           {
-			vec4 = new float[4];
+			vec4 = FloatMemoryBuffer.allocateFloats(4);
 			indice = 0;			
 		}
 
@@ -113,21 +114,21 @@ public class SbVec4f implements Mutable {
 		 * @param array
 		 * @param indice
 		 */
-		public SbVec4f(float[] array, int indice) {
+		public SbVec4f(FloatMemoryBuffer array, int indice) {
 			vec4 = array;
 			this.indice = indice;
 		}
 		
     //! Constructor given vector components.
     public SbVec4f(	final float[] v)                           {
-		vec4 = new float[4];
+		vec4 = FloatMemoryBuffer.allocateFloats(4);
 		indice = 0;			
     	setValue(v); 
     	}
 
     //! Constructor given vector components.
     public SbVec4f(float x, float y, float z, float w)       {
-		vec4 = new float[4];
+		vec4 = FloatMemoryBuffer.allocateFloats(4);
 		indice = 0;			
     	setValue(x, y, z, w); 
     	}
@@ -136,7 +137,7 @@ public class SbVec4f implements Mutable {
 		
 
     public SbVec4f(SbVec4f value) {
-		vec4 = new float[4];
+		vec4 = FloatMemoryBuffer.allocateFloats(4);
 		indice = 0;			
 		copyFrom(value);
 	}
@@ -147,7 +148,7 @@ public class SbVec4f implements Mutable {
 	 * @return
 	 */
 	protected float g(int i) {
-		return vec4[indice+i];
+		return vec4.getFloat(indice+i);
 	}
 	
 	/**
@@ -156,7 +157,7 @@ public class SbVec4f implements Mutable {
 	 * @param v
 	 */
 	protected void s(int i, float v) {
-		vec4[indice+i] = v;
+		vec4.setFloat(indice+i, v);
 	}
 	
 	//! Accesses indexed component of vector
@@ -214,7 +215,10 @@ operator_add(SbVec4f v2)
     
 
 	protected final float[] getValueRef() {
-		return vec4;
+    	if( indice != 0) {
+    		throw new IllegalStateException();
+    	}
+		return vec4.toFloatArray();
 	}
 	
 	

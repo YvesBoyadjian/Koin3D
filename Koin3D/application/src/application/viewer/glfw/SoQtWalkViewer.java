@@ -76,7 +76,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float USAIN_BOLT_RUN = 10;
 	
-	private final static float SPEED = /*GOD;*/USAIN_BOLT_RUN;
+	private final static float SPEED = USAIN_BOLT_RUN;
 	
 	private final static float EYES_HEIGHT = 1.65f;
 
@@ -472,6 +472,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	
     	if(lastFrameTime < 0) {
     		lastFrameTime++;
+//    	    System.gc();
+//    	    System.runFinalization();
     	}
     	if(lastFrameTime == 0) {
     		lastFrameTime = System.nanoTime();

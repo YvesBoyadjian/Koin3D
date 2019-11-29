@@ -282,12 +282,19 @@ notify(SoNotList list)
     numIndices = coordIndex.getNum();
     indices    = coordIndex.getValuesI(0);
     numUsed    = 0;
+    
+	SbVec3f v = new SbVec3f();
     for (i = 0; i < numIndices; i++) {
 
         // Look only at non-negative index values
         if (indices[i] >= 0) {
-            SbVec3f v = (ce != null ? ce.get3((int) indices[i]) :
-                                new SbVec3f(vpCoords,indices[i]));
+        	if( ce != null) {
+        		v = ce.get3((int) indices[i]);
+        	}
+        	else {
+        		vpCoords.getSbVec3f(indices[i], v);
+        		//v = new SbVec3f(vpCoords,indices[i]);
+        	}
             box.extendBy(v);
             center.operator_add_equal(v);
             numUsed++;

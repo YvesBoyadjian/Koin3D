@@ -62,6 +62,7 @@ import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Mutable;
 import jscenegraph.port.SbColorArray;
 import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,7 +96,7 @@ SbColor
  */
 public class SoMFColor extends SoMField<SbColor> {
 
-	private float[] valuesArray;
+	private FloatMemoryBuffer valuesArray;
 	
 	protected void allocValues(int newNum) {
 		if (valuesArray == null) {
@@ -103,15 +104,15 @@ public class SoMFColor extends SoMField<SbColor> {
 				valuesArray = arrayConstructorInternal(newNum);
 			}
 		} else {
-			float[] oldValues = valuesArray;
+			FloatMemoryBuffer oldValues = valuesArray;
 			int i;
 
 			if (newNum > 0) {
 				valuesArray = arrayConstructorInternal(newNum);
 				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
-					valuesArray[3*i] = oldValues[3*i];
-					valuesArray[3*i+1] = oldValues[3*i+1];
-					valuesArray[3*i+2] = oldValues[3*i+2];
+					valuesArray.setFloat(3*i, oldValues.getFloat(3*i));
+					valuesArray.setFloat(3*i+1, oldValues.getFloat(3*i+1));
+					valuesArray.setFloat(3*i+2, oldValues.getFloat(3*i+2));
 				}
 			} else
 				valuesArray = null;
@@ -152,9 +153,9 @@ public class SoMFColor extends SoMField<SbColor> {
 			makeRoom(newNum);
 
 		for (i = 0; i < num; i++) {
-			valuesArray[(start + i)*3] = newValues[i][0];
-			valuesArray[(start + i)*3+1] = newValues[i][1];
-			valuesArray[(start + i)*3+2] = newValues[i][2];
+			valuesArray.setFloat((start + i)*3, newValues[i][0]);
+			valuesArray.setFloat((start + i)*3+1, newValues[i][1]);
+			valuesArray.setFloat((start + i)*3+2, newValues[i][2]);
 		}
 		valueChanged();
 	}
@@ -174,9 +175,9 @@ public void setValues(int start, float[] newValues) {
 		makeRoom(newNum);
 
 	for (i = 0; i < num; i++) {
-		valuesArray[(start + i)*3] = newValues[3*i];
-		valuesArray[(start + i)*3+1] = newValues[3*i+1];
-		valuesArray[(start + i)*3+2] = newValues[3*i+2];
+		valuesArray.setFloat((start + i)*3, newValues[3*i]);
+		valuesArray.setFloat((start + i)*3+1, newValues[3*i+1]);
+		valuesArray.setFloat((start + i)*3+2, newValues[3*i+2]);
 	}
 	valueChanged();
 }
@@ -190,8 +191,8 @@ public void setValues(int start, float[] newValues) {
 		return new SbColor[length];
 	}
 
-	private float[] arrayConstructorInternal(int length) {
-		return new float[length*3];
+	private FloatMemoryBuffer arrayConstructorInternal(int length) {
+		return FloatMemoryBuffer.allocateFloats(length*3);
 	}
 
 	/* Get pointer into array of values */
@@ -199,8 +200,8 @@ public void setValues(int start, float[] newValues) {
 	public SbColor[] getValues(int start) {
 		evaluate();
 
-		SbColor[] shiftedValues = new SbColor[valuesArray.length/3 - start];
-		for (int i = start; i < valuesArray.length/3; i++) {
+		SbColor[] shiftedValues = new SbColor[valuesArray.numFloats()/3 - start];
+		for (int i = start; i < valuesArray.numFloats()/3; i++) {
 			shiftedValues[i - start] = new SbColor(valuesArray,i*3);
 		}
 		return shiftedValues;
@@ -238,9 +239,9 @@ readBinaryValues(SoInput in, int numToRead)
 	float[] valsFloat = new float[3 * numToRead];
     if(in.readBinaryArray((float[] ) valsFloat, 3 * numToRead)) {
 	    for(int i=0; i< numToRead;i++) {	    	
-	    	valuesArray[i*3] = valsFloat[3*i];
-	    	valuesArray[i*3+1] = valsFloat[3*i+1];
-	    	valuesArray[i*3+2] = valsFloat[3*i+2];
+	    	valuesArray.setFloat(i*3, valsFloat[3*i]);
+	    	valuesArray.setFloat(i*3+1, valsFloat[3*i+1]);
+	    	valuesArray.setFloat(i*3+2, valsFloat[3*i+2]);
 	    	//((SbColor)values[i]).setValue(valsFloat[3*i],valsFloat[3*i+1],valsFloat[3*i+2]);
 	    }
 	    return true;
@@ -268,9 +269,9 @@ public void set1Value(int index, float[] rgb) {
 public void set1Value(int index, SbColor newValue) {
 	if (index >= getNum())
 		makeRoom(index + 1);
-	valuesArray[index*3] = newValue.getX();
-	valuesArray[index*3+1] = newValue.getY();
-	valuesArray[index*3+2] = newValue.getZ();
+	valuesArray.setFloat(index*3, newValue.getX());
+	valuesArray.setFloat(index*3+1, newValue.getY());
+	valuesArray.setFloat(index*3+2, newValue.getZ());
 	valueChanged();
 }
 

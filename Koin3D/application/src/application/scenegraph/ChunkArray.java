@@ -287,6 +287,22 @@ public class ChunkArray {
 		return ret;
 	}
 	
+	public float verticesGetZ(int index) {
+		
+		int vertexIndex = index;
+		int i = vertexIndex/h;
+		int j = vertexIndex - i*h;
+		//int coord = index - vertexIndex * 3;
+		
+		Chunk c = getOneChunk(i,j);
+		int chunkIndice = getInChunkIndice(c, i,j);
+		
+		//ret[0] = c.vertices[chunkIndice*3+0];
+		//ret[1] = c.vertices[chunkIndice*3+1];
+		float ret_2 = c.vertices[chunkIndice*3+2];
+		return ret_2;
+	}
+	
 	public float normalsGet(int index) {
 		int vertexIndex = index/3;
 		int i = vertexIndex/h;

@@ -438,7 +438,7 @@ public boolean bind(SoState state)
     _glBuffer.ref();
     gl2.glBindBuffer(_type, _glBuffer.getFirstIndex());
     if(_data != null && _data.isFloatArray() && _data.toFloatArray().getStart()==0) {
-    	gl2.glBufferData(_type, (long)_numBytes, _data.toFloatArray().getValues(), gl2.GL_STATIC_DRAW);    	
+    	gl2.glBufferData(_type, (long)_numBytes, _data.toFloatArray().getValues().toByteBuffer(), gl2.GL_STATIC_DRAW);    	
     }
     else if(_data != null && _data.isIntArray() && _data.toIntArray().getStart()==0) {
     	gl2.glBufferData(_type, (long)_numBytes, _data.toIntArray().getValues(), gl2.GL_STATIC_DRAW);    	

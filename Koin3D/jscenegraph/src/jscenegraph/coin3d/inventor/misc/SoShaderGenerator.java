@@ -45,7 +45,7 @@ public class SoShaderGenerator {
 		  this.defines = "";//.makeEmpty(freeoldstrings);
 		  this.declarations = "";//.makeEmpty(freeoldstrings);
 		  this.functions = "";//.makeEmpty(freeoldstrings);
-		  this.main = new StringBuilder();//.makeEmpty(freeoldstrings);
+		  this.main = new StringBuilder(1024);//.makeEmpty(freeoldstrings);
 		  this.combined = "";//.makeEmpty(freeoldstrings);
 		  this.dirty = false;
 		}

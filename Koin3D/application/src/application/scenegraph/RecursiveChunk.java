@@ -30,6 +30,7 @@ import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPerspectiveCamera;
 import jscenegraph.database.inventor.nodes.SoSeparator;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -196,13 +197,13 @@ public class RecursiveChunk {
 		return indexedFaceSet;
 	}
 	
-	float[] getDecimatedTexCoords() {
+	FloatMemoryBuffer getDecimatedTexCoords() {
 		
 		if(decimatedTextCoords == null) {
 			
 		int decimatedChunkWidth = getDecimatedChunkWidth();
 		int decimatedChunkHeight = getDecimatedChunkHeight();
-		float[] array = new float[decimatedChunkWidth*decimatedChunkHeight*2];
+		FloatMemoryBuffer array = FloatMemoryBuffer.allocateFloats(decimatedChunkWidth*decimatedChunkHeight*2);
 		for(int i=0;i<decimatedChunkWidth;i++) {
 			for(int j=0; j<decimatedChunkHeight; j++) {
 				int index = i*decimatedChunkHeight+j;
@@ -212,22 +213,23 @@ public class RecursiveChunk {
 				float beta = (j/*+0.5f*/)/(decimatedChunkHeight-1.0f);
 				float jmin = (float)(j0)/(ca.getH()-1.0f);
 				float jmax = (float)(j0+nj-1)/(ca.getH()-1.0f);
-				array[index*2] = imin + alpha*(imax -imin);
-				array[index*2+1] = jmin + beta*(jmax-jmin);
+				array.setFloat(index*2, imin + alpha*(imax -imin));
+				array.setFloat(index*2+1, jmin + beta*(jmax-jmin));
 			}
 		}
-		this.decimatedTextCoords = array;
+		this.decimatedTextCoords = /*FloatMemoryBuffer.allocateFromFloatArray(*/array/*)*/;
 		}
 		return decimatedTextCoords;
 	}
 
-	float[] getDecimatedVertices() {
+	FloatMemoryBuffer getDecimatedVertices() {
 		if( decimatedVertices == null) {
-			if( true || (decimatedVertices = loadDecimatedVertices()) == null) { // load does not accelerate loading
+			if( true /*|| (decimatedVertices = loadDecimatedVertices()) == null*/) { // load does not accelerate loading
 				int decimatedChunkWidth = getDecimatedChunkWidth();
 				int decimatedChunkHeight = getDecimatedChunkHeight();
 				int nbVertices = decimatedChunkWidth * decimatedChunkHeight;
-				decimatedVertices = new float[nbVertices*3];
+				decimatedVertices = FloatMemoryBuffer.allocateFloats(nbVertices*3);
+				FloatBuffer fb = decimatedVertices.toByteBuffer().asFloatBuffer();
 				
 				float[] xyz = new float[3];
 				
@@ -245,16 +247,16 @@ public class RecursiveChunk {
 						int indice0 = i0*ca.getH()+j0;
 						int indice = i*decimatedChunkHeight+j;
 						ca.verticesGet(indice0, xyz);
-						decimatedVertices[indice*3] = xyz[0];
-						decimatedVertices[indice*3+1] = xyz[1];
-						decimatedVertices[indice*3+2] = xyz[2];
+						fb.put(xyz[0]); //decimatedVertices.setFloat(indice*3, xyz[0]);
+						fb.put(xyz[1]); //decimatedVertices.setFloat(indice*3+1, xyz[1]);
+						fb.put(xyz[2]); //decimatedVertices.setFloat(indice*3+2, xyz[2]);
 						
-						x_min = Math.min(decimatedVertices[indice*3],x_min);
-						x_max = Math.max(decimatedVertices[indice*3],x_max);
-						y_min = Math.min(decimatedVertices[indice*3+1],y_min);
-						y_max = Math.max(decimatedVertices[indice*3+1],y_max);
+						x_min = Math.min(xyz[0],x_min);
+						x_max = Math.max(xyz[0],x_max);
+						y_min = Math.min(xyz[1],y_min);
+						y_max = Math.max(xyz[1],y_max);
 						
-						dummy.setValue(decimatedVertices[indice*3],decimatedVertices[indice*3+1],decimatedVertices[indice*3+2]);
+						dummy.setValue(xyz[0],xyz[1],xyz[2]);
 						
 						sceneBox.extendBy(dummy);
 					}
@@ -272,9 +274,9 @@ public class RecursiveChunk {
 		File file = new File(getFilename("decimatedVertices"));
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
-			byte[] b = new byte[decimatedVertices.length*Float.BYTES];
+			byte[] b = new byte[decimatedVertices.numFloats()*Float.BYTES];
 			ByteBuffer bb = ByteBuffer.wrap(b);
-			bb.asFloatBuffer().put(decimatedVertices);
+			bb.asFloatBuffer().put(decimatedVertices.toFloatArray());
 			fos.write(b);
 			fos.close();
 		} catch (FileNotFoundException e) {
@@ -285,6 +287,9 @@ public class RecursiveChunk {
 	}
 
 	private float[] loadDecimatedVertices() {
+		
+		float[] decimatedVertices = null;
+		
 		File file = new File(getFilename("decimatedVertices"));
 		
 		if( !file.exists()) {
@@ -310,8 +315,10 @@ public class RecursiveChunk {
 			fileInputStream.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			return null;
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		}		
 		
 		x_min = Float.MAX_VALUE;
@@ -351,53 +358,53 @@ public class RecursiveChunk {
 		return nbFloat * Float.BYTES;
 	}
 
-	FloatBuffer getDecimatedVerticesBuffer() {
-		if(decimatedVerticesBuffer == null) {
-			
-			int length = getDecimatedVertices().length;
-			decimatedVerticesBuffer = BufferUtils.createFloatBuffer(length);
-			decimatedVerticesBuffer.clear();
-			decimatedVerticesBuffer.put(getDecimatedVertices(), 0, length);
-			decimatedVerticesBuffer.flip();
-		}
-		return decimatedVerticesBuffer;
-	}
+//	FloatBuffer getDecimatedVerticesBuffer() {
+//		if(decimatedVerticesBuffer == null) {
+//			
+//			int length = getDecimatedVertices().length;
+//			decimatedVerticesBuffer = BufferUtils.createFloatBuffer(length);
+//			decimatedVerticesBuffer.clear();
+//			decimatedVerticesBuffer.put(getDecimatedVertices(), 0, length);
+//			decimatedVerticesBuffer.flip();
+//		}
+//		return decimatedVerticesBuffer;
+//	}
 	
-	FloatBuffer getDecimatedNormalsBuffer() {
-		if(decimatedNormalsBuffer == null) {
-			
-			int length = getDecimatedNormals().length;
-			decimatedNormalsBuffer = BufferUtils.createFloatBuffer(length);
-			decimatedNormalsBuffer.clear();
-			decimatedNormalsBuffer.put(getDecimatedNormals(), 0, length);
-			decimatedNormalsBuffer.flip();
-		}
-		return decimatedNormalsBuffer;
-	}
+//	FloatBuffer getDecimatedNormalsBuffer() {
+//		if(decimatedNormalsBuffer == null) {
+//			
+//			int length = getDecimatedNormals().length;
+//			decimatedNormalsBuffer = BufferUtils.createFloatBuffer(length);
+//			decimatedNormalsBuffer.clear();
+//			decimatedNormalsBuffer.put(getDecimatedNormals(), 0, length);
+//			decimatedNormalsBuffer.flip();
+//		}
+//		return decimatedNormalsBuffer;
+//	}
 	
-	FloatBuffer getDecimatedTexCoordsBuffer() {
-		if(decimatedTexCoordsBuffer == null) {
-			
-			int length = getDecimatedTexCoords().length;
-			decimatedTexCoordsBuffer = BufferUtils.createFloatBuffer(length);
-			decimatedTexCoordsBuffer.clear();
-			decimatedTexCoordsBuffer.put(getDecimatedTexCoords(), 0, length);
-			decimatedTexCoordsBuffer.flip();
-		}
-		return decimatedTexCoordsBuffer;
-	}
+//	FloatBuffer getDecimatedTexCoordsBuffer() {
+//		if(decimatedTexCoordsBuffer == null) {
+//			
+//			int length = getDecimatedTexCoords().length;
+//			decimatedTexCoordsBuffer = BufferUtils.createFloatBuffer(length);
+//			decimatedTexCoordsBuffer.clear();
+//			decimatedTexCoordsBuffer.put(getDecimatedTexCoords(), 0, length);
+//			decimatedTexCoordsBuffer.flip();
+//		}
+//		return decimatedTexCoordsBuffer;
+//	}
 	
-	float[] getDecimatedNormals() {
+	FloatMemoryBuffer getDecimatedNormals() {
 		
 		if( decimatedNormals == null) {
-		if( true || (decimatedNormals = loadDecimatedNormals()) == null) { // load does not accelerate loading					
+		if( true /*|| (decimatedNormals = loadDecimatedNormals()) == null*/) { // load does not accelerate loading					
 			int sourceChunkWidth = ni;
 			int sourceChunkHeight = nj;
 			int decimatedChunkWidth = getDecimatedChunkWidth();
 			int decimatedChunkHeight = getDecimatedChunkHeight();
 			int nbVertices = decimatedChunkWidth *decimatedChunkHeight;
 	
-			float[] decimatedNormals = new float[nbVertices*3];
+			FloatMemoryBuffer decimatedNormals = FloatMemoryBuffer.allocateFloats(nbVertices*3);
 			
 			int nb = 1;
 //			for(int i=0;i<l;i++) {
@@ -406,11 +413,14 @@ public class RecursiveChunk {
 			int delta = (nb - 1)/2;
 			
 			int indice = 0; 
+			
+			float normalX, normalY, normalZ;
 			for(int i =0 ; i< decimatedChunkWidth; i++) {
 				for(int j =0 ; j< decimatedChunkHeight; j++) {
 					int i0 = fromSonToSourceI(i);
 					int j0 = fromSonToSourceJ(j);
 					int nbc = 0;
+					normalX = 0; normalY = 0; normalZ = 0;
 					for(int di = -delta; di<=delta; di++) {
 						for( int dj = -delta; dj<= delta; dj++) {
 							
@@ -431,19 +441,19 @@ public class RecursiveChunk {
 							}
 							//int indice0 = i0*chunkWidth+j0;
 							int indice0 = i1*ca.getH()+j1;
-							decimatedNormals[indice*3] += ca.normalsGet(indice0*3);
-							decimatedNormals[indice*3+1] += ca.normalsGet(indice0*3+1);
-							decimatedNormals[indice*3+2] += ca.normalsGet(indice0*3+2);
+							normalX += ca.normalsGet(indice0*3);
+							normalY += ca.normalsGet(indice0*3+1);
+							normalZ += ca.normalsGet(indice0*3+2);
 							nbc++;
 						}
 					}
-					decimatedNormals[indice*3] /= nbc;
-					decimatedNormals[indice*3+1] /= nbc;
-					decimatedNormals[indice*3+2] /= nbc;
+					decimatedNormals.setFloat(indice*3, normalX / nbc);
+					decimatedNormals.setFloat(indice*3+1, normalY / nbc);
+					decimatedNormals.setFloat(indice*3+2, normalZ / nbc);
 					indice++;
 				}
 			}
-			this.decimatedNormals = decimatedNormals;
+			this.decimatedNormals = /*FloatMemoryBuffer.allocateFromFloatArray(*/decimatedNormals/*)*/;
 			//saveDecimatedNormals(); // load does not accelerate loading
 		}
 		}
@@ -454,9 +464,9 @@ public class RecursiveChunk {
 		File file = new File(getFilename("decimatedNormals"));
 		try {
 			FileOutputStream fos = new FileOutputStream(file);
-			byte[] b = new byte[decimatedNormals.length*Float.BYTES];
+			byte[] b = new byte[decimatedNormals.numFloats()*Float.BYTES];
 			ByteBuffer bb = ByteBuffer.wrap(b);
-			bb.asFloatBuffer().put(decimatedNormals);
+			bb.asFloatBuffer().put(decimatedNormals.toFloatArray());
 			fos.write(b);
 			fos.close();
 		} catch (FileNotFoundException e) {
@@ -467,6 +477,9 @@ public class RecursiveChunk {
 	}
 
 	private float[] loadDecimatedNormals() {
+		
+		float[] decimatedNormals = null;
+		
 		File file = new File(getFilename("decimatedNormals"));
 		
 		if( !file.exists()) {
@@ -537,17 +550,17 @@ public class RecursiveChunk {
 		return j*(nj-1)/(getDecimatedChunkHeight()-1)+j0;
 	}
 
-	private float[] decimatedVertices;
+	private FloatMemoryBuffer decimatedVertices;
 	
-	private FloatBuffer decimatedVerticesBuffer;
+	//private FloatBuffer decimatedVerticesBuffer;
 	
-	private float[] decimatedNormals;
+	private FloatMemoryBuffer decimatedNormals;
 	
-	private FloatBuffer decimatedNormalsBuffer;
+	//private FloatBuffer decimatedNormalsBuffer;
 	
-	private float[] decimatedTextCoords;
+	private FloatMemoryBuffer decimatedTextCoords;
 	
-	private FloatBuffer decimatedTexCoordsBuffer;
+	//private FloatBuffer decimatedTexCoordsBuffer;
 	
 	private int[] decimatedCoordIndices;
 	
@@ -586,10 +599,10 @@ public class RecursiveChunk {
 
 	public SoNode getVertexProperty() {
 		SoVertexProperty vertexProperty = new SoVertexProperty();
-		vertexProperty.vertex.setValuesPointer(getDecimatedVertices(),getDecimatedVerticesBuffer());
+		vertexProperty.vertex.setValuesPointer(getDecimatedVertices()/*,getDecimatedVerticesBuffer()*/);
 	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(),getDecimatedNormalsBuffer());
-	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(),getDecimatedTexCoordsBuffer());
+	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals()/*,getDecimatedNormalsBuffer()*/);
+	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords()/*,getDecimatedTexCoordsBuffer()*/);
 		
 		return vertexProperty;
 	}
@@ -631,9 +644,9 @@ public class RecursiveChunk {
 	}
 
 	public void clear() {
-		decimatedVertices = null; decimatedVerticesBuffer = null;
-		decimatedNormals = null; decimatedNormalsBuffer = null;
-		decimatedTextCoords = null; decimatedTexCoordsBuffer = null;
+		decimatedVertices = null; //decimatedVerticesBuffer = null;
+		decimatedNormals = null; //decimatedNormalsBuffer = null;
+		decimatedTextCoords = null; //decimatedTexCoordsBuffer = null;
 		decimatedCoordIndices = null;
 	}
 }

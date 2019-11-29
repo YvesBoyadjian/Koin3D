@@ -703,27 +703,32 @@ public SbVec3f
 getClosestPoint(final SbVec3f point)
 {
   final SbVec3fSingle closest = new SbVec3fSingle(point);
+  
+  final float[] closest_getValue = closest.getValue(); 
+  
+  final float[] min_getValue = this.min.getValue();
+  final float[] max_getValue = this.max.getValue();
 
   final SbVec3fSingle center = new SbVec3fSingle(this.getCenter());
-  float devx = closest.getValue()[0] - center.getValue()[0];
-  float devy = closest.getValue()[1] - center.getValue()[1];
-  float devz = closest.getValue()[2] - center.getValue()[2];
-  float halfwidth = (this.max.getValue()[0] - this.min.getValue()[0]) / 2.0f;
-  float halfheight = (this.max.getValue()[1] - this.min.getValue()[1]) / 2.0f;
-  float halfdepth = (this.max.getValue()[2] - this.min.getValue()[2]) / 2.0f;
+  float devx = closest_getValue[0] - center.getValue()[0];
+  float devy = closest_getValue[1] - center.getValue()[1];
+  float devz = closest_getValue[2] - center.getValue()[2];
+  float halfwidth = (max_getValue[0] - min_getValue[0]) / 2.0f;
+  float halfheight = (max_getValue[1] - min_getValue[1]) / 2.0f;
+  float halfdepth = (max_getValue[2] - min_getValue[2]) / 2.0f;
 
   // Move point to be on the nearest plane of the box.
   if ((Math.abs(devx) > Math.abs(devy)) && (Math.abs(devx) > Math.abs(devz)))
-    closest.getValue()[0] = center.getValue()[0] + halfwidth * ((devx < 0.0f) ? -1.0f : 1.0f);
+    closest_getValue[0] = center.getValue()[0] + halfwidth * ((devx < 0.0f) ? -1.0f : 1.0f);
   else if (Math.abs(devy) > Math.abs(devz))
-    closest.getValue()[1] = center.getValue()[1] + halfheight * ((devy < 0.0f) ? -1.0f : 1.0f);
+    closest_getValue[1] = center.getValue()[1] + halfheight * ((devy < 0.0f) ? -1.0f : 1.0f);
   else
-    closest.getValue()[2] = center.getValue()[2] + halfdepth * ((devz < 0.0f) ? -1.0f : 1.0f);
+    closest_getValue[2] = center.getValue()[2] + halfdepth * ((devz < 0.0f) ? -1.0f : 1.0f);
 
   // Clamp to be inside box.
-  closest.getValue()[0] = Math.min(Math.max(closest.getValue()[0], this.min.getValue()[0]), this.max.getValue()[0]);
-  closest.getValue()[1] = Math.min(Math.max(closest.getValue()[1], this.min.getValue()[1]), this.max.getValue()[1]);
-  closest.getValue()[2] = Math.min(Math.max(closest.getValue()[2], this.min.getValue()[2]), this.max.getValue()[2]);
+  closest_getValue[0] = Math.min(Math.max(closest_getValue[0], min_getValue[0]), max_getValue[0]);
+  closest_getValue[1] = Math.min(Math.max(closest_getValue[1], min_getValue[1]), max_getValue[1]);
+  closest_getValue[2] = Math.min(Math.max(closest_getValue[2], min_getValue[2]), max_getValue[2]);
 
   return closest;
 }

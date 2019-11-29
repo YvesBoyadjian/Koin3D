@@ -10,6 +10,7 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import com.jogamp.common.nio.Buffers;
 
@@ -27,7 +28,7 @@ public class VoidPtr implements Destroyable {
 	
 	private Buffer buffer; 
 	
-	private static Map<Object,VoidPtr> ptrs = new IdentityHashMap<>();
+	//private static Map<Object,VoidPtr> ptrs = new IdentityHashMap<>();
 
 	private VoidPtr(Object obj) {
 		super();
@@ -40,17 +41,24 @@ public class VoidPtr implements Destroyable {
 	 * @return
 	 */
 	public static VoidPtr create(Object obj) {
-		VoidPtr voide = ptrs.get(obj);
-		if(voide == null) {
+		VoidPtr voide/* = ptrs.get(obj)*/;
+		//if(voide == null) {
 			voide = new VoidPtr(obj);
-			ptrs.put(obj, voide);
-		}
+			//ptrs.put(obj, voide);
+			//System.out.println("vp = "+ptrs.size()+" class : "+obj.getClass());
+		//}
 		return voide;
 	}
+	
+//	public static boolean has(Object obj) {
+//		return ptrs.containsKey(obj);
+//	}
 
 	@Override
 	public void destructor() {
-		ptrs.remove(object);
+//		if( ptrs.remove(object) == null ) {
+//			int ii=0;
+//		}
 		if(object instanceof Destroyable) {
 			Destroyable.delete((Destroyable)object);
 		}

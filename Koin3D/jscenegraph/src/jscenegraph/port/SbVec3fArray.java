@@ -9,6 +9,7 @@ import org.lwjgl.BufferUtils;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -16,24 +17,24 @@ import jscenegraph.database.inventor.SbVec3fSingle;
  */
 public class SbVec3fArray implements FloatBufferAble {
 	
-	private float[] valuesArray;
+	private FloatMemoryBuffer valuesArray;
 
 	private int delta;
 	
-	private FloatBuffer[] floatBuffer = new FloatBuffer[1];
+	//private FloatBuffer[] floatBuffer = new FloatBuffer[1];
 	
 	public SbVec3fArray(SbVec3fArray other, int delta) {
 		valuesArray = other.valuesArray;
 		this.delta = other.delta + delta;
-		this.floatBuffer = other.floatBuffer;
+		//this.floatBuffer = other.floatBuffer;
 	}
 
-	public SbVec3fArray(float[] valuesArray) {
+	public SbVec3fArray(FloatMemoryBuffer valuesArray) {
 		this.valuesArray = valuesArray;
 	}
 
 	public SbVec3fArray(SbVec3fSingle singleSbVec3f) {
-		valuesArray = singleSbVec3f.getValue();
+		valuesArray = singleSbVec3f.getValueBuffer();
 	}
 
 	public SbVec3fArray(MutableSbVec3fArray other) {
@@ -46,11 +47,6 @@ public class SbVec3fArray implements FloatBufferAble {
 		this.delta = other.getDelta()+ delta;
 	}
 
-	public SbVec3fArray(float[] valuesArray, FloatBuffer[] valuesBuffer) {
-		this.valuesArray = valuesArray;
-		this.floatBuffer = valuesBuffer;
-	}
-
 	public static SbVec3fArray copyOf(SbVec3fArray other) {
 		if(other == null) {
 			return null;
@@ -60,7 +56,7 @@ public class SbVec3fArray implements FloatBufferAble {
 	}
 	
 	public int getSizeFloat() {
-		return valuesArray.length - delta*3;
+		return valuesArray.numFloats() - delta*3;
 	}
 
 	public SbVec3f get(int index) {
@@ -72,7 +68,7 @@ public class SbVec3fArray implements FloatBufferAble {
 	}
 
 	public static SbVec3fArray allocate(int maxPoints) {
-		return new SbVec3fArray(new float[maxPoints*3]);
+		return new SbVec3fArray(FloatMemoryBuffer.allocateFloats(maxPoints*3));
 	}
 	
 	public FloatArray toFloatArray() {
@@ -80,26 +76,34 @@ public class SbVec3fArray implements FloatBufferAble {
 	}
 
 	@Override
-	public FloatBuffer toFloatBuffer() { //FIXME poor performance
+	public FloatBuffer toFloatBuffer() {
+		
+		FloatBuffer fb = valuesArray.toByteBuffer().asFloatBuffer();
+		
 		int offset = delta*3;
-		int length = valuesArray.length - offset;
-		if(floatBuffer[0] == null || floatBuffer[0].capacity() != length) {
-			floatBuffer[0] = BufferUtils.createFloatBuffer(length);
-		//}
-		floatBuffer[0].clear();
-		floatBuffer[0].put(valuesArray, offset, length);
-		floatBuffer[0].flip();
-		}
-		return floatBuffer[0];//FloatBuffer.wrap(valuesArray,offset, length);
+		
+		fb.position(offset);
+		
+		return fb;
+		
+//		int length = valuesArray.length - offset;
+//		if(floatBuffer[0] == null || floatBuffer[0].capacity() != length) {
+//			floatBuffer[0] = BufferUtils.createFloatBuffer(length);
+//		//}
+//		floatBuffer[0].clear();
+//		floatBuffer[0].put(valuesArray, offset, length);
+//		floatBuffer[0].flip();
+//		}
+//		return floatBuffer[0];//FloatBuffer.wrap(valuesArray,offset, length);
 	}
 	
-	public float[] getValuesArray() {
+	public FloatMemoryBuffer getValuesArray() {
 		return valuesArray;
 	}
 	
-	public FloatBuffer[] getValuesBuffer() {
-		return floatBuffer;
-	}
+//	public FloatBuffer[] getValuesBuffer() {
+//		return floatBuffer;
+//	}
 
 	int getDelta() {
 		return delta;
@@ -107,12 +111,12 @@ public class SbVec3fArray implements FloatBufferAble {
 
 	public static SbVec3fArray fromArray(SbVec3f[] arrayPtr) {
 		int length = arrayPtr.length;
-		float[] valuesArray = new float[length*3];
+		FloatMemoryBuffer valuesArray = FloatMemoryBuffer.allocateFloats(length*3);
 		int indice=0;
 		for(int i=0; i< length; i++) {
-			valuesArray[indice++] = arrayPtr[i].getX();
-			valuesArray[indice++] = arrayPtr[i].getY();
-			valuesArray[indice++] = arrayPtr[i].getZ();
+			valuesArray.setFloat(indice++, arrayPtr[i].getX());
+			valuesArray.setFloat(indice++, arrayPtr[i].getY());
+			valuesArray.setFloat(indice++, arrayPtr[i].getZ());
 		}
 		SbVec3fArray retVal = new SbVec3fArray(valuesArray);
 		return retVal;
@@ -120,8 +124,8 @@ public class SbVec3fArray implements FloatBufferAble {
 
 	public void copyIn(FloatBuffer floatBuffer) {
 		int offset = delta*3;
-		int length = valuesArray.length - offset;
-		floatBuffer.put(valuesArray, offset, length);
+		int length = valuesArray.numFloats() - offset;
+		floatBuffer.put(valuesArray.toFloatArray(), offset, length);
 		floatBuffer.flip();
 	}
 }

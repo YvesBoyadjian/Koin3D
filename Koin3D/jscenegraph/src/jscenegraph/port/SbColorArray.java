@@ -8,6 +8,7 @@ import java.nio.FloatBuffer;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -15,7 +16,7 @@ import jscenegraph.database.inventor.SbVec3fSingle;
  */
 public class SbColorArray implements FloatBufferAble {
 
-	private float[] valuesArray;
+	private FloatMemoryBuffer valuesArray;
 
 	private int delta;
 	
@@ -24,16 +25,16 @@ public class SbColorArray implements FloatBufferAble {
 		this.delta = other.delta + delta;
 	}
 
-	public SbColorArray(float[] valuesArray) {
+	public SbColorArray(FloatMemoryBuffer valuesArray) {
 		this.valuesArray = valuesArray;
 	}
 
 	public SbColorArray(SbVec3fSingle singleSbVec3f) {
-		valuesArray = singleSbVec3f.getValue();
+		valuesArray = singleSbVec3f.getValueBuffer();
 	}
 
 	public SbColorArray(int length) {
-		this(new float[3*length]);
+		this(FloatMemoryBuffer.allocateFloats(3*length));
 	}
 
 	public SbColor get(int index) {
@@ -45,7 +46,7 @@ public class SbColorArray implements FloatBufferAble {
 	}
 
 	public static SbColorArray allocate(int maxColors) {
-		return new SbColorArray(new float[maxColors*3]);
+		return new SbColorArray(FloatMemoryBuffer.allocateFloats(maxColors*3));
 	}
 	
 	public FloatArray toFloatArray() {
@@ -53,7 +54,10 @@ public class SbColorArray implements FloatBufferAble {
 	}
 
 	public FloatBuffer toFloatBuffer() {
-		return FloatBuffer.wrap(valuesArray, delta*3, valuesArray.length - delta*3);
+		FloatBuffer fb = valuesArray.toByteBuffer().asFloatBuffer();
+		fb.position(delta*3);
+		return fb;
+		//return FloatBuffer.wrap(valuesArray, delta*3, valuesArray.numFloats() - delta*3);
 	}
 
 	public static SbColorArray copyOf(SbColorArray other) {

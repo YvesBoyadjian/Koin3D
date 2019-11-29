@@ -74,6 +74,7 @@ import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbColorArray;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 ///////////////////////////////////////////////////////////////////////////////
 ///
@@ -306,7 +307,7 @@ public class SoLazyElement extends SoElement {
 		                int             numDiffuseColors;
 		                int             numTransparencies;
 		                //SbColorArray       diffuseColors;
-		                float[]         transparencies;
+		                FloatMemoryBuffer         transparencies;
 		                //int[]      packedColors;
 		                int[]      colorIndices;
 		                //int              transpType;
@@ -1061,7 +1062,7 @@ setDiffuse(SoState state, SoNode node, int numcolors,
 ///////////////////////////////////////////////////////////////////////  
 public static void    
 setTransparency(SoState state, SoNode node, int numvalues, 
-            float[] transparency, SoColorPacker packer)
+            FloatMemoryBuffer transparency, SoColorPacker packer)
 {
 	  if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
 	    SoGLVBOElement.setColorVBO(state, null);
@@ -1429,19 +1430,19 @@ setDiffuseElt(SoNode  node,  int numColors,
 
 public void
 setTranspElt(SoNode node, int numtransp, 
-    float[] transp, SoColorPacker packer )
+		FloatMemoryBuffer transp, SoColorPacker packer )
 {
 
     ivState.numTransparencies = numtransp;
     ivState.transparencies = transp;
     ivState.stippleNum = 0;
-    if (transp[0] > 0.0) {
+    if (transp.getFloat(0) > 0.0) {
         if (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
             ivState.stippleNum =
-                (int)(transp[0]*getNumPatterns());
+                (int)(transp.getFloat(0)*getNumPatterns());
         }       
     }
-    if (numtransp == 1 && transp[0] == 0.0) /*ivState.transpNodeId*/coinstate.transpnodeid = 0;
+    if (numtransp == 1 && transp.getFloat(0) == 0.0) /*ivState.transpNodeId*/coinstate.transpnodeid = 0;
         else /*ivState.transpNodeId*/coinstate.transpnodeid = node.getNodeId();
     ivState.packed=false;
     ivState.packedTransparent = false;
@@ -1449,11 +1450,11 @@ setTranspElt(SoNode node, int numtransp,
     this.coinstate.transpnodeid = get_transp_node_id(node, numtransp, new FloatArray(0,transp));
     this.coinstate.transparray = new FloatArray(0,transp);
     this.coinstate.numtransp = numtransp;
-    this.coinstate.stipplenum = SbBasic.SbClamp((int)(transp[0] * 64.0f), 0, 64);
+    this.coinstate.stipplenum = SbBasic.SbClamp((int)(transp.getFloat(0) * 64.0f), 0, 64);
 
     this.coinstate.istransparent = false;
     for (int i = 0; i < numtransp; i++) {
-      if (transp[i] > 0.0f) {
+      if (transp.getFloat(i) > 0.0f) {
         this.coinstate.istransparent = true;
         break;
       }
@@ -1639,12 +1640,12 @@ setMaterialElt(SoNode node, int mask, SoColorPacker packer,
     }
     if ((mask & masks.TRANSPARENCY_MASK.getValue()) != 0){
         ivState.numTransparencies = transp.getNum();
-        ivState.transparencies = transp.getValuesFloat(0);
+        ivState.transparencies = transp.getValuesFloat(/*0*/);
         ivState.stippleNum = 0;
-        if ((ivState.transparencies[0]> 0.0) &&
+        if ((ivState.transparencies.getFloat(0)> 0.0) &&
                 (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue())) {
             ivState.stippleNum = 
-                (int)(ivState.transparencies[0]*getNumPatterns());
+                (int)(ivState.transparencies.getFloat(0)*getNumPatterns());
         }
         ivState.packed=false;
         ivState.packedTransparent = false;
@@ -1882,11 +1883,11 @@ initClass(final Class<? extends SoElement> javaClass)
 	SoElement.initClass(javaClass);
 
 if (lazy_defaultdiffuse == null) {
-  lazy_defaultdiffuse = new SbColorArray(new float[3]);
-  lazy_defaulttransp = new FloatArray(0,new float[1]);
+  lazy_defaultdiffuse = new SbColorArray(FloatMemoryBuffer.allocateFloats(3));
+  lazy_defaulttransp = new FloatArray(0,FloatMemoryBuffer.allocateFloats(1));
   lazy_defaultindex = new IntArrayPtr(new int[1]);
   lazy_defaultpacked = new IntArrayPtr(new int[1]);
-  lazy_unpacked = new SbColorArray(new float[3]);
+  lazy_unpacked = new SbColorArray(FloatMemoryBuffer.allocateFloats(3));
 
   lazy_defaultdiffuse.get(0).copyFrom( getDefaultDiffuse());
   lazy_defaulttransp.set(0, getDefaultTransparency());

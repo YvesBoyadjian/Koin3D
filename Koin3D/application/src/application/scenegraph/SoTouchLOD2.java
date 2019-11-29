@@ -23,6 +23,8 @@ import jscenegraph.database.inventor.nodes.SoNode;
 public class SoTouchLOD2 extends SoLOD {
 	
 	public static final int FRONT_DISTANCE = 0;//1000;
+	
+	public static final int MOST_DETAILED = 0;
 
 	private int previousChild = -1;
 	
@@ -37,32 +39,51 @@ public class SoTouchLOD2 extends SoLOD {
 	protected int
 	whichToTraverse(SoAction action)
 	{
+		// 0 is the most detailed
+		// 1 is the least detailed
+		
 		int newChild = do_whichToTraverse(action);
-		if(previousChild == 0) {
-			if(newChild != 0) {
-				if(master.getCount() >= MAX_CHANGE) {
-					return 0;
-				}
-				else {
-					master.increment();
+		//if(previousChild == MOST_DETAILED) {
+			if(newChild != previousChild) {
+				if(newChild == MOST_DETAILED) {
+					if(master.getCount() >= MAX_CHANGE) {
+						if(previousChild == -1) {
+							return getNumChildren() - 1;
+						}
+						return previousChild;
+					}
+					else {
+						master.increment();
+					}
 				}
 				//System.out.println("SoTouchLOD2");
 				//long start = System.nanoTime();
-				SoGroup group = (SoGroup) getChild(0);
-				for(int i=0;i<4;i++) {
-					SoNode child = group.getChild(i);
-					if(child instanceof SoRecursiveIndexedFaceSet) {
-					
-						SoRecursiveIndexedFaceSet SoIndexedFaceSet = (SoRecursiveIndexedFaceSet)child;
-						SoIndexedFaceSet.clear();
-					}
+				if(previousChild != -1) {
+					SoNode node = getChild(previousChild);
+					clearTree(node);
 				}
 				//long stop = System.nanoTime();
 				//System.out.println("SoTouchLOD2 " + (stop - start)+" ns");				
 			}
-		}
+		//}
 		previousChild = newChild;
 		return newChild;
+	}
+
+	public static void clearTree(SoNode node) {
+		
+		if(node instanceof SoRecursiveIndexedFaceSet) {
+			
+			SoRecursiveIndexedFaceSet SoIndexedFaceSet = (SoRecursiveIndexedFaceSet)node;
+			SoIndexedFaceSet.clear();
+		}
+		else if( node.isOfType(SoGroup.getClassTypeId())){
+			SoGroup group = (SoGroup) node;
+			int nbChilds = group.getNumChildren();
+			for( int i=0; i<nbChilds; i++) {
+				clearTree( group.getChild(i) );
+			}				
+		}				
 	}
 
 	/*!

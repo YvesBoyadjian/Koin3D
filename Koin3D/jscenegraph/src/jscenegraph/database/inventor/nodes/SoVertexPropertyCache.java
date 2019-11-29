@@ -85,6 +85,7 @@ import jscenegraph.port.FloatArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -559,8 +560,13 @@ public class SoVertexPropertyCache {
   public   Buffer getTexCoords(int i) 
         { 
 	  	int offset = (int)((long)texCoordStride*i/(Float.SIZE/Byte.SIZE));
-	  	int length = texCoordPtr.length - offset;
-	  	return Buffers.copyFloatBuffer(FloatBuffer.wrap(texCoordPtr, offset, length));
+	  	int length = texCoordPtr.numFloats() - offset;
+	  	
+	  	FloatBuffer fb = texCoordPtr.toByteBuffer().asFloatBuffer();
+	  	fb.position(offset);
+	  	return fb;
+	  	
+	  	//return Buffers.copyFloatBuffer(FloatBuffer.wrap(texCoordPtr, offset, length));
 	  }
         
   public    boolean colorIsInVtxProp()  {return colorIsInVP;}
@@ -610,7 +616,7 @@ public class SoVertexPropertyCache {
   public    IntArrayPtr colorPtr;
   public   int colorStride, numColors;
   public    SoVPCacheFunc texCoordFunc;
-  public    float[] texCoordPtr;
+  public    FloatMemoryBuffer texCoordPtr;
   public   int texCoordStride, numTexCoords;
 
   public   boolean generateNormals;

@@ -9,6 +9,7 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SbVec4fSingle;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -16,7 +17,7 @@ import jscenegraph.database.inventor.SbVec4fSingle;
  */
 public class SbVec4fArray implements FloatBufferAble {
 
-	private float[] valuesArray;
+	private FloatMemoryBuffer valuesArray;
 
 	private int delta;
 	
@@ -25,12 +26,12 @@ public class SbVec4fArray implements FloatBufferAble {
 		this.delta = other.delta + delta;
 	}
 
-	public SbVec4fArray(float[] valuesArray) {
+	public SbVec4fArray(FloatMemoryBuffer valuesArray) {
 		this.valuesArray = valuesArray;
 	}
 
 	public SbVec4fArray(SbVec4fSingle singleSbVec4f) {
-		valuesArray = singleSbVec4f.getValue();
+		valuesArray = singleSbVec4f.getValueBuffer();
 	}
 
 	public SbVec4f get(int index) {
@@ -42,14 +43,14 @@ public class SbVec4fArray implements FloatBufferAble {
 	}
 
 	public static SbVec4fArray allocate(int maxPoints) {
-		return new SbVec4fArray(new float[maxPoints*4]);
+		return new SbVec4fArray(FloatMemoryBuffer.allocateFloats(maxPoints*4));
 	}
 	
 	public FloatArray toFloatArray() {
 		return new FloatArray(delta*4,valuesArray);
 	}
 	
-	public float[] toFloat() {
+	public FloatMemoryBuffer toFloat() {
 		
 		if(delta != 0) {
 			throw new IllegalStateException();
@@ -60,7 +61,12 @@ public class SbVec4fArray implements FloatBufferAble {
 
 	@Override
 	public FloatBuffer toFloatBuffer() {
-		return FloatBuffer.wrap(valuesArray,delta*4,valuesArray.length - delta*4);
+		FloatBuffer fb = valuesArray.toByteBuffer().asFloatBuffer();
+		fb.position(delta*4);
+		
+		return fb;
+		
+		//return FloatBuffer.wrap(valuesArray,delta*4,valuesArray.length - delta*4);
 	}
 
 	public static SbVec4fArray copyOf(SbVec4fArray coords4) {

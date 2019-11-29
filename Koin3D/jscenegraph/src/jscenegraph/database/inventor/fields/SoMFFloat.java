@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of floating point values.
@@ -120,6 +121,17 @@ public class SoMFFloat extends SoMField<Float> {
 			returnValue[i] = valuesFloat[i];
 		}
 		return returnValue;
+	}
+
+	// java port
+	public FloatMemoryBuffer getValuesFloat() {
+		Float[] valuesFloat = getValues(0);
+		int returnLength = valuesFloat.length;
+		float[] returnValue = new float[returnLength];
+		for(int i=0; i< returnLength;i++) {
+			returnValue[i] = valuesFloat[i];
+		}
+		return FloatMemoryBuffer.allocateFromFloatArray(returnValue);
 	}
 
 ////////////////////////////////////////////////////////////////////////

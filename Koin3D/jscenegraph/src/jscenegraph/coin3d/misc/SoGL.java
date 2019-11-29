@@ -41,6 +41,7 @@ import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.SbVec4fArray;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 public class SoGL {
 
@@ -1728,7 +1729,7 @@ sogl_render_cube( float width,
   GL2 gl2 = state.getGL2();
 
 
-  SbVec3fArray varray = new SbVec3fArray(new float[8*3]);
+  SbVec3fArray varray = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(new float[8*3]));
   sogl_generate_cube_vertices(varray,
                          width * 0.5f,
                          height * 0.5f,
@@ -1737,8 +1738,8 @@ sogl_render_cube( float width,
   IntArrayPtr iptr = new IntArrayPtr(sogl_cube_vindices);
   int u;
   
-  SbVec3fArray cn = new SbVec3fArray(sogl_cube_normals);
-  SbVec2fArray ct = new SbVec2fArray(sogl_cube_texcoords);
+  SbVec3fArray cn = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_normals));
+  SbVec2fArray ct = new SbVec2fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_texcoords));
 
   for (int i = 0; i < 6; i++) { // 6 quads
     if ((flags & SOGL_NEED_NORMALS)!=0)
@@ -1803,9 +1804,9 @@ sogl_render_cylinder( float radius,
 
   float h2 = height * 0.5f;
 
-  final SbVec3fArray coords = new SbVec3fArray(new float[129*3]);
-  final SbVec3fArray normals = new SbVec3fArray(new float[130*3]);
-  final SbVec2fArray texcoords = new SbVec2fArray(new float[129*2]);
+  final SbVec3fArray coords = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(new float[129*3]));
+  final SbVec3fArray normals = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(new float[130*3]));
+  final SbVec2fArray texcoords = new SbVec2fArray(FloatMemoryBuffer.allocateFromFloatArray(new float[129*2]));
 
   sogl_generate_3d_circle(coords, slices, radius, -h2);
   coords.get(slices).copyFrom( coords.get(0));

@@ -85,6 +85,7 @@ import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbColorArray;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -421,7 +422,7 @@ setTranspTypeElt(int type)
 ////////////////////////////////////////////////////////////////////////
 public void
 setTranspElt(SoNode node,  
-    int numTrans,   float[] trans, SoColorPacker cPacker)
+    int numTrans,   FloatMemoryBuffer trans, SoColorPacker cPacker)
 {
     ivState.numTransparencies = numTrans;
     ivState.transparencies = trans;
@@ -430,13 +431,13 @@ setTranspElt(SoNode node,
     // set to zero unless have nonzero stipple transparency.
 
     ivState.stippleNum = 0;
-    if (trans[0] > 0.0) {
+    if (trans.getFloat(0) > 0.0) {
         if (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
             ivState.stippleNum =
-                (int)(trans[0]*getNumPatterns());
+                (int)(trans.getFloat(0)*getNumPatterns());
         }       
     }
-    if (numTrans == 1 && trans[0] == 0) coinstate.transpnodeid = 0;
+    if (numTrans == 1 && trans.getFloat(0) == 0) coinstate.transpnodeid = 0;
     else coinstate.transpnodeid = node.getNodeId();
     ivState.packed = false;
     ivState.packedTransparent = false;
@@ -721,16 +722,16 @@ setMaterialElt(SoNode node, int mask,
     
     if ((mask & masks.TRANSPARENCY_MASK.getValue())!=0){
         ivState.numTransparencies = transp.getNum();
-        ivState.transparencies = transp.getValuesFloat(0);    
+        ivState.transparencies = transp.getValuesFloat(/*0*/);    
         ivState.stippleNum = 0;
-        if (ivState.numTransparencies == 1 && ivState.transparencies[0] == 0.0)
+        if (ivState.numTransparencies == 1 && ivState.transparencies.getFloat(0) == 0.0)
             coinstate.transpnodeid = 0;
         else { 
             coinstate.transpnodeid = node.getNodeId();
-            if (ivState.transparencies[0] != 0.0 &&        
+            if (ivState.transparencies.getFloat(0) != 0.0 &&        
                     coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
                 ivState.stippleNum =
-                    (int)(ivState.transparencies[0]*getNumPatterns());
+                    (int)(ivState.transparencies.getFloat(0)*getNumPatterns());
             }   
         }
             

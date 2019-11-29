@@ -612,7 +612,7 @@ SoMaterial_doAction(SoAction action)
     // values and test
     if (pimpl.transparencyflag < 0) {
       int i, n = this.transparency.getNum();
-      FloatArray p = new FloatArray(0,this.transparency.getValuesFloat(0));
+      FloatArray p = new FloatArray(0,this.transparency.getValuesFloat(/*0*/));
       for (i = 0; i < n; i++) {
         if (p.get(i) > 0.0f) {
           istransparent = true;
@@ -663,7 +663,7 @@ SoMaterial_doAction(SoAction action)
     SoLazyElement.setMaterials(state, this, bitmask,
                                 pimpl.getColorPacker(),
                                 diffuseptr, numdiffuse,
-                                new FloatArray(0,this.transparency.getValuesFloat(0)), numtransp,
+                                new FloatArray(0,this.transparency.getValuesFloat(/*0*/)), numtransp,
                                 (bitmask & SoLazyElement.masks.AMBIENT_MASK.getValue())!=0 ?
                                 this.ambientColor.operator_square_bracket(0) : dummycolor,
                                 (bitmask & SoLazyElement.masks.EMISSIVE_MASK.getValue())!=0 ?

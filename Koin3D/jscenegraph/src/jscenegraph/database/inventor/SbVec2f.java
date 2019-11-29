@@ -74,6 +74,7 @@ import java.util.function.DoubleConsumer;
 
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.Mutable;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -96,32 +97,32 @@ SbVec3f, SbVec4f, SbVec2s, SbRotation
  *
  */
 public class SbVec2f implements Mutable {
-	protected final float[] vec;
+	protected final FloatMemoryBuffer vec;
 	protected int indice;
 
 	// Default constructor.
 	public SbVec2f() {
-		vec = new float[2];
+		vec = FloatMemoryBuffer.allocateFloats(2);
 		indice = 0;
 	}
 
 	// Constructor given vector components.
 	public SbVec2f(float[] v) {
-		vec = new float[2];
+		vec = FloatMemoryBuffer.allocateFloats(2);
 		indice = 0;
 		 setValue(v);
 	}
 
 	// Constructor given vector components.
 	public SbVec2f(float x, float y) {
-		vec = new float[2]; 		
+		vec = FloatMemoryBuffer.allocateFloats(2); 		
 		indice = 0;
 		 setValue(x, y);
 	}
 
 	// java port
 	public SbVec2f(final SbVec2f other) {
-		vec = new float[2];
+		vec = FloatMemoryBuffer.allocateFloats(2);
 		indice = 0;
 		setValue(other.vec);
 	}
@@ -131,7 +132,7 @@ public class SbVec2f implements Mutable {
 	 * @param array
 	 * @param indice
 	 */
-	public SbVec2f(float[] array, int indice) {
+	public SbVec2f(FloatMemoryBuffer array, int indice) {
 		vec = array;
 		this.indice = indice;
 	}
@@ -145,6 +146,14 @@ public class SbVec2f implements Mutable {
 	public SbVec2f setValue(float[] v) {
 	     s(0, v[0]);
 	     s(1, v[1]);
+
+	     return (this);
+	}
+
+	// Sets the vector components.
+	public SbVec2f setValue(FloatMemoryBuffer v) {
+	     s(0, v.getFloat(0));
+	     s(1, v.getFloat(1));
 
 	     return (this);
 	}
@@ -172,7 +181,7 @@ public class SbVec2f implements Mutable {
 	 * @return
 	 */
 	protected float g(int i) {
-		return vec[indice+i];
+		return vec.getFloat(indice+i);
 	}
 	
 	/**
@@ -181,7 +190,7 @@ public class SbVec2f implements Mutable {
 	 * @param v
 	 */
 	protected void s(int i, float v) {
-		vec[indice+i] = v;
+		vec.setFloat(indice+i, v);
 	}
 	    
     /**
@@ -189,7 +198,10 @@ public class SbVec2f implements Mutable {
      * @return
      */
     protected final float[] getValueRef() {
-    	return vec; 
+    	if( indice != 0) {
+    		throw new IllegalStateException();
+    	}
+    	return vec.toFloatArray(); 
     }
     
 	public float operator_square_bracket(int i) {

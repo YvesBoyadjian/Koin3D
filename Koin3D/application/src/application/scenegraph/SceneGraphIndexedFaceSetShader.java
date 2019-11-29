@@ -804,7 +804,7 @@ for(int is=0;is<4;is++) {
 			setBBoxCenter();
 			return current_z;
 		}
-		float newZ = getInternalZ(x,y,z);
+		float newZ = getInternalZ(x,y,z, new int[4]);
 		
 		current_z = newZ;
 		setBBoxCenter();
@@ -906,16 +906,16 @@ for(int is=0;is<4;is++) {
 		
 		if(indices == null) {
 			indices = new int[4];
-			indices[0] = index0;
-			indices[1] = index1;
-			indices[2] = index2;
-			indices[3] = index3;
 		}
-		
+		indices[0] = index0;
+		indices[1] = index1;
+		indices[2] = index2;
+		indices[3] = index3;
+				
 		return indices;
 	}
 	
-	public float getInternalZ(float x, float y, float z) {
+	public float getInternalZ(float x, float y, float z, int[] indices) {
 		
 		float ifloat = (x - transl.translation.getValue().getX())/delta_x;
 		float jfloat = (delta_y*(h-1) -(y - transl.translation.getValue().getY() - jstart * delta_y))/delta_y;
@@ -952,8 +952,8 @@ for(int is=0;is<4;is++) {
 		int index2 = imax*h + jmax;
 		int index3 = imin*h + jmax;
 		*/
-		int[] indices = getIndexes(x,y,null);
-		if(indices == null) {
+		/*int[] indices = */;
+		if(getIndexes(x,y,indices) == null) {
 			return ZMIN - zTranslation;			
 		}
 		int index0 = indices[0];
@@ -961,12 +961,10 @@ for(int is=0;is<4;is++) {
 		int index2 = indices[2];
 		int index3 = indices[3];
 		
-		float[] xyz = new float[3];
- 		
-		float z0 = chunks.verticesGet(index0,xyz)[2] - zTranslation;
-		float z1 = chunks.verticesGet(index1,xyz)[2] - zTranslation;
-		float z2 = chunks.verticesGet(index2,xyz)[2] - zTranslation;
-		float z3 = chunks.verticesGet(index3,xyz)[2] - zTranslation;
+		float z0 = chunks.verticesGetZ(index0) - zTranslation;
+		float z1 = chunks.verticesGetZ(index1) - zTranslation;
+		float z2 = chunks.verticesGetZ(index2) - zTranslation;
+		float z3 = chunks.verticesGetZ(index3) - zTranslation;
 		
 		float alpha = ifloat - imin;
 		float beta = jfloat - jmin;

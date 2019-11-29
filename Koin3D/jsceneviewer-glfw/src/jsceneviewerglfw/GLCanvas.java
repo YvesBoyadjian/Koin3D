@@ -60,6 +60,8 @@ public class GLCanvas extends Composite {
 		
 		System.out.println("RGB : "+ vidMode.redBits()+" "+vidMode.greenBits()+" "+vidMode.blueBits());
 		System.out.println("Refresh Rate : "+vidMode.refreshRate()+" Hz");
+		
+		glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); //makes flashing the screen in windows, but necessary for linux
 			
 		// Create the window
 		window = glfwCreateWindow(width, height, "Hello World!", /*glfwGetPrimaryMonitor()*/NULL, NULL);
@@ -128,6 +130,8 @@ public class GLCanvas extends Composite {
         glfwSetInputMode(window, GLFW_CURSOR, format.grabCursor ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_HIDDEN);
 //        if ( format.grabCursor && glfwRawMouseMotionSupported()) does not work
 //            glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);	
+        
+        swapBuffers();
         }
 	
 	public void setCurrent() {

@@ -344,7 +344,7 @@ public void setScale(final SbVec3f s)
 	
 	// Sets matrix to translate by given vector. 
 	public void setTranslate(final SbVec3f tv) {
-		float[] t = tv.vec;
+		//float[] t = tv.vec;
 	     matrix[0][0] = 1.0f;
 	          matrix[0][1] = 0.0f;
 	          matrix[0][2] = 0.0f;
@@ -357,9 +357,9 @@ public void setScale(final SbVec3f s)
 	          matrix[2][1] = 0.0f;
 	          matrix[2][2] = 1.0f;
 	          matrix[2][3] = 0.0f;
-	          matrix[3][0] = t[0];
-	          matrix[3][1] = t[1];
-	          matrix[3][2] = t[2];
+	          matrix[3][0] = tv.getX();//[0];
+	          matrix[3][1] = tv.getY();//[1];
+	          matrix[3][2] = tv.getZ();//t[2];
 	          matrix[3][3] = 1.0f;	     		
 	}
 	
@@ -1294,12 +1294,14 @@ multLeft(final SbMatrix m)
     public void
      multDirMatrix(final SbVec3f srcV, final SbVec3f dst)
      {
-         float       x,y,z;
-         float[] src = srcV.vec;
+         //float       x,y,z;
+         float src0 = srcV.getX();
+         float src1 = srcV.getY();
+         float src2 = srcV.getZ();
      
-         x = src[0]*matrix[0][0] + src[1]*matrix[1][0] + src[2]*matrix[2][0];
-         y = src[0]*matrix[0][1] + src[1]*matrix[1][1] + src[2]*matrix[2][1];
-         z = src[0]*matrix[0][2] + src[1]*matrix[1][2] + src[2]*matrix[2][2];
+         float x = src0*matrix[0][0] + src1*matrix[1][0] + src2*matrix[2][0];
+         float y = src0*matrix[0][1] + src1*matrix[1][1] + src2*matrix[2][1];
+         float z = src0*matrix[0][2] + src1*matrix[1][2] + src2*matrix[2][2];
      
          dst.setValue(x, y, z);
      }

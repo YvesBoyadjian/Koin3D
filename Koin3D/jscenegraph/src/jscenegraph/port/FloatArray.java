@@ -3,6 +3,9 @@
  */
 package jscenegraph.port;
 
+import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
+
 /**
  * @author Yves Boyadjian
  *
@@ -10,14 +13,14 @@ package jscenegraph.port;
 public class FloatArray {
 
 	private int start;
-	private float[] values;
+	private FloatMemoryBuffer values;
 	
-	public FloatArray(int start, float[] values) {
+	public FloatArray(int start, FloatMemoryBuffer values) {
 		this.start = start;
 		this.values = values;
 	}
 	
-	public float[] getValues() {
+	public FloatMemoryBuffer getValues() {
 		return values;
 	}
 	
@@ -26,18 +29,18 @@ public class FloatArray {
 	}
 	
 	public int size() {
-		return values.length-start;
+		return values.numFloats()-start;
 	}
 	
 	public float get(int i) {
-		return values[i+start];
+		return values.getFloat(i+start);
 	}
 	
 	public float[] get3() {
 		float[] three = new float[3];
-		three[0] = values[start];
-		three[1] = values[start+1];
-		three[2] = values[start+2];
+		three[0] = values.getFloat(start);
+		three[1] = values.getFloat(start+1);
+		three[2] = values.getFloat(start+2);
 		return three;
 	}
 
@@ -48,6 +51,13 @@ public class FloatArray {
 	}
 
 	public void set(int index, float value) {
-		values[index+start] = value;
+		values.setFloat(index+start, value);
+	}
+
+	public void getSbVec3f(int sbVec3fIndex, SbVec3f v) {
+		int floatIndex = sbVec3fIndex * 3;
+		v.setX(get(floatIndex++));
+		v.setY(get(floatIndex++));
+		v.setZ(get(floatIndex));
 	}
 }

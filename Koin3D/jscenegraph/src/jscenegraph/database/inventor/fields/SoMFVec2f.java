@@ -64,11 +64,14 @@ import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Array;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.Mutable;
 import jscenegraph.port.SbVec2fArray;
 import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.Util;
+import jscenegraph.port.VoidPtr;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,9 +101,11 @@ example:
  */
 public class SoMFVec2f extends SoMField<SbVec2f> {
 
-	private float[] valuesArray;
+	private SbVec2fArray vec2fArray;
 	
-	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
+	private FloatMemoryBuffer valuesArray;
+	
+	//private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
 
 	@Override
 	protected SbVec2f constructor() {
@@ -131,12 +136,12 @@ public class SoMFVec2f extends SoMField<SbVec2f> {
      	public float[] getValuesFloat(int start) {
     		evaluate();
 
-    		float[] shiftedValues = new float[(valuesArray.length/2 - start) * 2];
+    		float[] shiftedValues = new float[(valuesArray.numFloats()/2 - start) * 2];
     		int index = 0;
-    		for (int i = start; i < valuesArray.length/2; i++) {
-    			shiftedValues[index] = valuesArray[i*2];
+    		for (int i = start; i < valuesArray.numFloats()/2; i++) {
+    			shiftedValues[index] = valuesArray.getFloat(i*2);
     			index++;
-    			shiftedValues[index] = valuesArray[i*2+1];
+    			shiftedValues[index] = valuesArray.getFloat(i*2+1);
     			index++;
     		}
     		return shiftedValues;
@@ -231,8 +236,8 @@ public void setValues(int start, // Starting index
 		makeRoom(newNum);
 
 	for (i = 0; i < num; i++) {
-		valuesArray[(start + i)*2] = xy[i][0];
-		valuesArray[(start + i)*2+1] = xy[i][1];
+		valuesArray.setFloat((start + i)*2, xy[i][0]);
+		valuesArray.setFloat((start + i)*2+1, xy[i][1]);
 	}
 	valueChanged();
 }
@@ -242,8 +247,8 @@ public void setValues(int start, // Starting index
 public SbVec2f[] getValues(int start) {
 	evaluate();
 
-	SbVec2f[] shiftedValues = new SbVec2f[valuesArray.length/2 - start];
-	for (int i = start; i < valuesArray.length/2; i++) {
+	SbVec2f[] shiftedValues = new SbVec2f[valuesArray.numFloats()/2 - start];
+	for (int i = start; i < valuesArray.numFloats()/2; i++) {
 		shiftedValues[i - start] = new SbVec2f(valuesArray,i*2);
 	}
 	return shiftedValues;
@@ -253,7 +258,7 @@ public SbVec2f[] getValues(int start) {
  * Java port
  * @return
  */
-public float[] getValuesRef() {
+public FloatMemoryBuffer getValuesRef() {
 	evaluate();
 	
 	return valuesArray;
@@ -273,8 +278,8 @@ public void setValues(int start, float[] xy) {
 		makeRoom(newNum);
 
 	for (i = 0; i < num; i++) {
-		valuesArray[(start + i)*2] = xy[2*i];
-		valuesArray[(start + i)*2+1] = xy[2*i+1];
+		valuesArray.setFloat((start + i)*2, xy[2*i]);
+		valuesArray.setFloat((start + i)*2+1, xy[2*i+1]);
 	}
 	valueChanged();
 }
@@ -287,36 +292,36 @@ public void setValues(int start, SbVec2f[] xy) {
 		makeRoom(newNum);
 	
 	for(int i=0; i<num; i++) {
-		valuesArray[(start + i)*2] = xy[i].getX();
-		valuesArray[(start + i)*2+1] = xy[i].getY();		
+		valuesArray.setFloat((start + i)*2, xy[i].getX());
+		valuesArray.setFloat((start + i)*2+1, xy[i].getY());		
 	}
 	valueChanged();
 }
 
-public void setValuesPointer(float[] userdata) {
-	setValuesPointer(userdata, null);
-}
+//public void setValuesPointer(float[] userdata) {
+//	setValuesPointer(userdata, null);
+//}
 
 /**
  * Values in buffer must be already initialized
  * @param userdata
  * @param buffer
  */
-public void setValuesPointer(float[] userdata, FloatBuffer buffer) {
+public void setValuesPointer(FloatMemoryBuffer userdata) {
 	makeRoom(0);
 	  if (userdata != null) { 
 		    valuesArray = userdata;
-		    if(buffer != null && buffer.capacity() == userdata.length) {
-		    	valuesBuffer[0] = buffer;
-		    }
-		    else {
-		    	valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
-			    valuesBuffer[0].clear();
-			    valuesBuffer[0].put(valuesArray, 0, userdata.length);
-			    valuesBuffer[0].flip();
-		    }
+//		    if(buffer != null && buffer.capacity() == userdata.length) {
+//		    	valuesBuffer[0] = buffer;
+//		    }
+//		    else {
+//		    	valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
+//			    valuesBuffer[0].clear();
+//			    valuesBuffer[0].put(valuesArray, 0, userdata.length);
+//			    valuesBuffer[0].flip();
+//		    }
 		    // userDataIsUsed = true; COIN3D 
-		    num = maxNum = userdata.length/2; 
+		    num = maxNum = userdata.numFloats()/2; 
 		    valueChanged(); 
 	} 
 	
@@ -344,14 +349,14 @@ public void setValues(int start, // Starting index
 		makeRoom(newNum);
 
 	for (i = 0; i < num; i++) {
-		valuesArray[(start + i)*2] = xy[i][0];
-		valuesArray[(start + i)*2+1] = xy[i][1];
+		valuesArray.setFloat((start + i)*2, xy[i][0]);
+		valuesArray.setFloat((start + i)*2+1, xy[i][1]);
 	}
 	valueChanged();
 }
 
-private float[] arrayConstructorInternal(int length) {
-	return new float[length*2];
+private FloatMemoryBuffer arrayConstructorInternal(int length) {
+	return FloatMemoryBuffer.allocateFloats(length*2);
 }
 
 protected void allocValues(int newNum) {
@@ -360,17 +365,23 @@ protected void allocValues(int newNum) {
 			valuesArray = arrayConstructorInternal(newNum);
 		}
 	} else {
-		float[] oldValues = valuesArray;
+		FloatMemoryBuffer oldValues = valuesArray;
 		int i;
 
 		if (newNum > 0) {
 			valuesArray = arrayConstructorInternal(newNum);
 			for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
-				valuesArray[2*i] = oldValues[2*i];
-				valuesArray[2*i+1] = oldValues[2*i+1];
+				valuesArray.setFloat(2*i, oldValues.getFloat(2*i));
+				valuesArray.setFloat(2*i+1, oldValues.getFloat(2*i+1));
 			}
 		} else
 			valuesArray = null;
+		if( vec2fArray != null ) {
+//			if( VoidPtr.has(vec2fArray)) {
+//				Destroyable.delete(VoidPtr.create(vec2fArray));
+//			}
+			vec2fArray = null;
+		}
 		// delete [] oldValues; java port
 	}
 
@@ -397,8 +408,8 @@ public SbVec2f[] startEditing()
 public void set1Value(int index, SbVec2f newValue) {
 	if (index >= getNum())
 		makeRoom(index + 1);
-	valuesArray[index*2] = newValue.getX();
-	valuesArray[index*2+1] = newValue.getY();
+	valuesArray.setFloat(index*2, newValue.getX());
+	valuesArray.setFloat(index*2+1, newValue.getY());
 	valueChanged();
 }
 
@@ -416,7 +427,10 @@ public SbVec2fArray startEditingFast()
 public SbVec2fArray getValuesSbVec2fArray() {
 	evaluate();
 
-	return new SbVec2fArray(valuesArray, valuesBuffer); 		
+	if( vec2fArray == null || vec2fArray.getValuesArray() != valuesArray ) {
+		vec2fArray = new SbVec2fArray(valuesArray);
+	}
+	return vec2fArray;
 }
 
 }

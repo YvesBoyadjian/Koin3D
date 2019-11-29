@@ -3,6 +3,7 @@
  */
 package application.scenegraph;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +23,7 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -155,19 +157,19 @@ public class Chunk {
 		
     	SoVertexProperty vertexProperty = new SoVertexProperty();
 	    
-	    vertexProperty.vertex.setValuesPointer(/*0,*/ getDecimatedVertices(l),getDecimatedVerticesBuffer(l));
+	    vertexProperty.vertex.setValuesPointer(/*0,*/ getDecimatedVertices(l)/*,getDecimatedVerticesBuffer(l)*/);
 	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(l),getDecimatedNormalsBuffer(l));
+	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals(l)/*,getDecimatedNormalsBuffer(l)*/);
 	    //vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
 	    //vertexProperty.orderedRGBA.setValues(0, getDecimatedColors(l));
-	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(l), getDecimatedTexCoordsBuffer(l));
+	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords(l)/*, getDecimatedTexCoordsBuffer(l)*/);
 
 	    return vertexProperty;
 	}
 	
-	private float[][] decimatedTextCoords = new float[NB_LOD][];
+	private FloatMemoryBuffer[] decimatedTextCoords = new FloatMemoryBuffer[NB_LOD];
 	
-	private float[] getDecimatedTexCoords(int l) {
+	private FloatMemoryBuffer getDecimatedTexCoords(int l) {
 		
 		if(decimatedTextCoords[l] == null) {
 		
@@ -180,20 +182,20 @@ public class Chunk {
 				array[index*2] = (j+0.5f)/decimatedChunkWidth;
 			}
 		}
-		this.decimatedTextCoords[l] = array;
+		this.decimatedTextCoords[l] = FloatMemoryBuffer.allocateFromFloatArray(array);
 		
 		}
 		return decimatedTextCoords[l];
 	}
 	
-	private FloatBuffer[] decimatedTextCoordsBuffer = new FloatBuffer[NB_LOD];
+	//private FloatBuffer[] decimatedTextCoordsBuffer = new FloatBuffer[NB_LOD];
 	
-	private FloatBuffer getDecimatedTexCoordsBuffer(int l) {
-		if(decimatedTextCoordsBuffer[l] == null) {
-			decimatedTextCoordsBuffer[l] = BufferUtils.createFloatBuffer(getDecimatedTexCoords(l).length);
-		}
-		return decimatedTextCoordsBuffer[l];
-	}
+//	private FloatBuffer getDecimatedTexCoordsBuffer(int l) {
+//		if(decimatedTextCoordsBuffer[l] == null) {
+//			decimatedTextCoordsBuffer[l] = BufferUtils.createFloatBuffer(getDecimatedTexCoords(l).length);
+//		}
+//		return decimatedTextCoordsBuffer[l];
+//	}
 
 	public static int getDecimatedChunkWidth(int i) {
 		
@@ -305,23 +307,23 @@ public class Chunk {
 //		return decimatedColors;
 //	}
 
-	private FloatBuffer[] decimatedNormalsBuffers = new FloatBuffer[NB_LOD];
+//	private FloatBuffer[] decimatedNormalsBuffers = new FloatBuffer[NB_LOD];
 
-	private FloatBuffer getDecimatedNormalsBuffer(int l) {
-		if(decimatedNormalsBuffers[l] == null) {
-			decimatedNormalsBuffers[l] = BufferUtils.createFloatBuffer(getDecimatedNormals(l).length);
-		}
-		return decimatedNormalsBuffers[l];
-	}	
+//	private FloatBuffer getDecimatedNormalsBuffer(int l) {
+//		if(decimatedNormalsBuffers[l] == null) {
+//			decimatedNormalsBuffers[l] = BufferUtils.createFloatBuffer(getDecimatedNormals(l).length);
+//		}
+//		return decimatedNormalsBuffers[l];
+//	}	
 	
-	private float[][] decimatedNormals = new float[NB_LOD][];
+	private FloatMemoryBuffer[] decimatedNormals = new FloatMemoryBuffer[NB_LOD];
 
-	private float[] getDecimatedNormals(int l) {
+	private FloatMemoryBuffer getDecimatedNormals(int l) {
 		
 		if(decimatedNormals[l] == null) {
 			
 			if(l==0) {
-				decimatedNormals[l] = normals;
+				decimatedNormals[l] = FloatMemoryBuffer.allocateFromFloatArray(normals);
 			}
 			else {
 		
@@ -375,29 +377,29 @@ public class Chunk {
 				indice++;
 			}
 		}
-		this.decimatedNormals[l] = decimatedNormals;
+		this.decimatedNormals[l] = FloatMemoryBuffer.allocateFromFloatArray(decimatedNormals);
 			}
 		}
 		return decimatedNormals[l];
 	}
 	
-	private FloatBuffer[] decimatedVerticesBuffers = new FloatBuffer[NB_LOD];
+//	private FloatBuffer[] decimatedVerticesBuffers = new FloatBuffer[NB_LOD];
 
-	private FloatBuffer getDecimatedVerticesBuffer(int l) {
-		if(decimatedVerticesBuffers[l] == null) {
-			decimatedVerticesBuffers[l] = BufferUtils.createFloatBuffer(getDecimatedVertices(l).length);
-		}
-		return decimatedVerticesBuffers[l];
-	}	
+//	private FloatBuffer getDecimatedVerticesBuffer(int l) {
+//		if(decimatedVerticesBuffers[l] == null) {
+//			decimatedVerticesBuffers[l] = BufferUtils.createFloatBuffer(getDecimatedVertices(l).length);
+//		}
+//		return decimatedVerticesBuffers[l];
+//	}	
 	
-	private float[][] decimatedVertices = new float[NB_LOD][];
+	private FloatMemoryBuffer[] decimatedVertices = new FloatMemoryBuffer[NB_LOD];
 
-	private float[] getDecimatedVertices(int l) {
+	private FloatMemoryBuffer getDecimatedVertices(int l) {
 		
 		if(decimatedVertices[l] == null) {
 			
 			if(l==0) {
-				decimatedVertices[l] = vertices;
+				decimatedVertices[l] = FloatMemoryBuffer.allocateFromFloatArray(vertices);
 			}
 			else {
 		
@@ -427,7 +429,7 @@ public class Chunk {
 					decimatedVertices[indice*3+2] = vertices[indice0*3+2];
 				}
 			}
-			this.decimatedVertices[l] = decimatedVertices;
+			this.decimatedVertices[l] = FloatMemoryBuffer.allocateFromFloatArray(decimatedVertices);
 			}
 		}
 		return decimatedVertices[l];
@@ -669,12 +671,13 @@ public class Chunk {
 		}
 		try {
 			FileInputStream fileInputStream = new FileInputStream(file);
+			//BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
 			
 			int nbN = normals.length;									
 			byte[] buffer = new byte[nbN * Float.BYTES];
 			ByteBuffer bb = ByteBuffer.wrap(buffer);
 			FloatBuffer fb = bb.asFloatBuffer();
-			fileInputStream.read(buffer);
+			fileInputStream/*bufferedInputStream*/.read(buffer);
 			fb.get(normals);
 			
 			fileInputStream.close();

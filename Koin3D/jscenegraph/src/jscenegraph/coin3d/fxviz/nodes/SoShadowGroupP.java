@@ -917,13 +917,13 @@ setFragmentShader(SoState state)
     break;
   case FOG:
     gen.addMainStatement("float fog = exp(-gl_Fog.density * gl_FogFragCoord);\n");
-    gen.setVersion("#version 110");
+    gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
     break;
   case SMOKE:
     gen.addMainStatement("float fogfrag =  gl_FogFragCoord;");
     gen.addMainStatement("float fogdens =  gl_Fog.density;");
     gen.addMainStatement("float fog = exp(-fogdens * fogdens * fogfrag * fogfrag);\n");
-    gen.setVersion("#version 110");
+    gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
     break;
   }
   if (fogType != SoEnvironmentElement.FogType.NONE) {

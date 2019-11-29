@@ -75,6 +75,8 @@ import java.util.function.DoubleConsumer;
 
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.Mutable;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! 3D vector class.
@@ -97,12 +99,13 @@ SbVec2f, SbVec4f, SbVec2s, SbRotation
  */
 public class SbVec3f implements Cloneable, Mutable {
 	
-	protected float[] vec;
+	//protected float[] vec;
+	protected FloatMemoryBuffer vec;
 	protected int indice;
 	
 	// Default constructor. 
 	public SbVec3f() {
-		vec = new float[3];
+		vec = FloatMemoryBuffer.allocateFloats(3);
 		indice = 0;
 	}
 
@@ -111,25 +114,25 @@ public class SbVec3f implements Cloneable, Mutable {
 	 * @param array
 	 * @param indice
 	 */
-	public SbVec3f(float[] array, int indice) {
+	public SbVec3f(FloatMemoryBuffer array, int indice) {
 		vec = array;
 		this.indice = indice;
 	}
 	
 	// java port
 	public SbVec3f(SbVec3f other) {
-		vec = new float[3];
+		vec = FloatMemoryBuffer.allocateFloats(3);
 		indice = 0;
-		vec[0] = other.g(0);
-		vec[1] = other.g(1);
-		vec[2] = other.g(2);
+		vec.setFloat(0, other.g(0));
+		vec.setFloat(1, other.g(1));
+		vec.setFloat(2, other.g(2));
 	}
 	
 	// Constructor given vector components. 
 	public SbVec3f(float[] v) {
-		vec = new float[3];
+		vec = FloatMemoryBuffer.allocateFloats(3);
 		indice = 0;
-		 vec[0] = v[0]; vec[1] = v[1]; vec[2] = v[2]; 
+		 vec.setFloat(0, v[0]); vec.setFloat(1, v[1]); vec.setFloat(2, v[2]); 
 	}
 
 	/**
@@ -141,9 +144,9 @@ public class SbVec3f implements Cloneable, Mutable {
 	 */
 	public SbVec3f(float x, float y, float z)
 	{ 
-		vec = new float[3]; 		
+		vec = FloatMemoryBuffer.allocateFloats(3); 		
 		indice = 0;
-		vec[0] = x; vec[1] = y; vec[2] = z; 
+		vec.setFloat(0, x); vec.setFloat(1, y); vec.setFloat(2, z); 
 	}
 	
 	public SbVec3f(FloatArray vpCoords, int i) {
@@ -161,7 +164,7 @@ public class SbVec3f implements Cloneable, Mutable {
 	 * @return
 	 */
 	protected float g(int i) {
-		return vec[indice+i];
+		return vec.getFloat(indice+i);
 	}
 	
 	/**
@@ -170,7 +173,7 @@ public class SbVec3f implements Cloneable, Mutable {
 	 * @param v
 	 */
 	protected void s(int i, float v) {
-		vec[indice+i] = v;
+		vec.setFloat(indice+i, v);
 	}
 	
 	// Returns right-handed cross product of vector and another vector. 
@@ -219,7 +222,10 @@ public class SbVec3f implements Cloneable, Mutable {
      * @return
      */
     protected final float[] getValueRef() {
-    	return vec; 
+    	if( indice != 0) {
+    		throw new IllegalStateException();
+    	}
+    	return vec.toFloatArray(); 
     }
     
     /**
@@ -236,7 +242,10 @@ public class SbVec3f implements Cloneable, Mutable {
      * @return
      */
     public final FloatBuffer getValueGL() {
-    	return FloatBuffer.wrap(vec,indice,3);
+    	FloatBuffer fb = vec.toByteBuffer().asFloatBuffer();
+    	fb.position(indice);
+    	return fb;
+    	//return FloatBuffer.wrap(vec,indice,3);
     }
 	
     //

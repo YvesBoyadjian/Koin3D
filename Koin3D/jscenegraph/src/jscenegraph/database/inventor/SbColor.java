@@ -56,6 +56,8 @@ package jscenegraph.database.inventor;
 
 import java.awt.Color;
 
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Color vector class.
@@ -104,7 +106,7 @@ public class SbColor extends SbVec3f {
 		setValue(compArray);
 	}
 	
-	public SbColor(float[] valuesArray, int indice) {
+	public SbColor(FloatMemoryBuffer valuesArray, int indice) {
 		super(valuesArray,indice);
 	}
 

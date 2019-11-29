@@ -302,7 +302,6 @@ public class MainGLFW {
 	    System.out.println("Depth Buffer : "+depthBits[0]);
 	    
 	    window.setVisible(false);
-	    window.dispose();
 	    
 	    boolean success = viewer.setFocus();
 	    
@@ -315,7 +314,7 @@ public class MainGLFW {
 		// disposes all associated windows and their components
 		display.dispose();
 		
-		
+	    window.dispose(); // must be done at the end, for linux		
 	}
 
 }

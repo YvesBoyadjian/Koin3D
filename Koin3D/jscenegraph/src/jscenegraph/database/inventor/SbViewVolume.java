@@ -1257,7 +1257,7 @@ public class SbViewVolume implements Mutable {
 	// and double precision classes.
 	//
 	public static SbVec3f dp_to_sbvec3f(final SbVec3f v) {
-		return new SbVec3f((float) (v.vec[0]), (float) (v.vec[1]), (float) (v.vec[2]));
+		return new SbVec3f((float) (v.getX()), (float) (v.getY()), (float) (v.getZ()));
 	}
 
 	////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@ import java.nio.FloatBuffer;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -14,7 +15,7 @@ import jscenegraph.database.inventor.SbVec3fSingle;
  */
 public class MutableSbVec3fArray implements FloatBufferAble {
 	
-	private float[] valuesArray;
+	private FloatMemoryBuffer valuesArray;
 
 	private int delta;
 	
@@ -23,12 +24,12 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 		this.delta = other.delta + delta;
 	}
 
-	public MutableSbVec3fArray(float[] valuesArray) {
+	public MutableSbVec3fArray(FloatMemoryBuffer valuesArray) {
 		this.valuesArray = valuesArray;
 	}
 
 	public MutableSbVec3fArray(SbVec3fSingle singleSbVec3f) {
-		valuesArray = singleSbVec3f.getValue();
+		valuesArray = singleSbVec3f.getValueBuffer();
 	}
 
 	public MutableSbVec3fArray(SbVec3fArray other) {
@@ -45,7 +46,7 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 	}
 
 	public static SbVec3fArray allocate(int maxPoints) {
-		return new SbVec3fArray(new float[maxPoints*3]);
+		return new SbVec3fArray(FloatMemoryBuffer.allocateFloats(maxPoints*3));
 	}
 	
 	public FloatArray toFloatArray() {
@@ -54,14 +55,17 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 
 	@Override
 	public FloatBuffer toFloatBuffer() {
-		return FloatBuffer.wrap(valuesArray,delta*3,valuesArray.length - delta*3);
+		FloatBuffer fb = valuesArray.toByteBuffer().asFloatBuffer();
+		fb.position(delta*3);
+		return fb;
+		//return FloatBuffer.wrap(valuesArray,delta*3,valuesArray.numFloats() - delta*3);
 	}
 	
 	public void plusPlus() {
 		delta++;
 	}
 
-	float[] getValuesArray() {
+	FloatMemoryBuffer getValuesArray() {
 		return valuesArray;
 	}
 

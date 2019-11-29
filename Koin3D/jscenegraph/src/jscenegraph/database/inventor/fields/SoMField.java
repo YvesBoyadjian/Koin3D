@@ -572,4 +572,9 @@ insertSpace(int start,        // Starting index
     /* Indicate that batch edits have finished */                             
     public void finishEditing() { valueChanged(); }           
                                                                               
+	public void destructor() {
+		  enableNotify(false); /* Avoid notifying destructed containers. */ 
+		  deleteAllValues(); 
+		super.destructor();
+	}
 }

@@ -68,10 +68,12 @@ public class DouglasForest {
 			Random randomTopTrees  = new Random(SEED_WITH_TOP_TREES);
 			Random randomBottomTrees  = new Random(SEED_WITH_BOTTOM_TREES);
 			
+			int[] indices = new int[4];
+			
 			for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
 				float x = getRandomX(randomPlacementTrees);
 				float y = getRandomY(randomPlacementTrees);
-				float z = sg.getInternalZ(x,y,0.0f) + sg.getzTranslation();
+				float z = sg.getInternalZ(x,y,0.0f,indices) + sg.getzTranslation();
 				
 				boolean isAboveWater = z > - 150 + sg.getzTranslation() - sg.CUBE_DEPTH /2;
 				boolean isUnderSnowLevel = z < sg.ALPINE_HEIGHT;
@@ -275,7 +277,18 @@ public class DouglasForest {
 					super.GLRender(action);
 				}
 				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
-					super.computeBBox(action, box, center);
+					
+					SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
+					SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
+					box.extendBy(min);
+					box.extendBy(max);
+					SbVec3f centerV = new SbVec3f(
+							(chunk.xMin+chunk.xMax)/2,
+							(chunk.yMin+chunk.yMax)/2,
+							(chunk.zMin+chunk.zMax)/2);
+					center.setValue(centerV);
+					
+//					super.computeBBox(action, box, center);
 				}
 			};
 			
@@ -315,7 +328,18 @@ public class DouglasForest {
 					super.GLRender(action);
 				}			
 				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
-					super.computeBBox(action, box, center);
+					
+					SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
+					SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
+					box.extendBy(min);
+					box.extendBy(max);
+					SbVec3f centerV = new SbVec3f(
+							(chunk.xMin+chunk.xMax)/2,
+							(chunk.yMin+chunk.yMax)/2,
+							(chunk.zMin+chunk.zMax)/2);
+					center.setValue(centerV);
+					
+					//super.computeBBox(action, box, center);
 				}
 			};
 			

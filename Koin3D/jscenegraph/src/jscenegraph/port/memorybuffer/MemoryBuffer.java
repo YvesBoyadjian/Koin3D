@@ -13,10 +13,13 @@ import org.lwjgl.BufferUtils;
  */
 public class MemoryBuffer {
 	
-	private ByteBuffer byteBuffer; 
+	protected ByteBuffer byteBuffer; 
 	
-	private MemoryBuffer() {
+	protected MemoryBuffer() {
 		
+	}
+	
+	protected void updateByteBuffer() {		
 	}
 
 	public int numBytes() {
@@ -41,6 +44,11 @@ public class MemoryBuffer {
 		return memoryBuffer;
 	}
 
+	/**
+	 * Note : array data is copied
+	 * @param array
+	 * @return
+	 */
 	public static MemoryBuffer allocateFromByteArray(byte[] array) {
 		
 		int numBytes = array.length;
@@ -52,23 +60,30 @@ public class MemoryBuffer {
 	}
 
 	public void setBytes(MemoryBuffer srcBytes, int numBytes) {
+		updateByteBuffer();
+		
 		for( int index = 0; index < numBytes; index++) {
 			byteBuffer.put(index,srcBytes.getByte(index));
 		}
 	}
 
 	public void setBytes(byte[] srcBytes, int numBytes) {
+		updateByteBuffer();
+		
 		for( int index = 0; index < numBytes; index++) {
 			byteBuffer.put(index,srcBytes[index]);
 		}
 	}
 
 	public byte getByte(int index) {
+		updateByteBuffer();
+		
 		return byteBuffer.get(index);
 	}
 	
 	public short getUnsignedByte(int index) {
-		
+		updateByteBuffer();
+				
 		short value = byteBuffer.get(index);
 		if(value < 0) {
 			value += 256;
@@ -77,10 +92,14 @@ public class MemoryBuffer {
 	}
 	
 	public void setByte(int index, byte value) {
+		updateByteBuffer();
+		
 		byteBuffer.put(index, value);
 	}
 
 	public ByteBuffer toByteBuffer() {
+		updateByteBuffer();
+		
 		return byteBuffer;
 	}
 }

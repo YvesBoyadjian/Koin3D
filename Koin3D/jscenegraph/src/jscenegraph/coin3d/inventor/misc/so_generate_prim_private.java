@@ -10,6 +10,7 @@ import jscenegraph.database.inventor.nodes.SoShape;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbVec2fArray;
 import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -24,7 +25,7 @@ public class so_generate_prim_private {
 	                            int flags,
 	                            SoShape shape,
 	                            SoAction action) {
-	    SbVec3fArray varray = new SbVec3fArray(new float[8*3]);
+	    SbVec3fArray varray = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(new float[8*3]));
 	    SoGenerate.sogenerate_generate_cube_vertices(varray,
 	                           width * 0.5f,
 	                           height * 0.5f,
@@ -38,8 +39,8 @@ public class so_generate_prim_private {
 
 	    shape.beginShape(action, SoShape.TriangleShape.QUADS);
 	    IntArrayPtr iptr = new IntArrayPtr(SoGenerate.sogenerate_cube_vindices);
-	    final SbVec3fArray nptr = new SbVec3fArray(SoGenerate.sogenerate_cube_normals);
-	    final SbVec2fArray tptr = new SbVec2fArray(SoGenerate.sogenerate_cube_texcoords);
+	    final SbVec3fArray nptr = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(SoGenerate.sogenerate_cube_normals));
+	    final SbVec2fArray tptr = new SbVec2fArray(FloatMemoryBuffer.allocateFromFloatArray(SoGenerate.sogenerate_cube_texcoords));
 
 	    for (int i = 0; i < 6; i++) { // 6 quads
 	      vertex.setNormal(nptr.get(i));

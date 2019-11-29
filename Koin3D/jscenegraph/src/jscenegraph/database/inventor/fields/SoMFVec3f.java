@@ -62,10 +62,13 @@ import org.lwjgl.BufferUtils;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.port.Array;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.Mutable;
 import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.Util;
+import jscenegraph.port.VoidPtr;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of three-dimensional vectors.
@@ -96,11 +99,13 @@ example:
  */
 public class SoMFVec3f extends SoMField<SbVec3f> {
 	
-	private float[] valuesArray;
-	
-	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
-	
+//	private float[] valuesArray;
+//	
+//	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
+//	
 	private SbVec3fArray vec3fArray;
+	
+	private FloatMemoryBuffer valuesArray;
 
 	/**
 	 * Sets the field to contain the given value and only the given value (if
@@ -124,8 +129,8 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	public SbVec3f[] getValues(int start) {
 		evaluate();
 
-		SbVec3f[] shiftedValues = new SbVec3f[valuesArray.length/3 - start];
-		for (int i = start; i < valuesArray.length/3; i++) {
+		SbVec3f[] shiftedValues = new SbVec3f[valuesArray.numFloats()/3 - start];
+		for (int i = start; i < valuesArray.numFloats()/3; i++) {
 			shiftedValues[i - start] = new SbVec3f(valuesArray,i*3);
 		}
 		return shiftedValues;
@@ -154,14 +159,14 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	public float[] getValuesFloat(int start) {
 		evaluate();
 
-		float[] shiftedValues = new float[(valuesArray.length/3 - start) * 3];
+		float[] shiftedValues = new float[(valuesArray.numFloats()/3 - start) * 3];
 		int index = 0;
-		for (int i = start; i < valuesArray.length/3; i++) {
-			shiftedValues[index] = valuesArray[i*3];
+		for (int i = start; i < valuesArray.numFloats()/3; i++) {
+			shiftedValues[index] = valuesArray.getFloat(i*3);
 			index++;
-			shiftedValues[index] = valuesArray[i*3+1];
+			shiftedValues[index] = valuesArray.getFloat(i*3+1);
 			index++;
-			shiftedValues[index] = valuesArray[i*3+2];
+			shiftedValues[index] = valuesArray.getFloat(i*3+2);
 			index++;
 		}
 		return shiftedValues;
@@ -174,7 +179,7 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	public float[] getValuesRef() {
 		evaluate();
 		
-		return valuesArray;
+		return valuesArray.toFloatArray();
 	}
 
 	// Set values from array of arrays of 3 floats.
@@ -199,9 +204,9 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 			makeRoom(newNum);
 
 		for (i = 0; i < num; i++) {
-			valuesArray[(start + i)*3] = xyz[i][0];
-			valuesArray[(start + i)*3+1] = xyz[i][1];
-			valuesArray[(start + i)*3+2] = xyz[i][2];
+			valuesArray.setFloat((start + i)*3, xyz[i][0]);
+			valuesArray.setFloat((start + i)*3+1, xyz[i][1]);
+			valuesArray.setFloat((start + i)*3+2, xyz[i][2]);
 		}
 		valueChanged();
 	}
@@ -220,15 +225,15 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 			makeRoom(newNum);
 
 		for (i = 0; i < num; i++) {
-			valuesArray[(start + i)*3] = xyz[3*i];
-			valuesArray[(start + i)*3+1] = xyz[3*i+1];
-			valuesArray[(start + i)*3+2] = xyz[3*i+2];
+			valuesArray.setFloat((start + i)*3, xyz[3*i]);
+			valuesArray.setFloat((start + i)*3+1, xyz[3*i+1]);
+			valuesArray.setFloat((start + i)*3+2, xyz[3*i+2]);
 		}
 		valueChanged();
 	}
 
 	public void setValuesPointer(float[] userdata) {
-		setValuesPointer(userdata, null);
+		setValuesPointer(FloatMemoryBuffer.allocateFromFloatArray(userdata));
 	}
 	
 	/**
@@ -236,21 +241,21 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	 * @param userdata
 	 * @param buffer
 	 */
-	public void setValuesPointer(float[] userdata, FloatBuffer buffer) {
+	public void setValuesPointer(FloatMemoryBuffer userdata) {
 		makeRoom(0);
 		  if (userdata != null) { 
 			    valuesArray = userdata;
-			    if(buffer != null && buffer.capacity() == userdata.length) {
-			    	valuesBuffer[0] = buffer;
-			    }
-			    else {
-			    	valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
-				    valuesBuffer[0].clear();
-				    valuesBuffer[0].put(valuesArray, 0, userdata.length);
-				    valuesBuffer[0].flip();
-			    }
+//			    if(buffer != null && buffer.capacity() == userdata.length) {
+//			    	valuesBuffer[0] = buffer;
+//			    }
+//			    else {
+//			    	valuesBuffer[0] = BufferUtils.createFloatBuffer(userdata.length);
+//				    valuesBuffer[0].clear();
+//				    valuesBuffer[0].put(valuesArray, 0, userdata.length);
+//				    valuesBuffer[0].flip();
+//			    }
 			    // userDataIsUsed = true; COIN3D 
-			    num = maxNum = userdata.length/3; 
+			    num = maxNum = userdata.numFloats()/3; 
 			    valueChanged(); 
 		} 
 		
@@ -278,9 +283,9 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 			makeRoom(newNum);
 
 		for (i = 0; i < num; i++) {
-			valuesArray[(start + i)*3] = xyz[i][0];
-			valuesArray[(start + i)*3+1] = xyz[i][1];
-			valuesArray[(start + i)*3+2] = xyz[i][2];
+			valuesArray.setFloat((start + i)*3, xyz[i][0]);
+			valuesArray.setFloat((start + i)*3+1, xyz[i][1]);
+			valuesArray.setFloat((start + i)*3+2, xyz[i][2]);
 		}
 		valueChanged();
 	}
@@ -325,8 +330,8 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		return new SbVec3f[length];
 	}
 	
-	private float[] arrayConstructorInternal(int length) {
-		return new float[length*3];
+	private FloatMemoryBuffer arrayConstructorInternal(int length) {
+		return FloatMemoryBuffer.allocateFloats(length*3);
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -362,18 +367,25 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 				valuesArray = arrayConstructorInternal(newNum);
 			}
 		} else {
-			float[] oldValues = valuesArray;
+			FloatMemoryBuffer oldValues = valuesArray;
 			int i;
 
 			if (newNum > 0) {
 				valuesArray = arrayConstructorInternal(newNum);
 				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
-					valuesArray[3*i] = oldValues[3*i];
-					valuesArray[3*i+1] = oldValues[3*i+1];
-					valuesArray[3*i+2] = oldValues[3*i+2];
+					valuesArray.setFloat(3*i, oldValues.getFloat(3*i));
+					valuesArray.setFloat(3*i+1, oldValues.getFloat(3*i+1));
+					valuesArray.setFloat(3*i+2, oldValues.getFloat(3*i+2));
 				}
 			} else
 				valuesArray = null;
+			if( vec3fArray != null ) {
+//				if( VoidPtr.has(vec3fArray)) {
+//					Destroyable.delete(VoidPtr.create(vec3fArray));
+//				}
+				//Destroyable.delete(vec3fArray);
+				vec3fArray = null;
+			}
 			// delete [] oldValues; java port
 		}
 
@@ -400,9 +412,9 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	public void set1Value(int index, SbVec3f newValue) {
 		if (index >= getNum())
 			makeRoom(index + 1);
-		valuesArray[index*3] = newValue.getX();
-		valuesArray[index*3+1] = newValue.getY();
-		valuesArray[index*3+2] = newValue.getZ();
+		valuesArray.setFloat(index*3, newValue.getX());
+		valuesArray.setFloat(index*3+1, newValue.getY());
+		valuesArray.setFloat(index*3+2, newValue.getZ());
 		valueChanged();
 	}
 
@@ -420,8 +432,8 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
     public SbVec3fArray getValuesSbVec3fArray() {
 		evaluate();
 				
-		if( vec3fArray == null || vec3fArray.getValuesArray() != valuesArray || vec3fArray.getValuesBuffer() != valuesBuffer ) {
-			vec3fArray = new SbVec3fArray(valuesArray, valuesBuffer);
+		if( vec3fArray == null || vec3fArray.getValuesArray() != valuesArray ) {
+			vec3fArray = new SbVec3fArray(valuesArray);
 		}
 		return vec3fArray;
     }

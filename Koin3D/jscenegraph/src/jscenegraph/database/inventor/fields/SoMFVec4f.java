@@ -66,6 +66,7 @@ import jscenegraph.port.Mutable;
 import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.SbVec4fArray;
 import jscenegraph.port.Util;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -98,7 +99,7 @@ example:
 
 public class SoMFVec4f extends SoMField<SbVec4f> {
 
-	private float[] valuesArray;
+	private FloatMemoryBuffer valuesArray;
 
 	@Override
 	protected SbVec4f constructor() {
@@ -127,8 +128,8 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	public SbVec4f[] getValues(int start) {
 		evaluate();
 
-		SbVec4f[] shiftedValues = new SbVec4f[valuesArray.length/4 - start];
-		for (int i = start; i < valuesArray.length/4; i++) {
+		SbVec4f[] shiftedValues = new SbVec4f[valuesArray.numFloats()/4 - start];
+		for (int i = start; i < valuesArray.numFloats()/4; i++) {
 			shiftedValues[i - start] = new SbVec4f(valuesArray,i*4);
 		}
 		return shiftedValues;
@@ -138,7 +139,7 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	 * Java port
 	 * @return
 	 */
-	public float[] getValuesRef() {
+	public FloatMemoryBuffer getValuesRef() {
 		evaluate();
 		
 		return valuesArray;
@@ -161,16 +162,16 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 		return Util.toByteBuffer(values);
 	}
 
-	private float[] arrayConstructorInternal(int length) {
-		return new float[length*3];
+	private FloatMemoryBuffer arrayConstructorInternal(int length) {
+		return FloatMemoryBuffer.allocateFloats(length*3);
 	}
 
-	public void setValuesPointer(float[] userdata) {
+	public void setValuesPointer(FloatMemoryBuffer userdata) {
 		makeRoom(0);
 		  if (userdata != null) { 
 			    valuesArray = userdata;
 			    // userDataIsUsed = true; COIN3D 
-			    num = maxNum = userdata.length/4; 
+			    num = maxNum = userdata.numFloats()/4; 
 			    valueChanged(); 
 		} 
 		
@@ -209,16 +210,16 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 				valuesArray = arrayConstructorInternal(newNum);
 			}
 		} else {
-			float[] oldValues = valuesArray;
+			FloatMemoryBuffer oldValues = valuesArray;
 			int i;
 
 			if (newNum > 0) {
 				valuesArray = arrayConstructorInternal(newNum);
 				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
-					valuesArray[4*i] = oldValues[4*i];
-					valuesArray[4*i+1] = oldValues[4*i+1];
-					valuesArray[4*i+2] = oldValues[4*i+2];
-					valuesArray[4*i+3] = oldValues[4*i+3];
+					valuesArray.setFloat(4*i, oldValues.getFloat(4*i));
+					valuesArray.setFloat(4*i+1, oldValues.getFloat(4*i+1));
+					valuesArray.setFloat(4*i+2, oldValues.getFloat(4*i+2));
+					valuesArray.setFloat(4*i+3, oldValues.getFloat(4*i+3));
 				}
 			} else
 				valuesArray = null;
@@ -248,10 +249,10 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	public void set1Value(int index, SbVec4f newValue) {
 		if (index >= getNum())
 			makeRoom(index + 1);
-		valuesArray[index*4] = newValue.getX();
-		valuesArray[index*4+1] = newValue.getY();
-		valuesArray[index*4+2] = newValue.getZ();
-		valuesArray[index*4+3] = newValue.getW();
+		valuesArray.setFloat(index*4, newValue.getX());
+		valuesArray.setFloat(index*4+1, newValue.getY());
+		valuesArray.setFloat(index*4+2, newValue.getZ());
+		valuesArray.setFloat(index*4+3, newValue.getW());
 		valueChanged();
 	}
 
