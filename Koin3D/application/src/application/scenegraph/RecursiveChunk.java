@@ -140,13 +140,13 @@ public class RecursiveChunk {
 		}
 	}
 
-	public SoNode getShadowGroup(float lodFactor, boolean culling) {
+	public SoNode getShadowGroup(SoTouchLODMaster master, float lodFactor, boolean culling) {
 		
 		if(childs.isEmpty()) {
 			return getIndexedFaceSet();
 		}
 		else {
-			SoCameraLOD lod = new SoTouchLOD3();
+			SoCameraLOD lod = new SoTouchLOD3(master);
 			lod.center.setValue(getCenter());
 			lod.range.setValue(200 + ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
 			SoGroup subChunkGroup = new SoGroup();
@@ -154,10 +154,10 @@ public class RecursiveChunk {
 				//subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 			}
 			
-			subChunkGroup.addChild(childs.get(0).getShadowGroup(lodFactor,culling));
-			subChunkGroup.addChild(childs.get(1).getShadowGroup(lodFactor,culling));
-			subChunkGroup.addChild(childs.get(2).getShadowGroup(lodFactor,culling));
-			subChunkGroup.addChild(childs.get(3).getShadowGroup(lodFactor,culling));
+			subChunkGroup.addChild(childs.get(0).getShadowGroup(master,lodFactor,culling));
+			subChunkGroup.addChild(childs.get(1).getShadowGroup(master,lodFactor,culling));
+			subChunkGroup.addChild(childs.get(2).getShadowGroup(master,lodFactor,culling));
+			subChunkGroup.addChild(childs.get(3).getShadowGroup(master,lodFactor,culling));
 			lod.addChild(subChunkGroup);
 			lod.addChild(getIndexedFaceSet());
 			return lod;

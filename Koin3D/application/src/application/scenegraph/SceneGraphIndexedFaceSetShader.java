@@ -162,6 +162,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	SoGroup douglasTreesSF;
 	
 	SoTouchLODMaster master;
+	SoTouchLODMaster masterS;
 	
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
@@ -610,7 +611,11 @@ for(int is=0;is<4;is++) {
 	    
 	    //RecursiveChunk rcS = chunks.getRecursiveChunk();
 	    
-	    shadowTree = rc.getShadowGroup(3000,false);
+	    masterS = new SoTouchLODMaster();
+	    
+	    shadowLandSep.addChild(masterS);
+	    
+	    shadowTree = rc.getShadowGroup(masterS,3000,false);
 	    shadowLandSep.addChild(shadowTree);
 	    
 	    //shadowLandSep.addChild(chunks.getShadowGroup());

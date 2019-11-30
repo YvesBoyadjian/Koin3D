@@ -44,28 +44,30 @@ public class SoTouchLOD2 extends SoLOD {
 		
 		int newChild = do_whichToTraverse(action);
 		//if(previousChild == MOST_DETAILED) {
-			if(newChild != previousChild) {
-				if(newChild == MOST_DETAILED) {
-					if(master.getCount() >= MAX_CHANGE) {
-						if(previousChild == -1) {
-							return getNumChildren() - 1;
-						}
-						return previousChild;
-					}
-					else {
-						master.increment();
-					}
+		if(newChild == previousChild) {
+			return newChild;
+		}
+		if(newChild == MOST_DETAILED) {
+			if(master.getCount() >= MAX_CHANGE) {
+				if(previousChild == -1) {
+					newChild = getNumChildren() - 1;
 				}
-				//System.out.println("SoTouchLOD2");
-				//long start = System.nanoTime();
-				if(previousChild != -1) {
-					SoNode node = getChild(previousChild);
-					clearTree(node);
+				else {
+					newChild = previousChild; // Changing canceled
 				}
-				//long stop = System.nanoTime();
-				//System.out.println("SoTouchLOD2 " + (stop - start)+" ns");				
 			}
-		//}
+			else {
+				master.increment(); // Changing accepted 
+			}
+		}
+		//System.out.println("SoTouchLOD2");
+		//long start = System.nanoTime();
+		if(previousChild != -1) {
+			SoNode node = getChild(previousChild);
+			clearTree(node);
+		}
+		//long stop = System.nanoTime();
+		//System.out.println("SoTouchLOD2 " + (stop - start)+" ns");				
 		previousChild = newChild;
 		return newChild;
 	}
