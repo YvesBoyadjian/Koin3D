@@ -212,6 +212,7 @@ import com.jogamp.opengl.GL2;
 import jscenegraph.coin3d.inventor.annex.profiler.SbProfilingData;
 import jscenegraph.coin3d.inventor.annex.profiler.SoProfiler;
 import jscenegraph.coin3d.inventor.annex.profiler.elements.SoProfilerElement;
+import jscenegraph.coin3d.inventor.elements.SoDiffuseColorElement;
 import jscenegraph.database.inventor.SbBasic;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SoType;
@@ -478,14 +479,14 @@ public SoMaterial()
 	        //SoGLRenderAction.enableElement(SoGLVBOElement.class);
 	       
 //	       SO_ENABLE(SoCallbackAction.class, SoAmbientColorElement.class); TODO
-//	       SO_ENABLE(SoCallbackAction.class, SoDiffuseColorElement.class);
+	       SO_ENABLE(SoCallbackAction.class, SoDiffuseColorElement.class);
 //	       SO_ENABLE(SoCallbackAction.class, SoEmissiveColorElement.class);
 //	       SO_ENABLE(SoCallbackAction.class, SoSpecularColorElement.class);
 //	       SO_ENABLE(SoCallbackAction.class, SoShininessElement.class);
 //	       SO_ENABLE(SoCallbackAction.class, SoTransparencyElement.class);
 //
 //	       SO_ENABLE(SoGLRenderAction.class, SoAmbientColorElement.class);
-//	       SO_ENABLE(SoGLRenderAction.class, SoDiffuseColorElement.class);
+	       SO_ENABLE(SoGLRenderAction.class, SoDiffuseColorElement.class);
 //	       SO_ENABLE(SoGLRenderAction.class, SoEmissiveColorElement.class);
 //	       SO_ENABLE(SoGLRenderAction.class, SoSpecularColorElement.class);
 //	       SO_ENABLE(SoGLRenderAction.class, SoShininessElement.class);

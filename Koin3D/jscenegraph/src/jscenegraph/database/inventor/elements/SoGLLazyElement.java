@@ -375,7 +375,7 @@ setDiffuseElt(SoNode node,
     ivState.numDiffuseColors = numColors;        
     coinstate.diffusenodeid = (node.getNodeId()); 
     ivState.packed = false;
-    ivState.packedTransparent = false;
+    //ivState.packedTransparent = false;
 
     //Pack the colors and transparencies, if necessary:
     if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
@@ -440,7 +440,7 @@ setTranspElt(SoNode node,
     if (numTrans == 1 && trans.getFloat(0) == 0) coinstate.transpnodeid = 0;
     else coinstate.transpnodeid = node.getNodeId();
     ivState.packed = false;
-    ivState.packedTransparent = false;
+    //ivState.packedTransparent = false;
     if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
             (!cPacker.transpMatch(coinstate.transpnodeid)))
         packColors(cPacker);
@@ -476,7 +476,7 @@ setColorIndexElt(SoNode node,
       
     coinstate.diffusenodeid = (node.getNodeId()); 
     ivState.packed = false;
-    ivState.packedTransparent = false;
+    //ivState.packedTransparent = false;
 
     // for open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= masks.DIFFUSE_MASK.getValue();
@@ -516,7 +516,7 @@ setPackedElt(SoNode node, int numColors,
     }
     
     ivState.packed              = true;
-    ivState.packedTransparent   = (node instanceof SoPackedColor) ? ((SoPackedColor) node).isTransparent() : false; //TODO COIN3D
+    //ivState.packedTransparent   = (node instanceof SoPackedColor) ? ((SoPackedColor) node).isTransparent() : false; //TODO COIN3D
      
     // For open caches, record the fact that set was called:
     ivState.cacheLevelSetBits |= (masks.DIFFUSE_MASK.getValue()|masks.TRANSPARENCY_MASK.getValue());      
@@ -717,7 +717,7 @@ setMaterialElt(SoNode node, int mask,
         ivState.numDiffuseColors = diffuse.getNum();        
         coinstate.diffusenodeid = (node.getNodeId()); 
         ivState.packed = false;
-        ivState.packedTransparent = false;      
+        //ivState.packedTransparent = false;      
     }
     
     if ((mask & masks.TRANSPARENCY_MASK.getValue())!=0){
@@ -815,6 +815,8 @@ setMaterialElt(SoNode node, int bitmask,
                             transp, numtransp, ambient,
                             emissive, specular, shininess, istransparent);
   this.colorpacker = packer;
+  
+  doPackColors();
 }
 
 
@@ -1064,6 +1066,24 @@ reset(SoState state, int bitmask)
           {return (SoGLLazyElement )
           (state.getConstElement(classStackIndexMap.get(SoGLLazyElement.class)));}
   
+    /**
+     * // YB moving from MeVisLab to Coin3D
+     */
+    private void doPackColors() {
+    	
+    	  if (this.colorpacker != null) {
+    		    if (!this.colorpacker.diffuseMatch(this.coinstate.diffusenodeid) ||
+    		        !this.colorpacker.transpMatch(this.coinstate.transpnodeid)) {
+    		      this.packColors(this.colorpacker);
+    		    }
+    		    this.packedpointer = new IntArrayPtr(this.colorpacker.getPackedColors());
+    		  }
+    		  else this.packedpointer = this.coinstate.packedarray;
+
+    		  assert(this.packedpointer != null);
+
+    }
+    
      //! Sends indicated component(s) to GL: 
     //! Only sends if value is not already in GL.
     //! note: has side effects, cannot really be  .
@@ -1072,18 +1092,8 @@ reset(SoState state, int bitmask)
         {
 //    	if (((mask & invalidBits)!=0) ||(state.isCacheOpen()))  
 //            ((SoGLLazyElement)(this)).reallySend(state, mask);
-
-  if (this.colorpacker != null) {
-    if (!this.colorpacker.diffuseMatch(this.coinstate.diffusenodeid) ||
-        !this.colorpacker.transpMatch(this.coinstate.transpnodeid)) {
-      this.packColors(this.colorpacker);
-    }
-    this.packedpointer = new IntArrayPtr(this.colorpacker.getPackedColors());
-  }
-  else this.packedpointer = this.coinstate.packedarray;
-
-  assert(this.packedpointer != null);
-
+    	doPackColors();
+    	
   int stipplenum;
 
   for (int i = 0; (i < SoLazyElement.cases.LAZYCASES_LAST.getValue()) && mask != 0; i++, mask>>=1) {
@@ -2769,6 +2779,19 @@ disableBlending()
   gl2.glDisable(GL2.GL_BLEND);
   this.glState.blending = false ? 1 : 0;
   this.cachebitmask |= SoLazyElement.masks.BLENDING_MASK.getValue();
+}
+
+/**
+ * YB : moving from MeVisLab to Coin3D
+ */
+public     IntArrayPtr getPackedPointer()
+{
+	if( super.isPacked() || packedpointer == null) {
+		return super.getPackedPointer();
+	}
+	else {
+		return IntArrayPtr.copyOf(packedpointer);
+	}
 }
 
 

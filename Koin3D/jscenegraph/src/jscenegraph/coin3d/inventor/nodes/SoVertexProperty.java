@@ -608,8 +608,8 @@ public class SoVertexProperty extends SoNode {
 	      !TEST_OVERRIDE(SoOverrideElement.ElementMask.DIFFUSE_COLOR, overrideflags)) {
 	    
 	    SoLazyElement.setPacked(state, this, num,
-	                             this.orderedRGBA.getValuesI(0)/*,*/
-	                             /*this.pimpl.transparent*/); // TODO YB COIN 3D
+	                             this.orderedRGBA.getValuesI(0),
+	                             this.pimpl.transparent);
 	    if (this.isOverride()) {
 	      SoOverrideElement.setDiffuseColorOverride(state, this, true);
 	    }

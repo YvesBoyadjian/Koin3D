@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jscenegraph.coin3d.inventor.elements.SoDepthBufferElement;
+import jscenegraph.coin3d.inventor.elements.SoDiffuseColorElement;
 import jscenegraph.coin3d.inventor.elements.SoEnvironmentElement;
 import jscenegraph.coin3d.inventor.elements.SoGLDepthBufferElement;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
@@ -371,7 +372,16 @@ private        int                 depth;
 		       SoViewingMatrixElement.initClass(SoViewingMatrixElement.class);
 		       SoViewportRegionElement.initClass(SoViewportRegionElement.class);
 		       
+		       
+		       //SoTransparencyElement.initClass(); TODO
+		       //SoAmbientColorElement.initClass();
+		       SoDiffuseColorElement.initClass(SoDiffuseColorElement.class); // COIN 3D
+		       //SoEmissiveColorElement.initClass();
 		       SoLightModelElement.initClass(SoLightModelElement.class); //COIN 3D
+		       //SoShininessElement.initClass();
+		       //SoSpecularColorElement.initClass();
+
+		       
 
 		       // GL specific elements must be initialized after their more
 		       // generic counterparts

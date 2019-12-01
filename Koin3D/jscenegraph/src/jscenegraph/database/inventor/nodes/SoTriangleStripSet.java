@@ -250,9 +250,11 @@ private interface PMTSS  {
     	}
     	
 		renderFunc[0] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOn(action);			
-		renderFunc[1] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOnT(action);			
+		renderFunc[1] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmOnT(action);
+		renderFunc[2] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmPn(action);
 		renderFunc[4] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmFn(action);			
-		renderFunc[6] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmVn(action);			
+		renderFunc[6] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmVn(action);		
+		renderFunc[14] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.PmVn(action);
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -324,6 +326,10 @@ public void GLRender(SoGLRenderAction action)
   }
 
   if (vpCache.mightNeedSomethingFromState(shapeStyle)) {
+	  
+	  //SoGLLazyElement lazyElt1 = (SoGLLazyElement )SoLazyElement.getInstance(state);
+      //lazyElt1.send(state, 0); // YB moving from MeVisLab to Coin3D
+      
     vpCache.fillInCache(vp, state);
 
     // If using USE_REST_OF_VERTICES (-1), need to figure out how
@@ -1159,6 +1165,46 @@ private void OmOnT (SoGLRenderAction action ) {
     }
 }
 
+private void OmPn(SoGLRenderAction action ) {
+
+	GL2 gl2 = Ctx.get(action.getCacheContext());
+
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue());
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer normalPtr = vpCache.getNormals(0);
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    final int numStrips = numVertices.getNum();
+    final int[] numVerts = numVertices.getValuesI(0);
+
+    int v;
+	int numVertsIndex = 0;
+	int vertexPtrIndex = 0;
+	int normalPtrIndex = 0;
+    for (int strip = 0; strip < numStrips; strip++) {
+    	normalPtr.position(normalPtrIndex/Float.BYTES);
+	(normalFunc).run(gl2,normalPtr); normalPtrIndex += normalStride;
+	final int nv = (numVerts[numVertsIndex]);
+	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+	for (v = 0; v < nv-1; v+=2) {
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr);
+	    vertexPtrIndex += vertexStride;
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr);
+	    vertexPtrIndex += vertexStride;
+	}
+	if (v < nv) { // Leftovers
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+	}
+	gl2.glEnd();
+	++numVertsIndex;//++numVerts;
+    }
+}
+
+
 
 public void OmFn (SoGLRenderAction action) {
 
@@ -1248,6 +1294,62 @@ OmVn
 	if (v < nv) { // Leftovers
 		normalPtr.position(normalPtrIndex/Float.BYTES);
 	    (normalFunc).run(gl2,normalPtr); normalPtrIndex += normalStride;
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+	}
+	gl2.glEnd();
+	++numVertsIndex;
+    }
+}
+
+
+public void PmVn (SoGLRenderAction action ) {
+
+	GL2 gl2 = Ctx.get(action.getCacheContext());	
+
+    Buffer vertexPtr = vpCache.getVertices(startIndex.getValue());
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    Buffer colorPtr = vpCache.getColors(0).toByteBuffer().asIntBuffer();
+    int colorStride = vpCache.getColorStride();
+    SoVPCacheFunc colorFunc = vpCache.colorFunc;
+    Buffer normalPtr = vpCache.getNormals(startIndex.getValue());
+    final int normalStride = vpCache.getNormalStride();
+    SoVPCacheFunc normalFunc = vpCache.normalFunc;
+    final int numStrips = numVertices.getNum();
+    final int[] numVerts = numVertices.getValuesI(0);
+
+    int v;
+    int numVertsIndex = 0; // java port
+	int vertexPtrIndex = 0;
+	int normalPtrIndex = 0;
+	int colorPtrIndex = 0;
+    for (int strip = 0; strip < numStrips; strip++) {
+    	colorPtr.position(colorPtrIndex/Integer.BYTES);
+	(colorFunc).run(gl2,colorPtr); colorPtrIndex += colorStride;
+	final int nv = (numVerts[numVertsIndex]);
+	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+	for (v = 0; v < nv-1; v+=2) {
+		normalPtr.position(normalPtrIndex/Float.BYTES);
+	    (normalFunc).run(gl2,normalPtr);
+	    
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr);
+	    vertexPtrIndex += vertexStride;
+	    
+	    normalPtrIndex += normalStride;
+		normalPtr.position(normalPtrIndex/Float.BYTES);
+	    (normalFunc).run(gl2,normalPtr);
+	    normalPtrIndex += normalStride;
+	    
+		vertexPtr.position(vertexPtrIndex/Float.BYTES);
+	    (vertexFunc).run(gl2,vertexPtr);
+	    vertexPtrIndex += vertexStride;
+	}
+	if (v < nv) { // Leftovers
+		normalPtr.position(normalPtrIndex/Float.BYTES);
+	    (normalFunc).run(gl2,normalPtr); normalPtrIndex += normalStride;
+	    
 		vertexPtr.position(vertexPtrIndex/Float.BYTES);
 	    (vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
 	}
