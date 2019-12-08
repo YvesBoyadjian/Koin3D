@@ -22,8 +22,6 @@ public class SoTouchLOD extends SoLOD {
 	
 	private int previousChild = -1;
 	
-public static final int MAX_CHANGE = 3;
-	
 	public SoTouchLOD(Chunk chunk, SoTouchLODMaster master) {
 		this.chunk = chunk;
 		this.master = master;
@@ -36,7 +34,7 @@ public static final int MAX_CHANGE = 3;
 		if(previousChild >= 0) {
 			if(newChild != previousChild) {
 				if(newChild == 0) {
-					if(master.getCount() >= MAX_CHANGE) {
+					if(master.getCount() >= master.getMaxChange()) {
 						return previousChild;
 					}
 					else {

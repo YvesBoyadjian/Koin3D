@@ -128,4 +128,10 @@ public class SbVec3fArray implements FloatBufferAble {
 		floatBuffer.put(valuesArray.toFloatArray(), offset, length);
 		floatBuffer.flip();
 	}
+
+	public FloatBuffer toFloatBuffer(int index) {
+		FloatBuffer fb = valuesArray.toFloatBuffer();
+		fb.position((delta+index)*3);
+		return fb;
+	}
 }

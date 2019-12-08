@@ -402,6 +402,8 @@ for(int is=0;is<4;is++) {
 	    
 	    master = new SoTouchLODMaster(); 
 	    
+	    landSep.addChild(master);
+	    
 	    landSep.addChild(rc.getGroup(master,250,true));
 	    
 		//landSep.addChild(chunks.getGroup());

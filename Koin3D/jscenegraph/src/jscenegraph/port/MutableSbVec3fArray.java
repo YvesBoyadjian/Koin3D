@@ -37,6 +37,11 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 		this.delta = other.getDelta();
 	}
 
+	public MutableSbVec3fArray(MutableSbVec3fArray other) {
+		valuesArray = other.getValuesArray();
+		this.delta = other.getDelta();
+	}
+
 	public SbVec3f get(int index) {
 		return new SbVec3f(valuesArray, (index+delta)*3);
 	}
@@ -55,7 +60,7 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 
 	@Override
 	public FloatBuffer toFloatBuffer() {
-		FloatBuffer fb = valuesArray.toByteBuffer().asFloatBuffer();
+		FloatBuffer fb = valuesArray.toFloatBuffer();
 		fb.position(delta*3);
 		return fb;
 		//return FloatBuffer.wrap(valuesArray,delta*3,valuesArray.numFloats() - delta*3);
@@ -71,5 +76,19 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 
 	int getDelta() {
 		return delta;
+	}
+
+	public void assign(MutableSbVec3fArray other) {
+		if( valuesArray != other.getValuesArray()) {
+			throw new IllegalArgumentException();
+		}
+		delta = other.getDelta();
+	}
+
+	public void assign(MutableSbVec3fArray other, int delta) {
+		if( valuesArray != other.valuesArray ) {
+			throw new IllegalArgumentException();			
+		}
+		this.delta = other.delta + delta;
 	}
 }

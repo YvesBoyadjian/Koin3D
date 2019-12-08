@@ -1191,7 +1191,7 @@ private static void SOGL_FACESET_GLRENDER_CALL_FUNC(SoGL.AttributeBinding normal
 // This is the same code as in SoGLCoordinateElement.send().
 // It is inlined here for speed (~15% speed increase).
 private static void SEND_VERTEX(int _idx_, boolean is3d, SbVec3fArray coords3d, SbVec4fArray coords4d, GL2 gl2) {
-	if (is3d) gl2.glVertex3fv(coords3d.get(_idx_).getValueRead(),0);             
+	if (is3d) gl2.glVertex3fv(coords3d.toFloatBuffer(_idx_)/*.getValueRead(),0*/);             
 	else gl2.glVertex4fv(coords4d.get(_idx_).getValueRead(),0);
 }
 
@@ -1248,13 +1248,13 @@ private static int current_errors = 0;
     int numverts = vertexlist.getNum();
 
     final SbVec3fSingle dummynormal = new SbVec3fSingle(0,0,1);
-    SbVec3fArray currnormal = new SbVec3fArray(dummynormal);
+    MutableSbVec3fArray currnormal = new MutableSbVec3fArray(dummynormal);
     if ((SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_VERTEX ||
        (SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_FACE ||
        (SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_VERTEX_INDEXED ||
        (SoGL.AttributeBinding)NormalBinding == SoGL.AttributeBinding.PER_FACE_INDEXED ||
        dotexture != 0) {
-      if (normals != null) currnormal = new SbVec3fArray(normals);
+      if (normals != null) currnormal = new MutableSbVec3fArray(normals);
     }
 
     int matnr = 0;
@@ -1266,7 +1266,7 @@ private static int current_errors = 0;
 
     GL2 gl2 = new GL2() {};
     
-    while (viendptr != null && viptr.plus(2).lessThan(viendptr)) {
+    while (viendptr != null && viptr.plusLessThan(2, viendptr)) {
       v1 = viptr.get(); viptr.plusPlus();
       v2 = viptr.get(); viptr.plusPlus();
       v3 = viptr.get(); viptr.plusPlus();
@@ -1337,12 +1337,12 @@ private static int current_errors = 0;
 
       if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX ||
           (AttributeBinding)NormalBinding == AttributeBinding.PER_FACE) {
-        currnormal = new SbVec3fArray(normals); normals.plusPlus();
+        currnormal.assign(normals); normals.plusPlus();
         gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
       } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED ||
                  (AttributeBinding)NormalBinding == AttributeBinding.PER_FACE_INDEXED) {
-        currnormal = /*&*/new SbVec3fArray(normals,normalindices.get()); normalindices.plusPlus();
-        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+        currnormal.assign(normals,normalindices.get()); normalindices.plusPlus();
+        gl2.glNormal3fv(currnormal.toFloatBuffer()/*get(0).getValueRead(),0*/);
       }
 
       if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
@@ -1383,11 +1383,11 @@ private static int current_errors = 0;
       }
 
       if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
-        currnormal = new SbVec3fArray(normals);normals.plusPlus();
+        currnormal.assign(normals);normals.plusPlus();
         gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
       } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
-        currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
-        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+        currnormal.assign(normals,normalindices.get());normalindices.plusPlus();
+        gl2.glNormal3fv(currnormal.toFloatBuffer()/*.get(0).getValueRead(),0*/);
       }
 
       if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
@@ -1428,11 +1428,11 @@ private static int current_errors = 0;
       }
 
       if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
-        currnormal = new SbVec3fArray(normals);normals.plusPlus();
+        currnormal.assign(normals);normals.plusPlus();
         gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
       } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
-        currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
-        gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
+        currnormal.assign(normals,normalindices.get());normalindices.plusPlus();
+        gl2.glNormal3fv(currnormal.toFloatBuffer()/*get(0).getValueRead(),0*/);
       }
 
       if ((AttributeBinding)VertexAttributeBinding == AttributeBinding.PER_VERTEX) {
@@ -1474,10 +1474,10 @@ private static int current_errors = 0;
         }
 
         if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
-          currnormal = new SbVec3fArray(normals);normals.plusPlus();
+          currnormal.assign(normals);normals.plusPlus();
           gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
         } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
-          currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+          currnormal.assign(normals,normalindices.get());normalindices.plusPlus();
           gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
         }
 
@@ -1520,10 +1520,10 @@ private static int current_errors = 0;
           }
 
           if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
-            currnormal = new SbVec3fArray(normals);normals.plusPlus();
+            currnormal.assign(normals);normals.plusPlus();
             gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
           } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
-            currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+            currnormal.assign(normals,normalindices.get());normalindices.plusPlus();
             gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
           }
 
@@ -1581,10 +1581,10 @@ private static int current_errors = 0;
             }
 
             if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX) {
-              currnormal = new SbVec3fArray(normals);normals.plusPlus();
+              currnormal.assign(normals);normals.plusPlus();
               gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
             } else if ((AttributeBinding)NormalBinding == AttributeBinding.PER_VERTEX_INDEXED) {
-              currnormal = new SbVec3fArray(normals,normalindices.get());normalindices.plusPlus();
+              currnormal.assign(normals,normalindices.get());normalindices.plusPlus();
               gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
             }
 

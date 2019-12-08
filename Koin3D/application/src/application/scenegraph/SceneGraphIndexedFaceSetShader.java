@@ -547,9 +547,16 @@ for(int is=0;is<4;is++) {
 		    	int x = i%wi;
 		    	int y = hi - i/wi -1;
 		    	int rgb = image.getRGB(x, y);
-		    	bytesRGB.setByte(j, (byte)(Math.pow(((rgb & 0x00FF0000) >>> 16)/255.0f,2.2f)*255.0f)) ; j++;
-		    	bytesRGB.setByte(j, (byte)(Math.pow(((rgb & 0x0000FF00) >>> 8)/255.0f,2.2f)*255.0f)); j++;
-		    	bytesRGB.setByte(j, (byte)(Math.pow(((rgb & 0x000000FF) >>> 0)/255.0f,2.2f)*255.0f)); j++;	    	
+		    	
+		    	float r = (float)Math.pow(((rgb & 0x00FF0000) >>> 16)/255.0f,2.2f)*4f;
+		    	float g = (float)Math.pow(((rgb & 0x0000FF00) >>> 8)/255.0f,2.2f);
+		    	float b = (float)Math.pow(((rgb & 0x000000FF) >>> 0)/255.0f,2.2f)*1.5f;
+		    	r = Math.min(r,1);
+		    	g = Math.min(g,1);
+		    	b = Math.min(b,1);
+		    	bytesRGB.setByte(j, (byte)(r*255.0f)) ; j++;
+		    	bytesRGB.setByte(j, (byte)(g*255.0f)); j++;
+		    	bytesRGB.setByte(j, (byte)(b*255.0f)); j++;	    	
 		    }
 		    MemoryBuffer b = bytesRGB;
 		    
@@ -571,7 +578,7 @@ for(int is=0;is<4;is++) {
 	    
 		douglasSep.addChild(douglasTreesT);
 		
-		douglasTreesF = getDouglasTreesF(7000,false);
+		douglasTreesF = getDouglasTreesF(7000,true);
 		
 	    douglasSepF.addChild(douglasTexture);
 	    
@@ -1067,6 +1074,7 @@ for(int is=0;is<4;is++) {
 	public void setCamera(SoCamera camera) {
 		this.camera = camera;
 	    master.setCamera(camera);	
+	    masterS.setCamera(camera);
 		RecursiveChunk.setCamera(chunkTree, camera);
 		RecursiveChunk.setCamera(shadowTree, camera);		
 	}

@@ -97,6 +97,10 @@ public class MemoryBuffer {
 		byteBuffer.put(index, value);
 	}
 
+	/**
+	 * Position of byte buffer is not guaranteed
+	 * @return
+	 */
 	public ByteBuffer toByteBuffer() {
 		updateByteBuffer();
 		

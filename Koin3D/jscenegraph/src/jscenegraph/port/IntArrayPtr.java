@@ -167,4 +167,11 @@ public class IntArrayPtr implements Destroyable {
 		array = null;
 		intBuffer[0] = null;
 	}
+
+	public boolean plusLessThan(int delta, IntArrayPtr other) {
+		if(array != other.array) {
+			throw new IllegalArgumentException();
+		}
+		return (intOffset + delta) < other.intOffset;
+	}
 }

@@ -10,6 +10,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,11 +35,12 @@ public class DouglasForest {
 	
 	int NB_DOUGLAS_SEEDS = 4000000;
 	
-	final int SEED_PLACEMENT_TREES = 42;
-	final int SEED_HEIGHT_TREES = 43;
-	final int SEED_ANGLE_TREES = 44;
-	final int SEED_WITH_TOP_TREES = 45;
-	final int SEED_WITH_BOTTOM_TREES = 46;
+	final static int SEED_PLACEMENT_TREES = 42;
+	final static int SEED_HEIGHT_TREES = 43;
+	final static int SEED_ANGLE_TREES = 44;
+	final static int SEED_WIDTH_TOP_TREES = 45;
+	final static int SEED_WIDTH_BOTTOM_TREES = 46;
+	final static int SEED_COLOR_MULTIPLIER = 47;
 	
 	float[] xArray = new float[NB_DOUGLAS_SEEDS]; 
 	float[] yArray = new float[NB_DOUGLAS_SEEDS]; 
@@ -47,6 +49,7 @@ public class DouglasForest {
 	float[] angleDegree1 = new float[NB_DOUGLAS_SEEDS];
 	float[] randomTopTree = new float[NB_DOUGLAS_SEEDS];
 	float[] randomBottomTree = new float[NB_DOUGLAS_SEEDS];
+	int[] randomColorMultiplierTree = new int[NB_DOUGLAS_SEEDS];
 	
 	SceneGraphIndexedFaceSetShader sg;
 	
@@ -65,10 +68,17 @@ public class DouglasForest {
 			Random randomPlacementTrees = new Random(SEED_PLACEMENT_TREES);		
 			Random randomHeightTrees = new Random(SEED_HEIGHT_TREES);		
 			Random randomAngleTrees = new Random(SEED_ANGLE_TREES);
-			Random randomTopTrees  = new Random(SEED_WITH_TOP_TREES);
-			Random randomBottomTrees  = new Random(SEED_WITH_BOTTOM_TREES);
+			Random randomTopTrees  = new Random(SEED_WIDTH_TOP_TREES);
+			Random randomBottomTrees  = new Random(SEED_WIDTH_BOTTOM_TREES);
+			Random randomColorMultiplier  = new Random(SEED_COLOR_MULTIPLIER);
 			
 			int[] indices = new int[4];
+			
+			final SbColor dummyColor = new SbColor();
+			
+			float averageRed = DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER.getX();
+			float averageGreen = DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER.getY();
+			float averageBlue = DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER.getZ();
 			
 			for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
 				float x = getRandomX(randomPlacementTrees);
@@ -93,6 +103,26 @@ public class DouglasForest {
 					randomTopTree[i] = widthTop;
 					float foliageWidth = (height+ randomBottomTrees.nextFloat()*12.0f) * 0.1f;
 					randomBottomTree[i] = foliageWidth;
+					
+					float deltaR = randomColorMultiplier.nextFloat() - 0.5f;
+					float deltaG = randomColorMultiplier.nextFloat() - 0.5f;
+					float deltaB = randomColorMultiplier.nextFloat() - 0.5f;
+					
+					float r = (averageRed + deltaR)/4.0f;
+					float g = averageGreen + deltaG/1.2f + deltaR;
+					float b = (averageBlue + deltaB)/1.5f;
+					r = Math.max(r,0);
+					g = Math.max(g,0);
+					b = Math.max(b,0);
+					r = Math.min(r,1);
+					g = Math.min(g,1);
+					b = Math.min(b,1);
+					dummyColor.setX(r);
+					dummyColor.setY(g);
+					dummyColor.setZ(b);
+					
+					randomColorMultiplierTree[i] = dummyColor.getPackedValue();
+					
 					nbDouglas++;
 				}
 			}
@@ -137,6 +167,9 @@ public class DouglasForest {
 			bb.asFloatBuffer().put(randomBottomTree);
 			fos.write(ba);
 			
+			bb.asIntBuffer().put(randomColorMultiplierTree);
+			fos.write(ba);			
+			
 			fos.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -179,6 +212,10 @@ public class DouglasForest {
 			fb.get(randomTopTree);
 			fb.get(randomBottomTree);
 			
+			bb.position(Integer.BYTES * xArray.length * 7);
+			IntBuffer ib = bb.asIntBuffer();			
+			ib.get(randomColorMultiplierTree);
+			
 			fileInputStream.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -190,7 +227,7 @@ public class DouglasForest {
 	}
 
 	private long getDouglasForestFileLength() {
-		return NB_DOUGLAS_SEEDS * Float.BYTES * 7 + Integer.BYTES;
+		return NB_DOUGLAS_SEEDS * Float.BYTES * 8 + Integer.BYTES;
 	}
 
 	float getRandomX(Random randomPlacementTrees) {
@@ -354,12 +391,12 @@ public class DouglasForest {
 			vertexProperty.normal.setValuesPointer(chunk.douglasNormalsF);
 			
 			if(withColors) {
+				vertexProperty.texCoord.setValuesPointer(chunk.douglasTexCoordsF);
 				vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
 				vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsF);
 			}
 			else {
-				vertexProperty.texCoord.setValuesPointer(chunk.douglasTexCoordsF);
-				vertexProperty.orderedRGBA.setValue(new SbColor(0.8f,0.85f,0.4f)/*SbColor(1,0.0f,0.0f)*/.getPackedValue());
+				vertexProperty.orderedRGBA.setValue(DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER/*SbColor(1,0.0f,0.0f)*/.getPackedValue());
 			}
 			
 			indexedFaceSetF.vertexProperty.setValue(vertexProperty);

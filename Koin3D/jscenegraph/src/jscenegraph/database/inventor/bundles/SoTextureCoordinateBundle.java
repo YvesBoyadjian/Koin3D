@@ -66,6 +66,7 @@ import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -373,18 +374,18 @@ Destructor.
 	  
 	  SoTextureCoordinateBundle thisp = (SoTextureCoordinateBundle)(userdata);
 
-	  final SbVec3f pt = new SbVec3f();
+	  final SbVec3fSingle pt = new SbVec3fSingle();
 	  if ((thisp.flags & FLAG_3DTEXTURES)!=0) {
 	    pt.copyFrom(point.operator_minus(thisp.defaultorigo));
-	    thisp.dummyInstance.getRef()[2].accept( pt.getValueRead()[2]/thisp.defaultsize.getValueRead()[2]);
+	    thisp.dummyInstance.getValue()[2] = pt.getCoord(2)/thisp.defaultsize.getCoord(2);
 	  }
 	  else {
-	    pt.setValue(point.getValueRead()[thisp.defaultdim0]-thisp.defaultorigo.getValueRead()[0],
-	                point.getValueRead()[thisp.defaultdim1]-thisp.defaultorigo.getValueRead()[1],
+	    pt.setValue(point.getCoord(thisp.defaultdim0)-thisp.defaultorigo.getCoord(0),
+	                point.getCoord(thisp.defaultdim1)-thisp.defaultorigo.getCoord(1),
 	                0.0f);
 	  }
-	  thisp.dummyInstance.getRef()[0].accept( pt.getValueRead()[0]/thisp.defaultsize.getValueRead()[0]);
-	  thisp.dummyInstance.getRef()[1].accept( pt.getValueRead()[1]/thisp.defaultsize.getValueRead()[1]);
+	  thisp.dummyInstance.getValue()[0] = pt.getCoord(0)/thisp.defaultsize.getCoord(0);
+	  thisp.dummyInstance.getValue()[1] = pt.getCoord(1)/thisp.defaultsize.getCoord(1);
 	  return thisp.dummyInstance;
 
   }
@@ -392,7 +393,7 @@ Destructor.
   private SoShape shapenode; //ptr
   private final SbVec3f defaultorigo = new SbVec3f();
   private final SbVec3f defaultsize = new SbVec3f();
-  private final SbVec4f dummyInstance = new SbVec4f();
+  private final SbVec4fSingle dummyInstance = new SbVec4fSingle();
   private int defaultdim0, defaultdim1;
   
   //

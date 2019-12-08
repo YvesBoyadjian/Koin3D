@@ -3,6 +3,9 @@
  */
 package jscenegraph.port.memorybuffer;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
 import org.lwjgl.BufferUtils;
 
 import jscenegraph.mevis.inventor.misc.SoVBO;
@@ -18,6 +21,8 @@ public class FloatMemoryBuffer extends MemoryBuffer {
 	private float[] floatArray;
 	
 	private boolean byteBufferDirty;
+	
+	private FloatBuffer dummyFloatBuffer;
 
 	FloatMemoryBuffer() {
 		super();
@@ -134,5 +139,18 @@ public class FloatMemoryBuffer extends MemoryBuffer {
 			// copy from array to buffer
 			byteBuffer.asFloatBuffer().put(floatArray);
 		}
+	}
+
+	/**
+	 * Position of float buffer is not guaranteed
+	 * @return
+	 */
+	public FloatBuffer toFloatBuffer() {
+		if(dummyFloatBuffer == null) {
+			ByteBuffer dummyByteBuffer = toByteBuffer();
+			dummyByteBuffer.position(0);
+			dummyFloatBuffer = dummyByteBuffer.asFloatBuffer();
+		}		
+		return dummyFloatBuffer;
 	}
 }

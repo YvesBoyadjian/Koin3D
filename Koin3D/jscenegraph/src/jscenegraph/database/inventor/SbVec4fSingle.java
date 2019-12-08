@@ -31,4 +31,8 @@ public class SbVec4fSingle extends SbVec4f {
 		return vec4;
 	}
     
+	public float[] toFloatGL() {
+		return getValueRef();
+	}
+
 }

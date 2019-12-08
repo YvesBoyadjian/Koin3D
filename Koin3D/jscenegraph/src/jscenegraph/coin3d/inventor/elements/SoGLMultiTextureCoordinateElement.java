@@ -279,7 +279,7 @@ send( int unit,
   case FUNCTION:
     assert(ud.funcCB != null);
     SoGL.cc_glglue_glMultiTexCoord4fv(glue, glunit,
-                                 ud.funcCB.apply(ud.funcCBData, c, n).getValueRead());
+                                 ud.funcCB.apply(ud.funcCBData, c, n).toFloatGL());
 
     break;
   case TEXCOORD2:

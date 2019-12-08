@@ -338,5 +338,9 @@ public float getW() {
 	return g(3);
 }
 
+public float[] toFloatGL() {
+	return getValueRead();
+}
+
 
  }

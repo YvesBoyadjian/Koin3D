@@ -2976,7 +2976,7 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		}
 		org.lwjgl.opengl.GL11.glNormal3fv( arg1);
 	}
-
+	
 	default void glNormal3fv(float[] arg1) {
 		org.lwjgl.opengl.GL11.glNormal3fv( arg1);
 	}

@@ -217,6 +217,10 @@ public class SbVec3f implements Cloneable, Mutable {
     	return vecRead; 
     }
     
+    public final float getCoord(int dimension) {
+    	return g(dimension);
+    }
+    
     /**
      * for internal use
      * @return

@@ -13,12 +13,16 @@ import jscenegraph.database.inventor.nodes.SoNode;
  */
 public class SoTouchLODMaster extends SoNode {
 	
+	private final static int MAX_CHANGE = 3;
+	
 	private int counter;
 	
 	private SoCamera camera;
+	
+	private boolean firstRender = true;
 
-	public void reset() {
-		counter = 0;
+	private void reset() {
+		counter = firstRender ? -9999 : 0;
 	}
 	
 	public void increment() {
@@ -29,10 +33,18 @@ public class SoTouchLODMaster extends SoNode {
 		return counter;
 	}
 	
+	public int getMaxChange() {
+		return MAX_CHANGE;
+	}
+	
 	public void GLRender(SoGLRenderAction action) {
 		
 		reset();
 		super.GLRender(action);
+		
+		if(firstRender) {
+			firstRender = false;
+		}
 	}
 	public void setCamera(SoCamera camera) {
 		this.camera = camera;
