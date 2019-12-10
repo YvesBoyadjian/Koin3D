@@ -260,7 +260,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 					//chunks.verticesPut(index*3+0, i * delta_x);
 					//chunks.verticesPut(index*3+1, (h - j -1) * delta_y);
 					float z = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i+I_START, j, fArray)[0]);
-					if( Math.abs(z)> 1e30) {
+					if( Math.abs(z)> 1e30 || i == 0 || j == 0 || i == w-1 || j == h-1 ) {
 						z= ZMIN;
 					}
 					else {
