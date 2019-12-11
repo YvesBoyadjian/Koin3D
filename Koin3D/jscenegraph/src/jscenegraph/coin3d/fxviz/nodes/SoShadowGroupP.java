@@ -913,14 +913,18 @@ setFragmentShader(SoState state)
     // do nothing
     break;
   case HAZE:
-    gen.addMainStatement("float fog = (gl_Fog.end - gl_FogFragCoord) * gl_Fog.scale;\n");
+    //gen.addMainStatement("float fog = (gl_Fog.end - gl_FogFragCoord) * gl_Fog.scale;\n");
+    gen.addMainStatement("float fog = (gl_Fog.end - abs(ecPosition3.z)) * gl_Fog.scale;\n");
+    
     break;
   case FOG:
-    gen.addMainStatement("float fog = exp(-gl_Fog.density * gl_FogFragCoord);\n");
+    //gen.addMainStatement("float fog = exp(-gl_Fog.density * gl_FogFragCoord);\n");
+    gen.addMainStatement("float fog = exp(-gl_Fog.density * abs(ecPosition3.z));\n");
     gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
     break;
   case SMOKE:
-    gen.addMainStatement("float fogfrag =  gl_FogFragCoord;");
+    //gen.addMainStatement("float fogfrag =  gl_FogFragCoord;");
+    gen.addMainStatement("float fogfrag =  abs(ecPosition3.z);");
     gen.addMainStatement("float fogdens =  gl_Fog.density;");
     gen.addMainStatement("float fog = exp(-fogdens * fogdens * fogfrag * fogfrag);\n");
     gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
