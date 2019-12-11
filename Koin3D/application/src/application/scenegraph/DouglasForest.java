@@ -113,9 +113,16 @@ public class DouglasForest {
 					deltaG = (float)Math.pow(deltaG*2.0, power)/2.0f;
 					deltaB = (float)Math.pow(deltaB*2.0, power)/2.0f;
 					
-					float r = (averageRed + deltaR)/4.0f;
+					float r = (averageRed + deltaR)/3.0f;
 					float g = averageGreen + deltaG/1.2f + deltaR;
-					float b = (averageBlue + deltaB)/1.5f;
+					float b = (averageBlue + deltaB)/1.4f;
+					
+					float tree_contrast = 1.1f;
+					
+					r *= tree_contrast;
+					g *= tree_contrast;
+					b *= tree_contrast;
+					
 					r = Math.max(r,0);
 					g = Math.max(g,0);
 					b = Math.max(b,0);
