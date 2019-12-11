@@ -108,6 +108,11 @@ public class DouglasForest {
 					float deltaG = randomColorMultiplier.nextFloat() - 0.5f;
 					float deltaB = randomColorMultiplier.nextFloat() - 0.5f;
 					
+					int power = 5;
+					deltaR = (float)Math.pow(deltaR*2.0, power)/2.0f;
+					deltaG = (float)Math.pow(deltaG*2.0, power)/2.0f;
+					deltaB = (float)Math.pow(deltaB*2.0, power)/2.0f;
+					
 					float r = (averageRed + deltaR)/4.0f;
 					float g = averageGreen + deltaG/1.2f + deltaR;
 					float b = (averageBlue + deltaB)/1.5f;
