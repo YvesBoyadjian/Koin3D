@@ -1152,7 +1152,10 @@ SoSeparator createPlanet2(float radius, float distance,
 		//String fileName = "F:/test_oiv/test.iv"; // default model
 		//String fileName = "F:/test_oiv/Issue177Renderismissingtrianglesround.iv"; // default model
 		//String fileName = "F:/basic_examples/Road/road.iv";
-		String fileName = "F:/basic_examples/Carport/carport.iv";
+		//String fileName = "F:/basic_examples/Carport/carport.iv";
+		//String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/modelos/escenaPepitoOficina.iv";
+		String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/modelos/metralleta.wrl";
+		//String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/mundos-virtuales/forest.iv";
 	boolean baseColor = false;
 
 	// create scene root
@@ -1358,11 +1361,11 @@ SoSeparator createPlanet2(float radius, float distance,
 	    //viewer.setColorBitDepth (10);
 		//viewer.setAntialiasing(true,4);
 		
-		viewer.setHeadlight(false);
+		viewer.setHeadlight(true);
 		
 	    viewer.buildWidget(style);
 	    
-	    viewer.setSceneGraph(/*createDemoScene()*//*Orbits*//*Shadows.main()*//*ShadowTest.create()*/Fog.getScene());
+	    viewer.setSceneGraph(createDemoScene()/*Orbits*//*Shadows.main()*//*ShadowTest.create()*//*Fog.getScene()*/);
 	    
 	    shell.pack();
 		shell.setSize(700, 700);

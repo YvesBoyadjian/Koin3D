@@ -111,7 +111,7 @@ public class SoNodeKit {
 		   
 		           SoAppearanceKit.initClass();
 		           SoSeparatorKit.initClass();
-//		           SoWrapperKit.initClass();
+		           SoWrapperKit.initClass();
 		           SoShapeKit.initClass();
 		           SoLightKit.initClass();
 		           SoCameraKit.initClass();
