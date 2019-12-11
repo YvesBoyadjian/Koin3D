@@ -1,0 +1,161 @@
+#VRML V2.0 utf8
+
+#
+#  Robot Billboard (head)
+#  robohead.wrl
+#        by David R. Nadeau
+#
+#  This file builds the head of the robot used in the robobill.wrl file.
+#
+
+# Head
+Shape {
+    appearance DEF RobotColor Appearance {
+	material Material {
+	    diffuseColor 0.6 0.6 0.8
+	}
+    }
+    geometry Sphere {
+	radius 0.5
+    }
+}
+
+# Eyebrow
+Transform {
+    translation 0.0 0.25 0.35
+    children [
+	Shape {
+	    appearance Appearance {
+		material Material {
+		    diffuseColor 0.2 0.2 0.2
+		}
+	    }
+	    geometry Box {
+		size 0.6 0.05 0.2
+	    }
+	}
+    ]
+}
+
+# Right Eye
+Transform {
+    translation 0.1 0.15 0.38
+    children [
+	DEF Eye Shape {
+	    appearance Appearance {
+		material Material {
+		    diffuseColor 0.4 1.0 0.0
+		    emissiveColor 0.6 0.0 0.0
+		}
+	    }
+	    geometry Sphere {
+		radius 0.09
+	    }
+	}
+    ]
+}
+
+# Left Eye
+Transform {
+    translation -0.1 0.15 0.38
+    children [ USE Eye ]
+}
+
+# Right Antenae
+Transform {
+    translation 0.85 0.1 0.0
+    children [
+	Transform {
+	    translation -0.2 0.0 0.0
+	    rotation 0.0 0.0 1.0 1.57
+	    children [
+		DEF AntenaeBar Shape {
+		    appearance USE RobotColor
+		    geometry Cylinder {
+			height 0.4
+			radius 0.04
+		    }
+		}
+	    ]
+	}
+	Shape {
+	    appearance USE RobotColor
+	    geometry Sphere {
+		radius 0.09
+	    }
+	}
+	Transform {
+	    translation 0.0 0.58 0.0
+	    children [
+		Shape {
+		    appearance DEF RobotGlow Appearance {
+			material Material {
+			    diffuseColor 0.0 1.0 0.0
+			    emissiveColor 1.0 0.0 0.0
+			}
+		    }
+		    geometry Cone {
+			height 1.0
+			bottomRadius 0.02
+		    }
+		}
+	    ]
+	}
+    ]
+}
+
+# Left Antenae
+Transform {
+    translation -0.85 0.1 0.0
+    children [
+	Transform {
+	    translation 0.2 0.0 0.0
+	    rotation 0.0 0.0 1.0 -1.57
+	    children [ USE AntenaeBar ]
+	}
+	Transform {
+	    rotation 0.0 0.0 1.0 0.785
+	    children [
+		Shape {
+		    appearance USE RobotColor
+		    geometry Box {
+			size 0.2 0.2 0.2
+		    }
+		}
+		Transform {
+		    translation 0.0 0.58 0.0
+		    children [
+			Shape {
+			    appearance USE RobotGlow
+			    geometry Box {
+				size 0.02 1.0 0.02
+			    }
+			}
+		    ]
+		}
+		Transform {
+		    translation 0.0 0.95 0.0
+		    children [
+			Shape {
+			    appearance USE RobotGlow
+			    geometry Box {
+				size 0.2 0.02 0.02
+			    }
+			}
+		    ]
+		}
+		Transform {
+		    translation 0.0 0.85 0.0
+		    children [
+			Shape {
+			    appearance USE RobotGlow
+			    geometry Box {
+				size 0.4 0.02 0.02
+			    }
+			}
+		    ]
+		}
+	    ]
+	}
+    ]
+}

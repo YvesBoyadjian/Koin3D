@@ -1,0 +1,192 @@
+#VRML V2.0 utf8
+#http://www.ysu.edu.cn/album/vrml/multi_room/COMPUTER.WRL
+
+Transform{
+     translation -.18 .18 -.02
+     children DEF cl Shape{
+          appearance DEF c Appearance{
+                material Material{diffuseColor 0.94,0.94,0.94}
+          }
+          geometry Box{size .04 .36 .04}
+     }
+}
+Transform{
+     translation .18 .18 -.02
+     children USE cl}
+Transform{
+     translation 0 .34 -.02
+     children Shape{
+          appearance USE c
+          geometry Box{size .40 .04 .04}
+      }
+}
+Transform{
+     translation 0 .035 -.02
+     children [
+           Shape{
+                 appearance USE c
+                 geometry Box{size .4 .07 .04}
+           }
+           Transform{
+               children[
+                DEF xn TouchSensor{}
+                Transform{
+                 translation .13 0 .01
+                 rotation 1 0 0 1.57
+                 children Shape{
+                     appearance DEF niu Appearance{
+                          material Material{diffuseColor 0.75,0.75,0.87
+				       shininess 1}
+                  }
+                  geometry Cylinder{radius .01
+                                                  height .021}
+                  }
+                 }
+                ]
+            }
+            Transform{
+                  translation -.13 -.003  .021
+                  children Shape{
+                       appearance Appearance{
+                             material Material{diffuseColor 0.25,0.25,0.25}
+                       }
+                       geometry Text{
+                             string " LG"
+                             length .026 
+                             fontStyle  FontStyle    {size .012 
+			           style "BOLD"
+				horizontal TRUE
+				justify "MIDDLE"
+				family "SANS"}
+                              }
+                        }
+                   }
+                 Transform{
+                  translation .039 .005 .021
+                  children Shape{
+                       appearance Appearance{
+                             material Material{diffuseColor 0.45 .45 .45}
+                       }
+                       geometry Text{
+                             string "SET"
+                             length .012 
+                             fontStyle  FontStyle    {size .005  
+			           style "PLAIN"
+				horizontal TRUE
+				justify "MIDDLE"
+				family "SANS"}
+                              }
+                        }
+                   }
+              Transform{
+                  translation -.039 .005 .021
+                  children Shape{
+                       appearance Appearance{
+                             material Material{diffuseColor 0.45 .45 .45}
+                       }
+                       geometry Text{
+                             string "OSD"
+                             length .012 
+                             fontStyle  FontStyle    {size .005  
+			           style "PLAIN"
+				horizontal TRUE
+				justify "MIDDLE"
+				family "SANS"}
+                              }
+                        }
+                   }
+
+                Transform{
+                     translation -.014 0 .01
+                     rotation 1 0 0 1.57
+                     scale 3.3 1 1
+                     children DEF xn Shape{
+                          appearance USE niu
+                          geometry Cylinder{height .0205
+                    				radius .002}
+	          }
+                }        
+ 	   Transform{
+                     translation .014 0 .01
+                     rotation 1 0 0 1.57
+                     scale 3.3 1 1
+                     children USE xn}
+                Transform{
+                     translation 0 .012  .01  
+                     rotation 1 0 0 1.57
+                     scale 1 1 3
+                     children USE xn  } 
+                Transform{
+                     translation 0 -.012  .01  
+                     rotation 1 0 0 1.57
+                     scale 1 1 3
+                     children USE xn  }
+               Transform{
+                     translation  .039 0 .01  
+                     rotation 1 0 0 1.57
+                     scale 3.3 1 1
+                     children USE xn  } 
+                Transform{
+                     translation  -.039 0  .01  
+                     rotation 1 0 0 1.57
+                     scale 3.3 1 1
+                     children USE xn  }    ]                  
+}
+Transform{
+    translation 0 .193 -.013
+             children Shape{appearance Appearance{
+                  material Material{diffuseColor .25 .25 .25}
+                      }
+                      geometry Box{size .325 .254 .01}
+           }
+ }
+Transform{
+     translation 0 .18 -.04 
+     rotation 1 0 0 -1.57
+     children Shape{
+     appearance USE c
+     geometry Extrusion{
+           creaseAngle .25
+           #endCap TRUE
+           solid TRUE
+           crossSection[ -.2 .18  ,.2 .18 ,.2  -.18 ,-.2  -.18,-.2 .18 ]
+           spine[0 0 0, 0 .02 0,0 .04 0,0 .06 0,0 .08 0,0 .1 0,0 .12 0, 0 .14 0,0 .16 0,0 .18  0,
+                     0 .2 0, 0 .22 0,0 .24 0,0 .26 0,0 .28 0,0 .3 0,0 .32 0, 0 .34 0] 
+           scale[1 1,.995  .995 , .98  .98 ,.965 .965,.945 .945,.92  .92,.89 .89,.855 .855,.79 .79, 
+                     .74  .74 ,.70 .70,.67 .67,.64 .64,.61 .61,.58 .58,.55 .55,.52 .52,.49 .49] 
+     }
+}
+}
+Transform{
+      translation 0 .065 -.19
+      children Shape{
+           appearance USE c
+           geometry Box{size .198  .06  .36} }}
+Transform{
+      translation 0 .065 -.2
+      children Shape{
+           appearance USE c
+           geometry Box{size .198  .06  .34} }}
+Transform{
+     translation 0 .081  -.145 
+     children Shape{
+          appearance USE c
+          geometry Sphere{radius .13}
+     }
+}
+Transform{
+      translation 0 -.035 -.140
+      children Shape{ 
+           appearance USE c
+           geometry Cone{height .04
+                                       bottomRadius .125} 
+      }
+}
+Transform{
+      translation 0 -.06 -.140
+      children Shape{
+            appearance USE c
+            geometry Cylinder{radius .128
+                                            height .01}
+      }
+}

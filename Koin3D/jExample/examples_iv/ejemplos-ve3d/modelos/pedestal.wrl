@@ -1,0 +1,127 @@
+#VRML V2.0 utf8
+#
+#  Gothic pedestal
+#  pedestal.wrl
+#        by David R. Nadeau
+#
+#  This file builds a pedestal, such as might be found in gothic architecture.
+#
+
+WorldInfo {
+    title "Gothic pedestal"
+    info [ "Copyright (c) 1997, David R. Nadeau" ]
+}
+
+#
+#  Pedestal base
+#
+Transform {
+    translation 0.0 0.05 0.0
+    children [
+	Shape {
+	    appearance Appearance {
+		material DEF MarbleMaterial Material {
+		    ambientIntensity 0.2
+		}
+		texture DEF MarbleImage ImageTexture {
+		    url "marble_g.jpg"
+		}
+		textureTransform TextureTransform {
+		    translation 0.2 0.2
+		    rotation 0.1
+		    scale 1.0 0.1
+		}
+	    }
+	    geometry Box {
+		size 1.1 0.1 1.1
+	    }
+	}
+    ]
+}
+
+Transform {
+    translation 0.0 0.15 0.0
+    children [
+	Shape {
+	    appearance Appearance {
+		material USE MarbleMaterial
+		texture USE MarbleImage
+		textureTransform TextureTransform {
+		    translation 0.1 0.1
+		    rotation 0.2
+		    scale 1.0 0.1
+		}
+	    }
+	    geometry Cylinder {
+		height 0.1
+		radius 0.43
+		bottom FALSE
+	    }
+	}
+    ]
+}
+
+
+#
+#  Main pedestal
+#
+Transform {
+    translation 0.0 0.95 0.0
+    children [
+	Shape {
+	    appearance Appearance {
+		material USE MarbleMaterial
+		texture USE MarbleImage
+	    }
+	    geometry Cylinder {
+		height 1.5
+		radius 0.35
+		bottom FALSE
+		top FALSE
+	    }
+	}
+    ]
+}
+
+
+#
+#  Pedestal top
+#
+Transform {
+    translation 0.0 1.75 0.0
+    children [
+	Shape {
+	    appearance Appearance {
+		material USE MarbleMaterial
+		texture USE MarbleImage
+		textureTransform TextureTransform {
+		    translation 0.3 0.1
+		    rotation 0.3
+		    scale 1.0 0.1
+		}
+	    }
+	    geometry Cylinder {
+		height 0.1
+		radius 0.43
+		top FALSE
+	    }
+	}
+	Shape {
+	    appearance Appearance {
+		material USE MarbleMaterial
+		texture USE MarbleImage
+		textureTransform TextureTransform {
+		    translation 0.3 0.1
+		    rotation 0.3
+		    scale 1.0 1.0
+		}
+	    }
+	    geometry Cylinder {
+		height 0.1
+		radius 0.43
+		side FALSE
+		bottom FALSE
+	    }
+	}
+    ]
+}

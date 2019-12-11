@@ -1,0 +1,42 @@
+#VRML V2.0 utf8
+#  puerta simple
+
+ Group {
+   children [
+     Shape {
+        appearance Appearance {
+            material Material {
+                diffuseColor 1.0 1.0 1.0
+            }
+            texture ImageTexture {
+                url "panel.jpg"
+            }
+            textureTransform TextureTransform {
+                scale 1.0 2.0
+            }
+         }
+         geometry Box {
+             size 3.0 6.0 0.2
+         }
+      },
+      Transform {
+          translation 1.18 -0.0 0.2
+          children [
+             Shape {
+               appearance Appearance {
+                   # oro
+                   material  Material {
+                       ambientIntensity 0.4
+                       diffuseColor 0.22 0.15 0.0
+                       specularColor 0.71 0.7 0.56
+                       shininess 0.16
+                   }
+               }
+               geometry Sphere {
+                  radius 0.15
+               }
+             },
+          ]
+       }
+    ]
+ }

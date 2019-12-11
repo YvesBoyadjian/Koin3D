@@ -1,0 +1,443 @@
+#Inventor V2.1 ascii
+
+
+Separator {
+
+  Info {
+    string "Secuencia creada por Ve3D"
+
+  }
+  Blinker {
+    whichChild 2
+    speed 0.30000001
+
+    DEF pedestal-wrl Separator {
+
+      Separator {
+
+        VRMLWorldInfo {
+          title "Gothic pedestal"
+          info "Copyright (c) 1997, David R. Nadeau"
+
+        }
+        VRMLTransform {
+          translation 0 0.050000001 0
+          children 
+            VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                DEF MarbleMaterial VRMLMaterial {
+                  ambientIntensity 0.2
+
+                }
+                texture 
+                DEF MarbleImage VRMLImageTexture {
+                  url "marble_g.jpg"
+
+                }
+                textureTransform 
+                VRMLTextureTransform {
+                  translation 0.2 0.2
+                  rotation 0.1
+                  scale 1 0.1
+
+                }
+
+              }
+              geometry 
+              VRMLBox {
+                size 1.1 0.1 1.1
+
+              }
+
+            }
+
+        }
+        VRMLTransform {
+          translation 0 0.15000001 0
+          children 
+            VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                USE MarbleMaterial
+                texture 
+                USE MarbleImage
+                textureTransform 
+                VRMLTextureTransform {
+                  translation 0.1 0.1
+                  rotation 0.2
+                  scale 1 0.1
+
+                }
+
+              }
+              geometry 
+              VRMLCylinder {
+                radius 0.43000001
+                height 0.1
+                bottom FALSE
+
+              }
+
+            }
+
+        }
+        VRMLTransform {
+          translation 0 0.94999999 0
+          children 
+            VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                USE MarbleMaterial
+                texture 
+                USE MarbleImage
+
+              }
+              geometry 
+              VRMLCylinder {
+                radius 0.34999999
+                height 1.5
+                top FALSE
+                bottom FALSE
+
+              }
+
+            }
+
+        }
+        VRMLTransform {
+          translation 0 1.75 0
+          children [ 
+            VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                USE MarbleMaterial
+                texture 
+                USE MarbleImage
+                textureTransform 
+                VRMLTextureTransform {
+                  translation 0.30000001 0.1
+                  rotation 0.30000001
+                  scale 1 0.1
+
+                }
+
+              }
+              geometry 
+              VRMLCylinder {
+                radius 0.43000001
+                height 0.1
+                top FALSE
+
+              }
+
+            },
+              
+            VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                USE MarbleMaterial
+                texture 
+                USE MarbleImage
+                textureTransform 
+                VRMLTextureTransform {
+                  translation 0.30000001 0.1
+                  rotation 0.30000001
+                  scale 1 1
+
+                }
+
+              }
+              geometry 
+              VRMLCylinder {
+                radius 0.43000001
+                height 0.1
+                side FALSE
+                bottom FALSE
+
+              }
+
+            } ]
+
+        }
+      }
+    }
+    DEF pepito-wrl Separator {
+
+      Separator {
+
+        VRMLShape {
+          appearance 
+          DEF RobotColor VRMLAppearance {
+            material 
+            VRMLMaterial {
+              diffuseColor 0.60000002 0.60000002 0.80000001
+
+            }
+
+          }
+          geometry 
+          VRMLSphere {
+            radius 0.5
+
+          }
+
+        }
+        VRMLTransform {
+          translation 0 0.25 0.34999999
+          children 
+            VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                VRMLMaterial {
+                  diffuseColor 0.2 0.2 0.2
+
+                }
+
+              }
+              geometry 
+              VRMLBox {
+                size 0.60000002 0.050000001 0.2
+
+              }
+
+            }
+
+        }
+        VRMLTransform {
+          translation 0.1 0.15000001 0.38
+          children 
+            DEF Eye VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                VRMLMaterial {
+                  diffuseColor 0.40000001 1 0
+                  emissiveColor 0.60000002 0 0
+
+                }
+
+              }
+              geometry 
+              VRMLSphere {
+                radius 0.090000004
+
+              }
+
+            }
+
+        }
+        VRMLTransform {
+          translation -0.1 0.15000001 0.38
+          children 
+            USE Eye
+
+        }
+        VRMLTransform {
+          translation 0.85000002 0.1 0
+          children [ 
+            VRMLTransform {
+              translation -0.2 0 0
+              rotation 0 0 0.99999994  1.5700002
+              children 
+                DEF AntenaeBar VRMLShape {
+                  appearance 
+                  USE RobotColor
+                  geometry 
+                  VRMLCylinder {
+                    radius 0.039999999
+                    height 0.40000001
+
+                  }
+
+                }
+
+            },
+              
+            VRMLShape {
+              appearance 
+              USE RobotColor
+              geometry 
+              VRMLSphere {
+                radius 0.090000004
+
+              }
+
+            },
+              
+            VRMLTransform {
+              translation 0 0.57999998 0
+              children 
+                VRMLShape {
+                  appearance 
+                  DEF RobotGlow VRMLAppearance {
+                    material 
+                    VRMLMaterial {
+                      diffuseColor 0 1 0
+                      emissiveColor 1 0 0
+
+                    }
+
+                  }
+                  geometry 
+                  VRMLCone {
+                    bottomRadius 0.02
+                    height 1
+
+                  }
+
+                }
+
+            } ]
+
+        }
+        VRMLTransform {
+          translation -0.85000002 0.1 0
+          children [ 
+            VRMLTransform {
+              translation 0.2 0 0
+              rotation -0 -0 -0.99999994  1.5700002
+              children 
+                USE AntenaeBar
+
+            },
+              
+            VRMLTransform {
+              rotation 0 0 0.99999994  0.78500009
+              children [ 
+                VRMLShape {
+                  appearance 
+                  USE RobotColor
+                  geometry 
+                  VRMLBox {
+                    size 0.2 0.2 0.2
+
+                  }
+
+                },
+                  
+                VRMLTransform {
+                  translation 0 0.57999998 0
+                  children 
+                    VRMLShape {
+                      appearance 
+                      USE RobotGlow
+                      geometry 
+                      VRMLBox {
+                        size 0.02 1 0.02
+
+                      }
+
+                    }
+
+                },
+                  
+                VRMLTransform {
+                  translation 0 0.94999999 0
+                  children 
+                    VRMLShape {
+                      appearance 
+                      USE RobotGlow
+                      geometry 
+                      VRMLBox {
+                        size 0.2 0.02 0.02
+
+                      }
+
+                    }
+
+                },
+                  
+                VRMLTransform {
+                  translation 0 0.85000002 0
+                  children 
+                    VRMLShape {
+                      appearance 
+                      USE RobotGlow
+                      geometry 
+                      VRMLBox {
+                        size 0.40000001 0.02 0.02
+
+                      }
+
+                    }
+
+                } ]
+
+            } ]
+
+        }
+      }
+    }
+    DEF puerta-wrl Separator {
+
+      Separator {
+
+        VRMLGroup {
+          children [ 
+            VRMLShape {
+              appearance 
+              VRMLAppearance {
+                material 
+                VRMLMaterial {
+                  diffuseColor 1 1 1
+
+                }
+                texture 
+                VRMLImageTexture {
+                  url "panel.jpg"
+
+                }
+                textureTransform 
+                VRMLTextureTransform {
+                  scale 1 2
+
+                }
+
+              }
+              geometry 
+              VRMLBox {
+                size 3 6 0.2
+
+              }
+
+            },
+              
+            VRMLTransform {
+              translation 1.1799999 -0 0.2
+              children 
+                VRMLShape {
+                  appearance 
+                  VRMLAppearance {
+                    material 
+                    VRMLMaterial {
+                      diffuseColor 0.22 0.15000001 0
+                      ambientIntensity 0.40000001
+                      specularColor 0.70999998 0.69999999 0.56
+                      shininess 0.16
+
+                    }
+
+                  }
+                  geometry 
+                  VRMLSphere {
+                    radius 0.15000001
+
+                  }
+
+                }
+
+            } ]
+
+        }
+      }
+    }
+  }
+}
+

@@ -1,0 +1,104 @@
+#VRML V2.0 utf8
+#
+#  Dinette Chair
+#  chair.wrl
+#        by David R. Nadeau
+#
+#  This chair is inlined in to the dinette.wrl file to illustrate inline
+#  groups.
+#
+
+#
+#  Chair seat
+#
+Transform {
+    translation 0.0 0.5 0.0
+    children [
+Shape {
+    appearance DEF Brown Appearance {
+material Material {
+    diffuseColor 0.6 0.35 0.0
+}
+    }
+    geometry Box {
+size 0.39 0.03 0.41
+    }
+}
+    ]
+}
+
+#
+#  Chair legs
+#
+Transform {
+    translation 0.1575 0.2485 0.1575
+    children [
+DEF Leg Shape {
+    appearance USE Brown
+    geometry Box {
+size 0.03 0.497 0.03
+    }
+}
+    ]
+}
+Transform {
+    translation -0.1575 0.2485 0.1575
+    children [ USE Leg ]
+}
+Transform {
+    translation -0.1575 0.2485 -0.1575
+    children [ USE Leg ]
+}
+Transform {
+    translation 0.1575 0.2485 -0.1575
+    children [ USE Leg ]
+}
+
+#
+#  Chair back
+#
+Transform {
+    translation 0.1875 0.5 0.0
+    rotation 0.0 0.0 1.0 -0.17
+    children [
+Transform {
+    translation 0.0 0.54 0.0
+    children [
+Shape {
+    appearance USE Brown
+    geometry Box {
+size 0.06 0.17 0.43
+    }
+}
+    ]
+}
+
+Transform {
+    translation 0.0 0.2275 0.0
+    children [
+DEF BackPole Shape {
+    appearance USE Brown
+    geometry Box {
+size 0.02 0.455 0.02
+    }
+}
+    ]
+}
+Transform {
+    translation 0.0 0.2275 -0.083
+    children [ USE BackPole ]
+}
+Transform {
+    translation 0.0 0.2275 0.083
+    children [ USE BackPole ]
+}
+Transform {
+    translation 0.0 0.2275 -0.166
+    children [ USE BackPole ]
+}
+Transform {
+    translation 0.0 0.2275 0.166
+    children [ USE BackPole ]
+}
+    ]
+}
