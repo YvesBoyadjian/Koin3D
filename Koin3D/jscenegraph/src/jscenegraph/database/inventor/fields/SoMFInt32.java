@@ -289,6 +289,11 @@ public int operator_square_bracketI(int i) {
 	return (int) values[i];
 }
 
+public Object operator_square_bracket(int i) {
+	evaluate();
+	return (Integer) values[i];
+}
+
 // ! Copies value indexed by "from" to value indexed by "to"
 protected void copyValue(int to, int from) {
 	values[to] = values[from];

@@ -91,4 +91,11 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 		}
 		this.delta = other.delta + delta;
 	}
+
+	public void assign(SbVec3fArray other, int delta) {
+		if( valuesArray != other.valuesArray ) {
+			throw new IllegalArgumentException();			
+		}
+		this.delta = other.delta + delta;
+	}
 }

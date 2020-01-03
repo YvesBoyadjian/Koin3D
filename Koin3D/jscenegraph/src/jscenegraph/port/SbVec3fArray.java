@@ -17,9 +17,9 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  */
 public class SbVec3fArray implements FloatBufferAble {
 	
-	private FloatMemoryBuffer valuesArray;
+	FloatMemoryBuffer valuesArray;
 
-	private int delta;
+	int delta;
 	
 	//private FloatBuffer[] floatBuffer = new FloatBuffer[1];
 	
@@ -61,6 +61,19 @@ public class SbVec3fArray implements FloatBufferAble {
 
 	public SbVec3f get(int index) {
 		return new SbVec3f(valuesArray, (index+delta)*3);
+	}
+	
+	public float[] get3Floats(int index, float[] values) {
+		values[0] = valuesArray.getFloat((index+delta)*3);
+		values[1] = valuesArray.getFloat((index+delta)*3+1);
+		values[2] = valuesArray.getFloat((index+delta)*3+2);
+		return values;
+	}
+	
+	public void setValueXYZ(int index, float x, float y, float z) {
+		valuesArray.setFloat((index+delta)*3, x);
+		valuesArray.setFloat((index+delta)*3+1, y);
+		valuesArray.setFloat((index+delta)*3+2, z);
 	}
 
 	public SbVec3fArray plus(int delta) {

@@ -37,6 +37,7 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.SoCallback;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCube;
@@ -48,6 +49,7 @@ import jscenegraph.database.inventor.nodes.SoLight;
 import jscenegraph.database.inventor.nodes.SoMaterial;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPerspectiveCamera;
+import jscenegraph.database.inventor.nodes.SoPickStyle;
 import jscenegraph.database.inventor.nodes.SoQuadMesh;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoShapeHints;
@@ -86,7 +88,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private static final SbColor SUN_COLOR = new SbColor(1f, 0.85f, 0.8f);
 	
-	private static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
+	public static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
 	private static final float SKY_INTENSITY = 0.2f; 
 	
@@ -368,7 +370,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    environment.ambientColor.setValue(0, 0, 0);
 	    environment.ambientIntensity.setValue(0);
 	    environment.fogType.setValue(SoEnvironment.FogType.FOG);
-	    //environment.
+	    environment.fogColor.setValue(SKY_COLOR.darker());
+	    environment.fogVisibility.setValue(5e4f);
 	    
 	    sep.addChild(environment);
 	    
@@ -418,7 +421,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    sky[2] = new SoNoSpecularDirectionalLight();
 	    sky[2].color.setValue(SKY_COLOR);
 	    sky[2].intensity.setValue(SKY_INTENSITY);
-	    sky[0].direction.setValue(1, 0, -1);
+	    sky[2].direction.setValue(1, 0, -1);
 	    sky[3] = new SoNoSpecularDirectionalLight();
 	    sky[3].color.setValue(SKY_COLOR);
 	    sky[3].intensity.setValue(SKY_INTENSITY);
@@ -472,6 +475,11 @@ for(int is=0;is<4;is++) {
 	    shapeHints.vertexOrdering.setValue(SoShapeHints.VertexOrdering.CLOCKWISE);
 	    landSep.addChild(shapeHints);
 	    
+	    SoPickStyle ps = new SoPickStyle();
+	    ps.style.setValue(SoPickStyle.Style.UNPICKABLE);
+	    
+	    landSep.addChild(ps);
+	    
 	    SoShaderProgram program = new SoShaderProgram();
 	    
 	    SoVertexShader vertexShader = new SoVertexShader();
@@ -521,6 +529,7 @@ for(int is=0;is<4;is++) {
 	    shapeHints.vertexOrdering.setValue(SoShapeHints.VertexOrdering.COUNTERCLOCKWISE);
 	    douglasSep.addChild(shapeHints);
 	    
+	    douglasSep.addChild(ps);
 	    
 	    SoTexture2 douglasTexture = new SoTexture2();
 	    
@@ -587,6 +596,59 @@ for(int is=0;is<4;is++) {
 		douglasSep.addChild(douglasSepF);
 		
 		shadowGroup.addChild(douglasSep);
+		
+		SoSeparator sealsSeparator = new SoSeparator() {
+		public void
+		GLRenderBelowPath(SoGLRenderAction action)
+
+		////////////////////////////////////////////////////////////////////////
+		{
+			super.GLRenderBelowPath(action);
+		}
+		
+		public void notify(SoNotList list) {
+			super.notify(list);
+		}
+	};
+		//sealsSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.ON);
+		
+		//SoTranslation sealsTranslation = new SoTranslation();
+		
+		//sealsTranslation.translation.setValue(0, 0, - getzTranslation());
+		
+		sealsSeparator.addChild(transl);
+	    
+		//sealsSeparator.addChild(sealsTranslation);
+		
+		SoTexture2 sealTexture = new SoTexture2();
+		
+		sealTexture.filename.setValue("ressource/robbe-3080459.jpg");
+		
+		sealsSeparator.addChild(sealTexture);
+		
+		Seals seals = new Seals(this);
+		
+		final float[] vector = new float[3];
+		
+		for( int seal = 0; seal < seals.getNbSeals(); seal++) {
+			SoSeparator sealSeparator = new SoSeparator();
+			
+			SoTranslation sealTranslation = new SoTranslation();
+			
+			sealTranslation.translation.setValue(seals.getSeal(seal,vector));
+			
+			sealSeparator.addChild(sealTranslation);
+			
+			SoCube sealCube = new SoCube();
+			//sealCube.height.setValue(4);
+			//sealCube.depth.setValue(4);
+			
+			sealSeparator.addChild(sealCube);
+			
+			sealsSeparator.addChild(sealSeparator);
+		}
+		
+		shadowGroup.addChild(sealsSeparator);
 
 		addWater(shadowGroup,185 + zTranslation, 0.0f, true,false);
 		addWater(shadowGroup,175 + zTranslation, 0.2f, true,false);
@@ -654,6 +716,7 @@ for(int is=0;is<4;is++) {
 		sun[3].shadowMapScene.setValue(castingShadowScene);
 		
 		//sep.ref();
+		forest = null; // for garbage collection
 	}
 	
 	public void addWater(SoGroup group, float z, float transparency, boolean shining, boolean small) {

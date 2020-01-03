@@ -291,7 +291,7 @@ public class DouglasForest {
 		
 		final SbVec3f xy = new SbVec3f();
 		
-		for(int tree=0; tree<nbDouglas;tree++) {
+		for(int tree=0; tree</*nbDouglas*/NB_DOUGLAS_SEEDS;tree++) {
 			float x = xArray[tree];
 			float y = yArray[tree];
 			
@@ -327,15 +327,17 @@ public class DouglasForest {
 				}
 				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
 					
-					SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
-					SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
-					box.extendBy(min);
-					box.extendBy(max);
-					SbVec3f centerV = new SbVec3f(
-							(chunk.xMin+chunk.xMax)/2,
-							(chunk.yMin+chunk.yMax)/2,
-							(chunk.zMin+chunk.zMax)/2);
-					center.setValue(centerV);
+					if(chunk.xMin != Float.MAX_VALUE) {
+						SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
+						SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
+						box.extendBy(min);
+						box.extendBy(max);
+						SbVec3f centerV = new SbVec3f(
+								(chunk.xMin+chunk.xMax)/2,
+								(chunk.yMin+chunk.yMax)/2,
+								(chunk.zMin+chunk.zMax)/2);
+						center.setValue(centerV);
+					}
 					
 //					super.computeBBox(action, box, center);
 				}
@@ -378,15 +380,17 @@ public class DouglasForest {
 				}			
 				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
 					
-					SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
-					SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
-					box.extendBy(min);
-					box.extendBy(max);
-					SbVec3f centerV = new SbVec3f(
-							(chunk.xMin+chunk.xMax)/2,
-							(chunk.yMin+chunk.yMax)/2,
-							(chunk.zMin+chunk.zMax)/2);
-					center.setValue(centerV);
+					if(chunk.xMin != Float.MAX_VALUE) {
+						SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
+						SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
+						box.extendBy(min);
+						box.extendBy(max);
+						SbVec3f centerV = new SbVec3f(
+								(chunk.xMin+chunk.xMax)/2,
+								(chunk.yMin+chunk.yMax)/2,
+								(chunk.zMin+chunk.zMax)/2);
+						center.setValue(centerV);
+					}
 					
 					//super.computeBBox(action, box, center);
 				}

@@ -114,5 +114,15 @@ addNumImage(final int num)
   this.numimages += num;
 }
 
+/*!
+  Adds \a num triangles to total count. Used by node instances in the
+  scene graph during traversal.
+*/
+public void
+addNumTriangles( int num)
+{
+  this.numtris += num;
+}
+
 	  
 }

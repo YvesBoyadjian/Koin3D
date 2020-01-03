@@ -249,6 +249,7 @@ import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoPickedPoint;
@@ -295,6 +296,7 @@ import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.MutableSbVec3fArray;
 import jscenegraph.port.SbVec3fArray;
 
 /**
@@ -1101,181 +1103,510 @@ useConvexCache(SoAction action,
 //
 // Use: protected
 
-public void generatePrimitives(SoAction action)
+//public void generatePrimitives(SoAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//  SoState state = action.getState();
+//  // Put vertexProperty stuff into state:
+//  SoVertexProperty vp = getVertexProperty();
+//  state.push();
+//  if (vp != null) {
+//    vp.doAction(action);
+//  }
 //
-////////////////////////////////////////////////////////////////////////
+//  // When generating primitives for picking, there is no need to
+//  // create details now, since they will be created in
+//  // createTriangleDetail() when an intersection is found (but we
+//  // need to use the face detail to figure out the rest of it).
+//  // Otherwise, we create a face detail containing the 3 points of
+//  // the generated triangle, using the stuff in SoShape.
+//  // We also delay computing default texture coordinates.
+//  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
+//
+//  final SoPrimitiveVertex           pv = new SoPrimitiveVertex();
+//  final SoFaceDetail                fd = new SoFaceDetail();
+//  final SoPointDetail               pd = new SoPointDetail();
+//  final SoNormalBundle              nb = new SoNormalBundle(action, false);
+//  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false, ! forPicking);
+//  final SoCoordinateElement   ce;
+//  int                         curVert, curIndex, curFace, curCoord;
+//  int                         numIndices;
+//  final int[]                       coordIndices; int[] matlIndices;
+//  int[]                       normIndices, texCoordIndices;
+//  Binding                     materialBinding, normalBinding;
+//  boolean                        texCoordsIndexed;
+//
+//  ce = SoCoordinateElement.getInstance(action.getState());
+//
+//  materialBinding  = getMaterialBinding(action);
+//  normalBinding    = getNormalBinding(action, nb);
+//  texCoordsIndexed = areTexCoordsIndexed(action);
+//
+//  numIndices      = coordIndex.getNum();
+//  coordIndices    = coordIndex.getValuesI(0);
+//  matlIndices     = materialIndex.getValuesI(0);
+//  normIndices     = normalIndex.getValuesI(0);
+//  texCoordIndices = textureCoordIndex.getValuesI(0);
+//
+//  // Check for special case of 1 index of SO_END_FACE_INDEX. This
+//  // means that coord indices are to be used for materials, normals,
+//  // or texture coords as well
+//  if (materialIndex.getNum() == 1 && matlIndices[0] == SO_END_FACE_INDEX)
+//    matlIndices = coordIndices;
+//  if (normalIndex.getNum() == 1 && normIndices[0] == SO_END_FACE_INDEX) 
+//    normIndices = coordIndices;
+//  if (textureCoordIndex.getNum() == 1 &&
+//    texCoordIndices[0] == SO_END_FACE_INDEX)
+//    texCoordIndices = coordIndices;
+//
+//  if (forPicking) {
+//    pv.setTextureCoords(new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f));
+//    pv.setDetail(fd);
+//  }
+//  else
+//    pv.setDetail(pd);
+//
+//  // Also, save normal binding in instance so createTriangleDetail()
+//  // will know what it is without having to reconstruct a normal bundle
+//  savedNormalBinding = normalBinding;
+//
+//  // Step through all the coordinate indices, building faces out
+//  // of them, until we run out of coordinate indices.
+//  curFace = curVert = curIndex = 0;
+//
+//  while (curIndex < numIndices) {
+//
+//    int vertsInFace = getNumVerts(curIndex);
+//
+//    // Forget about faces with fewer than three vertices...
+//    if (vertsInFace < 3) {
+//      curIndex += vertsInFace+1;
+//      curFace++;
+//      continue;
+//    }
+//
+//    if (forPicking) {
+//      fd.setFaceIndex(curFace);
+//      fd.setPartIndex(curFace);
+//    }
+//
+//    beginShape(action, SoShape.TriangleShape.POLYGON, forPicking ? null : fd);
+//
+//    // Loop through all vertices of current face
+//    while (curIndex < numIndices &&
+//      (curCoord = (int)coordIndices[curIndex]) != SO_END_FACE_INDEX) {
+//
+//        // Check for duplicate vertices; GLU doesn't handle them
+//        // very well. Discard current index if it's the same as
+//        // the previous one.
+//        if (curIndex == 0 || (curCoord != coordIndices[curIndex - 1])) {
+//
+//          int matlIndex = -1, normIndex = -1, tcIndex;
+//
+//          switch (materialBinding) {
+//      case OVERALL:
+//        matlIndex = 0;
+//        break;
+//      case PER_FACE:
+//        matlIndex = curFace;
+//        break;
+//      case PER_FACE_INDEXED:
+//        matlIndex = (int) matlIndices[curFace];
+//        break;
+//      case PER_VERTEX:
+//        matlIndex = curVert;
+//        break;
+//      case PER_VERTEX_INDEXED:
+//        matlIndex = (int) matlIndices[curIndex];
+//        break;
+//          }
+//          switch (normalBinding) {
+//      case OVERALL:
+//        normIndex = 0;
+//        break;
+//      case PER_FACE:
+//        normIndex = curFace;
+//        break;
+//      case PER_FACE_INDEXED:
+//        normIndex = (int) normIndices[curFace];
+//        break;
+//      case PER_VERTEX:
+//        normIndex = curVert;
+//        break;
+//      case PER_VERTEX_INDEXED:
+//        normIndex = (int) normIndices[curIndex];
+//        break;
+//          }
+//          tcIndex = (texCoordsIndexed ?
+//            (int) texCoordIndices[curIndex] : curVert);
+//
+//          pv.setPoint(ce.get3(curCoord));
+//          pv.setNormal(nb.get(normIndex));
+//          pv.setMaterialIndex(matlIndex);
+//
+//          if (! tcb.isFunction())
+//            pv.setTextureCoords(tcb.get(tcIndex));
+//
+//          if (! forPicking) {
+//            if (tcb.isFunction())
+//              pv.setTextureCoords(tcb.get(pv.getPoint(),
+//              pv.getNormal()));
+//            pd.setCoordinateIndex(curCoord);
+//            pd.setMaterialIndex(matlIndex);
+//            pd.setNormalIndex(normIndex);
+//            pd.setTextureCoordIndex(tcIndex);
+//          }
+//
+//          shapeVertex(pv);
+//        }
+//
+//        curVert++;
+//        curIndex++;
+//    }
+//
+//    endShape();
+//
+//    curIndex++;     // Skip over the END_FACE_INDEX
+//    curFace++;
+//  }
+//  state.pop();
+//  
+//  // java port
+//  pv.destructor();
+//  fd.destructor();
+//  pd.destructor();
+//  nb.destructor();
+//  tcb.destructor();
+//}
+
+
+// this macro actually makes the code below more readable  :-)
+private void DO_VERTEX(
+		final SoPointDetail pointDetail, 
+		final SoPrimitiveVertex vertex, 
+		final IntArrayPtr mindices,
+		final IntArrayPtr nindices,
+		final IntArrayPtr tindices,
+		Binding mbind,
+		Binding nbind, 
+		Binding tbind,
+		final int[] matnr,
+		final int[] normnr,
+		final MutableSbVec3fArray currnormal,
+		final SbVec3fArray normals,
+		SoTextureCoordinateBundle tb,
+		final SoCoordinateElement coords,
+		final int[] texidx,
+		int idx) {
+	
+if (mbind == Binding.PER_VERTEX) {                  
+  pointDetail.setMaterialIndex(matnr[0]);      
+  vertex.setMaterialIndex(matnr[0]++);         
+}                                           
+else if (mbind == Binding.PER_VERTEX_INDEXED) {     
+  pointDetail.setMaterialIndex(mindices.get()); 
+  vertex.setMaterialIndex(mindices.get());
+  mindices.plusPlus();
+}                                         
+if (nbind == Binding.PER_VERTEX) {                
+  pointDetail.setNormalIndex(normnr[0]);     
+  currnormal.assign( normals,normnr[0]++);        
+  vertex.setNormal(currnormal.get(0));          
+}                                         
+else if (nbind == Binding.PER_VERTEX_INDEXED) {   
+  pointDetail.setNormalIndex(nindices.get());  
+  currnormal.assign(normals,nindices.get()); nindices.plusPlus();     
+  vertex.setNormal(currnormal.get(0));          
+}                                        
+if (tb.isFunction()) {                 
+  vertex.setTextureCoords(tb.get(coords.get3(idx), currnormal.get(0))); 
+  if (tb.needIndices()) { 
+	  pointDetail.setTextureCoordIndex(tindices!=null ? tindices.get() : texidx[0]); 
+      if( tindices != null) {
+    	  tindices.plusPlus();
+      }
+      else {
+    	  texidx[0]++;
+      }
+  }
+}                                         
+else if (tbind != Binding.OVERALL) {                      
+  pointDetail.setTextureCoordIndex(tindices!=null ? tindices.get() : texidx[0]); 
+  vertex.setTextureCoords(tb.get(tindices!=null ? tindices.get() : texidx[0])); 
+  if( tindices != null) {
+	  tindices.plusPlus();
+  }
+  else {
+	  texidx[0]++;
+  }
+}                                         
+vertex.setPoint(coords.get3(idx));        
+pointDetail.setCoordinateIndex(idx);      
+this.shapeVertex(vertex);
+}
+
+// doc from parent
+public void
+generatePrimitives(SoAction action)
 {
+  if (this.coordIndex.getNum() < 3) return;
+
   SoState state = action.getState();
-  // Put vertexProperty stuff into state:
-  SoVertexProperty vp = getVertexProperty();
-  state.push();
-  if (vp != null) {
-    vp.doAction(action);
+
+  if (this.vertexProperty.getValue() != null) {
+    state.push();
+    this.vertexProperty.getValue().doAction(action);
   }
 
-  // When generating primitives for picking, there is no need to
-  // create details now, since they will be created in
-  // createTriangleDetail() when an intersection is found (but we
-  // need to use the face detail to figure out the rest of it).
-  // Otherwise, we create a face detail containing the 3 points of
-  // the generated triangle, using the stuff in SoShape.
-  // We also delay computing default texture coordinates.
-  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
+  Binding mbind = this.findMaterialBinding(state);
+  Binding nbind = this.findNormalBinding(state);
 
-  final SoPrimitiveVertex           pv = new SoPrimitiveVertex();
-  final SoFaceDetail                fd = new SoFaceDetail();
-  final SoPointDetail               pd = new SoPointDetail();
-  final SoNormalBundle              nb = new SoNormalBundle(action, false);
-  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false, ! forPicking);
-  final SoCoordinateElement   ce;
-  int                         curVert, curIndex, curFace, curCoord;
-  int                         numIndices;
-  final int[]                       coordIndices; int[] matlIndices;
-  int[]                       normIndices, texCoordIndices;
-  Binding                     materialBinding, normalBinding;
-  boolean                        texCoordsIndexed;
+  final SoCoordinateElement[] coords = new SoCoordinateElement[1]; //ptr
+  final SbVec3fArray[] normals = new SbVec3fArray[1]; //ptr
+  final IntArrayPtr[] cindices = new IntArrayPtr[1]; //ptr
+  final int[] numindices = new int[1];
+  final IntArrayPtr[] nindices = new IntArrayPtr[1]; //ptr
+  final IntArrayPtr[] tindices = new IntArrayPtr[1]; //ptr
+  final IntArrayPtr[] mindices = new IntArrayPtr[1]; //ptr
+  boolean doTextures;
+  boolean sendNormals;
+  final boolean[] normalCacheUsed = new boolean[1];
 
-  ce = SoCoordinateElement.getInstance(action.getState());
+  sendNormals = true; // always generate normals
 
-  materialBinding  = getMaterialBinding(action);
-  normalBinding    = getNormalBinding(action, nb);
-  texCoordsIndexed = areTexCoordsIndexed(action);
+  getVertexData(state, coords, normals, cindices,
+                nindices, tindices, mindices, numindices,
+                sendNormals, normalCacheUsed);
 
-  numIndices      = coordIndex.getNum();
-  coordIndices    = coordIndex.getValuesI(0);
-  matlIndices     = materialIndex.getValuesI(0);
-  normIndices     = normalIndex.getValuesI(0);
-  texCoordIndices = textureCoordIndex.getValuesI(0);
+  SoTextureCoordinateBundle tb = new SoTextureCoordinateBundle(action, false, false);
+  doTextures = tb.needCoordinates();
 
-  // Check for special case of 1 index of SO_END_FACE_INDEX. This
-  // means that coord indices are to be used for materials, normals,
-  // or texture coords as well
-  if (materialIndex.getNum() == 1 && matlIndices[0] == SO_END_FACE_INDEX)
-    matlIndices = coordIndices;
-  if (normalIndex.getNum() == 1 && normIndices[0] == SO_END_FACE_INDEX) 
-    normIndices = coordIndices;
-  if (textureCoordIndex.getNum() == 1 &&
-    texCoordIndices[0] == SO_END_FACE_INDEX)
-    texCoordIndices = coordIndices;
-
-  if (forPicking) {
-    pv.setTextureCoords(new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f));
-    pv.setDetail(fd);
+  if (!sendNormals) nbind = Binding.OVERALL;
+  else if (normalCacheUsed[0] && nbind == Binding.PER_VERTEX) {
+    nbind = Binding.PER_VERTEX_INDEXED;
   }
-  else
-    pv.setDetail(pd);
+  else if (normalCacheUsed[0] && nbind == Binding.PER_FACE_INDEXED) {
+    nbind = Binding.PER_FACE;
+  }
 
-  // Also, save normal binding in instance so createTriangleDetail()
-  // will know what it is without having to reconstruct a normal bundle
-  savedNormalBinding = normalBinding;
+  if (this.getNodeType() == SoNode.NodeType.VRML1) {
+    // For VRML1, PER_VERTEX means per vertex in shape, not PER_VERTEX
+    // on the state.
+    if (mbind == Binding.PER_VERTEX) {
+      mbind = Binding.PER_VERTEX_INDEXED;
+      mindices[0] = IntArrayPtr.copyOf(cindices[0]);
+    }
+    if (nbind == Binding.PER_VERTEX) {
+      nbind = Binding.PER_VERTEX_INDEXED;
+      nindices[0] = IntArrayPtr.copyOf(cindices[0]);
+    }
+  }
 
-  // Step through all the coordinate indices, building faces out
-  // of them, until we run out of coordinate indices.
-  curFace = curVert = curIndex = 0;
+  Binding tbind = Binding.OVERALL;
+  if (doTextures) {
+    if (tb.isFunction() && !tb.needIndices()) {
+      tbind = Binding.OVERALL;
+      tindices[0] = null;
+    }
+    // FIXME: just call inherited::areTexCoordsIndexed() instead of
+    // the if-check? 20020110 mortene.
+    else if (SoTextureCoordinateBindingElement.get(state) ==
+             SoTextureCoordinateBindingElement.Binding.PER_VERTEX) {
+      tbind = Binding.PER_VERTEX;
+      tindices[0] = null;
+    }
+    else {
+      tbind = Binding.PER_VERTEX_INDEXED;
+      if (tindices[0] == null) tindices[0] = IntArrayPtr.copyOf(cindices[0]);
+    }
+  }
 
-  while (curIndex < numIndices) {
+  if (nbind == Binding.PER_VERTEX_INDEXED && nindices[0] == null) {
+    nindices[0] = IntArrayPtr.copyOf(cindices[0]);
+  }
+  if (mbind == Binding.PER_VERTEX_INDEXED && mindices[0] == null) {
+    mindices[0] = IntArrayPtr.copyOf(cindices[0]);
+  }
 
-    int vertsInFace = getNumVerts(curIndex);
+  boolean convexcacheused = false;
+  if (this.useConvexCache(action, normals[0], nindices[0], normalCacheUsed[0])) {
+    cindices[0] = this.pimpl.convexCache.getCoordIndices();
+    numindices[0] = this.pimpl.convexCache.getNumCoordIndices();
+    mindices[0] = this.pimpl.convexCache.getMaterialIndices();
+    nindices[0] = this.pimpl.convexCache.getNormalIndices();
+    tindices[0] = this.pimpl.convexCache.getTexIndices();
 
-    // Forget about faces with fewer than three vertices...
-    if (vertsInFace < 3) {
-      curIndex += vertsInFace+1;
-      curFace++;
-      continue;
+    if (mbind == Binding.PER_VERTEX) mbind = Binding.PER_VERTEX_INDEXED;
+    else if (mbind == Binding.PER_FACE) mbind = Binding.PER_FACE_INDEXED;
+    if (nbind == Binding.PER_VERTEX) nbind = Binding.PER_VERTEX_INDEXED;
+    else if (nbind == Binding.PER_FACE) nbind = Binding.PER_FACE_INDEXED;
+
+    if (tbind != Binding.OVERALL) tbind = Binding.PER_VERTEX_INDEXED;
+    convexcacheused = true;
+  }
+
+  final int[] texidx = new int[1];
+  TriangleShape mode = TriangleShape.POLYGON;
+  TriangleShape newmode;
+  IntArrayPtr viptr = IntArrayPtr.copyOf(cindices[0]);
+  IntArrayPtr viendptr = viptr.plus(numindices[0]);
+  int v1, v2, v3, v4, v5 = 0; // v5 init unnecessary, but kills a compiler warning.
+
+  final SoPrimitiveVertex vertex = new SoPrimitiveVertex();
+  final SoPointDetail pointDetail = new SoPointDetail();
+  final SoFaceDetail faceDetail = new SoFaceDetail();
+
+  vertex.setDetail(pointDetail);
+
+  final SbVec3fSingle dummynormal = new SbVec3fSingle(0,0,1);
+  MutableSbVec3fArray currnormal = new MutableSbVec3fArray(dummynormal);
+  if (normals[0] != null) currnormal = new MutableSbVec3fArray( normals[0]);
+  vertex.setNormal(currnormal.get(0));
+
+  final int[] matnr = new int[0];
+  final int[] normnr = new int[0];
+
+  while (viptr.plusLessThan(2, viendptr)) {
+    v1 = viptr.get(); viptr.plusPlus();
+    v2 = viptr.get(); viptr.plusPlus();
+    v3 = viptr.get(); viptr.plusPlus();
+    if (v1 < 0 || v2 < 0 || v3 < 0) {
+//#if COIN_DEBUG
+      SoDebugError.postInfo("SoIndexedFaceSet::generatePrimitives",
+                             "Polygon with less than three vertices detected. "+
+                             "Aborting current shape.");
+//#endif // COIN_DEBUG
+      
+      break;
+    } 
+    if(viptr.lessThan(viendptr)) {
+    	v4 = viptr.get();
+    	viptr.plusPlus();
+    }
+    else {
+    	v4 = -1;
+    }
+    //v4 = viptr < viendptr ? *viptr++ : -1;
+    if (v4  < 0) newmode = TriangleShape.TRIANGLES;
+    else {
+    	if(viptr.lessThan(viendptr)) {
+    		v5 = viptr.get();
+    		viptr.plusPlus();
+    	}
+    	else {
+    		v5 = -1;
+    	}
+      //v5 = viptr < viendptr ? *viptr++ : -1;
+      if (v5 < 0) newmode = TriangleShape.QUADS;
+      else newmode = TriangleShape.POLYGON;
+    }
+    if (newmode != mode) {
+      if (mode != TriangleShape.POLYGON) this.endShape();
+      mode = newmode;
+      this.beginShape(action, mode, faceDetail);
+    }
+    else if (mode == TriangleShape.POLYGON) this.beginShape(action, TriangleShape.POLYGON, faceDetail);
+
+    // vertex 1 can't use DO_VERTEX
+    if (mbind == Binding.PER_VERTEX || mbind == Binding.PER_FACE) {
+      pointDetail.setMaterialIndex(matnr[0]);
+      vertex.setMaterialIndex(matnr[0]++);
+    }
+    else if (mbind == Binding.PER_VERTEX_INDEXED || mbind == Binding.PER_FACE_INDEXED) {
+      pointDetail.setMaterialIndex(mindices[0].get());
+      vertex.setMaterialIndex(mindices[0].get());mindices[0].plusPlus();
+    }
+    if (nbind == Binding.PER_VERTEX || nbind == Binding.PER_FACE) {
+      pointDetail.setNormalIndex(normnr[0]);
+      currnormal.assign(normals[0],normnr[0]);normnr[0]++;
+      vertex.setNormal(currnormal.get(0));
+    }
+    else if (nbind == Binding.PER_FACE_INDEXED || nbind == Binding.PER_VERTEX_INDEXED) {
+      pointDetail.setNormalIndex(nindices[0].get());
+      currnormal.assign(normals[0],nindices[0].get());nindices[0].plusPlus();
+      vertex.setNormal(currnormal.get(0));
     }
 
-    if (forPicking) {
-      fd.setFaceIndex(curFace);
-      fd.setPartIndex(curFace);
+    if (tb.isFunction()) {
+      vertex.setTextureCoords(tb.get(coords[0].get3(v1), currnormal.get(0)));
+      if (tb.needIndices()) {
+    	  pointDetail.setTextureCoordIndex(tindices[0] != null ? tindices[0].get() : texidx[0]); 
+          if( tindices[0] != null) {
+        	  tindices[0].plusPlus();
+          }
+          else {
+        	  texidx[0]++;
+          }
+      }
     }
+    else if (tbind != Binding.OVERALL) {
+      pointDetail.setTextureCoordIndex(tindices[0] != null ? tindices[0].get() : texidx[0]);
+      vertex.setTextureCoords(tb.get(tindices[0] != null ? tindices[0].get() : texidx[0]));
+      if( tindices[0] != null) {
+    	  tindices[0].plusPlus();
+      }
+      else {
+    	  texidx[0]++;
+      }
+    }
+    pointDetail.setCoordinateIndex(v1);
+    vertex.setPoint(coords[0].get3(v1));
+    this.shapeVertex(vertex);
 
-    beginShape(action, SoShape.TriangleShape.POLYGON, forPicking ? null : fd);
+    DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v2);
+    DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v3);
 
-    // Loop through all vertices of current face
-    while (curIndex < numIndices &&
-      (curCoord = (int)coordIndices[curIndex]) != SO_END_FACE_INDEX) {
-
-        // Check for duplicate vertices; GLU doesn't handle them
-        // very well. Discard current index if it's the same as
-        // the previous one.
-        if (curIndex == 0 || (curCoord != coordIndices[curIndex - 1])) {
-
-          int matlIndex = -1, normIndex = -1, tcIndex;
-
-          switch (materialBinding) {
-      case OVERALL:
-        matlIndex = 0;
-        break;
-      case PER_FACE:
-        matlIndex = curFace;
-        break;
-      case PER_FACE_INDEXED:
-        matlIndex = (int) matlIndices[curFace];
-        break;
-      case PER_VERTEX:
-        matlIndex = curVert;
-        break;
-      case PER_VERTEX_INDEXED:
-        matlIndex = (int) matlIndices[curIndex];
-        break;
-          }
-          switch (normalBinding) {
-      case OVERALL:
-        normIndex = 0;
-        break;
-      case PER_FACE:
-        normIndex = curFace;
-        break;
-      case PER_FACE_INDEXED:
-        normIndex = (int) normIndices[curFace];
-        break;
-      case PER_VERTEX:
-        normIndex = curVert;
-        break;
-      case PER_VERTEX_INDEXED:
-        normIndex = (int) normIndices[curIndex];
-        break;
-          }
-          tcIndex = (texCoordsIndexed ?
-            (int) texCoordIndices[curIndex] : curVert);
-
-          pv.setPoint(ce.get3(curCoord));
-          pv.setNormal(nb.get(normIndex));
-          pv.setMaterialIndex(matlIndex);
-
-          if (! tcb.isFunction())
-            pv.setTextureCoords(tcb.get(tcIndex));
-
-          if (! forPicking) {
-            if (tcb.isFunction())
-              pv.setTextureCoords(tcb.get(pv.getPoint(),
-              pv.getNormal()));
-            pd.setCoordinateIndex(curCoord);
-            pd.setMaterialIndex(matlIndex);
-            pd.setNormalIndex(normIndex);
-            pd.setTextureCoordIndex(tcIndex);
-          }
-
-          shapeVertex(pv);
+    if (mode != TriangleShape.TRIANGLES) {
+      DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v4);
+      if (mode == TriangleShape.POLYGON) {
+        DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v5);
+        if(viptr.lessThan(viendptr)) {
+        	v1 = viptr.get();
+        	viptr.plusPlus();
         }
-
-        curVert++;
-        curIndex++;
+        else {
+        	v1 = -1;
+        }
+        //v1 = viptr < viendptr ? *viptr++ : -1;
+        while (v1 >= 0) {
+          DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v1);
+          if(viptr.lessThan(viendptr)) {
+        	  v1 = viptr.get();
+        	  viptr.plusPlus();
+          }
+          else {
+        	  v1 = -1;
+          }
+          //v1 = viptr < viendptr ? *viptr++ : -1;
+        }
+        this.endShape();
+      }
     }
-
-    endShape();
-
-    curIndex++;     // Skip over the END_FACE_INDEX
-    curFace++;
+    faceDetail.incFaceIndex();
+    faceDetail.incPartIndex();
+    if (mbind == Binding.PER_VERTEX_INDEXED) {
+      mindices[0].plusPlus();;
+    }
+    if (nbind == Binding.PER_VERTEX_INDEXED) {
+      nindices[0].plusPlus();
+    }
+    if (tindices[0]!= null) tindices[0].plusPlus();
   }
-  state.pop();
+  if (mode != TriangleShape.POLYGON) this.endShape();
+
+  if (normalCacheUsed[0]) {
+    this.readUnlockNormalCache();
+  }
+  if (convexcacheused) {
+    this.pimpl.readUnlockConvexCache();
+  }
+
+  if (this.vertexProperty.getValue() != null) {
+    state.pop();
+  }
   
-  // java port
-  pv.destructor();
-  fd.destructor();
-  pd.destructor();
-  nb.destructor();
-  tcb.destructor();
+  tb.destructor(); // java port
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1508,7 +1839,7 @@ public boolean figureNormals(SoState state, SoNormalBundle nb)
   // Find greatest index:
   for (i = 0; i < nIndices.getNum(); i++) {
     if ((nIndices).operator_square_bracketI(i) > numNeeded)
-      numNeeded = (int) (nIndices).operator_square_bracket(i);
+      numNeeded = (int) (nIndices).operator_square_bracketI(i);
     if ((nIndices).operator_square_bracketI(i) >= 0) // Count vertices
       ++numVertices;
   }

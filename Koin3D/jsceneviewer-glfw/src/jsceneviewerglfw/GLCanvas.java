@@ -118,6 +118,15 @@ public class GLCanvas extends Composite {
         	
         });
         
+        glfwSetMouseButtonCallback(window, new GLFWMouseButtonCallbackI() {
+
+			@Override
+			public void invoke(long window, int button, int action, int mods) {
+				mouseClickCB(button,action,mods);
+			}
+        	
+        });
+        
         glfwSetCursorEnterCallback(window, new GLFWCursorEnterCallbackI() {
 
 			@Override

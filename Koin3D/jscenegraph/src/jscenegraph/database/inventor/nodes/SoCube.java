@@ -75,6 +75,7 @@ import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.details.SoCubeDetail;
@@ -1171,6 +1172,14 @@ GLRenderGeneric(SoGLRenderAction action,
     mb.destructor(); // java port
 }
 
+// Doc from parent.
+public void
+getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  if (!this.shouldPrimitiveCount(action)) return;
+
+  action.addNumTriangles(12);
+}
 
 ////////////////////////////////////////////////////////////////////////
 //

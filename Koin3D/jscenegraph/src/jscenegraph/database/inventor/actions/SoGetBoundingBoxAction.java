@@ -446,6 +446,10 @@ extendBy(final SbBox3f b)
 //
 ///////////////////////////////////////////////////////////////////////
 {
+	if( b.getMax().getX() == Float.MAX_VALUE) {
+		int i=0;
+	}
+	
     SbXfBox3f   xfb = new SbXfBox3f(b);
     final SbMatrix    m = new SbMatrix(SoLocalBBoxMatrixElement.get(getState()));
 

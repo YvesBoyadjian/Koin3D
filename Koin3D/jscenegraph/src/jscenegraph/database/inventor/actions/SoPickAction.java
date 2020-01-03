@@ -58,7 +58,9 @@ import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoActionMethodList.SoActionMethod;
+import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoElement;
+import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.nodes.SoNode;
 
@@ -189,8 +191,11 @@ public SoPickAction(final SbViewportRegion viewportRegion)
 	       classTypeId    = SoType.createType(SoAction.getClassTypeId(),        
 	                                           new SbName("SoPickAction"), null);	       
 	   
-	       //SO_ENABLE(SoPickAction, SoViewportRegionElement);
-	       SoPickAction.enableElement(SoViewportRegionElement.class);
+	       SO_ENABLE(SoPickAction.class, SoViewportRegionElement.class);
+	       //SO_ENABLE(SoPickAction.class, SoDecimationTypeElement.class);
+	       //SO_ENABLE(SoPickAction.class, SoDecimationPercentageElement.class);
+	       SO_ENABLE(SoPickAction.class, SoLazyElement.class);
+	       SO_ENABLE(SoPickAction.class, SoCacheElement.class);
 
 	   }
 	

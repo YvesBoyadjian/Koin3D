@@ -153,8 +153,8 @@ public class SamplePart {
     scene.ref();
 //    SoTransformManip manip = new SoTransformManip();
 //    scene.addChild (manip);
-    //scene.addChild (new SoCube());
-    scene.addChild (new SoCone());
+    scene.addChild (new SoCube());
+    //scene.addChild (new SoCone());
     //scene.addChild (new SoSphere());
     return scene;
 }
@@ -1154,7 +1154,7 @@ SoSeparator createPlanet2(float radius, float distance,
 		//String fileName = "F:/basic_examples/Road/road.iv";
 		//String fileName = "F:/basic_examples/Carport/carport.iv";
 		//String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/modelos/escenaPepitoOficina.iv";
-		String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/modelos/metralleta.wrl";
+		String fileName = "examples_iv/ejemplos-ve3d/modelos/metralleta.wrl";
 		//String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/mundos-virtuales/forest.iv";
 	boolean baseColor = false;
 

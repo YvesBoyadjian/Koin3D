@@ -49,6 +49,7 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.events.SoKeyboardEvent;
 import jscenegraph.database.inventor.events.SoLocation2Event;
+import jscenegraph.database.inventor.events.SoMouseButtonEvent;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.sensors.SoIdleSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
@@ -105,6 +106,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
 		setKeyCommandsEnabled(false);
+		setViewing(false);
 	}
 
 	public void buildWidget(int style) {
@@ -331,6 +333,17 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		return false;
 	}
 	
+	protected boolean processSoMouseButtonEvent(SoMouseButtonEvent event) {
+		  if (SoMouseButtonEvent.SO_MOUSE_PRESS_EVENT(event, SoMouseButtonEvent.Button.BUTTON1)) {
+			  onFire(event);
+		  }
+		return false;
+	}
+	
+	protected void onFire(SoMouseButtonEvent event) {
+		// do nothing by default
+	}
+
 	public void updateLocation(SbVec3f diff_position) {
 		
 		double currentTimeSec = System.nanoTime()/1.0e9;
@@ -377,12 +390,18 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	    result = processSoKeyboardEvent((SoKeyboardEvent)
 	      (event));
 	  }
+	  else if (event.isOfType(SoMouseButtonEvent.getClassTypeId()))
+	  {
+		    result = processSoMouseButtonEvent((SoMouseButtonEvent)
+		  	      (event));		  
+	  }
 	  
 	  if (!result)
 	  {
+		  boolean wasViewing = isViewing();
 	    setViewing(false);
 	    result = super.processSoEvent(event);
-	    setViewing(true);
+	    setViewing(wasViewing);
 	  }
 
 	  return result;

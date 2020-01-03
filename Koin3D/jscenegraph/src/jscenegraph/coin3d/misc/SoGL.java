@@ -1694,7 +1694,7 @@ sogl_generate_cube_vertices(SbVec3fArray varray,
                        float d)
 {
   for (int i = 0; i < 8; i++) {
-    varray.get(i).setValue((i&1)!=0 ? -w : w,
+    varray.setValueXYZ(i,(i&1)!=0 ? -w : w,
                        (i&2)!=0 ? -h : h,
                        (i&4)!=0 ? -d : d);
   }
@@ -1729,7 +1729,7 @@ sogl_render_cube( float width,
   GL2 gl2 = state.getGL2();
 
 
-  SbVec3fArray varray = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(new float[8*3]));
+  SbVec3fArray varray = new SbVec3fArray(FloatMemoryBuffer.allocateFloats(8*3));
   sogl_generate_cube_vertices(varray,
                          width * 0.5f,
                          height * 0.5f,
@@ -1740,10 +1740,12 @@ sogl_render_cube( float width,
   
   SbVec3fArray cn = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_normals));
   SbVec2fArray ct = new SbVec2fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_texcoords));
+  
+  float[] dummy = new float[3];
 
   for (int i = 0; i < 6; i++) { // 6 quads
     if ((flags & SOGL_NEED_NORMALS)!=0)
-      gl2.glNormal3fv(/*sogl_cube_normals[i*3]*/cn.get(i).getValueRead());
+      gl2.glNormal3fv(/*sogl_cube_normals[i*3]*/cn.get3Floats(i,dummy));
     if ((flags & SOGL_MATERIAL_PER_PART)!=0)
       material.send(i, true);
     for (int j = 0; j < 4; j++) {
@@ -1761,7 +1763,7 @@ sogl_render_cube( float width,
           }
         }
       }
-      gl2.glVertex3fv(varray.get(iptr.get()).getValueRead(),0); iptr.plusPlus();
+      gl2.glVertex3fv(varray.get3Floats(iptr.get(),dummy),0); iptr.plusPlus();
     }
   }
   gl2.glEnd();

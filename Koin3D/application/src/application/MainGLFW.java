@@ -11,6 +11,7 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.Raster;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +23,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JWindow;
@@ -47,8 +53,17 @@ import application.scenegraph.Soleil;
 import application.viewer.glfw.SoQtWalkViewer;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbViewportRegion;
+import jscenegraph.database.inventor.SoPath;
+import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.actions.SoGLRenderAction.TransparencyType;
+import jscenegraph.database.inventor.events.SoMouseButtonEvent;
+import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.nodes.SoCamera;
+import jscenegraph.database.inventor.nodes.SoCube;
+import jscenegraph.database.inventor.nodes.SoGroup;
+import jscenegraph.database.inventor.nodes.SoMaterial;
+import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jsceneviewerglfw.inventor.qt.SoQt;
 import jsceneviewerglfw.inventor.qt.SoQtCameraController;
@@ -78,6 +93,12 @@ public class MainGLFW {
 	public static final String HERO_Z = "hero_z";
 	
 	public static SbVec3f SCENE_POSITION;
+	
+	public static final SbColor SKY_BLUE = new SbColor(0.53f,0.81f,0.92f);
+
+	public static final SbColor DEEP_SKY_BLUE = new SbColor( 0.0f, 0.749f, 1.0f);
+
+	public static final SbColor VERY_DEEP_SKY_BLUE = new SbColor( 0.0f, 0.749f/3.0f, 1.0f);
 
 	/**
 	 * @param args
@@ -137,7 +158,9 @@ public class MainGLFW {
 		//SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap,Z_TRANSLATION);
 		SceneGraph sg = new SceneGraphIndexedFaceSetShader(rw,re,overlap,Z_TRANSLATION);
 		//SceneGraph sg = new ShadowTestSceneGraph();
-		
+		rw = null; // for garbage collection
+		re = null; // for garbage collection
+		        
 		SoQtWalkViewer viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE,SoQtCameraController.Type.BROWSER,/*shell*/null,style) {
 			
 			public void onClose() {
@@ -165,6 +188,37 @@ public class MainGLFW {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+			}
+			
+			protected void onFire(SoMouseButtonEvent event) {
+				playSound("shortened_40_smith_wesson_single-mike-koenig.wav"/*clipf*/);
+				SbViewportRegion vr = this.getSceneHandler().getViewportRegion();
+				SoRayPickAction fireAction = new SoRayPickAction(vr);
+				//fireAction.setRay(new SbVec3f(0.0f,0.0f,0.0f), new SbVec3f(0.0f,0.0f,-1.0f),0.1f,1000f);
+				fireAction.setPoint(vr.getViewportSizePixels().operator_div(2));
+				fireAction.setRadius(2.0f);
+				fireAction.apply(this.getSceneHandler().getSceneGraph());
+				SoPickedPoint pp = fireAction.getPickedPoint();
+				if( pp != null) {
+					SoPath p = pp.getPath();
+					if( p != null) {
+						SoNode n = p.getTail();
+						if( n.isOfType(SoCube.getClassTypeId())) {
+							int len = p.getLength();
+							if( len > 1) {
+								SoNode parent = p.getNode(len-2);
+								if(parent.isOfType(SoGroup.getClassTypeId())) {
+									SoGroup g = (SoGroup)parent;
+									SoMaterial c = new SoMaterial();
+									c.diffuseColor.setValue(1, 0, 0);
+									g.insertChild(c, 0);
+								}
+							}
+							//System.out.println(pp.getPath().getTail().getClass());							
+						}
+					}
+				}
+				fireAction.destructor();
 			}
 		};
 	    GLData glf = new GLData(/*GLProfile.getDefault()*/);
@@ -233,7 +287,7 @@ public class MainGLFW {
 		}
 		viewer.getCameraController().changeCameraValues(camera);
 		
-		viewer.getSceneHandler().setBackgroundColor(new SbColor(0,0,1));
+		viewer.getSceneHandler().setBackgroundColor(/*new SbColor(0,0,1)*/SceneGraphIndexedFaceSetShader.SKY_COLOR.darker());
 
 		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND/*SORTED_LAYERS_BLEND*/);
 		
@@ -320,4 +374,37 @@ public class MainGLFW {
 	    window.dispose(); // must be done at the end, for linux		
 	}
 
-}
+	public static synchronized void playSound(final String url) {
+		  new Thread(new Runnable() {
+		  // The wrapper thread is unnecessary, unless it blocks on the
+		  // Clip finishing; see comments.
+		    public void run() {
+		      try {
+		        Clip clip = AudioSystem.getClip();
+		        FileInputStream fis = new FileInputStream("ressource/"+url);
+		        AudioInputStream inputStream = AudioSystem.getAudioInputStream(
+		        		new BufferedInputStream(fis));
+		        clip.open(inputStream);
+		        clip.start();
+		        fis.close();
+		      } catch (Exception e) {
+		        System.err.println(e.getMessage());
+		      }
+		    }
+		  }).start();
+		}
+	public static synchronized void playSound(Clip clip) {
+		  new Thread(new Runnable() {
+		  // The wrapper thread is unnecessary, unless it blocks on the
+		  // Clip finishing; see comments.
+		    public void run() {
+		      try {
+		        clip.start();
+		        
+		      } catch (Exception e) {
+		        System.err.println(e.getMessage());
+		      }
+		    }
+		  }).start();
+		}
+	}

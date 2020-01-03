@@ -153,5 +153,13 @@ setPackedValue(int orderedRGBA, float[] transparency)
 	    		           (((int) (g(2) * 255 + 0.5f)) << 8) +
 	    		           ((int) ((1.0f - transparency) * 255 + 0.5f)));
 	    		  	}
+
+	public SbColor operator_pow(float f) {
+		return new SbColor( (float)Math.pow(getX(),f), (float)Math.pow(getY(),f), (float)Math.pow(getZ(),f));
+	}
+
+	public SbColor darker() {
+		return new SbColor(getX()*.707f,getY()*.707f,getZ()*.707f);
+	}
 }
 

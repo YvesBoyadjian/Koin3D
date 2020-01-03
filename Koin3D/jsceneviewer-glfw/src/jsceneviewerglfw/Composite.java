@@ -47,6 +47,8 @@ public class Composite {
 	
 	private final List<MouseTrackListener> mouseTrackListeners = new ArrayList<>();
 	
+	private final List<MouseListener> mouseListeners = new ArrayList<>();
+	
 	private boolean redrawAsked;
 
 	public Composite(Composite parent, int style) {
@@ -155,7 +157,7 @@ public class Composite {
 	}
 
 	public void addMouseListener (MouseListener listener) {
-		//TODO
+		mouseListeners.add(listener);
 	}
 	
 	public void addMouseMoveListener (MouseMoveListener listener) {
@@ -210,6 +212,19 @@ public class Composite {
 		mouseMoveListeners.forEach((mml)->mml.mouseMove(me));
 		if(parent != null) {
 			parent.mouseMoveCB(xpos, ypos);
+		}
+	}
+	
+	public void mouseClickCB(int button, int action, int mods) {
+		MouseEvent me = new MouseEvent(button);
+		if(action == GLFW_PRESS) {
+			mouseListeners.forEach((mml)->mml.mouseDown(me));
+		}
+		else if(action == GLFW_RELEASE) {
+			mouseListeners.forEach((mml)->mml.mouseUp(me));
+		}
+		if(parent != null) {
+			parent.mouseClickCB(button,action,mods);
 		}
 	}
 	

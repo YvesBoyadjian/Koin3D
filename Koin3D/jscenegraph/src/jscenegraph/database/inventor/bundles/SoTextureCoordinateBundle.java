@@ -200,6 +200,10 @@ public SoTextureCoordinateBundle(SoAction action,
 	  this.shapenode = (SoShape)(action.getCurPathTail());
 	  
 	  this.coordElt = SoMultiTextureCoordinateElement.getInstance(this.state);
+	  
+	  if(this.coordElt == null) {
+		  int i=0;
+	  }
 	  for (int i = 0; i <= lastenabled[0]; i++) {
 	    if (multienabled[i]) {
 	      switch (this.coordElt.getType(i)) {
