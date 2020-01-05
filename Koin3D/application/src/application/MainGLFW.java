@@ -86,11 +86,15 @@ public class MainGLFW {
 	
 	public static final float Z_TRANSLATION = 2000;
 	
+	public static final double START_TIME = 60*60*4.5 / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
+	
 	public static final String HERO_X = "hero_x";
 	
 	public static final String HERO_Y = "hero_y";
 	
 	public static final String HERO_Z = "hero_z";
+	
+	public static final String TIME = "time_sec";
 	
 	public static SbVec3f SCENE_POSITION;
 	
@@ -180,6 +184,8 @@ public class MainGLFW {
 					
 					saveGameProperties.setProperty(HERO_Z, String.valueOf(camera.position.getValue().getZ() + Z_TRANSLATION));
 					
+					saveGameProperties.setProperty(TIME, String.valueOf(System.nanoTime()/1e9 - getStartDate() - START_TIME));
+					
 					saveGameProperties.store(out, "Mount Rainier Island save game");
 				
 					out.close();
@@ -191,7 +197,8 @@ public class MainGLFW {
 			}
 			
 			protected void onFire(SoMouseButtonEvent event) {
-				playSound("shortened_40_smith_wesson_single-mike-koenig.wav"/*clipf*/);
+				//playSound("shortened_40_smith_wesson_single-mike-koenig.wav"/*clipf*/);
+				playSound("GUN_FIRE-GoodSoundForYou-820112263.wav"/*clipf*/);
 				SbViewportRegion vr = this.getSceneHandler().getViewportRegion();
 				SoRayPickAction fireAction = new SoRayPickAction(vr);
 				//fireAction.setRay(new SbVec3f(0.0f,0.0f,0.0f), new SbVec3f(0.0f,0.0f,-1.0f),0.1f,1000f);
@@ -256,6 +263,8 @@ public class MainGLFW {
 		camera.position.setValue(0,0,0);
 		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
 		
+		double deltaTimeSec = 0;
+		
 		File saveGameFile = new File("savegame.mri");
 		if( saveGameFile.exists() ) {
 			try {
@@ -270,6 +279,8 @@ public class MainGLFW {
 				float y = Float.valueOf(saveGameProperties.getProperty(HERO_Y, "305"));
 				
 				float z = Float.valueOf(saveGameProperties.getProperty(HERO_Z, String.valueOf(1279 - SCENE_POSITION.getZ())));
+				
+				deltaTimeSec = Double.valueOf(saveGameProperties.getProperty(TIME,"0"));
 				
 				camera.position.setValue(x,y,z);
 				
@@ -293,11 +304,15 @@ public class MainGLFW {
 		
 		sg.setPosition(SCENE_POSITION.getX(),SCENE_POSITION.getY()/*,SCENE_POSITION.getZ()*/);
 		
-		final double startDate = (double)System.nanoTime() /1e9 - 60*60*4.5 / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
+		final double startDate = (double)System.nanoTime() /1e9 - START_TIME;//60*60*4.5 / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
+		
+		viewer.setStartDate(startDate);
+		
+		final double deltaTimeSecf = deltaTimeSec; 
 		
 		viewer.addIdleListener((viewer1)->{
 			double nanoTime = System.nanoTime();
-			double nowSec = nanoTime / 1e9 - startDate;
+			double nowSec = nanoTime / 1e9 - startDate + deltaTimeSecf;
 			double nowHour = nowSec / 60 / 60;
 			double nowDay = 100;//nowHour / 24; // always summer
 			double nowGame = nowHour * TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;

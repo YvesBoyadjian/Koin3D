@@ -881,6 +881,10 @@ for(int is=0;is<4;is++) {
 		}
 		float newZ = getInternalZ(x,y,z, new int[4]);
 		
+		if( newZ < - 150 - zTranslation + CUBE_DEPTH/2 -1.5f) {
+			newZ = - 150 - zTranslation + CUBE_DEPTH/2 -1.5f;
+		}
+		
 		current_z = newZ;
 		setBBoxCenter();
 		return current_z;

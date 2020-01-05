@@ -88,6 +88,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private double lastTimeSec = System.nanoTime()/1.0e9;
 	
+	double startDate;
+	
 	private Set<SoKeyboardEvent.Key> keysDown = new HashSet<>();
 	
 	private List<Consumer<SoQtWalkViewer>> idleListeners = new ArrayList<>();
@@ -559,4 +561,12 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     public void onClose() {
     	
     }
+
+	public void setStartDate(double startDate) {
+		this.startDate = startDate;
+	}
+	
+	public double getStartDate() {
+		return startDate;
+	}
 }
