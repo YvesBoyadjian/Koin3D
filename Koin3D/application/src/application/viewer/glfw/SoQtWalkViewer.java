@@ -145,6 +145,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  //setCursorPosition(old_position); //YB
 
 		  //position = getCursorPosition();
+			  
 		  }
 		  old_position.setValue(position.getX(), position.getY());
 		  
@@ -196,15 +197,16 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	  return new SbVec2f((float)position.getX(), (float)position.getY());
 	}
 
-	private void setCursorPosition(final SbVec2s position)
+	private void setCursorPosition(final SbVec2f position)
 	{
-	  /* Nastaveni absolutni pozice kurzoru. */
-		try {
-			new Robot().mouseMove(position.getValue()[0], position.getValue()[1]);
-		} catch (AWTException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		 glfwSetCursorPos(getGLWidget().getWindow(),position.getX(),position.getY());
+//	  /* Nastaveni absolutni pozice kurzoru. */
+//		try {
+//			new Robot().mouseMove(position.getValue()[0], position.getValue()[1]);
+//		} catch (AWTException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	  
 	}
 

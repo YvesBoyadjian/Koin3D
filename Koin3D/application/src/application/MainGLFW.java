@@ -126,18 +126,18 @@ public class MainGLFW {
 			      g.drawImage(splashScreen, 0, 0, this);
 			   }			
 		};*/
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		double width = screenSize.getWidth();
+		double height = screenSize.getHeight();
+		
 		JLabel intro = new JLabel("Mount Rainier Island, an Adventure Game", null, SwingConstants.CENTER);
 		intro.setForeground(Color.red.darker());
-		intro.setFont(intro.getFont().deriveFont(64.0f));
+		intro.setFont(intro.getFont().deriveFont((float)height/20f));
 		window.getContentPane().add(
 			    intro);
 		window.getContentPane().setBackground(Color.BLACK);
 		window.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
 		//window.getContentPane().setForeground(Color.white);
-		
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		double width = screenSize.getWidth();
-		double height = screenSize.getHeight();
 		
 		window.setBounds(0, 0, (int)width, (int)height);
 		
