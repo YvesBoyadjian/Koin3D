@@ -99,7 +99,7 @@ public class DouglasForest {
 					float angleDegree = 120.0f * randomAngleTrees.nextFloat();
 					angleDegree1[i] = angleDegree;
 					float width = height * 0.707f / 50.0f;
-					float widthTop = width *2.5f * randomTopTrees.nextFloat();
+					float widthTop = width */*2.5f*/5f * randomTopTrees.nextFloat();
 					randomTopTree[i] = widthTop;
 					float foliageWidth = (height+ randomBottomTrees.nextFloat()*12.0f) * 0.1f;
 					randomBottomTree[i] = foliageWidth;

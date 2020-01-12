@@ -185,17 +185,17 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	  return new SbVec2f((float)(widget.getSize().getX() / 2), (float)(widget.getSize().getY() / 2));
 	}
 
-	private SbVec2f getPosition()
-	{
-	  /* Ziskani pocatku okna vuci obrazovce. */
-	  Composite widget = getParentWidget();
-	  
-	  long window = getGLWidget().getWindow();
-	  
-	  
-	  Point position = new Point(0,0);//widget.toDisplay(0, 0);
-	  return new SbVec2f((float)position.getX(), (float)position.getY());
-	}
+//	private SbVec2f getPosition()
+//	{
+//	  /* Ziskani pocatku okna vuci obrazovce. */
+//	  Composite widget = getParentWidget();
+//	  
+//	  long window = getGLWidget().getWindow();
+//	  
+//	  
+//	  Point position = new Point(0,0);//widget.toDisplay(0, 0);
+//	  return new SbVec2f((float)position.getX(), (float)position.getY());
+//	}
 
 	private void setCursorPosition(final SbVec2f position)
 	{

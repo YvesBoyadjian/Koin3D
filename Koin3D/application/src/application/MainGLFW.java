@@ -86,7 +86,9 @@ public class MainGLFW {
 	
 	public static final float Z_TRANSLATION = 2000;
 	
-	public static final double START_TIME = 60*60*4.5 / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
+	public static final double REAL_START_TIME_SEC = 60*60*4.5; // 4h30 in the morning
+	
+	public static final double COMPUTER_START_TIME_SEC = REAL_START_TIME_SEC / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
 	
 	public static final String HERO_X = "hero_x";
 	
@@ -184,7 +186,7 @@ public class MainGLFW {
 					
 					saveGameProperties.setProperty(HERO_Z, String.valueOf(camera.position.getValue().getZ() + Z_TRANSLATION));
 					
-					saveGameProperties.setProperty(TIME, String.valueOf(System.nanoTime()/1e9 - getStartDate() - START_TIME));
+					saveGameProperties.setProperty(TIME, String.valueOf(System.nanoTime()/1e9 + getStartDate()));
 					
 					saveGameProperties.store(out, "Mount Rainier Island save game");
 				
@@ -263,7 +265,7 @@ public class MainGLFW {
 		camera.position.setValue(0,0,0);
 		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
 		
-		double deltaTimeSec = 0;
+		double previousTimeSec = 0;
 		
 		File saveGameFile = new File("savegame.mri");
 		if( saveGameFile.exists() ) {
@@ -280,7 +282,7 @@ public class MainGLFW {
 				
 				float z = Float.valueOf(saveGameProperties.getProperty(HERO_Z, String.valueOf(1279 - SCENE_POSITION.getZ())));
 				
-				deltaTimeSec = Double.valueOf(saveGameProperties.getProperty(TIME,"0"));
+				previousTimeSec = Double.valueOf(saveGameProperties.getProperty(TIME,"0"));
 				
 				camera.position.setValue(x,y,z);
 				
@@ -304,15 +306,18 @@ public class MainGLFW {
 		
 		sg.setPosition(SCENE_POSITION.getX(),SCENE_POSITION.getY()/*,SCENE_POSITION.getZ()*/);
 		
-		final double startDate = (double)System.nanoTime() /1e9 - START_TIME;//60*60*4.5 / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
+		final double computerStartTimeCorrected =  COMPUTER_START_TIME_SEC - (double)System.nanoTime() /1e9;//60*60*4.5 / TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
 		
-		viewer.setStartDate(startDate);
-		
-		final double deltaTimeSecf = deltaTimeSec; 
+		if( previousTimeSec == 0) {
+			viewer.setStartDate(computerStartTimeCorrected);
+		}
+		else {
+			viewer.setStartDate(previousTimeSec - (double)System.nanoTime() /1e9);
+		}
 		
 		viewer.addIdleListener((viewer1)->{
 			double nanoTime = System.nanoTime();
-			double nowSec = nanoTime / 1e9 - startDate + deltaTimeSecf;
+			double nowSec = nanoTime / 1e9 + viewer.getStartDate();
 			double nowHour = nowSec / 60 / 60;
 			double nowDay = 100;//nowHour / 24; // always summer
 			double nowGame = nowHour * TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
