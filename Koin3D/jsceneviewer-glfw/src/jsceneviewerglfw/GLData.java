@@ -45,4 +45,15 @@ public class GLData {
 
 	public boolean grabCursor;
 	public boolean waitForRefresh;
+	
+	public GLData() {
+		doubleBuffer = true;
+	    redSize = 8;
+	    greenSize = 8;
+	    blueSize = 8;		
+	    alphaSize = 8;
+	    //depthSize = 24; will take default
+	    majorVersion = -1;
+	    minorVersion = -1;
+	}
 }

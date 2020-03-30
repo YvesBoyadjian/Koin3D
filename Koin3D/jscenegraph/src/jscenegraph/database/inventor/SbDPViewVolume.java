@@ -269,5 +269,23 @@ public class SbDPViewVolume {
 		this.nearToFar = sbViewVolume.nearToFar;
 	}
 
+	/*!
+	  Returns the view up vector for this view volume. It's a vector
+	  which is perpendicular to the projection direction, and parallel and
+	  oriented in the same direction as the vector from the lower left
+	  corner to the upper left corner of the near plane.
+	*/
+	public SbVec3d
+	getViewUp()
+	{
+	  final SbVec3d v = this.ulf.operator_minus( this.llf);
+	  if (v.normalize() == 0.0) {
+	//#if COIN_DEBUG
+	    SoDebugError.postWarning("SbDPViewVolume::getViewUp",
+	                              "View volume is empty.");
+	//#endif // COIN_DEBUG
+	  }
+	  return v;
+	}
 	
 }

@@ -1317,6 +1317,25 @@ public class SbViewVolume implements Mutable {
 		lrf.copyFrom(lrfO.operator_add(projPoint));
 		ulf.copyFrom(ulfO.operator_add(projPoint));
 	}
+	
+	static SbVec3f 
+	to_sbvec3f(final SbVec3d v)
+	{
+	  return new SbVec3f((float)(v.operator_square_bracket(0)), (float)(v.operator_square_bracket(1)), (float)(v.operator_square_bracket(2)));
+	}
+
+	/*!
+	  Returns the view up vector for this view volume. It's a vector which
+	  is perpendicular to the projection direction, and parallel and
+	  oriented in the same direction as the vector from the lower left
+	  corner to the upper left corner of the near plane.
+	*/
+	public SbVec3f
+	getViewUp() 
+	{
+		this.dpvv.update(this); //YB 
+		return to_sbvec3f(this.dpvv.getViewUp());
+	}	
 
 	// ! Returns projection information.
 	public ProjectionType getProjectionType() {

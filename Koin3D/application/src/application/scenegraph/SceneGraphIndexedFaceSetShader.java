@@ -23,6 +23,7 @@ import application.objects.DouglasFir;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
+import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLBillboard;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
 import jscenegraph.coin3d.inventor.nodes.SoTexture2;
@@ -632,6 +633,7 @@ for(int is=0;is<4;is++) {
 		
 		for( int seal = 0; seal < seals.getNbSeals(); seal++) {
 			SoSeparator sealSeparator = new SoSeparator();
+			//sealSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 			
 			SoTranslation sealTranslation = new SoTranslation();
 			
@@ -639,11 +641,16 @@ for(int is=0;is<4;is++) {
 			
 			sealSeparator.addChild(sealTranslation);
 			
+			SoVRMLBillboard billboard = new SoVRMLBillboard();
+			//billboard.axisOfRotation.setValue(0, 1, 0);
+						
 			SoCube sealCube = new SoCube();
 			//sealCube.height.setValue(4);
 			//sealCube.depth.setValue(4);
 			
-			sealSeparator.addChild(sealCube);
+			billboard.addChild(sealCube);
+			
+			sealSeparator.addChild(billboard);
 			
 			sealsSeparator.addChild(sealSeparator);
 		}

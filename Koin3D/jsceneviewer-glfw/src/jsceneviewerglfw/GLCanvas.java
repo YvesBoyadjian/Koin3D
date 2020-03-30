@@ -11,6 +11,8 @@ import org.lwjgl.system.*;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
 
+import com.jogamp.opengl.GL2;
+
 import java.nio.*;
 
 import static org.lwjgl.glfw.Callbacks.*;
@@ -53,11 +55,18 @@ public class GLCanvas extends Composite {
 			glfwWindowHint(GLFW_DEPTH_BITS, format.depthSize);			
 		}
 		
-		glfwWindowHint(GLFW_RED_BITS, vidMode.redBits());
-		glfwWindowHint(GLFW_GREEN_BITS, vidMode.greenBits());
-		glfwWindowHint(GLFW_BLUE_BITS, vidMode.blueBits());
+		glfwWindowHint(GLFW_RED_BITS, /*vidMode.redBits()*/format.redSize);
+		glfwWindowHint(GLFW_GREEN_BITS, /*vidMode.greenBits()*/format.greenSize);
+		glfwWindowHint(GLFW_BLUE_BITS, /*vidMode.blueBits()*/format.blueSize);
 		glfwWindowHint(GLFW_REFRESH_RATE, vidMode.refreshRate());		
 		
+		if(format.accumRedSize > 0) glfwWindowHint(GLFW_ACCUM_RED_BITS, format.accumRedSize);
+		if(format.accumGreenSize > 0) glfwWindowHint(GLFW_ACCUM_GREEN_BITS, format.accumGreenSize);
+		if(format.accumBlueSize > 0) glfwWindowHint(GLFW_ACCUM_BLUE_BITS, format.accumBlueSize);
+		
+		//if( vidMode.redBits() == 10) {
+			glfwWindowHint(GLFW_ALPHA_BITS, format.alphaSize != 0 ? format.alphaSize : GLFW_DONT_CARE);
+		//}
 		System.out.println("RGB : "+ vidMode.redBits()+" "+vidMode.greenBits()+" "+vidMode.blueBits());
 		System.out.println("Refresh Rate : "+vidMode.refreshRate()+" Hz");
 		

@@ -42,6 +42,8 @@
 
 package jsceneviewerglfw.inventor.qt;
 
+import static org.lwjgl.opengl.GL11.GL_RED_BITS;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -607,7 +609,14 @@ public
 	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_FALSE);
 	        widget.setCurrent();
 	    	GLFW.glfwWindowHint(GLFW.GLFW_OPENGL_DEBUG_CONTEXT, GLFW.GLFW_FALSE);
-	        GLCapabilities swtCapabilities = GL.createCapabilities();	        
+	        GLCapabilities swtCapabilities = GL.createCapabilities();	 
+	        
+	        GL2 gl2 = new GL2() {};
+	        int[] rb = new int[1];
+	        gl2.glGetIntegerv(GL_RED_BITS, rb);
+	        System.out.println("Color depth : "+rb[0]+" bits");
+	        
+	        
 	        parent.initialized = false; // have to reinitialize
 	    }
 	    if (shareID == -1) {
@@ -656,8 +665,9 @@ public void setColorBitDepth (int depth)
         newFormat.redSize = depth;
         newFormat.greenSize = depth;
         newFormat.blueSize = depth;
-        newFormat.alphaSize = depth;
-        newFormat.depthSize = depth;
+        if( depth > 8 ) {
+        	newFormat.alphaSize = 0; // no alpha
+        }
         setFormat (newFormat, getStyle());
     }
 }

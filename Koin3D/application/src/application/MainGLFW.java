@@ -231,6 +231,10 @@ public class MainGLFW {
 			}
 		};
 	    GLData glf = new GLData(/*GLProfile.getDefault()*/);
+	    glf.redSize = 10;
+	    glf.greenSize = 10;
+	    glf.blueSize = 10;
+	    glf.alphaSize = 0;
 	    glf.depthSize = 24;
 	    glf.doubleBuffer = true;
 	    glf.majorVersion = 3;

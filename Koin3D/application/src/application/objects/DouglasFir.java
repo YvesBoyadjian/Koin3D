@@ -13,7 +13,7 @@ public class DouglasFir {
 	
 	final static float min_height_meters = 5;
 	
-	final static float max_height_meters = 60;
+	final static float max_height_meters = 57;//60;
 	
 	final float trunk_diameter_angle_degree = 5.0f;
 
