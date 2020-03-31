@@ -86,7 +86,7 @@ public class SoNotList implements Mutable {
 	 private SoNotRec first, last; // ptr
 	 private  SoNotRec firstAtNode; // ptr
 	 private  SoField lastField; // ptr
-	 private  int timeStamp;
+	 private  long timeStamp;
 	 
 	 public SoNotList() {
 		 first = last = firstAtNode = null;
@@ -163,7 +163,7 @@ public class SoNotList implements Mutable {
 	 
     //! Returns the time stamp so nodes can check if notification has
     //! already been handled
-    public int            getTimeStamp()             { return timeStamp; }
+    public long            getTimeStamp()             { return timeStamp; }
 
 	 
 

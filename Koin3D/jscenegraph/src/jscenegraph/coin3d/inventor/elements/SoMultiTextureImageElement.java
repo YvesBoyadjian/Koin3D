@@ -121,7 +121,7 @@ public class SoMultiTextureImageElement extends SoElement {
 
   public static class UnitData implements Mutable {
   
-	  public  int nodeid;
+	  public long nodeid;
 	  public final SbVec3s size = new SbVec3s();
 	  public int numComponents;
 	  public MemoryBuffer bytes;
@@ -451,7 +451,7 @@ return elem;
 
 public void
 setElt( int unit,
-                                 int nodeid,
+                                 long nodeid,
                                  SbVec2s size, int numComponents,
                                  MemoryBuffer bytes,
                                  Wrap wrapS,
@@ -478,7 +478,7 @@ FIXME: write doc.
 */
 public void
 setElt( int unit,
-                                  int nodeid,
+                                  long nodeid,
                                   SbVec3s size, int numComponents,
                                  MemoryBuffer bytes,
                                   Wrap wrapS,

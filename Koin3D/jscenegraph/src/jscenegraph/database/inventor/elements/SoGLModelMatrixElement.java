@@ -99,7 +99,7 @@ public class SoGLModelMatrixElement extends SoModelMatrixElement {
     //! And we need to remember the nodeId of the viewing matrix
     //! element to see if it changes between pushMatrixElt() and
     //! popMatrixElt().
-    private int            viewEltNodeId;
+    private long            viewEltNodeId;
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -353,7 +353,7 @@ popMatrixElt(final SbMatrix matrix)
     gl2.glPopMatrix();
     super.popMatrixElt(matrix);
 
-    int afterNodeId = SoGLViewingMatrixElement.getNodeId(state);
+    long afterNodeId = SoGLViewingMatrixElement.getNodeId(state);
 
     if (afterNodeId != viewEltNodeId) {
         // Camera underneth us, must reset:

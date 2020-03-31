@@ -137,10 +137,10 @@ public abstract class SoNode extends SoFieldContainer {
 	private final long address;
 
 	//! Unique id for this node.
-	protected int uniqueId;
+	protected long uniqueId;
 
 	//! Next available unique id
-	protected static int nextUniqueId;
+	protected static long nextUniqueId;
 
     //! Next index into the action method table
     protected  static int          nextActionMethodIndex;
@@ -471,7 +471,7 @@ getByName( SbName name, SoNodeList list)
 
 
 	// Returns the next available unique id.
-	public static int getNextNodeId() {
+	public static long getNextNodeId() {
 		 return nextUniqueId;
 	}
 
@@ -1045,7 +1045,7 @@ GLRenderOffPath(SoGLRenderAction action)
 
 
 	     //! Returns the unique id for a node
-	   public int getNodeId()        { return uniqueId; }
+	   public long getNodeId()        { return uniqueId; }
 
 	   public void
 	    getBoundingBox(SoGetBoundingBoxAction action)

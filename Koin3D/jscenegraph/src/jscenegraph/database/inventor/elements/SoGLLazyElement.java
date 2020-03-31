@@ -120,8 +120,8 @@ public class SoGLLazyElement extends SoLazyElement {
 	
 	   //!provide a public typedef for GLLazyState, so that GLRenderCache can use it:
 	   public static class GLLazyState {
-	        int        GLDiffuseNodeId;
-	        int        GLTranspNodeId;
+	        long        GLDiffuseNodeId;
+	        long        GLTranspNodeId;
 	        int diffuse; //COIN3D
 	        final SbColor           ambient = new SbColor();
 	        final SbColor           emissive = new SbColor();
@@ -2440,7 +2440,7 @@ private static int PAT_INDEX(int x, int y) {
 
 public void updateColorVBO( SoState state, SoVBO vbo ) // FIXME YB not in synchro with Coin3D
 {
-  int maxId = coinstate.diffusenodeid;
+  long maxId = coinstate.diffusenodeid;
   if (coinstate.transpnodeid > maxId) {
     maxId = coinstate.transpnodeid;
   }

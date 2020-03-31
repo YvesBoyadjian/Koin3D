@@ -74,8 +74,8 @@ public class SoColorPacker implements Destroyable {
 
     private
     //! nodeids are used for testing cache validity
-    int    transpNodeId;
-    private int    diffuseNodeId;
+    long    transpNodeId;
+    private long    diffuseNodeId;
     //! array of packed colors, or NULL if empty
     private int[]   packedColors;
     //! size of packed color array (not necessarily number of valid colors)
@@ -84,13 +84,13 @@ public class SoColorPacker implements Destroyable {
     public int[] getPackedColors() 
     { return packedColors;}
     
-    public boolean diffuseMatch(int nodeId)
+    public boolean diffuseMatch(long nodeId)
     { return (nodeId == diffuseNodeId);}
     
-    public boolean transpMatch(int nodeId)
+    public boolean transpMatch(long nodeId)
     { return (nodeId == transpNodeId);}
     
-    public void setNodeIds(int diffNodeId, int tNodeId)
+    public void setNodeIds(long diffNodeId, long tNodeId)
     {diffuseNodeId = diffNodeId; transpNodeId = tNodeId;}
 
     public int getSize()

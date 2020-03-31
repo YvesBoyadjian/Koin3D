@@ -64,7 +64,7 @@ public class SoVertexArrayIndexer implements Destroyable {
 private
   int _type;
 
-  private int _nodeId;
+  private long _nodeId;
 
   private boolean     _ownsIndices;
   private int      _numIndices;
@@ -141,11 +141,11 @@ public void render(SoState state, boolean useVbo)
 }
 
   //! get the node id of the data
-  public int getDataId() { return _nodeId; }
+  public long getDataId() { return _nodeId; }
 
 
 
-public void setInventorTriangles( int numTriangles, final int[] inventorIndices, int nodeId )
+public void setInventorTriangles( int numTriangles, final int[] inventorIndices, long nodeId )
 {
   clear();
   _ownsIndices = true;
@@ -163,7 +163,7 @@ public void setInventorTriangles( int numTriangles, final int[] inventorIndices,
   }
 }
 
-public void setInventorQuads( int numQuads, final int[] inventorIndices, int nodeId )
+public void setInventorQuads( int numQuads, final int[] inventorIndices, long nodeId )
 {
   clear();
   _ownsIndices = true;
@@ -182,7 +182,7 @@ public void setInventorQuads( int numQuads, final int[] inventorIndices, int nod
   }
 }
 
-public void setInventorLines( int numLines, int[] inventorIndices, int nodeId )
+public void setInventorLines( int numLines, int[] inventorIndices, long nodeId )
 {
   clear();
   _ownsIndices = true;
@@ -199,7 +199,7 @@ public void setInventorLines( int numLines, int[] inventorIndices, int nodeId )
   }
 }
 
-public void setIndices(int numIndices, final int[] indices, int nodeId )
+public void setIndices(int numIndices, final int[] indices, long nodeId )
 {
   clear();
   _ownsIndices = false;

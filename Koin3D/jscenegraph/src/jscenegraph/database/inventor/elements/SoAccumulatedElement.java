@@ -60,6 +60,7 @@ package jscenegraph.database.inventor.elements;
 
 import java.util.Objects;
 
+import jscenegraph.coin3d.inventor.lists.SbListLong;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoType;
@@ -101,7 +102,7 @@ public class SoAccumulatedElement extends SoElement {
     //! This stores the list of node id's as pointers, since they
       //! should be the same length as int32_ts. The id's are sorted by
       //! increasing value, to make comparisons easier.
-	protected final SbPList             nodeIds = new SbPList();
+	protected final /*SbPList*/SbListLong             nodeIds = new /*SbPList*/SbListLong();
  	
 	   private
 		    
@@ -158,7 +159,7 @@ public SoAccumulatedElement()
 //	   #endif /* DEBUG */
 	   
 	       nodeIds.truncate(0);
-	       nodeIds.append((Object) /*(unsigned long)*/ node.getNodeId());
+	       nodeIds.append( /*(unsigned long)*/ node.getNodeId());
 	   
 	       accumulatesWithParentFlag = false;
 	   }
@@ -250,21 +251,21 @@ addNodeId( SoNode node)
 //#endif /* DEBUG */
 
     int                 i;
-    int id = node.getNodeId();
+    long id = node.getNodeId();
 
     // Search through list for correct place for id
     for (i = 0; i < nodeIds.getLength(); i++)
-        if (id <= (int) nodeIds.operator_square_bracket(i))
+        if (id <= nodeIds.operator_square_bracket(i))
             break;
 
     // Otherwise, i will contain the index where the new element belongs
     if (i >= nodeIds.getLength())
-        nodeIds.append((Object) id);
+        nodeIds.append( id);
         
     // Insert it in the list if it is not already there:
     else { 
-        if (id != (int) nodeIds.operator_square_bracket(i))
-            nodeIds.insert((Object) id, i);
+        if (id != nodeIds.operator_square_bracket(i))
+            nodeIds.insert( id, i);
     }
 }
 

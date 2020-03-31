@@ -146,7 +146,7 @@ public class SoTextureCombineElement extends SoElement {
 				    alphascale = org.alphascale;			    	
 			    }
 
-			    int nodeid;
+			    long nodeid;
 			    Source[] rgbsource = new Source[3];
 			    Source[] alphasource = new Source[3];
 			    Operand[] rgboperand = new Operand[3];
@@ -341,7 +341,7 @@ copyMatchInfo()
 
 public void
 setElt( int unit,
-                                int nodeid,
+                                long nodeid,
                                 Operation rgboperation,
                                 Operation alphaoperation,
                                 Source[] rgbsource,

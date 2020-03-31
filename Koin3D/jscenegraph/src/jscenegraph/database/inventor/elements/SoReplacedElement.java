@@ -89,7 +89,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
 public class SoReplacedElement extends SoElement {
 
 	   protected
-		        int            nodeId;
+		        long            nodeId;
 		    	
 ////////////////////////////////////////////////////////////////////////
 //
@@ -195,8 +195,8 @@ init(SoState state)
 	   
     //! Return nodeId.  This was added so the SoTransformSeparator
     //! class can figure out whether or not it contains a camera:
-    public int            getNodeId() { return nodeId; }
+    public long            getNodeId() { return nodeId; }
 
     // java port
-    public final int            SoReplacedElement_getNodeId() { return nodeId; }
+    public final long            SoReplacedElement_getNodeId() { return nodeId; }
 }

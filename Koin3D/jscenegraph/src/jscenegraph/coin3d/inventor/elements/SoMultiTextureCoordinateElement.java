@@ -33,7 +33,7 @@ public class SoMultiTextureCoordinateElement extends SoElement {
 	
 	public static class UnitData implements Mutable {
 		
-	    public int nodeid;
+	    public long nodeid;
 	    public CoordType whatKind;
 	    public SoTextureCoordinateFunctionCB funcCB;
 	    public Object funcCBData;

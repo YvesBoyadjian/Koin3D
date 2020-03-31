@@ -158,7 +158,7 @@ public  static void updateVBO(SoState state, VBOType type, final SoVBO[] vbo) {
 }
 
 
-public static void updateVBO( SoState state, VBOType type, final SoVBO[] vbo, int numBytes /*= 0*/, /*ByteBuffer*/VoidPtr data /*= null*/, int nodeId /*= 0*/ )
+public static void updateVBO( SoState state, VBOType type, final SoVBO[] vbo, int numBytes /*= 0*/, /*ByteBuffer*/VoidPtr data /*= null*/, long nodeId /*= 0*/ )
 {
   // we always create/store a VBO object, since we may even use it for vertex array rendering
   // and we do not know if the user desires VBO usage or not in here...

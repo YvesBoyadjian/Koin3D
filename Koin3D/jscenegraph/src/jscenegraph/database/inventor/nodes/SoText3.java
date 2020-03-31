@@ -395,7 +395,7 @@ public class SoText3 extends SoShape {
     SbDict outlineDict;
     
     // Remember nodeId that was used to do UCS translation.
-    int    currentNodeId;
+    long    currentNodeId;
     
     static iconv_t      conversionCode;
 
@@ -833,7 +833,7 @@ String createUniFontList(String fontNameList)
 
 //Convert string to UCS format, keep a copy in this cache.
 //Use nodeid to know when to reconvert.    
-public void convertToUCS(int nodeid, SoMFString strings) {
+public void convertToUCS(long nodeid, SoMFString strings) {
     if (nodeid == currentNodeId) return;
     currentNodeId = nodeid;
     

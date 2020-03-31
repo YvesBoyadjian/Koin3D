@@ -119,7 +119,7 @@ private	  int _type;
 
 private		  /*Buffer*/VoidPtr _data;
 private		  int      _numBytes;
-private		  int _nodeId;
+private		  long _nodeId;
 
 private		  SoGLDisplayList _glBuffer;
 
@@ -247,7 +247,7 @@ context_destruction_cb(int context, Object userdata)
 
 
 
-public void setData(int numBytes, final /*Buffer*/VoidPtr data, int nodeId, SoState state)
+public void setData(int numBytes, final /*Buffer*/VoidPtr data, long nodeId, SoState state)
 {
   // free previous data if it was owned
   if (_ownsData && (_data != null)) {
@@ -286,7 +286,7 @@ Sets the buffer data. \a dataid is a unique id used to identify
 the buffer data. In Coin it's possible to use the node id
 (SoNode::getNodeId()) to test if a buffer is valid for a node.
 */
-public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // COIN 3D
+public void setBufferData(VoidPtr data, int size, long dataid, SoState state) // COIN 3D
 {
 	  // schedule delete for all allocated GL resources
 	  for(
@@ -321,7 +321,7 @@ public void setBufferData(VoidPtr data, int size, int dataid, SoState state) // 
 	  _hasSwappedRGBAData = false;
 }
 
-public void allocateData( int numBytes, int nodeId , SoState state)
+public void allocateData( int numBytes, long nodeId , SoState state)
 {
   if (_ownsData && (_data!= null)) {
 	  Destroyable.delete(_data);
@@ -353,7 +353,7 @@ public VoidPtr allocBufferData(int size, int dataid) {
  * @param state
  * @return
  */
-public VoidPtr allocBufferData(int size, int dataid, SoState state) {
+public VoidPtr allocBufferData(int size, long dataid, SoState state) {
 	
 	  // schedule delete for all allocated GL resources
 	  for(
@@ -387,7 +387,7 @@ public void clearData()
   _hasSwappedRGBAData = false;
 }
 
-public void copyAndSwapPackedRGBA( int numValues, final IntBuffer values, int nodeId, SoState state )
+public void copyAndSwapPackedRGBA( int numValues, final IntBuffer values, long nodeId, SoState state )
 {
   allocateData((int)(numValues * (long)Integer.SIZE/Byte.SIZE), nodeId, state);
 
@@ -497,7 +497,7 @@ public boolean isValid(SoState state)
 
 
   //! get the node id of the data
-public int getDataId() { return _nodeId; }
+public long getDataId() { return _nodeId; }
 
   //! get the data pointer
   public /*Buffer*/VoidPtr getData() { return _data; }
@@ -564,7 +564,7 @@ isVBOFast(int contextid)
 
   \sa setBufferData()
 */
-public int getBufferDataId() // COIN 3D
+public long getBufferDataId() // COIN 3D
 {
   //return this.dataid;
 	return this._nodeId; // YB

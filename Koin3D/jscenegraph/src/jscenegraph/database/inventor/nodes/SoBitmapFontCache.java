@@ -127,7 +127,7 @@ public class SoBitmapFontCache extends SoCache {
     
     // This indicates the nodeId of the last created cache, so we can
     // know when a new UCS-2 translation is required
-    private int    currentNodeId;
+    private long    currentNodeId;
 
     // And some font library stuff:
     private static FLcontext    flContext;
@@ -364,7 +364,7 @@ getFont(SoState state, boolean forRender)
 //
 // Use: internal
 
-public boolean convertToUCS(int nodeid, final SoMFString strings)                              
+public boolean convertToUCS(long nodeid, final SoMFString strings)                              
 //
 ////////////////////////////////////////////////////////////////////////
 {

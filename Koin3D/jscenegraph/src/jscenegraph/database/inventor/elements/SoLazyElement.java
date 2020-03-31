@@ -404,8 +404,8 @@ public class SoLazyElement extends SoElement {
 		    	    public IntArrayPtr colorindexarray;
 		    	    public int transptype;
 		    	    public boolean istransparent;
-		    	    public int diffusenodeid; // COIN 3D
-		    	    public int transpnodeid; // COIN 3D
+		    	    public long diffusenodeid; // COIN 3D
+		    	    public long transpnodeid; // COIN 3D
 		    	    public int stipplenum; // COIN 3D
 		    	    public /*VertexOrdering*/int vertexordering; // COIN 3D
 		    	    public /*boolean*/int twoside; // COIN 3D
@@ -1324,7 +1324,7 @@ setMaterials(SoState state,  SoNode node,
             Math.abs(shininess.operator_square_bracket(0) - curElt.ivState.shininess)> 
             SO_LAZY_SHINY_THRESHOLD) realSet |= masks.SHININESS_MASK.getValue();
             
-    int nodeId = node.getNodeId();
+    long nodeId = node.getNodeId();
     if ((bitmask & masks.DIFFUSE_MASK.getValue()) != 0 && 
         nodeId != curElt.coinstate.diffusenodeid) realSet |= masks.DIFFUSE_MASK.getValue();
 
@@ -1883,7 +1883,7 @@ getTwoSidedLighting(SoState state)
 }
 
 // helper functions to handle default diffuse/transp values
-public static int
+public static long
 get_diffuse_node_id(SoNode node, int numdiffuse,
                     SbColorArray color)
 {
@@ -1891,7 +1891,7 @@ get_diffuse_node_id(SoNode node, int numdiffuse,
   return node.getNodeId();
 }
 
-public static int
+public static long
 get_transp_node_id(SoNode node, int numtransp,
                    FloatArray transp)
 {
