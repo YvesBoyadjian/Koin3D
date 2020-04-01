@@ -5,6 +5,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
@@ -31,7 +32,7 @@ public class DouglasChunk {
 	float yMax = - Float.MAX_VALUE;
 	float zMax = - Float.MAX_VALUE;
 	
-	List<Integer> insideTrees = new ArrayList<>();
+	SbListInt insideTrees = new SbListInt();
 	
 	public DouglasChunk(DouglasForest df, SbBox3f bb) {
 		this.df = df;

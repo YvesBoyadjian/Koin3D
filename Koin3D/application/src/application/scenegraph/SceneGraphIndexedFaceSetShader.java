@@ -466,6 +466,7 @@ for(int is=0;is<4;is++) {
 	    sun[is].intensity.setValue(1.0F/4.0f);
 	    
 	    shadowGroup.addChild(sun[is]);
+	    sun[is].enableNotify(false); // In order not to recompute shaders
 }
 	    
 	    SoSeparator landSep = new SoSeparator();

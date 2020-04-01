@@ -186,6 +186,7 @@ public void destructor()
     for (i = 0; i < elementsUsed.getLength(); i++)
         ((SoElement ) elementsUsed.operator_square_bracket(i)).destructor();
 
+    elementsUsed.destructor();
     elementsUsedFlags = null;
 }
 

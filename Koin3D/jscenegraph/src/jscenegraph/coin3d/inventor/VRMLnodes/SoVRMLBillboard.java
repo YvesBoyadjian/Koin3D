@@ -162,7 +162,7 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	public void
 	performRotation(SoState state)
 	{
-	  final SbMatrix imm = new SbMatrix(SoModelMatrixElement.get(state).inverse());
+	  final SbMatrix imm = /*new SbMatrix(*/SoModelMatrixElement.get(state).inverse()/*)*/;
 	  final SbViewVolume vv = SoViewVolumeElement.get(state); // ref
 
 	  final SbRotation rot = computeRotation(imm, vv);
@@ -207,7 +207,7 @@ public class SoVRMLBillboard extends SoVRMLParent {
 
 	  // construct the rotation matrix with the vectors defining the
 	  // desired orientation
-	  SbMatrix matrix = new SbMatrix(SbMatrix.identity());
+	  SbMatrix matrix = /*new SbMatrix(*/SbMatrix.identity()/*)*/;
 
 	  right.normalize();
 	  up.normalize();

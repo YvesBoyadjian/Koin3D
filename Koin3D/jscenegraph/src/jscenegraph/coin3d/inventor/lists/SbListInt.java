@@ -46,6 +46,10 @@ public class SbListInt implements Destroyable {
 	public int getLength() {
 		return this.numitems;
 	}
+	
+	public int size() {
+		return getLength();
+	}
 
 	public IntArrayPtr getArrayPtr() {
 		return getArrayPtr(0);
@@ -97,6 +101,10 @@ public class SbListInt implements Destroyable {
 	    this.itembuffer[this.numitems++] = item;
 	    internalIntArrayPtr = null; // invalidate internal IntArrayPtr
 	}
+	
+	public void add(int item) {
+		append(item);
+	}
 
 	private void grow() {
 		grow(-1);
@@ -124,6 +132,10 @@ public class SbListInt implements Destroyable {
 		if(i<numitems)
 			return itembuffer[i];
 		throw new IllegalArgumentException();
+	}
+	
+	public int get(int i) {
+		return operator_square_bracket(i);
 	}
 
 	@Override
