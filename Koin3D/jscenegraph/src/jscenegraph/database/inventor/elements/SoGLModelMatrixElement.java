@@ -257,7 +257,7 @@ translateEltBy(final SbVec3f translation)
     
     GL2 gl2 = state.getGL2();
 
-    gl2.glTranslatef(translation.getValueRead()[0], translation.getValueRead()[1], translation.getValueRead()[2]);
+    gl2.glTranslatef(translation.getX(), translation.getY(), translation.getZ());
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -267,21 +267,22 @@ translateEltBy(final SbVec3f translation)
 //
 // Use: public, virtual
 
+private final SbVec3f     axis = new SbVec3f(); // SINGLE_THREAD
+private final float[]       angle = new float[1]; // SINGLE_THREAD
+
 public void
 rotateEltBy(final SbRotation rotation)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final SbVec3f     axis = new SbVec3f();
-    final float[]       angle = new float[1];
+    axis.constructor();
+    angle[0] = 0;
 
     super.rotateEltBy(rotation);
 
     rotation.getValue(axis, angle);
     
-    GL2 gl2 = state.getGL2();
-
-    glRotatef(angle[0] * (180.0f / (float)Math.PI), axis.getValueRead()[0], axis.getValueRead()[1], axis.getValueRead()[2]);
+    glRotatef(angle[0] * (180.0f / (float)Math.PI), axis.getX(), axis.getY(), axis.getZ());
 }
 
 ////////////////////////////////////////////////////////////////////////

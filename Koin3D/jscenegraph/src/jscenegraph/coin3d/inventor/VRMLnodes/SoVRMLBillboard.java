@@ -155,6 +155,10 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	{
 	  // do nothing
 	}
+	
+	private final SbRotation rot = new SbRotation(); // SINGLE_THREAD
+	
+	private final SbMatrix imm = new SbMatrix(); // SINGLE_THREAD
 
 	//
 	// private method that appends the needed rotation to the state
@@ -162,32 +166,37 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	public void
 	performRotation(SoState state)
 	{
-	  final SbMatrix imm = /*new SbMatrix(*/SoModelMatrixElement.get(state).inverse()/*)*/;
+	  /*imm = new SbMatrix(*/SoModelMatrixElement.get(state).inverse(imm)/*)*/;
 	  final SbViewVolume vv = SoViewVolumeElement.get(state); // ref
 
-	  final SbRotation rot = computeRotation(imm, vv);
+	  /*rot = */computeRotation(imm, vv, rot);
 
 	  // append the desired rotation to the state
 	  SoModelMatrixElement.rotateBy(state, (SoNode) this, rot);
 	}
 
+	  private final SbVec3f up = new SbVec3f(), look = new SbVec3f(), right = new SbVec3f(); // SINGLE_THREAD
+	  private final SbVec3f zero = new SbVec3f(); // SINGLE_THREAD
+	  private final SbVec3f zVector = new SbVec3f(0.0f, 0.0f, 1.0f); // SINGLE_THREAD
+	  private final SbVec3f dummy = new SbVec3f(); // SINGLE_THREAD
+	  private final SbMatrix matrix = new SbMatrix(); // SINGLE_THREAD 
 	//
 	// private method that computes the needed rotation
 	//
 	public SbRotation
-	computeRotation(final SbMatrix invMM, final SbViewVolume vv)
+	computeRotation(final SbMatrix invMM, final SbViewVolume vv, final SbRotation dummyRot)
 	{
-	  final SbVec3f rotaxis = new SbVec3f(this.axisOfRotation.getValue());
+	  final SbVec3f rotaxis = /*new SbVec3f(*/this.axisOfRotation.getValue()/*)*/;
 
-	  final SbVec3f up = new SbVec3f(), look = new SbVec3f(), right = new SbVec3f();
+	  up.constructor(); look.constructor(); right.constructor();
 	  
-	  invMM.multDirMatrix(vv.getViewUp(), up);
-	  invMM.multDirMatrix(vv.getProjectionDirection().operator_minus(), look);
+	  invMM.multDirMatrix(vv.getViewUp(dummy), up);
+	  invMM.multDirMatrix(vv.getProjectionDirection().operator_minus_with_dummy(dummy), look);
 
-	  if (rotaxis.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 0.0f))) {
+	  if (rotaxis.operator_equal_equal(/*new SbVec3f(0.0f, 0.0f, 0.0f)*/zero)) {
 	    // always orient the billboard towards the viewer
-	    right.copyFrom( up.cross(look));
-	    up.copyFrom( look.cross(right));
+	    right.copyFrom( up.cross(look,dummy));
+	    up.copyFrom( look.cross(right,dummy));
 	  } else { 
 	    // The VRML97 spec calls for rotating the local z-axis of the
 	    // billboard to face the viewer, pivoting around the axis of
@@ -198,16 +207,19 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	    // This is more numerically stable, more general, and the code is
 	    // much nicer, but it also means that we must check specifically
 	    // for this case.
-	    if (rotaxis.operator_equal_equal(new SbVec3f(0.0f, 0.0f, 1.0f))) { return new SbRotation(SbRotation.identity()); }
+	    if (rotaxis.operator_equal_equal(/*new SbVec3f(0.0f, 0.0f, 1.0f)*/zVector)) {
+	    	dummyRot.setIdentity();
+	    	return dummyRot;//new SbRotation(SbRotation.identity()); 
+	    }
 	    
 	    up.copyFrom( rotaxis);
-	    right.copyFrom( up.cross(look));
-	    look.copyFrom( right.cross(up));
+	    right.copyFrom( up.cross(look,dummy));
+	    look.copyFrom( right.cross(up,dummy));
 	  }
 
 	  // construct the rotation matrix with the vectors defining the
 	  // desired orientation
-	  SbMatrix matrix = /*new SbMatrix(*/SbMatrix.identity()/*)*/;
+	  matrix.setIdentity();// = /*new SbMatrix(*/SbMatrix.identity()/*)*/;
 
 	  right.normalize();
 	  up.normalize();
@@ -225,7 +237,8 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	  matrix.getValue()[2][1] = look.operator_square_bracket(1);
 	  matrix.getValue()[2][2] = look.operator_square_bracket(2);
 
-	  return new SbRotation(matrix);
+	  dummyRot.constructor(matrix);
+	  return dummyRot;//new SbRotation(matrix);
 	}
 
 }

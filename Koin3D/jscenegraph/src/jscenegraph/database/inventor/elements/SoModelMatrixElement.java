@@ -308,13 +308,13 @@ rotateBy(SoState state, SoNode node,
 //
 // Use: public, virtual
 
+final SbMatrix    m = new SbMatrix(); // SINGLE_THREAD
+
 public void
 rotateEltBy(final SbRotation rotation)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final SbMatrix    m = new SbMatrix();
-
     rotation.getValue(m);
     modelMatrix.multLeft(m);
 
@@ -425,9 +425,9 @@ translateEltBy(final SbVec3f translation)
     // matrix than to multiply two matrices...
 
     for (i = 0; i < 3; i++)
-        modelMatrix.getValue()[3][i] += (modelMatrix.getValue()[0][i] * translation.getValueRead()[0] +
-                              modelMatrix.getValue()[1][i] * translation.getValueRead()[1] +
-                              modelMatrix.getValue()[2][i] * translation.getValueRead()[2]);
+        modelMatrix.getValue()[3][i] += (modelMatrix.getValue()[0][i] * translation.getX() +
+                              modelMatrix.getValue()[1][i] * translation.getY() +
+                              modelMatrix.getValue()[2][i] * translation.getZ());
 
     flags.isModelIdentity  = false;     // Assume the worst
     flags.haveModelCull = false;

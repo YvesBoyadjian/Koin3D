@@ -1686,6 +1686,13 @@ static float sogl_cube_normals[] =
   0.0f, -1.0f, 0.0f
 };
 
+static SbVec3fArray cn; // SINGLE_THREAD
+static SbVec2fArray ct; // SINGLE_THREAD
+
+static {
+	cn = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_normals));
+	ct = new SbVec2fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_texcoords));
+}
 
 public static void
 sogl_generate_cube_vertices(SbVec3fArray varray,
@@ -1700,7 +1707,11 @@ sogl_generate_cube_vertices(SbVec3fArray varray,
   }
 }
 
+static final float[] dummy_buffer_2d = new float[2]; // SINGLE_THREAD
 
+static final SbVec3fArray varray = new SbVec3fArray(FloatMemoryBuffer.allocateFloats(8*3)); // SINGLE_THREAD
+static final int[] maxunit = new int[1]; // SINGLE_THREAD
+static final float[] dummy3 = new float[3]; // SINGLE_THREAD
 
 public static void
 sogl_render_cube( float width,
@@ -1711,7 +1722,7 @@ sogl_render_cube( float width,
                  SoState state)
 {
   boolean[] unitenabled = null;
-  final int[] maxunit = new int[1];
+  maxunit[0] = 0;
   cc_glglue glue = null;
 
   int flags = flagsin;
@@ -1729,7 +1740,6 @@ sogl_render_cube( float width,
   GL2 gl2 = state.getGL2();
 
 
-  SbVec3fArray varray = new SbVec3fArray(FloatMemoryBuffer.allocateFloats(8*3));
   sogl_generate_cube_vertices(varray,
                          width * 0.5f,
                          height * 0.5f,
@@ -1738,14 +1748,14 @@ sogl_render_cube( float width,
   IntArrayPtr iptr = new IntArrayPtr(sogl_cube_vindices);
   int u;
   
-  SbVec3fArray cn = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_normals));
-  SbVec2fArray ct = new SbVec2fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_texcoords));
+  //SbVec3fArray cn = new SbVec3fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_normals));
+  //SbVec2fArray ct = new SbVec2fArray(FloatMemoryBuffer.allocateFromFloatArray(sogl_cube_texcoords));
   
-  float[] dummy = new float[3];
+  dummy3[0] = dummy3[1] = dummy3[2] = 0;
 
   for (int i = 0; i < 6; i++) { // 6 quads
     if ((flags & SOGL_NEED_NORMALS)!=0)
-      gl2.glNormal3fv(/*sogl_cube_normals[i*3]*/cn.get3Floats(i,dummy));
+      gl2.glNormal3fv(/*sogl_cube_normals[i*3]*/cn.get3Floats(i,dummy3));
     if ((flags & SOGL_MATERIAL_PER_PART)!=0)
       material.send(i, true);
     for (int j = 0; j < 4; j++) {
@@ -1753,17 +1763,17 @@ sogl_render_cube( float width,
     	  gl2.glTexCoord3fv(sogl_cube_3dtexcoords[iptr.get()]);
       }
       else if ((flags & SOGL_NEED_TEXCOORDS)!=0) {
-    	  gl2.glTexCoord2fv(/*&sogl_cube_texcoords[j<<1]*/ct.get(j).getValueRead());
+    	  gl2.glTexCoord2fv(/*&sogl_cube_texcoords[j<<1]*/ct.get(j).getValueRead(dummy_buffer_2d));
       }
       if ((flags & SOGL_NEED_MULTITEXCOORDS)!=0) {
         for (u = 1; u <= maxunit[0]; u++) {
           if (unitenabled[u]) {
             SoGL.cc_glglue_glMultiTexCoord2fv(glue, (int) (GL2.GL_TEXTURE0 + u),
-                                         /*&sogl_cube_texcoords[j<<1]*/ct.get(j).getValueRead());
+                                         /*&sogl_cube_texcoords[j<<1]*/ct.get(j).getValueRead(dummy_buffer_2d));
           }
         }
       }
-      gl2.glVertex3fv(varray.get3Floats(iptr.get(),dummy),0); iptr.plusPlus();
+      gl2.glVertex3fv(varray.get3Floats(iptr.get(),dummy3),0); iptr.plusPlus();
     }
   }
   gl2.glEnd();

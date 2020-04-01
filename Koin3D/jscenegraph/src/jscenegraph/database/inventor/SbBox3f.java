@@ -125,6 +125,22 @@ public class SbBox3f implements Mutable {
 		 min.setValue(xmin, ymin, zmin); max.setValue(xmax, ymax, zmax);
 	}
 
+	// java port
+	public void constructor() {
+		makeEmpty();
+	}
+
+	/**
+	 * Constructor given minimum and maximum points min and max
+	 * are the corners of the diagonal that define the box.
+	 *
+	 * @param min
+	 * @param max
+	 */
+	public void constructor(SbVec3f min, SbVec3f max) {
+		 this.min.copyFrom(min); this.max.copyFrom(max);
+	}
+
 	/**
 	 * Returns the minimum point of the box.
 	 * The minimum point is the corner of the box with
@@ -148,11 +164,18 @@ public class SbBox3f implements Mutable {
 	}
 
 	// Returns the center of the box.
-	public SbVec3f getCenter() {
-	     return new SbVec3f(0.5f * (min.getValueRead()[0] + max.getValueRead()[0]),
-	    		                       0.5f * (min.getValueRead()[1] + max.getValueRead()[1]),
-	    		                       0.5f * (min.getValueRead()[2] + max.getValueRead()[2]));
+	public SbVec3fSingle getCenter() {
+	     return new SbVec3fSingle(0.5f * (min.getX() + max.getX()),
+	    		                       0.5f * (min.getY() + max.getY()),
+	    		                       0.5f * (min.getZ() + max.getZ()));
 
+	}
+
+	// Returns the center of the box.
+	public void getCenter(SbVec3fSingle center) {
+	     center.setValue(0.5f * (min.getX() + max.getX()),
+	    		                       0.5f * (min.getY() + max.getY()),
+	    		                       0.5f * (min.getZ() + max.getZ()));
 	}
 
 	//
@@ -420,14 +443,17 @@ findQuadrant(float x, float y, float z,
 	   // transformations.  Coordinates of the box are rehomogenized if there
 	   // is a projection matrix
 	   //
-	  	 public void transform(SbMatrix m) {
+
+private final SbVec3fSingle     newMin = new SbVec3fSingle(), newMax = new SbVec3fSingle(); // SINGLE_THREAD
+
+public void transform(SbMatrix m) {
 
 	     // a transformed empty box is still empty
 		       if (isEmpty()) {
                 return;
             }
 
-		       final SbVec3fSingle     newMin = new SbVec3fSingle(), newMax = new SbVec3fSingle();
+		       newMin.constructor(); newMax.constructor();
 		       int         i;
 
 		       for (i = 0; i < 3; i++) {
@@ -695,6 +721,8 @@ public boolean contains(SbBox3f other) {
 	return true;
 }
 
+private final SbVec3fSingle closest = new SbVec3fSingle(); // SINGLE_THREAD
+private final SbVec3fSingle center = new SbVec3fSingle(); // SINGLE_THREAD
 
 /*!
   Return the point on the box closest to the given \a point.
@@ -702,14 +730,14 @@ public boolean contains(SbBox3f other) {
 public SbVec3f
 getClosestPoint(final SbVec3f point)
 {
-  final SbVec3fSingle closest = new SbVec3fSingle(point);
+  closest.setValue(point);
   
   final float[] closest_getValue = closest.getValue(); 
   
   final float[] min_getValue = this.min.getValue();
   final float[] max_getValue = this.max.getValue();
 
-  final SbVec3fSingle center = new SbVec3fSingle(this.getCenter());
+  /*final SbVec3fSingle center = new SbVec3fSingle(*/this.getCenter(center)/*)*/;
   float devx = closest_getValue[0] - center.getValue()[0];
   float devy = closest_getValue[1] - center.getValue()[1];
   float devz = closest_getValue[2] - center.getValue()[2];

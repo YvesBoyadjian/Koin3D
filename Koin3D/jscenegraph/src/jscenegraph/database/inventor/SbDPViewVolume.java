@@ -62,6 +62,17 @@ public class SbDPViewVolume {
 		  private			  final SbVec3d ulf = new SbVec3d();
 
 
+		  public void constructor() {
+			  type = null;
+			  projPoint.constructor();
+			  projDir.constructor();
+			  nearDist = 0;
+			  nearToFar = 0;
+			  llf.constructor();
+			  lrf.constructor();
+			  ulf.constructor();
+		  }
+		  
 	/*!
 	  Returns the six planes defining the view volume in the following
 	  order: left, bottom, right, top, near, far. Plane normals are
@@ -256,11 +267,13 @@ public class SbDPViewVolume {
 	  this.lrf.setValue(right, bottom, -nearval);
 	  this.ulf.setValue(left, top, -nearval);
 	}
+	
+	private final SbVec3f dummy = new SbVec3f();
 
 	public void update(SbViewVolume sbViewVolume) {
-		this.llf.setValue(sbViewVolume.llf.operator_minus(sbViewVolume.projPoint));
-		this.lrf.setValue(sbViewVolume.lrf.operator_minus(sbViewVolume.projPoint));
-		this.ulf.setValue(sbViewVolume.ulf.operator_minus(sbViewVolume.projPoint));
+		this.llf.setValue(sbViewVolume.llf.operator_minus(sbViewVolume.projPoint, dummy));
+		this.lrf.setValue(sbViewVolume.lrf.operator_minus(sbViewVolume.projPoint, dummy));
+		this.ulf.setValue(sbViewVolume.ulf.operator_minus(sbViewVolume.projPoint, dummy));
 		
 		this.type = sbViewVolume.type;
 		this.projPoint.setValue(sbViewVolume.projPoint);

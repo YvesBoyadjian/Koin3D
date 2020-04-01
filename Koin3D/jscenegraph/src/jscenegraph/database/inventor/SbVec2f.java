@@ -175,6 +175,14 @@ public class SbVec2f implements Mutable {
     	return vecRead; 
     }
 
+    //! Returns vector components.
+    public float[] getValueRead(float[] vecRead) {
+    	//float[] vecRead = new float[2];
+    	vecRead[0] = g(0); 
+    	vecRead[1] = g(1); 
+    	return vecRead; 
+    }
+
 	/**
 	 * Internal method
 	 * @param i

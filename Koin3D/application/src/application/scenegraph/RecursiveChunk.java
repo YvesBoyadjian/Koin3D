@@ -633,12 +633,15 @@ public class RecursiveChunk {
 		return true;
 	}
 	
+	private final SbVec3f dummy = new SbVec3f();
+	private final SbVec3f point = new SbVec3f();
+	
 	public float distance(float x, float y) {
-		SbVec3f point = new SbVec3f(x,y,sceneCenter.getZ());
+		point.setValue(x,y,sceneCenter.getZ());
 		
 		SbVec3f closestPoint = sceneBox.getClosestPoint(point);
 		
-		float distance = point.operator_minus(closestPoint).length();
+		float distance = point.operator_minus(closestPoint,dummy).length();
 		
 		return distance;
 	}

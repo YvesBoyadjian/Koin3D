@@ -155,6 +155,10 @@ public class SbRotation implements Mutable {
 		quat[3] = (float)q0q1q2q3[3];
 	}
 
+    //! \see SbRotation(const SbVec3f &rotateFrom, const SbVec3f &rotateTo)
+    public void constructor(final SbMatrix m)
+        { setValue(m); }
+
 	// Returns pointer to array of 4 components defining quaternion. 
 	public float[] getValue() {
 		 return (quat); 
@@ -168,20 +172,22 @@ public class SbRotation implements Mutable {
 //
 // Use: public
 
+    private final SbVec3fSingle     q = new SbVec3fSingle(); // SINGLE_THREAD
+    
 public void
 getValue(final SbVec3f axis, final float[] radians)
 //
 ////////////////////////////////////////////////////////////////////////
 {
     float       len;
-    final SbVec3fSingle     q = new SbVec3fSingle();
 
     q.getValue()[0] = quat[0];
     q.getValue()[1] = quat[1];
     q.getValue()[2] = quat[2];
 
     if ((len = q.length()) > 0.00001) {
-        axis.copyFrom( q.operator_mul(1.0f / len));
+    	axis.copyFrom(q); axis.operator_mul_equal(1.0f / len);
+        //axis.copyFrom( q.operator_mul(1.0f / len));
         radians[0] = 2.0f * (float)Math.acos(quat[3]);
     }
 
@@ -385,6 +391,8 @@ getValue(final SbVec3f axis, final float[] radians)
 //
 // Use: public
 
+    final SbMatrix check = new SbMatrix(); // SINGLE_THREAD
+    
 public SbRotation 
 setValue(final SbMatrix _m)
 //
@@ -432,7 +440,6 @@ setValue(final SbMatrix _m)
 
 //#ifdef DEBUG
     // Check to be sure output matches input:
-    final SbMatrix check = new SbMatrix();
     getValue(check);
     boolean ok = true;
     for (i = 0; i < 4 && ok; i++) {
@@ -684,6 +691,9 @@ public void getValue(final float[] q0q1q2q3)
 		return !operator_equal_equal(value);
 	}
 	    
+	public void setIdentity() {
+		setValue(0, 0, 0, 1);
+	}
 
 ////////////////////////////////////////////////////////////////////////
 //

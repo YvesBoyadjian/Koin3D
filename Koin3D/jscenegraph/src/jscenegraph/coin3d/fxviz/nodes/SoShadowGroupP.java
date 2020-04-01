@@ -1186,6 +1186,10 @@ updateSpotCamera(SoState state, SoShadowLightCache cache, final SbMatrix transfo
   cache.matrix.copyFrom(affine.operator_mul(proj));
 }
 
+private final SbViewVolume vv = new SbViewVolume(); // SINGLE_THREAD
+
+private final SbBox3f isect = new SbBox3f(); // SINGLE_THREAD
+
 public void
 updateDirectionalCamera(SoState state, SoShadowLightCache cache, final SbMatrix transform)
 {
@@ -1201,7 +1205,7 @@ updateDirectionalCamera(SoState state, SoShadowLightCache cache, final SbMatrix 
   dir.normalize();
   cam.orientation.setValue(new SbRotation(new SbVec3f(0.0f, 0.0f, -1.0f), dir));
 
-  final SbViewVolume vv = new SbViewVolume(SoViewVolumeElement.get(state));
+  vv.copyFrom(SoViewVolumeElement.get(state));
   final SbXfBox3f worldbox = this.calcBBox(cache);
   boolean visible = true;
   if (maxdist > 0.0f) {
@@ -1214,7 +1218,7 @@ updateDirectionalCamera(SoState state, SoShadowLightCache cache, final SbMatrix 
       vv.copyFrom(vv.zNarrow(1.0f, 1.0f - maxdist/depth));
     }
   }
-  final SbBox3f isect = new SbBox3f();
+  isect.constructor();
   if (visible) {
     isect.copyFrom(vv.intersectionBox(worldbox));
     if (isect.isEmpty()) visible = false;
@@ -1281,7 +1285,7 @@ updateDirectionalCamera(SoState state, SoShadowLightCache cache, final SbMatrix 
   cache.fragment_nearval.value.setValue(cache.nearval);
   cache.vsm_nearval.value.setValue(cache.nearval);
 
-  vv.copyFrom(new SbViewVolume(cam.getViewVolume(1.0f)));
+  vv.copyFrom(/*new SbViewVolume(*/cam.getViewVolume(1.0f)/*)*/);
   final SbMatrix affine = new SbMatrix(), proj = new SbMatrix();
   vv.getMatrices(affine, proj);
   cache.matrix.copyFrom( affine.operator_mul(proj));
@@ -1303,9 +1307,9 @@ calcBBox(SoShadowLightCache cache)
     SoShadowDirectionalLight sl = (SoShadowDirectionalLight) (cache.light);
     SbVec3fSingle size = new SbVec3fSingle(sl.bboxSize.getValue());
     if (size.getValue()[0] >= 0.0f && size.getValue()[1] >= 0.0f && size.getValue()[2] >= 0.0f) {
-      SbVec3f center = new SbVec3f(sl.bboxCenter.getValue());
+      SbVec3f center = /*new SbVec3f(*/sl.bboxCenter.getValue()/*)*/;
       size.operator_mul_equal(0.5f);
-      this.bboxaction.getXfBoundingBox().copyFrom(new SbXfBox3f(center.operator_minus(size), center.operator_add(size)));
+      this.bboxaction.getXfBoundingBox().constructor(/*copyFrom(new SbXfBox3f(*/center.operator_minus(size), center.operator_add(size)/*)*/);
     }
     else {
       this.bboxaction.apply(cache.bboxnode);

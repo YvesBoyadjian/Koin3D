@@ -65,6 +65,7 @@ import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoMaterial;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
+import jscenegraph.port.KDebug;
 import jsceneviewerglfw.inventor.qt.SoQt;
 import jsceneviewerglfw.inventor.qt.SoQtCameraController;
 import jsceneviewerglfw.inventor.qt.viewers.SoQtFullViewer;
@@ -396,6 +397,8 @@ public class MainGLFW {
 		display.dispose();
 		
 	    window.dispose(); // must be done at the end, for linux		
+	    
+	    KDebug.dump();
 	}
 
 	public static synchronized void playSound(final String url) {

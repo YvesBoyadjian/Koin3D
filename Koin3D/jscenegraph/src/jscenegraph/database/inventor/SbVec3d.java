@@ -35,13 +35,17 @@ public class SbVec3d {
 	public SbVec3d 
 	setValue(final SbVec3f v)
 	{
-	  vec[0] = (v.getValueRead()[0]);
-	  vec[1] = (v.getValueRead()[1]);
-	  vec[2] = (v.getValueRead()[2]);
+	  vec[0] = v.getX();
+	  vec[1] = v.getY();
+	  vec[2] = v.getZ();
 	  return this;
 	}
 
-	
+	public void constructor() {
+		vec[0] = 0;
+		vec[1] = 0;
+		vec[2] = 0;
+	}
 	  
 //
 // Changes vector to be unit length

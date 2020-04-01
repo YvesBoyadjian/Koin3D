@@ -50,6 +50,8 @@ public class SbClip {
 		
 	}
 
+    private final SbVec3f v0 = new SbVec3f(), v1 = new SbVec3f(); // SINGLE_THREAD
+    
 	/*!
 	  Clip polygon against \a plane. This might change the number of
 	  vertices in the polygon. For each time a new vertex is created, the
@@ -71,7 +73,7 @@ public class SbClip {
 	  final SbVec3f planeN = plane.getNormal(); // ref;
 
 	  for (int i = 0; i < n; i++) {
-	    final SbVec3f v0 = new SbVec3f(), v1 = new SbVec3f();
+	    v0.constructor(); v1.constructor();
 	    final Object[] data0 = new Object[1], data1 = new Object[1];
 	    this.array(this.curr).operator_square_bracket(i).get(v0, data0);
 	    this.array(this.curr).operator_square_bracket(i+1).get(v1, data1);

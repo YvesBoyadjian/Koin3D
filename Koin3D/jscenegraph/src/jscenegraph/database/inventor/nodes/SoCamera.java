@@ -844,13 +844,15 @@ callback(SoCallbackAction action)
 //
 // Use: extender
 
+private final SbViewVolume        viewVol = new SbViewVolume(); // SINGLE_THREAD
+
 public void
 GLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
     final SbViewportRegion    croppedReg = new SbViewportRegion();
-    final SbViewVolume        viewVol = new SbViewVolume();
+    viewVol.constructor();
     final SbMatrix            viewMat = new SbMatrix(), projMat = new SbMatrix();
     final SbVec2fSingle             uaOrigin = new SbVec2fSingle(), uaSize = new SbVec2fSingle();
     final SbVec3f             jitterAmount = new SbVec3f();

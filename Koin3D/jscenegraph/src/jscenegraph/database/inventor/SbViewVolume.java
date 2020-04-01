@@ -158,6 +158,25 @@ public class SbViewVolume implements Mutable {
 	////////////////////////////////////////////////////////////////////////
 	{
 	}
+	
+	// java port
+	public void constructor() {
+		type = null;
+		
+		projPoint.constructor();
+		projDir.constructor();
+		nearDist = 0;
+		nearToFar = 0;
+		llf.constructor();
+		lrf.constructor();
+		ulf.constructor();
+		
+		dpvv.constructor();
+		
+		llfO.constructor();
+		lrfO.constructor();
+		ulfO.constructor();
+	}
 
 	// java port
 	public SbViewVolume(SbViewVolume other) {
@@ -773,12 +792,17 @@ public class SbViewVolume implements Mutable {
 	//
 	// Use: public
 
+	private SbViewVolume narrowed; // SINGLE_THREAD
+	
 	public SbViewVolume zNarrow(float nearVal, float farVal)
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
 		final SbPlane plane = new SbPlane();
-		final SbViewVolume narrowed = new SbViewVolume();
+		if( narrowed == null ) {
+			narrowed = new SbViewVolume();
+		}
+		narrowed.constructor();
 		final SbVec3f zVec = new SbVec3f(zVector());
 
 		// make sure we aren't expanding the volume
@@ -1270,11 +1294,16 @@ public class SbViewVolume implements Mutable {
 	//
 	// Use: internal
 
+	private SbViewVolume xfVol/* = new SbViewVolume()*/; // SINGLE_THREADED
+	
 	public void transform(SbMatrix matrix)
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
-		final SbViewVolume xfVol = new SbViewVolume();
+		if( xfVol == null ) {
+			xfVol = new SbViewVolume();
+		}
+		xfVol.constructor();
 		final SbVec3f nearPt = new SbVec3f(), farPt = new SbVec3f();
 
 		xfVol.type = type;
@@ -1324,6 +1353,13 @@ public class SbViewVolume implements Mutable {
 	  return new SbVec3f((float)(v.operator_square_bracket(0)), (float)(v.operator_square_bracket(1)), (float)(v.operator_square_bracket(2)));
 	}
 
+	static SbVec3f 
+	to_sbvec3f(final SbVec3d v, final SbVec3f dummy)
+	{
+	  dummy.setValue((float)(v.operator_square_bracket(0)), (float)(v.operator_square_bracket(1)), (float)(v.operator_square_bracket(2)));
+	  return dummy;
+	}
+
 	/*!
 	  Returns the view up vector for this view volume. It's a vector which
 	  is perpendicular to the projection direction, and parallel and
@@ -1335,6 +1371,13 @@ public class SbViewVolume implements Mutable {
 	{
 		this.dpvv.update(this); //YB 
 		return to_sbvec3f(this.dpvv.getViewUp());
+	}	
+
+	public SbVec3f
+	getViewUp(final SbVec3f dummy) 
+	{
+		this.dpvv.update(this); //YB 
+		return to_sbvec3f(this.dpvv.getViewUp(), dummy);
 	}	
 
 	// ! Returns projection information.
@@ -1677,13 +1720,15 @@ public class SbViewVolume implements Mutable {
 	  \since Coin 4.0
 	*/
 
+	  final SbBox3f commonVolume = new SbBox3f(); // SINGLE_THREAD
+	  
 	public SbBox3f 
 	intersectionBox(final SbBox3f box)
 	{
 	  int i;
 	  //SbVec3f vvpts[8];
 	    final Array<SbVec3f> vvpts = new Array<>(SbVec3f.class,new SbVec3f[8]);
-	  final SbBox3f commonVolume = new SbBox3f();
+	  /*final SbBox3f */commonVolume.constructor();/* = new SbBox3f()*/;
 	  final SbVec3f bmin = new SbVec3f(box.getMin());
 	  final SbVec3f bmax = new SbVec3f(box.getMax());
 	  //SbPlane planes[6];

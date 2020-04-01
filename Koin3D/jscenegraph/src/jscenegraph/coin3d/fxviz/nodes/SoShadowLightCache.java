@@ -329,11 +329,13 @@ createVSMProgram()
   fshader.parameter.set1Value(1, this.vsm_nearval);
 }
 
+private final SbXfBox3f xbox = new SbXfBox3f(); // SINGLE_THREAD
+
 public SbBox3f toCameraSpace(final SbXfBox3f  worldbox)
 {
   SoCamera cam = this.camera;
   final SbMatrix mat = new SbMatrix();
-  final SbXfBox3f xbox = new SbXfBox3f(worldbox);
+  xbox.copyFrom(worldbox);
   mat.setTranslate( cam.position.getValue().operator_minus());
   xbox.transform(mat);
   mat.copyFrom( cam.orientation.getValue().getMatrix().inverse()); // java port

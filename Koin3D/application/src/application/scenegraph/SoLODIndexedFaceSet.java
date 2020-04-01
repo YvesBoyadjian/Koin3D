@@ -22,6 +22,8 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 	
 	private final SbVec3f center = new SbVec3f();
 	
+	private final SbVec3f dummy = new SbVec3f(); //SINGLE_THREAD
+	
 	public void GLRender(SoGLRenderAction action)
 	{		
 		getBBox(action, box, center);
@@ -32,7 +34,7 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 		else {
 			SbVec3f closestPoint = box.getClosestPoint(referencePoint);
 			
-			if( closestPoint.operator_minus(referencePoint).length() <= maxDistance ) {
+			if( closestPoint.operator_minus(referencePoint,dummy).length() <= maxDistance ) {
 				super.GLRender(action);				
 			}
 		}

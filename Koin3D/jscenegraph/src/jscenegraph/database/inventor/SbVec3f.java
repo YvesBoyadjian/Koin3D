@@ -74,6 +74,7 @@ import java.nio.FloatBuffer;
 import java.util.function.DoubleConsumer;
 
 import jscenegraph.port.FloatArray;
+import jscenegraph.port.KDebug;
 import jscenegraph.port.Mutable;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
@@ -105,6 +106,9 @@ public class SbVec3f implements Cloneable, Mutable {
 	
 	// Default constructor. 
 	public SbVec3f() {
+		
+//		KDebug.count("SbVec3f");
+		
 		vec = FloatMemoryBuffer.allocateFloats(3);
 		indice = 0;
 	}
@@ -115,12 +119,18 @@ public class SbVec3f implements Cloneable, Mutable {
 	 * @param indice
 	 */
 	public SbVec3f(FloatMemoryBuffer array, int indice) {
+		
+//		KDebug.count("SbVec3f");
+		
 		vec = array;
 		this.indice = indice;
 	}
 	
 	// java port
 	public SbVec3f(SbVec3f other) {
+		
+//		KDebug.count("SbVec3f");
+		
 		vec = FloatMemoryBuffer.allocateFloats(3);
 		indice = 0;
 		vec.setFloat(0, other.g(0));
@@ -130,6 +140,9 @@ public class SbVec3f implements Cloneable, Mutable {
 	
 	// Constructor given vector components. 
 	public SbVec3f(float[] v) {
+		
+//		KDebug.count("SbVec3f");
+		
 		vec = FloatMemoryBuffer.allocateFloats(3);
 		indice = 0;
 		 vec.setFloat(0, v[0]); vec.setFloat(1, v[1]); vec.setFloat(2, v[2]); 
@@ -144,14 +157,27 @@ public class SbVec3f implements Cloneable, Mutable {
 	 */
 	public SbVec3f(float x, float y, float z)
 	{ 
+		
+//		KDebug.count("SbVec3f");
+		
 		vec = FloatMemoryBuffer.allocateFloats(3); 		
 		indice = 0;
 		vec.setFloat(0, x); vec.setFloat(1, y); vec.setFloat(2, z); 
 	}
 	
 	public SbVec3f(FloatArray vpCoords, int i) {
+		
+//		KDebug.count("SbVec3f");
+		
 		vec = vpCoords.getValues();
 		indice = vpCoords.getStart()+3*i;
+	}
+	
+	// java port
+	public void constructor() {
+		s(0,0);
+		s(1,0);
+		s(2,0);
 	}
 
 	public static int sizeof() {
@@ -183,6 +209,16 @@ public class SbVec3f implements Cloneable, Mutable {
 				    g(2) * v.g(0) - g(0) * v.g(2),
 				    g(0) * v.g(1) - g(1) * v.g(0));
 				   
+				  }
+	
+	// Returns right-handed cross product of vector and another vector. 
+	public SbVec3f cross(final SbVec3f v, final SbVec3f dummy) {
+		
+		  dummy.setValue(g(1) * v.g(2) - g(2) * v.g(1),
+				    g(2) * v.g(0) - g(0) * v.g(2),
+				    g(0) * v.g(1) - g(1) * v.g(0));
+				   
+		  return dummy;
 				  }
 	
 	public SbVec3f operator_cross_equal(SbVec3f v) {
@@ -441,11 +477,28 @@ operator_minus_equal(SbVec3f v)
 		    		                      v1.g(2) - v2.g(2));		    		  		  
 	  }
 	  
+	  // java port
+	  public SbVec3f operator_minus(SbVec3f v2, SbVec3f dummy) {
+		  SbVec3f v1 = this;
+		     dummy.setValue(v1.g(0) - v2.g(0),
+		    		                      v1.g(1) - v2.g(1),
+		    		                      v1.g(2) - v2.g(2));
+		     return dummy;
+	  }
+	  
 	  //
 	// Nondestructive unary negation - returns a new vector
 	//
 	  public SbVec3f operator_minus() {
 		  return new SbVec3f(-g(0), -g(1), -g(2));
+	  }
+
+	  //
+	// Nondestructive unary negation - returns a new vector
+	//
+	  public SbVec3f operator_minus_with_dummy(final SbVec3f dummy) {
+		  dummy.setValue(-g(0), -g(1), -g(2));
+		  return dummy;
 	  }
 
 	  public SbVec3f operator_div(float d)
@@ -613,7 +666,10 @@ public void add(SbVec3f v) {
  * @param other
  */
 public void setValue(SbVec3f other) {
-	setValue(other.getValueRead());
+	//setValue(other.getValueRead());
+	s(0, other.g(0));
+	s(1, other.g(1));
+	s(2, other.g(2));
 }
 
 }

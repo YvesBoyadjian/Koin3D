@@ -169,6 +169,7 @@ public SoPerspectiveCamera()
 	    	       heightAngle.setValue(scaleFactor * heightAngle.getValue());
 	    	     }
    
+  private final SbViewVolume view = new SbViewVolume(); // SINGLE_THREAD
   ////////////////////////////////////////////////////////////////////////
    //
    // Description:
@@ -180,7 +181,7 @@ public SoPerspectiveCamera()
      
 	@Override
 	public SbViewVolume getViewVolume(float useAspectRatio) {
-	     final SbViewVolume view = new SbViewVolume();
+	     view.constructor();
 	      
 	          float       camAspect = (useAspectRatio != 0.0 ? useAspectRatio :
 	                                   aspectRatio.getValue());

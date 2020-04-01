@@ -402,7 +402,24 @@ identity()
                     0.0f, 0.0f, 0.0f, 1.0f);
 }
 
-	
+	public void setIdentity() {
+	    matrix[0][0] = 1.0f; 
+	    matrix[0][1] = 0.0f; 
+	    matrix[0][2] = 0.0f; 
+	    matrix[0][3] = 0.0f; 
+	    matrix[1][0] = 0.0f; 
+	    matrix[1][1] = 1.0f; 
+	    matrix[1][2] = 0.0f; 
+	    matrix[1][3] = 0.0f; 
+	    matrix[2][0] = 0.0f; 
+	    matrix[2][1] = 0.0f; 
+	    matrix[2][2] = 1.0f; 
+	    matrix[2][3] = 0.0f; 
+	    matrix[3][0] = 0.0f; 
+	    matrix[3][1] = 0.0f; 
+	    matrix[3][2] = 0.0f; 
+	    matrix[3][3] = 1.0f;
+	}
 	
 	//
 	// Macro for checking is a matrix is idenity.
@@ -442,16 +459,22 @@ identity()
 // Oh, yeah! Well, if the matrix is affine, there IS a better way.
 // So we call affine_inverse to see if we can get away with it...
 //
+	
+	public SbMatrix inverse() {
+		return inverse( new SbMatrix());
+	}
 
 public SbMatrix
-inverse()
+inverse(SbMatrix dummy)
 {
     // Trivial case
-    if (IS_IDENTITY(matrix))
-        return SbMatrix.identity();
+    if (IS_IDENTITY(matrix)) {
+    	dummy.setIdentity();
+        return dummy;//SbMatrix.identity();
+    }
 
     // Affine case...
-    final SbMatrix affineAnswer = new SbMatrix();
+    final SbMatrix affineAnswer = dummy;//new SbMatrix();
     if (  affine_inverse( new SbMatrix(matrix), affineAnswer ) )
         return affineAnswer;
 
@@ -459,7 +482,7 @@ inverse()
     final float[]       d = new float[1];
     float[][] invmat = new float[4][4];
     float temp;
-    SbMatrix    inverse = new SbMatrix(this);
+    SbMatrix    inverse = dummy; inverse.copyFrom(this);//new SbMatrix(this);
 //#ifdef DEBUGGING
     int         i, j;
 //#endif /* DEBUGGING */
@@ -1271,16 +1294,18 @@ multLeft(final SbMatrix m)
 		
 	     float       x,y,z,w;
 	     
-	     float[] src = src_.getValueRead();
+	     float src0 = src_.getX();
+	     float src1 = src_.getY();
+	     float src2 = src_.getZ();
 	          
-	          x = src[0]*matrix[0][0] + src[1]*matrix[1][0] +
-	              src[2]*matrix[2][0] + matrix[3][0];
-	          y = src[0]*matrix[0][1] + src[1]*matrix[1][1] +
-	              src[2]*matrix[2][1] + matrix[3][1];
-	          z = src[0]*matrix[0][2] + src[1]*matrix[1][2] +
-	              src[2]*matrix[2][2] + matrix[3][2];
-	          w = src[0]*matrix[0][3] + src[1]*matrix[1][3] +
-	              src[2]*matrix[2][3] + matrix[3][3];
+	          x = src0*matrix[0][0] + src1*matrix[1][0] +
+	              src2*matrix[2][0] + matrix[3][0];
+	          y = src0*matrix[0][1] + src1*matrix[1][1] +
+	              src2*matrix[2][1] + matrix[3][1];
+	          z = src0*matrix[0][2] + src1*matrix[1][2] +
+	              src2*matrix[2][2] + matrix[3][2];
+	          w = src0*matrix[0][3] + src1*matrix[1][3] +
+	              src2*matrix[2][3] + matrix[3][3];
 	          
 	          dst.setValue(x/w, y/w, z/w);
 	     	}

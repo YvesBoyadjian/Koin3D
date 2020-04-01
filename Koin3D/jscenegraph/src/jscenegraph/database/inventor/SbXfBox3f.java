@@ -121,6 +121,16 @@ public SbXfBox3f( SbXfBox3f box)
  copyFrom(box);
 }
 
+//
+//Constructor given minimum and maximum points 
+//
+public void constructor( final SbVec3f _min, final SbVec3f _max)
+{
+ xform.makeIdentity();
+ xformInv.makeIdentity();
+ setBounds(_min, _max);
+}
+
 // java port
 public void copyFrom(Object otherObject) {
 	SbXfBox3f other = (SbXfBox3f)otherObject;
@@ -172,15 +182,26 @@ setTransform(final SbMatrix m)
 //
 // Return the center of a box
 //
-public SbVec3f
+public SbVec3fSingle
 getCenter() 
 {
-    final SbVec3f     p = new SbVec3f();
+    final SbVec3fSingle     p = new SbVec3fSingle();
 
     // transform the center before returning it
     xform.multVecMatrix((getMin().operator_add(getMax())).operator_mul(.5f), p);
 
     return p;
+}
+
+//
+//Return the center of a box
+//
+public void
+getCenter(SbVec3fSingle p) 
+{
+
+ // transform the center before returning it
+ xform.multVecMatrix((getMin().operator_add(getMax())).operator_mul(.5f), p);
 }
 
 //
@@ -335,12 +356,12 @@ transform(final SbMatrix m)
     setTransform(new_xf);
 }
     
-    
+    private final SbBox3f     box = new SbBox3f(); // SINGLE_THREAD
     
 	// Projects an SbXfBox3f to an SbBox3f. 
 	public SbBox3f project() {
 		
-	     SbBox3f     box = new SbBox3f(getMin(), getMax());
+	     box.constructor(getMin(), getMax());
 	          box.transform(xform);
 	          return box;
 	     	}
