@@ -1203,7 +1203,12 @@ updateDirectionalCamera(SoState state, SoShadowLightCache cache, final SbMatrix 
   dir.normalize();
   transform.multDirMatrix(dir, dir);
   dir.normalize();
-  cam.orientation.setValue(new SbRotation(new SbVec3f(0.0f, 0.0f, -1.0f), dir));
+  
+  SbRotation dir_rotation = new SbRotation(new SbVec3f(0.0f, 0.0f, -1.0f), dir);
+  
+  //dir_rotation.operator_mul_equal(new SbRotation(dir,(float)Math.random()*10.0f));
+  
+  cam.orientation.setValue(dir_rotation);
 
   vv.copyFrom(SoViewVolumeElement.get(state));
   final SbXfBox3f worldbox = this.calcBBox(cache);

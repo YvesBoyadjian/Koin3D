@@ -293,7 +293,7 @@ intersect(final SbBox3f bb)
 
 	 // Returns true if the box is empty, and FALSE otherwise.
 	 public boolean isEmpty() {
-		 return max.getValueRead()[0] < min.getValueRead()[0];
+		 return max.getX() < min.getX();
 	 }
 
 //
@@ -738,20 +738,22 @@ getClosestPoint(final SbVec3f point)
   final float[] max_getValue = this.max.getValue();
 
   /*final SbVec3fSingle center = new SbVec3fSingle(*/this.getCenter(center)/*)*/;
-  float devx = closest_getValue[0] - center.getValue()[0];
-  float devy = closest_getValue[1] - center.getValue()[1];
-  float devz = closest_getValue[2] - center.getValue()[2];
+  final float[] center_getValue = center.getValue();
+  
+  float devx = closest_getValue[0] - center_getValue[0];
+  float devy = closest_getValue[1] - center_getValue[1];
+  float devz = closest_getValue[2] - center_getValue[2];
   float halfwidth = (max_getValue[0] - min_getValue[0]) / 2.0f;
   float halfheight = (max_getValue[1] - min_getValue[1]) / 2.0f;
   float halfdepth = (max_getValue[2] - min_getValue[2]) / 2.0f;
 
   // Move point to be on the nearest plane of the box.
   if ((Math.abs(devx) > Math.abs(devy)) && (Math.abs(devx) > Math.abs(devz)))
-    closest_getValue[0] = center.getValue()[0] + halfwidth * ((devx < 0.0f) ? -1.0f : 1.0f);
+    closest_getValue[0] = center_getValue[0] + halfwidth * ((devx < 0.0f) ? -1.0f : 1.0f);
   else if (Math.abs(devy) > Math.abs(devz))
-    closest_getValue[1] = center.getValue()[1] + halfheight * ((devy < 0.0f) ? -1.0f : 1.0f);
+    closest_getValue[1] = center_getValue[1] + halfheight * ((devy < 0.0f) ? -1.0f : 1.0f);
   else
-    closest_getValue[2] = center.getValue()[2] + halfdepth * ((devz < 0.0f) ? -1.0f : 1.0f);
+    closest_getValue[2] = center_getValue[2] + halfdepth * ((devz < 0.0f) ? -1.0f : 1.0f);
 
   // Clamp to be inside box.
   closest_getValue[0] = Math.min(Math.max(closest_getValue[0], min_getValue[0]), max_getValue[0]);
@@ -759,6 +761,27 @@ getClosestPoint(final SbVec3f point)
   closest_getValue[2] = Math.min(Math.max(closest_getValue[2], min_getValue[2]), max_getValue[2]);
 
   return closest;
+}
+
+/*!
+Return the point on the box closest to the given \a point.
+*/
+public SbVec3f
+getClosestExternalPoint(final SbVec3f point)
+{
+	closest.setValue(point);
+	
+	final float[] closest_getValue = closest.getValue(); 
+	
+	final float[] min_getValue = this.min.getValue();
+	final float[] max_getValue = this.max.getValue();
+	
+	// Clamp to be inside box.
+	closest_getValue[0] = Math.min(Math.max(closest_getValue[0], min_getValue[0]), max_getValue[0]);
+	closest_getValue[1] = Math.min(Math.max(closest_getValue[1], min_getValue[1]), max_getValue[1]);
+	closest_getValue[2] = Math.min(Math.max(closest_getValue[2], min_getValue[2]), max_getValue[2]);
+	
+	return closest;
 }
 
 }

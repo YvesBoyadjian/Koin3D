@@ -53,7 +53,8 @@ public class DouglasForest {
 	
 	SceneGraphIndexedFaceSetShader sg;
 	
-	private List<DouglasChunk> douglasChunks = new ArrayList<>(); 
+	private List<List<DouglasChunk>> douglasChunks = new ArrayList<>(); // X, then Y
+	private List<SbBox3f> xLimits = new ArrayList<>();
 	
 	int nbDouglas = 0;
 	
@@ -266,8 +267,8 @@ public class DouglasForest {
 		float delta_x = xMax - xMin;
 		float delta_y = yMax - yMin;
 		
-		float width_x = delta_x / 10;		
-		float width_y = delta_y / 10;
+		float width_x = delta_x / 15;		
+		float width_y = delta_y / 15;
 		
 		float min_width = Math.min(width_x,width_y);
 		
@@ -275,6 +276,10 @@ public class DouglasForest {
 		int nb_y = (int)Math.round(Math.ceil(delta_y / min_width));
 		
 		for(int i=0;i<nb_x;i++) {
+			SbBox3f xLimitsBBox = new SbBox3f();
+			xLimits.add(xLimitsBBox);
+			List<DouglasChunk> listForX = new ArrayList<>();
+			douglasChunks.add(listForX);
 			for(int j=0; j< nb_y;j++) {
 				float chunkMinX = xMin + i*min_width;
 				float chunkMaxX = xMin + (i+1)*min_width;
@@ -282,7 +287,11 @@ public class DouglasForest {
 				float chunkMaxY = yMin + (j+1)*min_width;
 				SbBox3f chunkBB = new SbBox3f();
 				chunkBB.setBounds(chunkMinX, chunkMinY, 0, chunkMaxX, chunkMaxY, 0);
-				douglasChunks.add(new DouglasChunk(this,chunkBB));
+				listForX.add(new DouglasChunk(this,chunkBB));
+				if(xLimitsBBox != null) {
+					xLimitsBBox.extendBy(chunkBB);
+					xLimitsBBox = null;
+				}
 			}
 		}
 	}
@@ -297,11 +306,17 @@ public class DouglasForest {
 			
 			xy.setValue(x, y, 0.0f);
 			
-			int nbChunks = douglasChunks.size(); 
-			for(int i=0;i<nbChunks;i++) {
-				DouglasChunk chunk = douglasChunks.get(i);
-				if( chunk.boundingBox.intersect(xy)) {
-					chunk.addTree(/*x,y,zArray[tree],heightArray[tree],angleDegree1[tree],randomTopTree[tree],randomBottomTree[tree]*/tree);
+			int nbChunksX = douglasChunks.size(); 
+			for(int i=0;i<nbChunksX;i++) {
+				List<DouglasChunk> listForX = douglasChunks.get(i);
+				int nbChunksY = listForX.size();
+				if(x >= xLimits.get(i).getMin().getX() && x <= xLimits.get(i).getMax().getX()) {
+					for(int j=0;j<nbChunksY;j++) {
+						DouglasChunk chunk = listForX.get(j);
+						if( chunk.boundingBox.intersect(xy)) {
+							chunk.addTree(/*x,y,zArray[tree],heightArray[tree],angleDegree1[tree],randomTopTree[tree],randomBottomTree[tree]*/tree);
+						}
+					}
 				}
 			}
 			
@@ -309,119 +324,148 @@ public class DouglasForest {
 	}
 
 	public void computeDouglas() {
-		douglasChunks.parallelStream().forEach((dc)->dc.computeDouglas());
+		int nbChunksX = douglasChunks.size(); 
+		for(int i=0;i<nbChunksX;i++) {
+			List<DouglasChunk> listForX = douglasChunks.get(i);
+			listForX.parallelStream().forEach((dc)->dc.computeDouglas());
+		}
 //		for( DouglasChunk chunk : douglasChunks ) {
 //			chunk.computeDouglas();
 //		}
 	}
 
-	public SoGroup getDouglasTreesT(float distance) {
+	public SoGroup getDouglasTreesT(SbVec3f refPoint, float distance) {
 		SoGroup separator = new SoGroup();
 		
-		for( DouglasChunk chunk : douglasChunks ) {
-			{
-			SoLODIndexedFaceSet indexedFaceSetT = new SoLODIndexedFaceSet() {
-				public void GLRender(SoGLRenderAction action)
-				{
-					super.GLRender(action);
+		for( List<DouglasChunk> chunkListForX : douglasChunks ) {
+			SoLODGroup separatorForX = new SoLODGroup();
+			separatorForX.maxDistance = distance;
+			for( DouglasChunk chunk : chunkListForX ) {
+				
+				final SbBox3f finalBox = new SbBox3f();
+				final SbVec3f finalCenter = new SbVec3f();
+				
+				
+				if(chunk.xMin != Float.MAX_VALUE) {
+					SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
+					SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
+					finalBox.extendBy(min);
+					finalBox.extendBy(max);
+					SbVec3f centerV = new SbVec3f(
+							(chunk.xMin+chunk.xMax)/2,
+							(chunk.yMin+chunk.yMax)/2,
+							(chunk.zMin+chunk.zMax)/2);
+					finalCenter.setValue(centerV);
 				}
-				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
-					
-					if(chunk.xMin != Float.MAX_VALUE) {
-						SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
-						SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
-						box.extendBy(min);
-						box.extendBy(max);
-						SbVec3f centerV = new SbVec3f(
-								(chunk.xMin+chunk.xMax)/2,
-								(chunk.yMin+chunk.yMax)/2,
-								(chunk.zMin+chunk.zMax)/2);
-						center.setValue(centerV);
+				
+				SoLODIndexedFaceSet indexedFaceSetT = new SoLODIndexedFaceSet(refPoint) {
+					public void GLRender(SoGLRenderAction action)
+					{
+						super.GLRender(action);
 					}
-					
-//					super.computeBBox(action, box, center);
+					public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+						
+						box.copyFrom(finalBox);
+						center.copyFrom(finalCenter);
+	//					super.computeBBox(action, box, center);
+					}
+				};
+				
+				indexedFaceSetT.coordIndex.setValuesPointer(chunk.douglasIndicesT);
+				
+				SoVertexProperty vertexProperty = new SoVertexProperty();
+				
+				vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesT);
+				
+				vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+				
+				vertexProperty.normal.setValuesPointer(chunk.douglasNormalsT);
+				
+				vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+				
+				vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsT);
+				
+				indexedFaceSetT.vertexProperty.setValue(vertexProperty);
+				
+				indexedFaceSetT.maxDistance = distance;
+				
+				if(!finalBox.isEmpty()) {
+					separatorForX.addChild(indexedFaceSetT);	
+					separatorForX.box.extendBy(finalBox);
 				}
-			};
-			
-			indexedFaceSetT.coordIndex.setValuesPointer(chunk.douglasIndicesT);
-			
-			SoVertexProperty vertexProperty = new SoVertexProperty();
-			
-			vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesT);
-			
-			vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-			
-			vertexProperty.normal.setValuesPointer(chunk.douglasNormalsT);
-			
-			vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-			
-			vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsT);
-			
-			indexedFaceSetT.vertexProperty.setValue(vertexProperty);
-			
-			indexedFaceSetT.maxDistance = distance;
-			
-			separator.addChild(indexedFaceSetT);			
-			}
-		}		
+			}		
+			separator.addChild(separatorForX);
+		}
 		
 		return separator;
 	}
 
-	public SoGroup getDouglasTreesF(float distance, boolean withColors) {
+	public SoGroup getDouglasTreesF(SbVec3f refPoint, float distance, boolean withColors) {
 		SoGroup separator = new SoGroup();
 		
-		for( DouglasChunk chunk : douglasChunks ) {
-			{
-			SoLODIndexedFaceSet indexedFaceSetF = new SoLODIndexedFaceSet() {
-				public void GLRender(SoGLRenderAction action)
-				{
-					super.GLRender(action);
-				}			
-				public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+		for( List<DouglasChunk> chunkListForX : douglasChunks ) {
+			SoLODGroup separatorForX = new SoLODGroup();
+			separatorForX.maxDistance = distance;
+			for( DouglasChunk chunk : chunkListForX ) {
+				
+					final SbBox3f finalBox = new SbBox3f();
+					final SbVec3f finalCenter = new SbVec3f();
 					
 					if(chunk.xMin != Float.MAX_VALUE) {
 						SbVec3f min = new SbVec3f(chunk.xMin,chunk.yMin,chunk.zMin);
 						SbVec3f max = new SbVec3f(chunk.xMax,chunk.yMax,chunk.zMax);
-						box.extendBy(min);
-						box.extendBy(max);
+						finalBox.extendBy(min);
+						finalBox.extendBy(max);
 						SbVec3f centerV = new SbVec3f(
 								(chunk.xMin+chunk.xMax)/2,
 								(chunk.yMin+chunk.yMax)/2,
 								(chunk.zMin+chunk.zMax)/2);
-						center.setValue(centerV);
+						finalCenter.setValue(centerV);
 					}
 					
-					//super.computeBBox(action, box, center);
+				SoLODIndexedFaceSet indexedFaceSetF = new SoLODIndexedFaceSet(refPoint) {
+					public void GLRender(SoGLRenderAction action)
+					{
+						super.GLRender(action);
+					}			
+					public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
+						
+						box.copyFrom(finalBox);
+						center.copyFrom(finalCenter);
+						//super.computeBBox(action, box, center);
+					}
+				};
+				
+				indexedFaceSetF.coordIndex.setValuesPointer(chunk.douglasIndicesF);
+				
+				SoVertexProperty vertexProperty = new SoVertexProperty();
+				
+				vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesF);
+				
+				vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+				
+				vertexProperty.normal.setValuesPointer(chunk.douglasNormalsF);
+				
+				if(withColors) {
+					vertexProperty.texCoord.setValuesPointer(chunk.douglasTexCoordsF);
+					vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+					vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsF);
 				}
-			};
-			
-			indexedFaceSetF.coordIndex.setValuesPointer(chunk.douglasIndicesF);
-			
-			SoVertexProperty vertexProperty = new SoVertexProperty();
-			
-			vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesF);
-			
-			vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-			
-			vertexProperty.normal.setValuesPointer(chunk.douglasNormalsF);
-			
-			if(withColors) {
-				vertexProperty.texCoord.setValuesPointer(chunk.douglasTexCoordsF);
-				vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-				vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsF);
+				else {
+					vertexProperty.orderedRGBA.setValue(DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER/*SbColor(1,0.0f,0.0f)*/.getPackedValue());
+				}
+				
+				indexedFaceSetF.vertexProperty.setValue(vertexProperty);
+				
+				indexedFaceSetF.maxDistance = distance;
+				
+				if(!finalBox.isEmpty()) {
+					separatorForX.addChild(indexedFaceSetF);
+					separatorForX.box.extendBy(finalBox);
+				}
 			}
-			else {
-				vertexProperty.orderedRGBA.setValue(DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER/*SbColor(1,0.0f,0.0f)*/.getPackedValue());
-			}
-			
-			indexedFaceSetF.vertexProperty.setValue(vertexProperty);
-			
-			indexedFaceSetF.maxDistance = distance;
-			
-			separator.addChild(indexedFaceSetF);
-			}
-		}		
+			separator.addChild(separatorForX);
+		}
 		
 		return separator;
 	}

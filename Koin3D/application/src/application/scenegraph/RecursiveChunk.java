@@ -639,7 +639,11 @@ public class RecursiveChunk {
 	public float distance(float x, float y) {
 		point.setValue(x,y,sceneCenter.getZ());
 		
-		SbVec3f closestPoint = sceneBox.getClosestPoint(point);
+		if( sceneBox.intersect(point)) {
+			return 0;
+		}
+		
+		SbVec3f closestPoint = sceneBox.getClosestExternalPoint(point);
 		
 		float distance = point.operator_minus(closestPoint,dummy).length();
 		

@@ -101,6 +101,14 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	static final float CUBE_DEPTH = 2000;
 	
+	static final int LEVEL_OF_DETAIL = 600;
+	
+	static final int LEVEL_OF_DETAIL_SHADOW = 3000;
+	
+	static final int DOUGLAS_DISTANCE = 7000;
+	
+	static final int DOUGLAS_DISTANCE_SHADOW = 3000;
+	
 	private SoSeparator sep = new SoSeparator() {
 		public void ref() {
 			super.ref();
@@ -161,8 +169,12 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	SoGroup douglasTreesF;
 	SoGroup douglasTreesT;
 	
+	final SbVec3f douglasTreesRefPoint = new SbVec3f();
+	
 	SoGroup douglasTreesST;
 	SoGroup douglasTreesSF;
+	
+	final SbVec3f douglasTreesSRefPoint = new SbVec3f();
 	
 	SoTouchLODMaster master;
 	SoTouchLODMaster masterS;
@@ -519,12 +531,13 @@ for(int is=0;is<4;is++) {
 	    
 	    landSep.addChild(master);
 	    
-	    chunkTree = rc.getGroup(master,600,true);
+	    chunkTree = rc.getGroup(master,/*600*/LEVEL_OF_DETAIL,true);
 	    landSep.addChild(chunkTree);
 	    
 		shadowGroup.addChild(landSep);
 		
 	    SoSeparator douglasSep = new SoSeparator();
+	    //douglasSep.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    
 	    shapeHints = new SoShapeHints();
 	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);
@@ -583,13 +596,14 @@ for(int is=0;is<4;is++) {
 	    
 	    douglasSep.addChild(transl);
 	    
-		douglasTreesT = getDouglasTreesT(7000);
+		douglasTreesT = getDouglasTreesT(douglasTreesRefPoint,DOUGLAS_DISTANCE);
 		
 	    SoSeparator douglasSepF = new SoSeparator();
+	    //douglasSepF.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    
 		douglasSep.addChild(douglasTreesT);
 		
-		douglasTreesF = getDouglasTreesF(7000,true);
+		douglasTreesF = getDouglasTreesF(douglasTreesRefPoint,DOUGLAS_DISTANCE,true);
 		
 	    douglasSepF.addChild(douglasTexture);
 	    
@@ -692,7 +706,7 @@ for(int is=0;is<4;is++) {
 	    
 	    shadowLandSep.addChild(masterS);
 	    
-	    shadowTree = rc.getShadowGroup(masterS,3000,false);
+	    shadowTree = rc.getShadowGroup(masterS,LEVEL_OF_DETAIL_SHADOW,false);
 	    shadowLandSep.addChild(shadowTree);
 	    
 	    //shadowLandSep.addChild(chunks.getShadowGroup());
@@ -708,11 +722,11 @@ for(int is=0;is<4;is++) {
 	    
 	    douglasSepS.addChild(transl);
 	    
-		douglasTreesST = getDouglasTreesT(3000);
+		douglasTreesST = getDouglasTreesT(douglasTreesSRefPoint,DOUGLAS_DISTANCE_SHADOW);
 		
 		douglasSepS.addChild(douglasTreesST);
 		
-		douglasTreesSF = getDouglasTreesF(3000, false);
+		douglasTreesSF = getDouglasTreesF(douglasTreesSRefPoint,DOUGLAS_DISTANCE_SHADOW, false);
 		
 		douglasSepS.addChild(douglasTreesSF);
 		
@@ -918,39 +932,59 @@ for(int is=0;is<4;is++) {
 		float trees_x = current_x + xTransl+3000*world_camera_direction.getX();
 		float trees_y = current_y + yTransl+3000*world_camera_direction.getY();
 		
-		for(SoNode node : douglasTreesT.getChildren()) {
-			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
-			lifs.referencePoint.setValue(
-					/*current_x + xTransl+3000*world_camera_direction.getX()*/trees_x,
-					/*current_y + yTransl+3000*world_camera_direction.getY()*/trees_y,
-					current_z + zTransl);
+		douglasTreesRefPoint.setValue(trees_x,trees_y,current_z + zTransl);
+		
+		for(SoNode nodeForX : douglasTreesT.getChildren()) {
+			SoLODGroup sepForX = (SoLODGroup) nodeForX;
+			sepForX.referencePoint.setValue(trees_x,trees_y,current_z + zTransl);
+//			for( SoNode node : sepForX.getChildren()) {
+//			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+//			lifs.referencePoint.setValue(
+//					/*current_x + xTransl+3000*world_camera_direction.getX()*/trees_x,
+//					/*current_y + yTransl+3000*world_camera_direction.getY()*/trees_y,
+//					current_z + zTransl);
+//			}
 		}
 				
-		for(SoNode node : douglasTreesF.getChildren()) {
-			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
-			lifs.referencePoint.setValue(
-					/*current_x + xTransl+3000*world_camera_direction.getX()*/trees_x,
-					/*current_y + yTransl+3000*world_camera_direction.getY()*/trees_y,
-					current_z + zTransl);
+		for(SoNode nodeForX : douglasTreesF.getChildren()) {
+			SoLODGroup sepForX = (SoLODGroup) nodeForX;
+			sepForX.referencePoint.setValue(trees_x,trees_y,current_z + zTransl);
+//			for( SoNode node : sepForX.getChildren()) {
+//			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+//			lifs.referencePoint.setValue(
+//					/*current_x + xTransl+3000*world_camera_direction.getX()*/trees_x,
+//					/*current_y + yTransl+3000*world_camera_direction.getY()*/trees_y,
+//					current_z + zTransl);
+//			}
 		}
 				
 		float treesS_x = current_x + xTransl+1000*world_camera_direction.getX();
 		float treesS_y = current_y + yTransl+1000*world_camera_direction.getY();
 		
-		for (SoNode node : douglasTreesST.getChildren()) {
-			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
-			lifs.referencePoint.setValue(
-					/*current_x + xTransl+1000*world_camera_direction.getX()*/treesS_x, 
-					/*current_y + yTransl+1000*world_camera_direction.getY()*/treesS_y, 
-					current_z + zTransl);
+		douglasTreesSRefPoint.setValue(treesS_x,treesS_y,current_z + zTransl);
+		
+		for (SoNode nodeForX : douglasTreesST.getChildren()) {
+			SoLODGroup sepForX = (SoLODGroup) nodeForX;
+			sepForX.referencePoint.setValue(treesS_x,treesS_y,current_z + zTransl);
+//			for( SoNode node : sepForX.getChildren()) {
+//			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+//			lifs.referencePoint.setValue(
+//					/*current_x + xTransl+1000*world_camera_direction.getX()*/treesS_x, 
+//					/*current_y + yTransl+1000*world_camera_direction.getY()*/treesS_y, 
+//					current_z + zTransl);
+//			}
 		}
 				
-		for (SoNode node : douglasTreesSF.getChildren()) {
-			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
-			lifs.referencePoint.setValue(
-					/*current_x + xTransl+1000*world_camera_direction.getX()*/treesS_x, 
-					/*current_y + yTransl+1000*world_camera_direction.getY()*/treesS_y, 
-					current_z + zTransl);
+		for (SoNode nodeForX : douglasTreesSF.getChildren()) {
+			SoLODGroup sepForX = (SoLODGroup) nodeForX;
+			sepForX.referencePoint.setValue(treesS_x,treesS_y,current_z + zTransl);
+//			for( SoNode node : sepForX.getChildren()) {
+//			SoLODIndexedFaceSet lifs = (SoLODIndexedFaceSet) node;
+//			lifs.referencePoint.setValue(
+//					/*current_x + xTransl+1000*world_camera_direction.getX()*/treesS_x, 
+//					/*current_y + yTransl+1000*world_camera_direction.getY()*/treesS_y, 
+//					current_z + zTransl);
+//			}
 		}
 				
 	}
@@ -1110,22 +1144,22 @@ for(int is=0;is<4;is++) {
 		
 	}
 		
-	SoGroup getDouglasTreesT(float distance) {
+	SoGroup getDouglasTreesT(SbVec3f refPoint, float distance) {
 		
 		if( forest == null) {
 			computeDouglas();
 		}
 		
-		return forest.getDouglasTreesT(distance);			
+		return forest.getDouglasTreesT(refPoint, distance);			
 	}	
 	
-	SoGroup getDouglasTreesF(float distance, boolean withColors) {
+	SoGroup getDouglasTreesF(SbVec3f refPoint, float distance, boolean withColors) {
 		
 		if( forest == null) {
 			computeDouglas();
 		}
 		
-		return forest.getDouglasTreesF(distance, withColors);			
+		return forest.getDouglasTreesF(refPoint, distance, withColors);			
 	}	
 	
 	static Random random = new Random(42);

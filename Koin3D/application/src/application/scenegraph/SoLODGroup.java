@@ -6,32 +6,24 @@ package application.scenegraph;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
-import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
+import jscenegraph.database.inventor.nodes.SoGroup;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
+public class SoLODGroup extends SoGroup {
 
-	private final SbVec3f referencePoint;
+	public final SbVec3f referencePoint = new SbVec3f();
 	
 	public float maxDistance;
 	
-	private final SbBox3f box = new SbBox3f();
-	
-	private final SbVec3f center = new SbVec3f();
+	public final SbBox3f box = new SbBox3f();
 	
 	private final SbVec3f dummy = new SbVec3f(); //SINGLE_THREAD
 	
-	public SoLODIndexedFaceSet(SbVec3f referencePoint) {
-		this.referencePoint = referencePoint;
-	}
-	
 	public void GLRender(SoGLRenderAction action)
 	{		
-		getBBox(action, box, center);
-		
 		if( box.intersect(referencePoint)) {		
 			super.GLRender(action);
 		}
@@ -41,6 +33,12 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 			if( closestPoint.operator_minus(referencePoint,dummy).length() <= maxDistance ) {
 				super.GLRender(action);				
 			}
+//			else {
+//				closestPoint = box.getClosestPoint(referencePoint);
+//				closestPoint.operator_minus(referencePoint,dummy);
+//				int i=0;
+//			}
 		}
-	}			
+	}
+					
 }
