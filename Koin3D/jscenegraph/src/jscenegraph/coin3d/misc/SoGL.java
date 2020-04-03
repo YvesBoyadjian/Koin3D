@@ -20,6 +20,7 @@ import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.errors.DebugError;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
+import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.bundles.SoTextureCoordinateBundle;
@@ -69,7 +70,7 @@ public class SoGL {
 public static cc_glglue 
 sogl_glue_instance( SoState  state)
 {
-  SoGLRenderAction  action = (SoGLRenderAction )state.getAction();
+  /*SoGLRenderAction*/SoAction  action = /*(SoGLRenderAction )*/state.getAction();
   // FIXME: disabled until we figure out why this doesn't work on some
   // Linux systems (gcc 3.2 systems, it seems). pederb, 2003-11-24
 //#if 0
@@ -77,8 +78,8 @@ sogl_glue_instance( SoState  state)
 //         "must have state from SoGLRenderAction to get hold of GL wrapper");
 //  return cc_glglue_instance(action.getCacheContext());
 //#else // disabled
-  if (action.isOfType(SoGLRenderAction.getClassTypeId())) {
-    return cc_glglue_instance(action.getCacheContext());
+  if (action/*.isOfType(SoGLRenderAction.getClassTypeId())*/ instanceof SoGLRenderAction) {
+    return cc_glglue_instance(((SoGLRenderAction)action).getCacheContext());
   }
   if (didwarn == 0) {
     didwarn = 1;
