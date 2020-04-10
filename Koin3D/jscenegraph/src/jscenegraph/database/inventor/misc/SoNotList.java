@@ -117,7 +117,7 @@ public class SoNotList implements Mutable {
 		   first = rec;
 		  
 		   if (firstAtNode == null &&
-		   rec.getBase().isOfType(SoNode.getClassTypeId()))
+		   rec.getBase() instanceof /*.isOfType(*/SoNode/*.getClassTypeId())*/)
 		   firstAtNode = rec;
 	}
 	

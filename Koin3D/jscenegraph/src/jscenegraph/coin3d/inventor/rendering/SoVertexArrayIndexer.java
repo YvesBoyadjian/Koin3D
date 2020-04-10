@@ -102,6 +102,12 @@ public class SoVertexArrayIndexer implements Destroyable {
 	{
 	  Destroyable.delete( this.vbo);
 	  Destroyable.delete( this.next);
+	  vbo = null;
+	  next = null;
+	  
+	  countarray.destructor();
+	  ciarray.destructor();
+	  indexarray.destructor(); indexarray = null;
 	}
 
 	public void 

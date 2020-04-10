@@ -405,9 +405,9 @@ private static float
 minExtreme(final SbVec3f min, final SbVec3f max, final
            SbMatrix MVP, int whichCoord) {
     return
-        (MVP.getValue()[0][whichCoord]>0.0f ? min.getValueRead()[0] : max.getValueRead()[0])*MVP.getValue()[0][whichCoord] +
-        (MVP.getValue()[1][whichCoord]>0.0f ? min.getValueRead()[1] : max.getValueRead()[1])*MVP.getValue()[1][whichCoord] +
-        (MVP.getValue()[2][whichCoord]>0.0f ? min.getValueRead()[2] : max.getValueRead()[2])*MVP.getValue()[2][whichCoord] +
+        (MVP.getValue()[0][whichCoord]>0.0f ? min.getX() : max.getX())*MVP.getValue()[0][whichCoord] +
+        (MVP.getValue()[1][whichCoord]>0.0f ? min.getY() : max.getY())*MVP.getValue()[1][whichCoord] +
+        (MVP.getValue()[2][whichCoord]>0.0f ? min.getZ() : max.getZ())*MVP.getValue()[2][whichCoord] +
         MVP.getValue()[3][whichCoord];
 }
 

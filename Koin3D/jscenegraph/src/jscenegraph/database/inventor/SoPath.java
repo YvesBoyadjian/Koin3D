@@ -55,6 +55,7 @@
 
 package jscenegraph.database.inventor;
 
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SoType.CreateMethod;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoBase;
@@ -115,7 +116,7 @@ public class SoPath extends SoBase implements Destroyable {
 	
 	protected static class SoPathImpl {
 		public final SoNodeList nodes = new SoNodeList(); //!< Pointers to nodes
-		public final SbIntList indices = new SbIntList(); //!< Child indices
+		public final SbListInt indices = new SbListInt(); //!< Child indices
 		private int numPublic; //!< How many children are public
 		private int minNumPublic; //!< Minimum we KNOW are public
 		private boolean doAuditors; //!< TRUE if auditors to be maintained

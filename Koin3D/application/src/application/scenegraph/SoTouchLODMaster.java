@@ -5,6 +5,7 @@ package application.scenegraph;
 
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoCamera;
+import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 
 /**
@@ -20,9 +21,16 @@ public class SoTouchLODMaster extends SoNode {
 	private SoCamera camera;
 	
 	private boolean firstRender = true;
+	
+	private String name;
+	
+	public SoTouchLODMaster(String name) {
+		this.name = name;
+	}
 
 	private void reset() {
 		counter = firstRender ? -9999 : 0;
+		SoRecursiveIndexedFaceSet.nbDoLoad = firstRender ? -999999 : -2;
 	}
 	
 	public void increment() {
@@ -41,6 +49,9 @@ public class SoTouchLODMaster extends SoNode {
 		
 		reset();
 		super.GLRender(action);
+		
+//		if( SoRecursiveIndexedFaceSet.nbDoLoad != 0)
+//		System.out.println(name+" : nbLoad : "+SoRecursiveIndexedFaceSet.nbDoLoad);
 		
 		if(firstRender) {
 			firstRender = false;

@@ -81,6 +81,8 @@ public class DouglasForest {
 			float averageGreen = DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER.getY();
 			float averageBlue = DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER.getZ();
 			
+			final float nan = Float.NaN;
+			
 			for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
 				float x = getRandomX(randomPlacementTrees);
 				float y = getRandomY(randomPlacementTrees);
@@ -137,6 +139,9 @@ public class DouglasForest {
 					randomColorMultiplierTree[i] = dummyColor.getPackedValue();
 					
 					nbDouglas++;
+				}
+				else {
+					xArray[i] = nan;					
 				}
 			}
 			//saveDouglas(); no increase of performance
@@ -304,6 +309,10 @@ public class DouglasForest {
 			float x = xArray[tree];
 			float y = yArray[tree];
 			
+			if(Float.isNaN(x)) {
+				continue;
+			}
+			
 			xy.setValue(x, y, 0.0f);
 			
 			int nbChunksX = douglasChunks.size(); 
@@ -335,7 +344,15 @@ public class DouglasForest {
 	}
 
 	public SoGroup getDouglasTreesT(SbVec3f refPoint, float distance) {
-		SoGroup separator = new SoGroup();
+		final int[] counting = new int[2]; 
+		
+		SoGroup separator = new SoGroup() {
+			public void GLRender(SoGLRenderAction action)
+			{
+				counting[0] = 0;
+				super.GLRender(action);
+			}			
+		};
 		
 		for( List<DouglasChunk> chunkListForX : douglasChunks ) {
 			SoLODGroup separatorForX = new SoLODGroup();
@@ -358,7 +375,7 @@ public class DouglasForest {
 					finalCenter.setValue(centerV);
 				}
 				
-				SoLODIndexedFaceSet indexedFaceSetT = new SoLODIndexedFaceSet(refPoint) {
+				SoLODIndexedFaceSet indexedFaceSetT = new SoLODIndexedFaceSet(refPoint,chunk,SoLODIndexedFaceSet.Type.TRUNK, counting) {
 					public void GLRender(SoGLRenderAction action)
 					{
 						super.GLRender(action);
@@ -371,21 +388,7 @@ public class DouglasForest {
 					}
 				};
 				
-				indexedFaceSetT.coordIndex.setValuesPointer(chunk.douglasIndicesT);
-				
-				SoVertexProperty vertexProperty = new SoVertexProperty();
-				
-				vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesT);
-				
-				vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-				
-				vertexProperty.normal.setValuesPointer(chunk.douglasNormalsT);
-				
-				vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-				
-				vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsT);
-				
-				indexedFaceSetT.vertexProperty.setValue(vertexProperty);
+				indexedFaceSetT.loadTrunk();
 				
 				indexedFaceSetT.maxDistance = distance;
 				
@@ -401,7 +404,15 @@ public class DouglasForest {
 	}
 
 	public SoGroup getDouglasTreesF(SbVec3f refPoint, float distance, boolean withColors) {
-		SoGroup separator = new SoGroup();
+		final int[] counting = new int[2]; 
+		
+		SoGroup separator = new SoGroup() {
+			public void GLRender(SoGLRenderAction action)
+			{
+				counting[0] = 0;
+				super.GLRender(action);
+			}			
+		};
 		
 		for( List<DouglasChunk> chunkListForX : douglasChunks ) {
 			SoLODGroup separatorForX = new SoLODGroup();
@@ -423,7 +434,7 @@ public class DouglasForest {
 						finalCenter.setValue(centerV);
 					}
 					
-				SoLODIndexedFaceSet indexedFaceSetF = new SoLODIndexedFaceSet(refPoint) {
+				SoLODIndexedFaceSet indexedFaceSetF = new SoLODIndexedFaceSet(refPoint, chunk,SoLODIndexedFaceSet.Type.FOLIAGE, counting) {
 					public void GLRender(SoGLRenderAction action)
 					{
 						super.GLRender(action);
@@ -436,26 +447,7 @@ public class DouglasForest {
 					}
 				};
 				
-				indexedFaceSetF.coordIndex.setValuesPointer(chunk.douglasIndicesF);
-				
-				SoVertexProperty vertexProperty = new SoVertexProperty();
-				
-				vertexProperty.vertex.setValuesPointer(chunk.douglasVerticesF);
-				
-				vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-				
-				vertexProperty.normal.setValuesPointer(chunk.douglasNormalsF);
-				
-				if(withColors) {
-					vertexProperty.texCoord.setValuesPointer(chunk.douglasTexCoordsF);
-					vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-					vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsF);
-				}
-				else {
-					vertexProperty.orderedRGBA.setValue(DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER/*SbColor(1,0.0f,0.0f)*/.getPackedValue());
-				}
-				
-				indexedFaceSetF.vertexProperty.setValue(vertexProperty);
+				indexedFaceSetF.loadFoliage();
 				
 				indexedFaceSetF.maxDistance = distance;
 				

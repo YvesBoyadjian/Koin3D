@@ -228,9 +228,9 @@ public class SbViewVolume implements Mutable {
 		skewMat[1][2] = up[2] / height;
 		skewMat[1][3] = 0;
 
-		skewMat[2][0] = -projDir.getValueRead()[0];
-		skewMat[2][1] = -projDir.getValueRead()[1];
-		skewMat[2][2] = -projDir.getValueRead()[2];
+		skewMat[2][0] = -projDir.getX();
+		skewMat[2][1] = -projDir.getY();
+		skewMat[2][2] = -projDir.getZ();
 		skewMat[2][3] = 0;
 
 		skewMat[3][0] = 0;
@@ -261,11 +261,11 @@ public class SbViewVolume implements Mutable {
 		projM.copyFrom(SbMatrix.identity());
 
 		// Convenient stuff for building the projection matrices
-		float rightMinusLeft = lrfEye.getValueRead()[0] - llfEye.getValueRead()[0];
-		float rightPlusLeft = lrfEye.getValueRead()[0] + llfEye.getValueRead()[0];
+		float rightMinusLeft = lrfEye.getX() - llfEye.getX();
+		float rightPlusLeft = lrfEye.getX() + llfEye.getX();
 
-		float topMinusBottom = ulfEye.getValueRead()[1] - llfEye.getValueRead()[1];
-		float topPlusBottom = ulfEye.getValueRead()[1] + llfEye.getValueRead()[1];
+		float topMinusBottom = ulfEye.getY() - llfEye.getY();
+		float topPlusBottom = ulfEye.getY() + llfEye.getY();
 
 		final float farMinusNear = nearToFar;
 		float far1 = nearDist + nearToFar;
@@ -1729,8 +1729,8 @@ public class SbViewVolume implements Mutable {
 	  //SbVec3f vvpts[8];
 	    final Array<SbVec3f> vvpts = new Array<>(SbVec3f.class,new SbVec3f[8]);
 	  /*final SbBox3f */commonVolume.constructor();/* = new SbBox3f()*/;
-	  final SbVec3f bmin = new SbVec3f(box.getMin());
-	  final SbVec3f bmax = new SbVec3f(box.getMax());
+	  final SbVec3fSingle bmin = new SbVec3fSingle(box.getMin());
+	  final SbVec3fSingle bmax = new SbVec3fSingle(box.getMax());
 	  //SbPlane planes[6];
 	    final Array<SbPlane> planes = new Array<>(SbPlane.class,new SbPlane[6]);
 
@@ -1750,9 +1750,9 @@ public class SbViewVolume implements Mutable {
 	  this.getViewVolumePlanes(planes);
 	  int inside = 0;
 	  for (i = 0; i < 8; i++) {
-	    final SbVec3f pt = new SbVec3f((i&1)!=0?bmin.getValueRead()[0]:bmax.getValueRead()[0],
-	               (i&2)!=0?bmin.getValueRead()[1]:bmax.getValueRead()[1],
-	               (i&4)!=0?bmin.getValueRead()[2]:bmax.getValueRead()[2]);
+	    final SbVec3f pt = new SbVec3f((i&1)!=0?bmin.getX():bmax.getX(),
+	               (i&2)!=0?bmin.getY():bmax.getY(),
+	               (i&4)!=0?bmin.getZ():bmax.getZ());
 	    int j;
 	    for (j = 0; j < 6; j++) {
 	      if (!planes.get(j).isInHalfSpace(pt)) break;
@@ -1774,7 +1774,7 @@ public class SbViewVolume implements Mutable {
 	    int dim = i/2;
 	    final SbVec3f n = new SbVec3f(0.0f, 0.0f, 0.0f);
 	    n.setValue(dim, (i&1)!=0 ? 1.0f : -1.0f);
-	    planes.get(i).copyFrom( new SbPlane(n, ((i&1)!=0 ? bmin.getValueRead()[dim] : -bmax.getValueRead()[dim])));
+	    planes.get(i).copyFrom( new SbPlane(n, ((i&1)!=0 ? bmin.getValue()[dim] : -bmax.getValue()[dim])));
 	  }
 
 	  // clip view volume polygons against the bbox planes

@@ -99,6 +99,9 @@ public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
 
 	public void truncate(int length) {
 		int dofit = 0;
+		  for(int i=length;i<numitems;i++) {
+			  itembuffer[i] = null;
+		  }
 	    this.numitems = length;
 	    if (dofit!=0) this.fit();
 	}
@@ -124,6 +127,7 @@ public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
 	    this.numitems--;
 	    for (int i = index; i < this.numitems; i++)
 	      this.itembuffer[i] = this.itembuffer[i + 1];
+	    this.itembuffer[numitems] = null; // java port
 	}
 
 	public int find(T item) {
@@ -134,6 +138,7 @@ public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
 
 	public void removeFast(int index) {
 	    this.itembuffer[index] = this.itembuffer[--this.numitems];
+	    this.itembuffer[numitems] = null; // java port
 	}
 
 	public void append(T item) {
@@ -202,6 +207,9 @@ public void truncate( int length, int dofit /*= 0*/) {
 //#ifdef COIN_EXTRA_DEBUG
   assert(length <= this.numitems);
 //#endif // COIN_EXTRA_DEBUG
+  for(int i=length;i<numitems;i++) {
+	  itembuffer[i] = null;
+  }
   this.numitems = length;
   if (dofit != 0) this.fit();
 }

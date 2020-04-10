@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryStack;
 
 import com.jogamp.opengl.GL2;
 
@@ -293,7 +294,10 @@ isValid( SoGLShaderObject  shader,
   /*GLenum*/final int[] tmpType = new int[1];
   /*GLsizei*/final int[] length = new int[1];
   /*COIN_GLchar*///byte[] myName = new byte[256];
-	ByteBuffer myName = BufferUtils.createByteBuffer(256);
+  
+  MemoryStack stack = MemoryStack.stackPush();
+  
+	ByteBuffer myName = stack.malloc(256);//BufferUtils.createByteBuffer(256);
   
   this.cacheName = name;
   this.isActive = false; // set uniform to inactive while searching
@@ -321,6 +325,9 @@ isValid( SoGLShaderObject  shader,
       break;
     }
   }
+  
+  stack.close();
+  
   if (!this.isActive) {
     // not critical, but warn user so they can remove the unused parameter
 //#if COIN_DEBUG

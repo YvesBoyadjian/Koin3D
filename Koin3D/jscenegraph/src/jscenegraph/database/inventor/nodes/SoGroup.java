@@ -483,13 +483,14 @@ callback(SoCallbackAction action)
 
 static boolean chkglerr = SoGL.sogl_glerror_debugging();
 
+private final int[] numindices = new int[1];
+private final int[][] indices = new int[1][];
+
 public void
 GLRender(SoGLRenderAction action)
 
 ////////////////////////////////////////////////////////////////////////
 {
-    final int[] numindices = new int[1];
-    final int[][] indices = new int[1][];
     SoAction.PathCode pathcode = action.getPathCode(numindices, indices);
 
 //    // Perform fast-path GLRender traversal:

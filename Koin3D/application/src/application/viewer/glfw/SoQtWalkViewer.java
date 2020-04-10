@@ -495,8 +495,6 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	
     	if(lastFrameTime < 0) {
     		lastFrameTime++;
-//    	    System.gc();
-//    	    System.runFinalization();
     	}
     	if(lastFrameTime == 0) {
     		lastFrameTime = System.nanoTime();

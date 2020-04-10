@@ -8,6 +8,8 @@ import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
 import jscenegraph.database.inventor.misc.SoState;
@@ -15,6 +17,7 @@ import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoSeparator;
 
 /**
  * @author Yves Boyadjian
@@ -26,7 +29,13 @@ public class SoTouchLOD2 extends SoLOD {
 	
 	public static final int MOST_DETAILED = 0;
 
+	public static final int LEAST_DETAILED = 1;
+
 	private int previousChild = -1;
+	
+	private int currentVisible = -1;
+	
+	private boolean cleared = true;
 	
 	private SoTouchLODMaster master;
 	
@@ -34,7 +43,114 @@ public class SoTouchLOD2 extends SoLOD {
 		this.master = master;
 	}
 	
-	public static final int MAX_CHANGE = 1;
+//	public static final int MAX_CHANGE = 9999;
+	
+	public void
+	GLRenderBelowPath(SoGLRenderAction action)
+	{
+		  int idx = this.whichToTraverse(action);
+		  
+//		  int wanted_idx = idx;
+		  
+	    SoRecursiveIndexedFaceSet least_detailed = (SoRecursiveIndexedFaceSet) this.children.get(LEAST_DETAILED);
+	    
+		  boolean leastDetailedWasCleared = false;
+		  if(idx == MOST_DETAILED) {
+			    if(least_detailed.cleared) {
+			    	idx = LEAST_DETAILED;
+			    	leastDetailedWasCleared = true;
+			    }
+		  }
+		  
+		  if (idx >= 0) {
+		    SoNode child = (SoNode) this.children.get(idx);
+		    action.pushCurPath(idx, child);
+		    if (!action.abortNow()) {
+		      //SoNodeProfiling profiling; TODO
+		      //profiling.preTraversal(action);
+		      child.GLRenderBelowPath(action);
+		      //profiling.postTraversal(action);
+		    }
+		    action.popCurPath();
+		    
+		    currentVisible = idx;
+		  
+			  if(/*idx == MOST_DETAILED*/!least_detailed.cleared) {
+			  int other_idx = 1 -idx;
+				  if(leastDetailedWasCleared || !all_children_have_been_loaded(child,action, 0)) {
+					    SoNode otherChild = (SoNode) this.children.get(other_idx);	
+					    action.pushCurPath(other_idx, otherChild);
+					    if (!action.abortNow()) {
+					      //SoNodeProfiling profiling; TODO
+					      //profiling.preTraversal(action);
+					    	otherChild.GLRenderBelowPath(action);
+					      //profiling.postTraversal(action);
+					    }
+					    action.popCurPath();				  
+						  if( !all_children_have_been_loaded(otherChild,action, 0)) {
+							  currentVisible = -1;
+						  }
+						  else
+					    currentVisible = other_idx;
+				  }
+				  else {
+					  if(other_idx == MOST_DETAILED) {
+//						  if(wanted_idx == MOST_DETAILED) {
+//							  int ii=0;
+//						  }
+//						  else {
+							SoNode node = getChild(MOST_DETAILED);
+							clearTree(node);
+//						  }
+					  }
+				  }
+			  }
+		  }
+		  
+		    if(!least_detailed.cleared) {
+		    	cleared = false;
+		    }
+		    else if( currentVisible == LEAST_DETAILED) {
+		    	currentVisible = -1;
+		    }
+		    
+		    
+		  // don't auto cache LOD nodes.
+		  SoGLCacheContextElement.shouldAutoCache(action.getState(),
+		                                           SoGLCacheContextElement.AutoCache.DONT_AUTO_CACHE.getValue());
+	}
+	
+	public boolean all_children_have_been_loaded(SoNode child, SoAction action, int depth) {
+		
+//		if(depth > 2) {
+//			return false;
+//		}
+		
+		if( child instanceof SoTouchLOD2) {
+			SoTouchLOD2 tl2 = (SoTouchLOD2)child;
+			int visible = tl2.currentVisible;
+			if( visible == -1 ) {
+				return false;
+			}
+			return all_children_have_been_loaded(tl2.getChild(LEAST_DETAILED),action, depth+1);
+		}
+		else if(child instanceof SoGroup) {
+			SoGroup subChunkGroup = (SoGroup)child;
+			for(int i=0;i<4;i++) {
+				if( ! all_children_have_been_loaded(subChunkGroup.getChild(i),action, depth+1)) {
+					return false;
+				}				
+			}
+			return true;
+		}
+		else if(child instanceof SoRecursiveIndexedFaceSet) {
+			SoRecursiveIndexedFaceSet ifs = (SoRecursiveIndexedFaceSet)child;
+			return !ifs.cleared;
+		}
+		else {
+			throw new IllegalStateException();
+		}
+	}
 	
 	protected int
 	whichToTraverse(SoAction action)
@@ -42,50 +158,84 @@ public class SoTouchLOD2 extends SoLOD {
 		// 0 is the most detailed
 		// 1 is the least detailed
 		
-		int newChild = do_whichToTraverse(action);
+		int wantedChild = do_whichToTraverse(action);
 		//if(previousChild == MOST_DETAILED) {
-		if(newChild == previousChild) {
-			return newChild;
+		if(wantedChild == previousChild) {
+//			if (getChild(wantedChild) instanceof SoSeparatorWithDirty) {
+//				SoSeparatorWithDirty sepwd = (SoSeparatorWithDirty)getChild(wantedChild);
+//				sepwd.dirty = true;
+//			}
+			return wantedChild;
 		}
-		if(newChild == MOST_DETAILED) {
-			if(master.getCount() >= MAX_CHANGE) {
-				if(previousChild == -1) {
-					newChild = getNumChildren() - 1;
-				}
-				else {
-					newChild = previousChild; // Changing canceled
-				}
-			}
-			else {
-				master.increment(); // Changing accepted 
-			}
-		}
+//		if(wantedChild == MOST_DETAILED) {
+//			if(master.getCount() >= MAX_CHANGE) {
+//				if(previousChild == -1) {
+//					wantedChild = getNumChildren() - 1;
+//				}
+//				else {
+//					wantedChild = previousChild; // Changing canceled
+//				}
+//			}
+//			else {
+//				master.increment(); // Changing accepted 
+//			}
+//		}
 		//System.out.println("SoTouchLOD2");
 		//long start = System.nanoTime();
-		if(previousChild != -1) {
-			SoNode node = getChild(previousChild);
-			clearTree(node);
-		}
+//		if(previousChild != -1 && wantedChild != previousChild) {
+//			SoNode node = getChild(previousChild);
+//			clearTree(node);
+//		}
 		//long stop = System.nanoTime();
 		//System.out.println("SoTouchLOD2 " + (stop - start)+" ns");				
-		previousChild = newChild;
-		return newChild;
+		previousChild = wantedChild;
+//		if (getChild(wantedChild) instanceof SoSeparatorWithDirty) {
+//			SoSeparatorWithDirty sepwd = (SoSeparatorWithDirty)getChild(wantedChild);
+//			sepwd.dirty = true;
+//		}
+		return wantedChild;
 	}
 
-	public static void clearTree(SoNode node) {
+	public static boolean clearTree(SoNode node) {
 		
 		if(node instanceof SoRecursiveIndexedFaceSet) {
 			
 			SoRecursiveIndexedFaceSet SoIndexedFaceSet = (SoRecursiveIndexedFaceSet)node;
-			SoIndexedFaceSet.clear();
+			//SoIndexedFaceSet.clear();
+			//builder.append(depth+" ");
+			return SoIndexedFaceSet.clear();
 		}
+		else if( node instanceof SoTouchLOD2){
+			SoTouchLOD2 group = (SoTouchLOD2) node;
+			if(!group.cleared) {
+				int nbChilds = group.getNumChildren();
+				for( int i=0; i<nbChilds; i++) {
+					if(clearTree( group.getChild(i))) {
+						return true;
+					}
+				}		
+				group.cleared = true;
+				return false;
+			}
+			return false;
+		}			
 		else if( node.isOfType(SoGroup.getClassTypeId())){
 			SoGroup group = (SoGroup) node;
 			int nbChilds = group.getNumChildren();
 			for( int i=0; i<nbChilds; i++) {
-				clearTree( group.getChild(i) );
+				if( clearTree( group.getChild(i))) {
+					return true;
+				}
 			}				
-		}				
+			return false;
+		}
+		else {
+			throw new IllegalStateException();
+		}
+//		if (node instanceof SoSeparatorWithDirty) {
+//			SoSeparatorWithDirty sepwd = (SoSeparatorWithDirty)node;
+//			sepwd.dirty = true;
+//		}
 	}
 
 	/*!
@@ -106,7 +256,11 @@ public class SoTouchLOD2 extends SoLOD {
 
 	  float dist = (vv.getProjectionPoint().operator_minus( worldcenter)).length();
 	  
-	  SoRecursiveIndexedFaceSet SoRecursiveIndexedFaceSet = (SoRecursiveIndexedFaceSet)getChild(1);
+	  SoNode node = getChild(1);
+	  if(node instanceof SoGroup) {
+		  node = ((SoGroup)node).getChild(0);
+	  }
+	  SoRecursiveIndexedFaceSet SoRecursiveIndexedFaceSet = (SoRecursiveIndexedFaceSet)node;
 	  
 	  RecursiveChunk rc = SoRecursiveIndexedFaceSet.recursiveChunk;
 	  

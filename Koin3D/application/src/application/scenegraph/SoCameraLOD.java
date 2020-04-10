@@ -313,7 +313,11 @@ whichToTraverse(SoAction action)
 
   float dist = (/*vv.getProjectionPoint()*/world_camera_position.operator_minus( worldcenter)).length();
   
-  SoRecursiveIndexedFaceSet SoRecursiveIndexedFaceSet = (SoRecursiveIndexedFaceSet)getChild(1);
+  SoNode node = getChild(1);
+  if(node instanceof SoGroup) {
+	  node = ((SoGroup)node).getChild(0);
+  }
+  SoRecursiveIndexedFaceSet SoRecursiveIndexedFaceSet = (SoRecursiveIndexedFaceSet)node;
   
   RecursiveChunk rc = SoRecursiveIndexedFaceSet.recursiveChunk;
   

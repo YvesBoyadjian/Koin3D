@@ -39,6 +39,10 @@ public class Chunk {
 	
 	private int chunkWidth;
 	
+	private int chunkI;
+	
+	private int chunkJ;
+	
 	private float delta_x;
 	private float delta_y;
 	private float x0;
@@ -59,6 +63,22 @@ public class Chunk {
 	public Chunk(String chunkId, int chunkWidth) {
 		this.chunkId = chunkId;
 		this.chunkWidth = chunkWidth;
+	}
+	
+	public int getChunkI() {
+		return chunkI;
+	}
+
+	public int getChunkJ() {
+		return chunkJ;
+	}
+
+	public void setChunkI(int chunki) {
+		chunkI = chunki;
+	}
+
+	public void setChunkJ(int chunkj) {
+		chunkJ = chunkj;
 	}
 
 	public void initArrays() {

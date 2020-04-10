@@ -117,7 +117,10 @@ public class SoShadowLightCache implements Destroyable {
     while (!SoGL.coin_glglue_is_texture_size_legal(glue, maxsize, maxsize, 0, internalformat, format, type, true)) {
       maxsize >>= 1;
     }
-    int TEXSIZE = Tidbits.coin_geq_power_of_two((int) (sg.precision.getValue() * Math.min(maxsize, maxtexsize)));
+    
+    // YB : no more need to have a power of two size in modern opengl
+    
+    int TEXSIZE = /*Tidbits.coin_geq_power_of_two(*/(int) (sg.precision.getValue() * Math.min(maxsize, maxtexsize))/*)*/;
 
     this.lightid = -1;
     this.vsm_program = null;

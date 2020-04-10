@@ -18,11 +18,15 @@ import javax.imageio.ImageIO;
 
 import com.jogamp.opengl.GL2;
 
+import application.nodes.SoAbort;
 import application.nodes.SoNoSpecularDirectionalLight;
+import application.nodes.SoSeal;
+import application.nodes.SoSeals;
 import application.objects.DouglasFir;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
+import jscenegraph.coin3d.inventor.SbBSPTree;
 import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLBillboard;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
@@ -109,6 +113,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	static final int DOUGLAS_DISTANCE_SHADOW = 3000;
 	
+	static final boolean WITH_DOUGLAS = true;
+	
 	private SoSeparator sep = new SoSeparator() {
 		public void ref() {
 			super.ref();
@@ -178,6 +184,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	SoTouchLODMaster master;
 	SoTouchLODMaster masterS;
+	
+	final SbBSPTree sealsBSPTree = new SbBSPTree();
+	
+	final SbVec3f sealsRefPoint = new SbVec3f();
 	
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
@@ -377,7 +387,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    	}
 	    });
 	    
+	    sep.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    sep.addChild(callback);
+	    
+	    //sep.addChild(new SoAbort());
 	    
 	    SoEnvironment environment = new SoEnvironment();
 	    environment.ambientColor.setValue(0, 0, 0);
@@ -455,6 +468,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 				super.unref();
 			}
 		};
+		shadowGroup.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    shadowGroup.quality.setValue(1.0f);
 	    shadowGroup.precision.setValue(0.2f);
 	    shadowGroup.intensity.setValue(1.0f);
@@ -527,7 +541,7 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    master = new SoTouchLODMaster();
+	    master = new SoTouchLODMaster("viewer");
 	    
 	    landSep.addChild(master);
 	    
@@ -537,7 +551,7 @@ for(int is=0;is<4;is++) {
 		shadowGroup.addChild(landSep);
 		
 	    SoSeparator douglasSep = new SoSeparator();
-	    //douglasSep.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
+	    douglasSep.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    
 	    shapeHints = new SoShapeHints();
 	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);
@@ -599,7 +613,7 @@ for(int is=0;is<4;is++) {
 		douglasTreesT = getDouglasTreesT(douglasTreesRefPoint,DOUGLAS_DISTANCE);
 		
 	    SoSeparator douglasSepF = new SoSeparator();
-	    //douglasSepF.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
+	    douglasSepF.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    
 		douglasSep.addChild(douglasTreesT);
 		
@@ -611,17 +625,10 @@ for(int is=0;is<4;is++) {
 		
 		douglasSep.addChild(douglasSepF);
 		
-		shadowGroup.addChild(douglasSep);
+		if(WITH_DOUGLAS)
+			shadowGroup.addChild(douglasSep);
 		
-		SoSeparator sealsSeparator = new SoSeparator() {
-		public void
-		GLRenderBelowPath(SoGLRenderAction action)
-
-		////////////////////////////////////////////////////////////////////////
-		{
-			super.GLRenderBelowPath(action);
-		}
-		
+		SoSeals sealsSeparator = new SoSeals() {
 		public void notify(SoNotList list) {
 			super.notify(list);
 		}
@@ -646,13 +653,17 @@ for(int is=0;is<4;is++) {
 		
 		final float[] vector = new float[3];
 		
+		final SbVec3f sealPosition = new SbVec3f();
+		
 		for( int seal = 0; seal < seals.getNbSeals(); seal++) {
-			SoSeparator sealSeparator = new SoSeparator();
+			SoSeal sealSeparator = new SoSeal();
 			//sealSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 			
 			SoTranslation sealTranslation = new SoTranslation();
 			
-			sealTranslation.translation.setValue(seals.getSeal(seal,vector));
+			sealPosition.setValue(seals.getSeal(seal,vector));
+			
+			sealTranslation.translation.setValue(/*seals.getSeal(seal,vector)*/sealPosition);
 			
 			sealSeparator.addChild(sealTranslation);
 			
@@ -667,6 +678,9 @@ for(int is=0;is<4;is++) {
 			
 			sealSeparator.addChild(billboard);
 			
+			//int sealIndex = sealsBSPTree.addPoint(sealPosition, sealSeparator);
+			//sealSeparator.setSealIndex(sealIndex);
+			sealSeparator.setReferencePoint(sealsRefPoint);
 			sealsSeparator.addChild(sealSeparator);
 		}
 		
@@ -682,6 +696,7 @@ for(int is=0;is<4;is++) {
 		sep.addChild(shadowGroup);
 		
 		SoSeparator castingShadowScene = new SoSeparator();
+		castingShadowScene.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 		
 		addWaterShadow(castingShadowScene, 150 + zTranslation,0.0f, false,false);
 		//addWater(castingShadowScene,150 + zTranslation,0.0f, false,true);
@@ -702,11 +717,11 @@ for(int is=0;is<4;is++) {
 	    
 	    //RecursiveChunk rcS = chunks.getRecursiveChunk();
 	    
-	    masterS = new SoTouchLODMaster();
+	    masterS = new SoTouchLODMaster("shadow");
 	    
 	    shadowLandSep.addChild(masterS);
 	    
-	    shadowTree = rc.getShadowGroup(masterS,LEVEL_OF_DETAIL_SHADOW,false);
+	    shadowTree = rc.getShadowGroup(master/*S*/,LEVEL_OF_DETAIL_SHADOW,false);
 	    shadowLandSep.addChild(shadowTree);
 	    
 	    //shadowLandSep.addChild(chunks.getShadowGroup());
@@ -714,6 +729,7 @@ for(int is=0;is<4;is++) {
 		castingShadowScene.addChild(shadowLandSep);
 		
 	    SoSeparator douglasSepS = new SoSeparator();
+	    douglasSepS.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    
 	    shapeHints = new SoShapeHints();
 	    shapeHints.shapeType.setValue(SoShapeHints.ShapeType.SOLID);
@@ -730,7 +746,8 @@ for(int is=0;is<4;is++) {
 		
 		douglasSepS.addChild(douglasTreesSF);
 		
-		castingShadowScene.addChild(douglasSepS);
+		if(WITH_DOUGLAS)
+			castingShadowScene.addChild(douglasSepS);
 		
 		sun[0].shadowMapScene.setValue(castingShadowScene);
 		sun[1].shadowMapScene.setValue(castingShadowScene);
@@ -986,7 +1003,11 @@ for(int is=0;is<4;is++) {
 //					current_z + zTransl);
 //			}
 		}
-				
+		
+		float seals_x = current_x + xTransl+SoSeal.MAX_DISTANCE*world_camera_direction.getX()*0.8f;
+		float seals_y = current_y + yTransl+SoSeal.MAX_DISTANCE*world_camera_direction.getY()*0.8f;
+		
+		sealsRefPoint.setValue(seals_x,seals_y,current_z + zTransl);
 	}
 	
 	public int[] getIndexes(float x, float y, int[] indices) {
@@ -1183,7 +1204,7 @@ for(int is=0;is<4;is++) {
 	public void setCamera(SoCamera camera) {
 		this.camera = camera;
 	    master.setCamera(camera);	
-	    masterS.setCamera(camera);
+	    //masterS.setCamera(camera);
 		RecursiveChunk.setCamera(chunkTree, camera);
 		RecursiveChunk.setCamera(shadowTree, camera);		
 	}

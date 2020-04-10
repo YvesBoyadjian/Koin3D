@@ -400,7 +400,7 @@ for(int is=0;is<4;is++) {
 	    
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
-	    master = new SoTouchLODMaster(); 
+	    master = new SoTouchLODMaster("truc"); 
 	    
 	    landSep.addChild(master);
 	    

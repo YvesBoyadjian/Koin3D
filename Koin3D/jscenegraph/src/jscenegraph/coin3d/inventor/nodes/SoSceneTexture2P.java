@@ -367,9 +367,9 @@ public class SoSceneTexture2P implements Destroyable {
 		    if (size.operator_equal_equal(new SbVec2s((short)0,(short)0))) return;
 
 		    // FIXME: temporary until non power of two textures are supported,
-		    // pederb 2003-12-05
-		    size.getValue()[0] = (short) Tidbits.coin_geq_power_of_two(size.getValue()[0]);
-		    size.getValue()[1] = (short) Tidbits.coin_geq_power_of_two(size.getValue()[1]);
+		    // pederb 2003-12-05 YB
+		    size.getValue()[0] = (short) /*Tidbits.coin_geq_power_of_two(*/size.getValue()[0]/*)*/;
+		    size.getValue()[1] = (short) /*Tidbits.coin_geq_power_of_two(*/size.getValue()[1]/*)*/;
 
 		    if (this.glcontext == null) {
 		      this.glcontextsize.copyFrom( size);
@@ -377,8 +377,8 @@ public class SoSceneTexture2P implements Destroyable {
 		      // render-to-texture pbuffer that has a non power of two size.
 		      // pederb, 2003-12-05
 		      if (1 != 0) {
-		        this.glcontextsize.getValue()[0] = (short) Tidbits.coin_geq_power_of_two(size.getValue()[0]);
-		        this.glcontextsize.getValue()[1] = (short) Tidbits.coin_geq_power_of_two(size.getValue()[1]);
+		        this.glcontextsize.getValue()[0] = (short) /*Tidbits.coin_geq_power_of_two(*/size.getValue()[0]/*)*/;
+		        this.glcontextsize.getValue()[1] = (short) /*Tidbits.coin_geq_power_of_two(*/size.getValue()[1]/*)*/;
 
 		        if (this.glcontextsize.operator_not_equal(size)) {
 		          if (didwarn == 0) {

@@ -23,6 +23,7 @@ import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoGroup;
@@ -38,7 +39,9 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  */
 public class RecursiveChunk {
 	
-	final int MIN_CHUNK_SIZE = 200;
+	final private boolean KEEP_IN_MEMORY = true;
+	
+	final int MIN_CHUNK_SIZE = 80;
 	
 	RecursiveChunk parent;
 	int rank;
@@ -108,6 +111,10 @@ public class RecursiveChunk {
 	public int getDecimatedChunkHeight() {
 		return childs.isEmpty() ? nj : Math.min(nj, MIN_CHUNK_SIZE);
 	}
+	
+	public float getDeltaX() {
+		return Math.abs(x_max - x_min) / getDecimatedChunkWidth(); 
+	}
 
 	public SoNode getGroup(SoTouchLODMaster master, float lodFactor, boolean culling) {
 		
@@ -117,7 +124,8 @@ public class RecursiveChunk {
 		else {
 			SoLOD lod = new SoTouchLOD2(master);
 			lod.center.setValue(getCenter());
-			lod.range.setValue(ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
+			float deltaX = getDeltaX();
+			lod.range.setValue(ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/lodFactor);
 			SoGroup subChunkGroup = new SoGroup() {
 //				public void notify(SoNotList list) {
 //					super.notify(list);
@@ -148,7 +156,8 @@ public class RecursiveChunk {
 		else {
 			SoCameraLOD lod = new SoTouchLOD3(master);
 			lod.center.setValue(getCenter());
-			lod.range.setValue(200 + ChunkArray.DEFINITION * ni / /*250.0f*/lodFactor);
+			float deltaX = getDeltaX();
+			lod.range.setValue(200 + ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/lodFactor);
 			SoGroup subChunkGroup = new SoGroup();
 			if(culling) {
 				//subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
@@ -182,6 +191,7 @@ public class RecursiveChunk {
 	}
 
 	private SoNode getIndexedFaceSet() {
+		
 		SoIndexedFaceSet indexedFaceSet = new SoRecursiveIndexedFaceSet(this);
 		
 //		SoVertexProperty vertexProperty = new SoVertexProperty();
@@ -608,10 +618,16 @@ public class RecursiveChunk {
 	}
 
 	public void prepare() {
-		getDecimatedVertices();decimatedVertices = null;//getDecimatedVerticesBuffer();
-//		getDecimatedNormals();getDecimatedNormalsBuffer();
-//		getDecimatedTexCoords();getDecimatedTexCoordsBuffer();
-//		getDecimatedCoordIndices();
+		getDecimatedVertices();
+		
+		if(KEEP_IN_MEMORY) {		
+			getDecimatedNormals();//getDecimatedNormalsBuffer();
+			getDecimatedTexCoords();//getDecimatedTexCoordsBuffer();
+			getDecimatedCoordIndices();
+		}
+		else {
+			decimatedVertices = null;//getDecimatedVerticesBuffer();
+		}
 		getCenter();
 		
 		childs.parallelStream().forEach((c)-> c.prepare());
@@ -651,6 +667,9 @@ public class RecursiveChunk {
 	}
 
 	public void clear() {
+		if(KEEP_IN_MEMORY) {
+			return;
+		}
 		decimatedVertices = null; //decimatedVerticesBuffer = null;
 		decimatedNormals = null; //decimatedNormalsBuffer = null;
 		decimatedTextCoords = null; //decimatedTexCoordsBuffer = null;

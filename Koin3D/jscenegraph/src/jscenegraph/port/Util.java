@@ -305,21 +305,22 @@ public class Util {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void qsort(Object base, int num, int size, Comparator comparator) {
 		if(base instanceof IntArrayPtr) {
 			IntArrayPtr iap = (IntArrayPtr)base;
 			size = size / Integer.BYTES;
-			int[][] array = new int[size][num];
+			int[][] array = new int[num][size];
 			int index = 0;
-			for(int i=0;i<size;i++) {
-				for(int j = 0; j<num;j++) {
+			for(int i=0;i<num;i++) {
+				for(int j = 0; j<size;j++) {
 					array[i][j] = iap.get(index++);
 				}
 			}
 			Arrays.sort(array,comparator);
 			index = 0;
-			for(int i=0;i<size;i++) {
-				for(int j = 0; j<num;j++) {
+			for(int i=0;i<num;i++) {
+				for(int j = 0; j<size;j++) {
 					iap.set(index++, array[i][j]); 
 				}
 			}

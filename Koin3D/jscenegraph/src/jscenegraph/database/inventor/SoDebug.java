@@ -104,6 +104,9 @@ GetEnv(String envVar)
     // Try looking in the dictionary first...
     if (!envDict.find(key, value)) {
         value[0] = (Object)System.getenv(envVar);
+        if(value[0] == null) {
+        	value[0] = System.getProperty(envVar);
+        }
         envDict.enter(key, value[0]);
     }
 

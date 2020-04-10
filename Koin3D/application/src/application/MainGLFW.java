@@ -12,6 +12,7 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.Raster;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,6 +22,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.util.Properties;
 
 import javax.sound.sampled.AudioInputStream;
@@ -112,6 +116,8 @@ public class MainGLFW {
 	 */
 	public static void main(String[] args) {
 		
+		//System.setProperty("IV_DEBUG_CACHES", "1");
+		
 //		ImageIcon ii = new ImageIcon();
 //		
 //		try {
@@ -199,9 +205,13 @@ public class MainGLFW {
 				}
 			}
 			
+			byte[] gunSound = loadSound("GUN_FIRE-GoodSoundForYou-820112263_10db.wav");
+			
 			protected void onFire(SoMouseButtonEvent event) {
 				//playSound("shortened_40_smith_wesson_single-mike-koenig.wav"/*clipf*/);
-				playSound("GUN_FIRE-GoodSoundForYou-820112263.wav"/*clipf*/);
+				if(gunSound != null) {
+					playSound(/*"GUN_FIRE-GoodSoundForYou-820112263_10db.wav"*//*clipf*/gunSound);
+				}
 				SbViewportRegion vr = this.getSceneHandler().getViewportRegion();
 				SoRayPickAction fireAction = new SoRayPickAction(vr);
 				//fireAction.setRay(new SbVec3f(0.0f,0.0f,0.0f), new SbVec3f(0.0f,0.0f,-1.0f),0.1f,1000f);
@@ -285,11 +295,11 @@ public class MainGLFW {
 				
 				float y = Float.valueOf(saveGameProperties.getProperty(HERO_Y, "305"));
 				
-				float z = Float.valueOf(saveGameProperties.getProperty(HERO_Z, String.valueOf(1279 - SCENE_POSITION.getZ())));
+				float z = Float.valueOf(saveGameProperties.getProperty(HERO_Z, String.valueOf(1279/* - SCENE_POSITION.getZ()*/)));
 				
 				previousTimeSec = Double.valueOf(saveGameProperties.getProperty(TIME,"0"));
 				
-				camera.position.setValue(x,y,z);
+				camera.position.setValue(x,y,z- SCENE_POSITION.getZ());
 				
 				in.close();
 			} catch (FileNotFoundException e) {
@@ -400,20 +410,32 @@ public class MainGLFW {
 	    
 	    KDebug.dump();
 	}
+	
+	public static byte[] loadSound(final String url) {
+		String args = "ressource/"+url;
+		File file = new File(args);
+		byte[] fileContent = null;
+		try {
+			fileContent = Files.readAllBytes(file.toPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	    return fileContent;
+	}
 
-	public static synchronized void playSound(final String url) {
+	public static synchronized void playSound(final /*String url*/byte[] sound) {
 		  new Thread(new Runnable() {
 		  // The wrapper thread is unnecessary, unless it blocks on the
 		  // Clip finishing; see comments.
 		    public void run() {
 		      try {
 		        Clip clip = AudioSystem.getClip();
-		        FileInputStream fis = new FileInputStream("ressource/"+url);
 		        AudioInputStream inputStream = AudioSystem.getAudioInputStream(
-		        		new BufferedInputStream(fis));
+		        		new ByteArrayInputStream(sound));
 		        clip.open(inputStream);
 		        clip.start();
-		        fis.close();
 		      } catch (Exception e) {
 		        System.err.println(e.getMessage());
 		      }

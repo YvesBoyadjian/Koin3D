@@ -19,12 +19,15 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 	RecursiveChunk recursiveChunk;
 	
 	boolean cleared = true;
+	
+	public static int nbDoLoad;
 
 	public SoRecursiveIndexedFaceSet(RecursiveChunk recursiveChunk) {
 		this.recursiveChunk = recursiveChunk;
 	}
 	
 	private void doLoad() {
+		nbDoLoad++;
 				
 		SoVertexProperty vertexProperty = new SoVertexProperty();
 		vertexProperty.vertex.setValuesPointer(recursiveChunk.getDecimatedVertices()/*,recursiveChunk.getDecimatedVerticesBuffer()*/);
@@ -41,18 +44,26 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 	    coordIndex.enableNotify(wasEnabled);
 	}
 
-	public void clear() {
-	    boolean wasEnabled = this.vertexProperty.enableNotify(false);
-		vertexProperty.setValue(null/*recursiveChunk.getVertexProperty()*/);
-		this.vertexProperty.enableNotify(wasEnabled);
-		
-		//coordIndex.setValuesPointer(recursiveChunk.getDecimatedCoordIndices());
-		//boolean wasEnabled = coordIndex.enableNotify(false);
-		coordIndex.setNum(0);
-	    //coordIndex.enableNotify(wasEnabled);
-	    
-		recursiveChunk.clear();
-		cleared = true;
+	/**
+	 * Returns true is there was action
+	 * @return
+	 */
+	public boolean clear() {
+		if(!cleared) {
+		    boolean wasEnabled = this.vertexProperty.enableNotify(false);
+			vertexProperty.setValue(null/*recursiveChunk.getVertexProperty()*/);
+			this.vertexProperty.enableNotify(wasEnabled);
+			
+			//coordIndex.setValuesPointer(recursiveChunk.getDecimatedCoordIndices());
+			//boolean wasEnabled = coordIndex.enableNotify(false);
+			coordIndex.setNum(0);
+		    //coordIndex.enableNotify(wasEnabled);
+		    
+			recursiveChunk.clear();		
+			cleared = true;
+			return true;
+		}
+		return false;
 	}
 	
 	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
@@ -62,16 +73,17 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 
 	public void GLRender(SoGLRenderAction action)
 	{
-		if(cleared) {
+		if(cleared && nbDoLoad<0) {
 			doLoad();
-		cleared = false;
+			cleared = false;
+			
 //		long delta = stop - start;
 //		
 //		if(delta > 10e6) {
 //			System.out.println("SoTouchLOD2 " + delta/1e6 +" ms");
 //		}
 //		int i=0;
-	}
+		}
 		//long start = System.nanoTime();
 		super.GLRender(action);
 		//long stop = System.nanoTime();

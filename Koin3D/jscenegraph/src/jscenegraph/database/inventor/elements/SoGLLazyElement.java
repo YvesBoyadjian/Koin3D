@@ -323,6 +323,7 @@ push(SoState stateptr)
 public void
 pop(SoState state, SoElement prevTopElement)
 {
+	super.pop(state, prevTopElement);
     // 
     //Copy all GL parts back from previous top element.
     //Mark those that changed with invalidBits.
@@ -1909,6 +1910,7 @@ copyLazyMatchInfo(SoState state)
         (SoGLLazyElement )getTypeId().createInstance();
 
     result.GLSendBits = 0;
+    result.coinstate.transptype = newElt.coinstate.transptype;
     //result.ivState.transpType = newElt.ivState.transpType;    
     return result;
 }

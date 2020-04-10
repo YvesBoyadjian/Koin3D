@@ -5,14 +5,16 @@ package jscenegraph.coin3d.inventor.lists;
 
 import java.util.Arrays;
 
+import jscenegraph.database.inventor.SbPList;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.Mutable;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SbListInt implements Destroyable {
+public class SbListInt implements Destroyable, Mutable {
 	
 	private static final int DEFAULTSIZE = 4;
 
@@ -145,5 +147,36 @@ public class SbListInt implements Destroyable {
 		internalIntArrayPtr = null;
 	}
 
+	@Override
+	public void copyFrom(Object other) {
+		SbListInt otherList = (SbListInt)other;
+		copy(otherList);
+	}
+
+	 //
+	   // Copies a pointer list
+	   //
+	   
+	  public void
+	   copy(final SbListInt pl)
+	   {
+	       int i;
+	   
+	       int size = pl.size();
+	       
+	       grow(size);
+	       truncate(size);
+	   
+	       for (i = 0; i < size; i++)
+	    	   itembuffer[i] = pl.get(i);
+	   }
 	  
+		// java port
+		public void operator_square_bracket(int i, int object) {
+			 if (i >= size()) grow(i);
+			 itembuffer[i] = object; 
+		}
+		
+		public  void set(int i, int j) { itembuffer[i] = j; }	
+
 }

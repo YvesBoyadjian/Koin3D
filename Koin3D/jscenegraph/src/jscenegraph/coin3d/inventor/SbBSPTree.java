@@ -98,11 +98,11 @@ public int addPoint(final SbVec3f pt, final int maxpts)
     final SbVec3f tmp = new SbVec3f();
     for (i = 0; i < n; i++) {
       tmp.copyFrom((pointsArray).operator_square_bracket(this.indices.operator_square_bracket(i)));
-      if (pt == tmp) break;
+      if (pt.operator_equal_equal(tmp)) break;
     }
     if (i == n) {
       int idx = this.pointsArray.getLength();
-      this.pointsArray.append(pt);
+      this.pointsArray.append(new SbVec3f(pt));
       this.indices.append(idx);
       return idx;
     }

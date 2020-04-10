@@ -22,16 +22,27 @@ public class SoLODGroup extends SoGroup {
 	
 	private final SbVec3f dummy = new SbVec3f(); //SINGLE_THREAD
 	
+	private boolean cleared = true;
+	
 	public void GLRender(SoGLRenderAction action)
 	{		
-		if( box.intersect(referencePoint)) {		
+		if( box.intersect(referencePoint)) {
+			cleared = false;
 			super.GLRender(action);
 		}
 		else {
 			SbVec3f closestPoint = box.getClosestExternalPoint(referencePoint);
 			
 			if( closestPoint.operator_minus(referencePoint,dummy).length() <= maxDistance ) {
+				cleared = false;
 				super.GLRender(action);				
+			}
+			else if( !cleared ){
+				cleared = true;
+				int nbChildren = getNumChildren();
+				for( int i=0;i <nbChildren;i++) {
+					((SoLODIndexedFaceSet)getChild(i)).clear();
+				}
 			}
 //			else {
 //				closestPoint = box.getClosestPoint(referencePoint);

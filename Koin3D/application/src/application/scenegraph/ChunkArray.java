@@ -38,9 +38,9 @@ public class ChunkArray {
 
 	private Chunk[][] chunks;
 	
-	private Map<Chunk,Integer> chunkI = new IdentityHashMap<>();
+//	private Map<Chunk,Integer> chunkI = new IdentityHashMap<>();
 	
-	private Map<Chunk,Integer> chunkJ = new IdentityHashMap<>();
+//	private Map<Chunk,Integer> chunkJ = new IdentityHashMap<>();
 	
 	private List<Chunk> chunkList = new ArrayList<Chunk>();
 	
@@ -65,8 +65,8 @@ public class ChunkArray {
 								
 				Chunk chunk = new Chunk(chunkId, Chunk.CHUNK_WIDTH);
 				chunks[i][j] = chunk;
-				chunkI.put(chunk, i);
-				chunkJ.put(chunk, j);
+				chunk.setChunkI(i);
+				chunk.setChunkJ(j);
 				chunkList.add(chunk);
 			}
 		}
@@ -187,8 +187,8 @@ public class ChunkArray {
 	private int getInChunkIndice(Chunk c, int i, int j) {
 		
 		
-		int iStartChunk = chunkI.get(c)*(Chunk.CHUNK_WIDTH-1);
-		int jStartChunk = chunkJ.get(c)*(Chunk.CHUNK_WIDTH-1);
+		int iStartChunk = c.getChunkI()*(Chunk.CHUNK_WIDTH-1);
+		int jStartChunk = c.getChunkJ()*(Chunk.CHUNK_WIDTH-1);
 		
 		int iInChunk = i-iStartChunk; 
 		int jInChunk = j-jStartChunk; 

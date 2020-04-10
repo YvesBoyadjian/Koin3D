@@ -621,7 +621,7 @@ public void GLRenderVertexArray(SoGLRenderAction action, boolean sendNormals, bo
     vertexOffset.destructor(); 
     normalOffset.destructor(); 
     texCoordOffset.destructor(); 
-    dummy.destructor();
+    //dummy.destructor();
   }
   
   _cache.vbo.bind(state);

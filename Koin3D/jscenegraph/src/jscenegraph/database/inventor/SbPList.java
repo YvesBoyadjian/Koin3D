@@ -173,6 +173,7 @@ public SbPList(final SbPList pl)
 		   for (i = which; i < nPtrs - 1; i++)
 		   ptrs[i] = ptrs[i + 1];
 		  
+		   ptrs[nPtrs - 1] = null; //java port
 		   // Shrink the list
 		   setSize(nPtrs - 1);
 		 		
@@ -185,10 +186,10 @@ public SbPList(final SbPList pl)
 	
 	// Removes all pointers after one with given index, inclusive.
 	public void truncate(int start) {
+		int previous_Ptrs = nPtrs;
 		nPtrs = start;
 		if (ptrs != null) {
-			int nb_ptrs = ptrs.length;
-			for (int i = start; i < nb_ptrs; i++) {
+			for (int i = start; i < previous_Ptrs; i++) {
 				ptrs[i] = null; // java port
 			}
 		}
@@ -234,6 +235,9 @@ public SbPList(final SbPList pl)
 	}
 	
 	private void setSize(int size) {
+		 for( int i = size; i < nPtrs; i++) { // java port
+			 ptrs[i] = null;
+		 }
 		 if (size > ptrsSize) expand(size); nPtrs = size; 
 	}
 	

@@ -124,8 +124,8 @@ private class extInfo {
 	  public Object closure;
 	@Override
 	public void destructor() {
-		// TODO Auto-generated method stub
-		
+		cb = null;
+		closure = null;
 	}
 	} ;
 

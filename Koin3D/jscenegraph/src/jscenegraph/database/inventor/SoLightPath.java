@@ -55,6 +55,7 @@
 
 package jscenegraph.database.inventor;
 
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoChildList;
 import jscenegraph.database.inventor.misc.SoTempPath;
@@ -82,11 +83,11 @@ import jscenegraph.port.Destroyable;
 public class SoLightPath implements Destroyable {
 
     private SoNode headNode;       
-    private final     SbIntList           indices;        
+    private final     SbListInt           indices;        
   	
 	// Constructor given approximate number of nodes in chain. 
 	public SoLightPath(int approxLength) {
-		indices = new SbIntList(approxLength);
+		indices = new SbListInt(approxLength);
 	}
 	
 	public void destructor() {
@@ -118,7 +119,7 @@ public class SoLightPath implements Destroyable {
 	    public void                push()                  { append(-1);}
 	    public void pop() { truncate(getFullLength() - 1); }	    
 	    public void                setTail(int childIndex)
-	                      { indices.set(getFullLength()-1,(Object)childIndex);}
+	                      { indices.set(getFullLength()-1,childIndex);}
 	     
 	  	// Removes all nodes from indexed node on. 
 	  	public void truncate(int start) {
