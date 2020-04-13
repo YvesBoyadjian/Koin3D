@@ -6,12 +6,15 @@ package jscenegraph.port.memorybuffer;
 import java.nio.ByteBuffer;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
+
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class MemoryBuffer {
+public class MemoryBuffer implements Destroyable {
 	
 	protected ByteBuffer byteBuffer; 
 	
@@ -30,6 +33,14 @@ public class MemoryBuffer {
 		
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		memoryBuffer.byteBuffer = BufferUtils.createByteBuffer(numBytes);
+
+		return memoryBuffer;
+	}
+
+	public static final MemoryBuffer allocateBytesMalloc(int numBytes) {
+		
+		MemoryBuffer memoryBuffer = new MemoryBuffer();
+		memoryBuffer.byteBuffer = MemoryUtil.memAlloc(numBytes);
 
 		return memoryBuffer;
 	}
@@ -106,4 +117,23 @@ public class MemoryBuffer {
 		
 		return byteBuffer;
 	}
+
+	public void free() {
+		if(byteBuffer != null) {
+			MemoryUtil.memFree(byteBuffer);
+			byteBuffer = null;
+		}
+	}
+	
+	public static void free(MemoryBuffer buffer) {
+		if(buffer !=null) {
+			buffer.free();
+		}
+	}
+
+	@Override
+	public void destructor() {
+		free();
+	}
+	
 }

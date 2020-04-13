@@ -102,6 +102,7 @@ import jscenegraph.port.CharPtr;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.VoidPtr;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 
 //! SoVBO is used to manage OpenGL vertex buffer objects.
@@ -330,7 +331,7 @@ public void allocateData( int numBytes, long nodeId , SoState state)
   freeGL(state);
 
   _numBytes = numBytes;
-  _data = VoidPtr.create(Buffers.newDirectByteBuffer(numBytes));
+  _data = VoidPtr.create(/*Buffers.newDirectByteBuffer(numBytes)*/MemoryBuffer.allocateBytesMalloc(numBytes));
   datasize = numBytes;
   _nodeId = nodeId;
   _ownsData = true;

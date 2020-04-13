@@ -17,6 +17,7 @@ import com.jogamp.common.nio.Buffers;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -111,6 +112,9 @@ public class VoidPtr implements Destroyable {
 		else if(object instanceof SbVec2fArray) {
 			buffer = ((SbVec2fArray)object).toFloatBuffer();
 		}
+		else if(object instanceof MemoryBuffer) {
+			buffer = ((MemoryBuffer)object).toByteBuffer();
+		}
 		else if(object != null && buffer == null) {
 			throw new RuntimeException();
 		}
@@ -145,6 +149,9 @@ public class VoidPtr implements Destroyable {
 		}
 		if(object instanceof ByteBuffer) {
 			return new UShortPtr((ByteBuffer)object);
+		}
+		if(object instanceof MemoryBuffer) {
+			return new UShortPtr(((MemoryBuffer)object).toByteBuffer());
 		}
 		return null;
 	}

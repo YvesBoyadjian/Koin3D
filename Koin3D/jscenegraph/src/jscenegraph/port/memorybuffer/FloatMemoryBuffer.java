@@ -76,19 +76,6 @@ public class FloatMemoryBuffer extends MemoryBuffer {
 		return memoryBuffer;
 	}
 	
-	public void free() {
-		if(byteBuffer != null) {
-			MemoryUtil.memFree(byteBuffer);
-			byteBuffer = null;
-		}
-	}
-	
-	public static void free(FloatMemoryBuffer buffer) {
-		if(buffer !=null) {
-			buffer.free();
-		}
-	}
-	
 	/**
 	 * Note : array data is copied
 	 * @param array
