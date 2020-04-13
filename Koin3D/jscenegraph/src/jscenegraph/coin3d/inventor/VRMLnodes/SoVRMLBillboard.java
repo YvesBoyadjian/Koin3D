@@ -12,6 +12,7 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
@@ -156,6 +157,24 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	  // do nothing
 	}
 	
+	// Doc in parent
+	public void
+	SoVRMLBillboard_doAction(SoAction action)
+	{
+	  SoState state = action.getState();
+	  state.push();
+	  this.performRotation(state);
+	  SoGroup_doAction(action);
+	  state.pop();
+	}
+
+	// Doc in parent
+	public void
+	pick(SoPickAction action)
+	{
+	  SoVRMLBillboard_doAction((SoAction) action);
+	}
+
 	private final SbRotation rot = new SbRotation(); // SINGLE_THREAD
 	
 	private final SbMatrix imm = new SbMatrix(); // SINGLE_THREAD
@@ -239,6 +258,5 @@ public class SoVRMLBillboard extends SoVRMLParent {
 
 	  dummyRot.constructor(matrix);
 	  return dummyRot;//new SbRotation(matrix);
-	}
-
+	}	
 }

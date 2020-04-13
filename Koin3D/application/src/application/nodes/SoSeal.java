@@ -4,7 +4,9 @@
 package application.nodes;
 
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoTranslation;
 
@@ -53,4 +55,15 @@ public class SoSeal extends SoSeparator {
 		}		
 		super.GLRenderBelowPath(action);
 	}
+
+	// Doc in parent
+	public void
+	pick(SoPickAction action)
+	{
+		if(referencePoint.operator_minus(getCoordinates(), dummy).sqrLength() > MAX_SQUARE_DISTANCE) {
+			return;
+		}		
+	  super.pick( action);
+	}
+
 }

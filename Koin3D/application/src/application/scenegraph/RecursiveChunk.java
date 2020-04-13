@@ -39,7 +39,7 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  */
 public class RecursiveChunk {
 	
-	final private boolean KEEP_IN_MEMORY = true;
+	final private boolean KEEP_IN_MEMORY = false;
 	
 	final int MIN_CHUNK_SIZE = 80;
 	
@@ -213,7 +213,7 @@ public class RecursiveChunk {
 			
 		int decimatedChunkWidth = getDecimatedChunkWidth();
 		int decimatedChunkHeight = getDecimatedChunkHeight();
-		FloatMemoryBuffer array = FloatMemoryBuffer.allocateFloats(decimatedChunkWidth*decimatedChunkHeight*2);
+		FloatMemoryBuffer array = FloatMemoryBuffer.allocateFloatsMalloc(decimatedChunkWidth*decimatedChunkHeight*2);
 		for(int i=0;i<decimatedChunkWidth;i++) {
 			for(int j=0; j<decimatedChunkHeight; j++) {
 				int index = i*decimatedChunkHeight+j;
@@ -231,6 +231,8 @@ public class RecursiveChunk {
 		}
 		return decimatedTextCoords;
 	}
+	
+	int decimatedVerticesCount;
 
 	FloatMemoryBuffer getDecimatedVertices() {
 		if( decimatedVertices == null) {
@@ -238,7 +240,7 @@ public class RecursiveChunk {
 				int decimatedChunkWidth = getDecimatedChunkWidth();
 				int decimatedChunkHeight = getDecimatedChunkHeight();
 				int nbVertices = decimatedChunkWidth * decimatedChunkHeight;
-				decimatedVertices = FloatMemoryBuffer.allocateFloats(nbVertices*3);
+				decimatedVertices = FloatMemoryBuffer.allocateFloatsMalloc(nbVertices*3);
 				FloatBuffer fb = decimatedVertices.toByteBuffer().asFloatBuffer();
 				
 				float[] xyz = new float[3];
@@ -277,6 +279,7 @@ public class RecursiveChunk {
 				//System.out.println("loadRC");
 			}
 		}
+		decimatedVerticesCount++;
 		return decimatedVertices;
 	}
 	
@@ -414,7 +417,7 @@ public class RecursiveChunk {
 			int decimatedChunkHeight = getDecimatedChunkHeight();
 			int nbVertices = decimatedChunkWidth *decimatedChunkHeight;
 	
-			FloatMemoryBuffer decimatedNormals = FloatMemoryBuffer.allocateFloats(nbVertices*3);
+			FloatMemoryBuffer decimatedNormals = FloatMemoryBuffer.allocateFloatsMalloc(nbVertices*3);
 			
 			int nb = 1;
 //			for(int i=0;i<l;i++) {
@@ -607,15 +610,15 @@ public class RecursiveChunk {
 		return center;
 	}
 
-	public SoNode getVertexProperty() {
-		SoVertexProperty vertexProperty = new SoVertexProperty();
-		vertexProperty.vertex.setValuesPointer(getDecimatedVertices()/*,getDecimatedVerticesBuffer()*/);
-	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals()/*,getDecimatedNormalsBuffer()*/);
-	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords()/*,getDecimatedTexCoordsBuffer()*/);
-		
-		return vertexProperty;
-	}
+//	public SoNode getVertexProperty() {
+//		SoVertexProperty vertexProperty = new SoVertexProperty();
+//		vertexProperty.vertex.setValuesPointer(getDecimatedVertices()/*,getDecimatedVerticesBuffer()*/);
+//	    vertexProperty.normalBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
+//	    vertexProperty.normal.setValuesPointer(/*0,*/ getDecimatedNormals()/*,getDecimatedNormalsBuffer()*/);
+//	    vertexProperty.texCoord.setValuesPointer(/*0,*/ getDecimatedTexCoords()/*,getDecimatedTexCoordsBuffer()*/);
+//		
+//		return vertexProperty;
+//	}
 
 	public void prepare() {
 		getDecimatedVertices();
@@ -626,11 +629,13 @@ public class RecursiveChunk {
 			getDecimatedCoordIndices();
 		}
 		else {
+			decimatedVertices.free();
 			decimatedVertices = null;//getDecimatedVerticesBuffer();
 		}
 		getCenter();
 		
 		childs.parallelStream().forEach((c)-> c.prepare());
+		decimatedVerticesCount = 0;
 	}
 	
 	public boolean isInside(float x, float y) {
@@ -667,12 +672,15 @@ public class RecursiveChunk {
 	}
 
 	public void clear() {
+		decimatedVerticesCount--;
 		if(KEEP_IN_MEMORY) {
 			return;
 		}
-		decimatedVertices = null; //decimatedVerticesBuffer = null;
-		decimatedNormals = null; //decimatedNormalsBuffer = null;
-		decimatedTextCoords = null; //decimatedTexCoordsBuffer = null;
+		if(decimatedVerticesCount == 0) {
+		FloatMemoryBuffer.free(decimatedVertices); decimatedVertices = null; //decimatedVerticesBuffer = null;		
+		FloatMemoryBuffer.free(decimatedNormals); decimatedNormals = null; //decimatedNormalsBuffer = null;
+		FloatMemoryBuffer.free(decimatedTextCoords); decimatedTextCoords = null; //decimatedTexCoordsBuffer = null;
 		decimatedCoordIndices = null;
+		}
 	}
 }

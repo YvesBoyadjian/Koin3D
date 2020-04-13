@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
 
 import jscenegraph.mevis.inventor.misc.SoVBO;
 
@@ -56,6 +57,36 @@ public class FloatMemoryBuffer extends MemoryBuffer {
 		}
 
 		return memoryBuffer;
+	}
+	
+	public static final FloatMemoryBuffer allocateFloatsMalloc(int numFloats) {
+		
+		FloatMemoryBuffer memoryBuffer = new FloatMemoryBuffer();
+		
+		if( numFloats >= MINIMUM_FLOATS_FOR_BUFFER) {
+		
+			int numBytes = numFloats*Float.BYTES;
+		
+			memoryBuffer.byteBuffer = MemoryUtil.memAlloc(numBytes);
+		}
+		else {
+			memoryBuffer.floatArray = new float[numFloats];
+		}
+
+		return memoryBuffer;
+	}
+	
+	public void free() {
+		if(byteBuffer != null) {
+			MemoryUtil.memFree(byteBuffer);
+			byteBuffer = null;
+		}
+	}
+	
+	public static void free(FloatMemoryBuffer buffer) {
+		if(buffer !=null) {
+			buffer.free();
+		}
 	}
 	
 	/**

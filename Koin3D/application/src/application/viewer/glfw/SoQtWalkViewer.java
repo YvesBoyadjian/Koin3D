@@ -42,6 +42,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 import com.jogamp.opengl.GL2;
 
 import application.scenegraph.HeightProvider;
+import application.scenegraph.SceneGraphIndexedFaceSetShader;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
@@ -77,7 +78,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private final static float USAIN_BOLT_RUN = 10;
 	
-	private final static float SPEED = USAIN_BOLT_RUN;
+	private static float SPEED = USAIN_BOLT_RUN;
 	
 	private final static float EYES_HEIGHT = 1.65f;
 
@@ -104,6 +105,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		}
 		
 	};
+	
+	private boolean fly = false;
 	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
@@ -332,6 +335,11 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.D) ||
 				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.RIGHT_ARROW)) {
 			  keysDown.remove(SoKeyboardEvent.Key.D);			 			  
+			  return true;
+		  }
+		  else if(
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.F) ) {
+			  toggleFly();
 			  return true;
 		  }
 		return false;
@@ -568,5 +576,16 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	public double getStartDate() {
 		return startDate;
+	}
+	
+	private void toggleFly() {
+		fly = !fly;
+		if(fly) {
+			SPEED = GOD;
+		}
+		else {
+			SPEED = USAIN_BOLT_RUN;			
+		}
+		SceneGraphIndexedFaceSetShader.FLY = fly;
 	}
 }

@@ -101,7 +101,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private static final float GRASS_LUMINOSITY = 0.6f;
 	
-	private static final boolean FLY = false;
+	public static boolean FLY = false;
 	
 	static final float CUBE_DEPTH = 2000;
 	
@@ -1187,6 +1187,8 @@ for(int is=0;is<4;is++) {
 	
 	@Override
 	public void preDestroy() {
+		
+		shadowGroup.removeAllChildren();
 		
 		for(int i=0; i<4; i++) {
 			sun[i].on.setValue(false);
