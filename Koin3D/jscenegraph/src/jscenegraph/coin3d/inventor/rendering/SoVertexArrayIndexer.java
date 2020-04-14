@@ -268,10 +268,10 @@ public class SoVertexArrayIndexer implements Destroyable {
 	    }
 	  }
 	  if (this.target == GL2.GL_TRIANGLES) {
-	    this.sort_triangles();
+	    //this.sort_triangles();
 	  }
 	  else if (this.target == GL2.GL_LINES) {
-	    this.sort_lines();
+	    //this.sort_lines();
 	  }
 	  // FIXME: sort lines and points
 	  if (this.next != null) this.next.close();
