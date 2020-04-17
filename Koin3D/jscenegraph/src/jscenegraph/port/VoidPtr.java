@@ -163,6 +163,9 @@ public class VoidPtr implements Destroyable {
 		else if( object instanceof IntArrayPtr) {			
 			return Buffers.newDirectByteBuffer((IntArrayPtr)object);
 		}
+		else if( object instanceof MemoryBuffer) {
+			return ((MemoryBuffer)object).toByteBuffer();
+		}
 		return null;
 	}
 

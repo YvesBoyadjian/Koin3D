@@ -198,6 +198,7 @@
 
 package jscenegraph.coin3d.inventor.nodes;
 
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL2;
@@ -633,17 +634,18 @@ public class SoVertexProperty extends SoNode {
 	          }
 	          else {
 	             int[] src = this.orderedRGBA.getValuesI(0);
-	            IntBuffer dst = (IntBuffer) 
+	            ByteBuffer dst = (ByteBuffer) 
 	              this.pimpl.colorvbo[0].allocBufferData(num*Integer.BYTES, 
-	                                                       this.getNodeId(),state).toIntBuffer();  // YB
-	            for (int i = 0; i < num; i++) {
-	              int tmp = src[i];
-	              dst.put(i, 
-	                (tmp << 24) |
-	                ((tmp & 0xff00) << 8) |
-	                ((tmp & 0xff0000) >> 8) |
-	                (tmp >> 24));
-	            }
+	                                                       this.getNodeId(),state).toByteBuffer().duplicate();  // YB
+	            dst.asIntBuffer().put(src);
+//	            for (int i = 0; i < num; i++) {
+//	              int tmp = src[i];
+//	              dst.put(i, 
+//	                (tmp << 24) |
+//	                ((tmp & 0xff00) << 8) |
+//	                ((tmp & 0xff0000) >> 8) |
+//	                (tmp >> 24));
+//	            }
 	          }
 	        }
 	      }
