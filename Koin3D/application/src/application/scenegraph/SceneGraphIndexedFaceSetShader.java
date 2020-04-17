@@ -946,8 +946,8 @@ for(int is=0;is<4;is++) {
 		
 		float zTransl = - transl.translation.getValue().getZ();
 		
-		float trees_x = current_x + xTransl+3000*world_camera_direction.getX();
-		float trees_y = current_y + yTransl+3000*world_camera_direction.getY();
+		float trees_x = current_x + xTransl+DOUGLAS_DISTANCE*0.4f/*3000*/*world_camera_direction.getX();
+		float trees_y = current_y + yTransl+DOUGLAS_DISTANCE*0.4f/*3000*/*world_camera_direction.getY();
 		
 		douglasTreesRefPoint.setValue(trees_x,trees_y,current_z + zTransl);
 		
@@ -975,8 +975,8 @@ for(int is=0;is<4;is++) {
 //			}
 		}
 				
-		float treesS_x = current_x + xTransl+1000*world_camera_direction.getX();
-		float treesS_y = current_y + yTransl+1000*world_camera_direction.getY();
+		float treesS_x = current_x + xTransl+DOUGLAS_DISTANCE_SHADOW*0.3f/*1000*/*world_camera_direction.getX();
+		float treesS_y = current_y + yTransl+DOUGLAS_DISTANCE_SHADOW*0.3f/*1000*/*world_camera_direction.getY();
 		
 		douglasTreesSRefPoint.setValue(treesS_x,treesS_y,current_z + zTransl);
 		
