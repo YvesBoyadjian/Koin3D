@@ -513,7 +513,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	if(nbFrames == NB_FRAMES) {
     		long newFrameTime = System.nanoTime();
     		float fps = 1.0e9f/(newFrameTime - lastFrameTime)*NB_FRAMES;
-    		System.out.println("fps = "+fps);
+    		//System.out.println("fps = "+fps);
     		nbFrames = 0;
     		lastFrameTime = newFrameTime;
     	}
