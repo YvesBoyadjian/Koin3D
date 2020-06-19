@@ -66,6 +66,7 @@ import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
@@ -201,6 +202,51 @@ create(final SbName name, SoType type, final boolean[] alreadyExists)
 	   
 	       ref();
 	   }
+	   
+//////////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//      Destructor.  It is responsible for deleting the globalField from
+//      the dictionary.
+//
+// Use: private
+
+public void destructor()
+//
+//////////////////////////////////////////////////////////////////////////////
+
+{
+    // If fieldData is NULL, don't delete the entry. This happens only
+    // for the "dummy" instance that is created to read in a real
+    // instance of a global field.
+    if (fieldData == null)
+        return;
+
+    String key = getName().getString();
+    nameDict.remove(key);
+
+    Destroyable.delete( value );
+    
+    super.destructor();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//      This is a virtual function used by the database so notification and
+//      field to field connections work.  The fieldData for globalFields
+//      contains only the value field; the other are hidden from the
+//      database and are used only when reading or writing.
+//
+
+public SoFieldData getFieldData()
+//
+//////////////////////////////////////////////////////////////////////////////
+{
+    return fieldData;
+}
+
+	   
 	   	
 	// Returns the type identifier for a specific instance.
 	public SoType getTypeId() {

@@ -723,42 +723,83 @@ public boolean contains(SbBox3f other) {
 
 private final SbVec3fSingle closest = new SbVec3fSingle(); // SINGLE_THREAD
 private final SbVec3fSingle center = new SbVec3fSingle(); // SINGLE_THREAD
+private final SbVec3fSingle vec = new SbVec3fSingle(); // SINGLE_THREAD
+private final SbVec3fSingle absvec = new SbVec3fSingle(); // SINGLE_THREAD
 
 /*!
   Return the point on the box closest to the given \a point.
 */
+/*!
+  Return the point on the box closest to the given \a point.
+  If the given point equals the center, the center point of
+  the positive Z face is returned.
+*/
 public SbVec3f
 getClosestPoint(final SbVec3f point)
 {
-  closest.setValue(point);
   
+  if (isEmpty()) {
+	  closest.setValue(point);
+	  return closest;
+  }
+
   final float[] closest_getValue = closest.getValue(); 
   
   final float[] min_getValue = this.min.getValue();
   final float[] max_getValue = this.max.getValue();
 
-  /*final SbVec3fSingle center = new SbVec3fSingle(*/this.getCenter(center)/*)*/;
-  final float[] center_getValue = center.getValue();
-  
-  float devx = closest_getValue[0] - center_getValue[0];
-  float devy = closest_getValue[1] - center_getValue[1];
-  float devz = closest_getValue[2] - center_getValue[2];
   float halfwidth = (max_getValue[0] - min_getValue[0]) / 2.0f;
   float halfheight = (max_getValue[1] - min_getValue[1]) / 2.0f;
   float halfdepth = (max_getValue[2] - min_getValue[2]) / 2.0f;
+  
+  this.getCenter(center);  
+  
+  if (point.operator_equal_equal(center)) {
+	    closest.setValue(halfwidth, halfheight, max_getValue[2]);
+	    return closest;
+  }
+  
+  point.operator_minus(center, vec);
+  
+  final float[] vec_getValue = this.vec.getValue();
+  final float[] absvec_getValue = this.absvec.getValue();
 
-  // Move point to be on the nearest plane of the box.
-  if ((Math.abs(devx) > Math.abs(devy)) && (Math.abs(devx) > Math.abs(devz)))
-    closest_getValue[0] = center_getValue[0] + halfwidth * ((devx < 0.0f) ? -1.0f : 1.0f);
-  else if (Math.abs(devy) > Math.abs(devz))
-    closest_getValue[1] = center_getValue[1] + halfheight * ((devy < 0.0f) ? -1.0f : 1.0f);
-  else
-    closest_getValue[2] = center_getValue[2] + halfdepth * ((devz < 0.0f) ? -1.0f : 1.0f);
+  absvec_getValue[0] = (float)(halfwidth > 0.0f ? Math.abs(vec_getValue[0] / halfwidth) : Math.abs(vec_getValue[0]));
+  absvec_getValue[1] = (float)(halfheight > 0.0f ? Math.abs(vec_getValue[1] / halfheight) : Math.abs(vec_getValue[1]));
+  absvec_getValue[2] = (float)(halfdepth > 0.0f ? Math.abs(vec_getValue[2] / halfdepth) : Math.abs(vec_getValue[2]));
 
-  // Clamp to be inside box.
-  closest_getValue[0] = Math.min(Math.max(closest_getValue[0], min_getValue[0]), max_getValue[0]);
-  closest_getValue[1] = Math.min(Math.max(closest_getValue[1], min_getValue[1]), max_getValue[1]);
-  closest_getValue[2] = Math.min(Math.max(closest_getValue[2], min_getValue[2]), max_getValue[2]);
+  // Clamp to be on box hull.
+  closest_getValue[0] = Math.min(absvec_getValue[0], 1.0f);
+  closest_getValue[1] = Math.min(absvec_getValue[1], 1.0f);
+  closest_getValue[2] = Math.min(absvec_getValue[2], 1.0f);
+
+  // Move point to be on the nearest plane of the unit box ((-1 -1 -1), (1 1 1)).
+  if ((absvec_getValue[0] > absvec_getValue[1]) && (absvec_getValue[0] > absvec_getValue[2])) // yz-plane
+    closest_getValue[0] = 1.0f;
+  else if ((absvec_getValue[1] > absvec_getValue[0]) && (absvec_getValue[1] > absvec_getValue[2])) // xz-plane
+    closest_getValue[1] = 1.0f;
+  else if ((absvec_getValue[2] > absvec_getValue[0]) && (absvec_getValue[2] > absvec_getValue[1])) // xy-plane
+    closest_getValue[2] = 1.0f;
+  else if ((absvec_getValue[0] == absvec_getValue[1]) && (absvec_getValue[0] == absvec_getValue[2])) // corner
+    closest.setValue(1.0f, 1.0f, 1.0f);
+  else if (absvec_getValue[0] == absvec_getValue[1]) { // edge parallel to z-axis
+    closest_getValue[0] = 1.0f;
+    closest_getValue[1] = 1.0f;
+  }
+  else if (absvec_getValue[0] == absvec_getValue[2]) { // edge parallel to y-axis
+    closest_getValue[0] = 1.0f;
+    closest_getValue[2] = 1.0f;
+  }
+  else if (absvec_getValue[1] == absvec_getValue[2]) { // edge parallel to x-axis
+    closest_getValue[1] = 1.0f;
+    closest_getValue[2] = 1.0f;
+  }
+
+  closest_getValue[0] *= (vec_getValue[0] < 0.0f) ? -halfwidth : halfwidth;
+  closest_getValue[1] *= (vec_getValue[1] < 0.0f) ? -halfheight : halfheight;
+  closest_getValue[2] *= (vec_getValue[2] < 0.0f) ? -halfdepth : halfdepth;
+
+  closest.operator_plus_equal( center );
 
   return closest;
 }

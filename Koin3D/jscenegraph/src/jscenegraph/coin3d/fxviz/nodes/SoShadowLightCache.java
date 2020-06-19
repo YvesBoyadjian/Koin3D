@@ -237,7 +237,7 @@ public class SoShadowLightCache implements Destroyable {
 
 	  public void destructor() {
 		    if (this.depthmapscene != null) this.depthmapscene.unref();
-		    if (this.bboxnode != null) this.bboxnode.unref(); //YB
+		    if (this.bboxnode != null) this.bboxnode.unref();
 		    if (this.maxshadowdistance != null) this.maxshadowdistance.unref();
 		    if (this.vsm_program != null) this.vsm_program.unref();
 		    if (this.vsm_farval != null) this.vsm_farval.unref();

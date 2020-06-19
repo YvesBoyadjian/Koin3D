@@ -86,6 +86,7 @@ import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.misc.SoState;
 
+// TODO YB : The code of this class is different from Coin3D 
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Screen-aligned 2D text shape node.

@@ -473,7 +473,13 @@ unrefCopy(Object key , Object instPtr)
 // Use: protected
 
 public boolean readInstance(SoInput in, 
-                               short flags/* flags not used */)
+                               short flags/* flags not used */) {
+	return SoFieldContainer_readInstance( in, flags);
+}
+
+public boolean SoFieldContainer_readInstance(SoInput in, 
+        short flags/* flags not used */)
+
 //
 ////////////////////////////////////////////////////////////////////////
 {

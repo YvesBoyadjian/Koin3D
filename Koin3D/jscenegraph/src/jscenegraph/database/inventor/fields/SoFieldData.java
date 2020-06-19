@@ -63,6 +63,7 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.IdentityOffset;
 import jscenegraph.port.Offset;
 
 
@@ -211,7 +212,13 @@ public static final int NOT_BUILTIN_BIT = (1<<14);
 	   {
 	       SoFieldEntry newField = new SoFieldEntry();
 	       newField.name.copyFrom(new SbName(fieldName));
-	       newField.offset = new Offset(fieldName);
+	       
+	       if ( Offset.containerContains(defobj, fieldName)) {
+	    	   newField.offset = new Offset(fieldName);
+	       }
+	       else {
+	    	   newField.offset = new IdentityOffset(fieldName, field);
+	       }
 	   
 	       fields.append((Object) newField);
 	   }

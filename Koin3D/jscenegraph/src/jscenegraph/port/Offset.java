@@ -26,8 +26,21 @@ public class Offset {
 	public String getFieldName() {
 		return fieldName;
 	}
+	
+	public static boolean containerContains(SoFieldContainer container, String fieldName ) {
+		try {
+			return null != plus(container,fieldName);
+		}
+		catch(IllegalStateException e) {
+			return false;
+		}
+	}
 
 	public Object plus(SoFieldContainer container) {
+		return plus( container, fieldName);
+	}
+	
+	public static Object plus(SoFieldContainer container, String fieldName) {
 		try {
 			Field field = getField(container.getClass(),fieldName);
 			field.setAccessible(true);

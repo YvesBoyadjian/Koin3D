@@ -96,4 +96,11 @@ public class SoFieldList extends SbPList {
 	public SoField get(int i) {
 		return (SoField )super.get(i); 
 	}
+
+	// Returns pointer with given index. 
+	public SoField operator_square_bracket(int i) {
+		Object obj = super.operator_square_bracket( i );
+		return (SoField) obj;
+	}
+	
 }

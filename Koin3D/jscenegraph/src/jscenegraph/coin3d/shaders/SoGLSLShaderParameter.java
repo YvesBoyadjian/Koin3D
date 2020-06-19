@@ -349,6 +349,7 @@ isValid( SoGLShaderObject  shader,
     case GL2.GL_SAMPLER_2D_SHADOW_ARB:
     case GL2.GL_SAMPLER_2D_RECT_ARB:
     case GL2.GL_SAMPLER_2D_RECT_SHADOW_ARB: 
+    	this.cacheType = type;
       break;
     default: 
       return false;

@@ -1186,13 +1186,48 @@ GLRender(SoGLRenderAction action)
 	      return; //goto glrender_done; java port : execute finally
 	    }
 
-	    // check if we can render things using glDrawArrays
-	    if (SoGLDriverDatabase.isSupported(SoGL.sogl_glue_instance(state), SoGLDriverDatabase.SO_GL_VERTEX_ARRAY) &&
-	        (pimpl.primitivetype == GL.GL_TRIANGLES) ||
-	        (pimpl.primitivetype == GL2.GL_QUADS) &&
-	        (nbind != Binding.PER_FACE) &&
-	        (mbind != Binding.PER_FACE) &&
-	        !tb.isFunction()) {
+//	    // check if we can render things using glDrawArrays
+//	    if (SoGLDriverDatabase.isSupported(SoGL.sogl_glue_instance(state), SoGLDriverDatabase.SO_GL_VERTEX_ARRAY) &&
+//	        (pimpl.primitivetype == GL.GL_TRIANGLES) ||
+//	        (pimpl.primitivetype == GL2.GL_QUADS) &&
+//	        (nbind != Binding.PER_FACE) &&
+//	        (mbind != Binding.PER_FACE) &&
+//	        !tb.isFunction()) {}
+
+	    	
+	        int contextid = action.getCacheContext();
+	        int numcoords = coords != null ? coords.getNum() : 0;
+	        SoGLLazyElement lelem = null;
+	        // check if we can render things using glDrawArrays
+	        boolean dova =
+	          SoVBO.shouldRenderAsVertexArrays(state, contextid, numcoords) &&
+	          ((pimpl.primitivetype == GL2.GL_TRIANGLES) ||
+	           (pimpl.primitivetype == GL2.GL_QUADS)) &&
+	          (nbind != Binding.PER_FACE) &&
+	          (mbind != Binding.PER_FACE) &&
+	          !tb.isFunction() &&
+	          SoGLDriverDatabase.isSupported(SoGL.sogl_glue_instance(state), SoGLDriverDatabase.SO_GL_VERTEX_ARRAY);
+
+	    	
+	        SoGLVBOElement vboelem = SoGLVBOElement.getInstance(state);
+	    	SoVBO colorvbo = null;
+
+	        if (dova && (mbind != Binding.OVERALL)) {
+	            dova = false;
+	            if (mbind == Binding.PER_VERTEX) {
+	              lelem = (SoGLLazyElement)SoLazyElement.getInstance(state);
+	              colorvbo = vboelem.getColorVBO();
+	              if (colorvbo != null) dova = true;
+	              else {
+	                // we might be able to do VA-rendering, but need to check the
+	                // diffuse color type first.
+	                if (!lelem.isPacked() && lelem.getNumTransparencies() <= 1) {
+	                  dova = true;
+	                }
+	              }
+	            }
+	          }
+	    if (dova) {
 	      boolean dovbo = this.startVertexArray(action,
 	                                            coords,
 	                                            nbind == Binding.PER_VERTEX ? normals[0] : null,
@@ -1242,7 +1277,7 @@ GLRender(SoGLRenderAction action)
 	  // send approx number of triangles for autocache handling
 	  SoGL.sogl_autocache_update(state, numv != 0 ?
 	                        (this.numVertices.operator_square_bracketI(0)-2)*numv : 0, didusevbo);		 
-}
+		 }
 }
 
 

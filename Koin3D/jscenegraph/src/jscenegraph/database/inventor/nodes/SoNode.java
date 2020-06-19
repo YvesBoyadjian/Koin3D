@@ -609,7 +609,7 @@ doAction(SoAction action)
 		       SoTranslation.initClass();
 		       SoTriangleStripSet.initClass();
 		       SoUnits.initClass();
-//		       SoUnknownNode.initClass();
+		       SoUnknownNode.initClass();
 		       SoVertexProperty.initClass();
 //		       SoWWWAnchor.initClass();
 //		       SoWWWInline.initClass();

@@ -84,6 +84,18 @@ import jscenegraph.port.Destroyable;
 ///
 //////////////////////////////////////////////////////////////////////////////
 
+/*!
+  \class SoChildList SoChildList.h Inventor/misc/SoChildList.h
+  \brief The SoChildList class is a container for node children.
+
+  \ingroup general
+
+  This class does automatic notification on the parent nodes upon
+  adding or removing children.
+
+  Methods for action traversal of the children are also provided.
+*/
+
 /**
  * @author Yves Boyadjian
  *
@@ -142,18 +154,34 @@ public void destructor() {
 //
 // Use: public
 
+/*!
+  Append a new \a node instance as a child of our parent container.
+
+  Automatically notifies parent node and any SoPath instances auditing
+  paths with nodes from this list.
+
+  Overloaded from parent to accept an SoNode pointer argument.
+
+  \sa SbPList::insert()
+*/
 public void
 append(SoNode child)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+    // Express interest by parent in child's modification
+	if ( parent != null ) {
+		child.addAuditor(parent, SoNotRec.Type.PARENT);
+	}
+
     super.append(child);
 
-    // Express interest by parent in child's modification
-    child.addAuditor(parent, SoNotRec.Type.PARENT);
-
     // the parent has changed; notify its auditors
-    parent.startNotify();
+    if ( parent != null ) {
+    	parent.startNotify();
+    }
+    // Doesn't need to notify SoPath auditors, as adding a new node at
+    // _the end_ won't affect any path "passing through" this childlist.
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -163,24 +191,42 @@ append(SoNode child)
 //
 // Use: public
 
+/*!
+  Insert a new \a node instance as a child of our parent container at
+  position \a addbefore.
+
+  Automatically notifies parent node and any SoPath instances auditing
+  paths with nodes from this list.
+
+  Overloaded from parent to accept an SoNode pointer argument.
+
+  \sa SbPList::insert()
+*/
+
 public void
 insert(SoNode child, int addBefore)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+    // Express interest by parent in child's modification
+	if ( parent != null) {
+		child.addAuditor(parent, SoNotRec.Type.PARENT);
+	}
+
     int i;
 
     super.insert(child, addBefore);
 
     // If any paths go through the parent, make sure they get updated
-    for (i = 0; i < auditors.getLength(); i++)
-        ((SoPath )auditors.operator_square_bracket(i)).insertIndex(parent, addBefore);
-
-    // Express interest by parent in child's modification
-    child.addAuditor(parent, SoNotRec.Type.PARENT);
-
-    // the parent has changed; notify its auditors
-    parent.startNotify();
+    // FIXME: shouldn't we move this startNotify() call to the end of
+    // the function?  pederb, 2002-10-02
+    if ( parent != null ) {
+	    for (i = 0; i < auditors.getLength(); i++)
+	        ((SoPath )auditors.operator_square_bracket(i)).insertIndex(parent, addBefore);
+	
+	    // the parent has changed; notify its auditors
+	    parent.startNotify();
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -190,6 +236,16 @@ insert(SoNode child, int addBefore)
 //
 // Use: public
 
+/*!
+  \copydetails SbPList::remove(const int index)
+
+  Automatically notifies parent node and any SoPath instances auditing
+  paths with nodes from this list.
+
+  Overloaded from parent to handle notification.
+
+  \sa SbPList::remove(const int index)
+*/
 public void
 remove(int which)
 //
@@ -198,16 +254,27 @@ remove(int which)
     int i;
 
     // Remove interest of parent in child
-    (this).operator_square_bracket(which).removeAuditor(parent, SoNotRec.Type.PARENT);
+    if ( parent != null ) {
+    	(this).operator_square_bracket(which).removeAuditor(parent, SoNotRec.Type.PARENT);
+    }
 
     // If any paths go through the parent, make sure they get updated
-    for (i = 0; i < auditors.getLength(); i++)
-        ((SoPath )auditors.operator_square_bracket(i)).removeIndex(parent, which);
+    // FIXME: we experienced memory corruption if the
+    // SoNodeList::remove(index) statement was placed here (before
+    // updating paths). It seems to be working ok now, but we should
+    // figure out exactly why we can't remove the node before updating
+    // the paths.  pederb, 2002-10-02
+    if ( parent != null ) {
+    	for (i = 0; i < auditors.getLength(); i++) {
+    		((SoPath )auditors.operator_square_bracket(i)).removeIndex(parent, which);
+    	}
 
+        // the parent has changed; notify its auditors
+        /* notify before removal, so that the notification source gets the
+         * chance to operate on the child to be removed. 20100426 tamer. */
+        parent.startNotify();
+    }
     super.remove(which);
-
-    // the parent has changed; notify its auditors
-    parent.startNotify();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -217,35 +284,62 @@ remove(int which)
 //
 // Use: public
 
-public void
-truncate(int start)
+//public void
+//truncate(int start)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    int which;
 //
-////////////////////////////////////////////////////////////////////////
+//    // Remove children from right to left. This allows the indices to
+//    // remain correct during the removal and also keeps the paths that
+//    // audit the group from doing too much work. (A path has to adjust
+//    // indices if we remove a child before the one in the path.) It
+//    // also minimizes shuffling of entries in the children array.
+//
+//    for (which = getLength() - 1; which >= start; --which) {
+//        int i;
+//
+//        // Remove interest of parent in child
+//        (this).operator_square_bracket(which).removeAuditor(parent, SoNotRec.Type.PARENT);
+//
+//        // If any paths go through the parent, make sure they get updated
+//        for (i = 0; i < auditors.getLength(); i++)
+//            ((SoPath )auditors.operator_square_bracket(i)).removeIndex(parent, which);
+//
+//        super.remove(which);
+//    }
+//
+//    // the parent has changed; notify its auditors
+//    parent.startNotify();
+//}
+public void
+truncate( int length)
 {
-    int which;
+  int n = getLength();
+  assert(length >= 0 && length <= n);
 
-    // Remove children from right to left. This allows the indices to
-    // remain correct during the removal and also keeps the paths that
-    // audit the group from doing too much work. (A path has to adjust
-    // indices if we remove a child before the one in the path.) It
-    // also minimizes shuffling of entries in the children array.
-
-    for (which = getLength() - 1; which >= start; --which) {
-        int i;
-
-        // Remove interest of parent in child
-        (this).operator_square_bracket(which).removeAuditor(parent, SoNotRec.Type.PARENT);
-
-        // If any paths go through the parent, make sure they get updated
-        for (i = 0; i < auditors.getLength(); i++)
-            ((SoPath )auditors.operator_square_bracket(i)).removeIndex(parent, which);
-
-        super.remove(which);
+  if (length != n) {
+    if (this.parent != null) {
+      for (int i = length; i < n; i++) {
+    	  operator_square_bracket(i).removeAuditor(this.parent, SoNotRec.Type.PARENT);
+      }
+      /* FIXME: shouldn't we move this startNotify() call to the end of
+         the function?  pederb, 2002-10-02 */
+      /* notify before truncation, so that the notification source gets
+         the chance to operate on the child to be removed. 20100426
+         tamer. */
+      this.parent.startNotify();
+      for (int k=0; k < this.auditors.getLength(); k++) {
+        for (int j=n-1; j >= length; --j) {
+        	((SoPath )this.auditors.operator_square_bracket(k)).removeIndex(this.parent, j);
+        }
+      }
     }
-
-    // the parent has changed; notify its auditors
-    parent.startNotify();
+    super.truncate(length);
+  }
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -259,6 +353,8 @@ copy(final SoChildList cList)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	  if (this == cList) return;
+
     int i;
 
     // Truncate to get rid of old children
@@ -268,11 +364,15 @@ copy(final SoChildList cList)
     super.copy(cList);
 
     // Express parent's interest in all children
-    for (i = 0; i < getLength(); i++)
-        (this).operator_square_bracket(i).addAuditor(parent, SoNotRec.Type.PARENT);
-
-    // the parent has changed; notify its auditors
-    parent.startNotify();
+    // it's important to add parent as auditor for all nodes (this is
+    // usually done in SoChildList::append/insert)
+    if ( parent != null ) {
+	    for (i = 0; i < getLength(); i++)
+	        (this).operator_square_bracket(i).addAuditor(parent, SoNotRec.Type.PARENT);
+	
+	    // the parent has changed; notify its auditors
+	    parent.startNotify();
+    }
 }
 
 
@@ -280,8 +380,9 @@ copy(final SoChildList cList)
 	     int i;
 	      
 	          // Remove interest of parent in old child
+	     if ( parent != null ) {
 	          (this).operator_square_bracket(which).removeAuditor(parent, SoNotRec.Type.PARENT);
-	      
+	     }
 	          // If any paths go through the parent, make sure they get updated
 	          for (i = 0; i < auditors.getLength(); i++)
 	              ((SoPath )auditors.operator_square_bracket(i)).replaceIndex(parent, which, child);
