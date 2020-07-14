@@ -4,6 +4,7 @@
 package jscenegraph.coin3d.inventor.misc;
 
 import jscenegraph.coin3d.glue.cc_glglue;
+import jscenegraph.database.inventor.SbName;
 
 /**
  * @author Yves Boyadjian
@@ -44,13 +45,33 @@ public static final String SO_GL_NON_POWER_OF_TWO_TEXTURES ="COIN_non_power_of_t
 public static final String SO_GL_GENERATE_MIPMAP       ="COIN_generate_mipmap";
 public static final String SO_GL_GLSL_CLIP_VERTEX_HW   ="COIN_GLSL_clip_vertex_hw";
 
-	public static boolean isSupported(cc_glglue glw, String soGl3dTextures) {
-		return true; // java port
+static SoGLDriverDatabaseP pimpl_instance = null;
+
+public static SoGLDriverDatabaseP pimpl()
+{
+  if (pimpl_instance == null) {
+    pimpl_instance = new SoGLDriverDatabaseP();
+    //cc_coin_atexit((coin_atexit_f*) sogldriverdatabase_atexit);
+  }
+  return pimpl_instance;
+}
+
+/*!
+
+  Convenience function which checks whether \a feature is supported
+  for \a context.  If \a feature is an OpenGL extension, it checks if
+  it is actually supported by the driver, and then calls
+  SoGLDriverDatabase::isBroken() to check if the feature is broken for
+  \a context.
+
+ */
+	public static boolean isSupported(cc_glglue context, String feature) {
+		  return pimpl().isSupported(context, new SbName(feature));
 	}
 
 	public static void init() {
-		// TODO Auto-generated method stub
-		
+		  // make sure the private static class is created to avoid race conditions
+		  pimpl();
 	}
 }
 

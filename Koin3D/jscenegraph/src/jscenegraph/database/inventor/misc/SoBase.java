@@ -830,7 +830,7 @@ private static boolean readBase(SoInput in, final SbName className, final SoBase
         if (!isBinary &&
             (! (gotChar = in.read(c)) || c[0] != OPEN_BRACE)) {
             if (gotChar)
-                SoReadError.post(in, "Expected '"+OPEN_BRACE+"'; got '"+c+"'");
+                SoReadError.post(in, "Expected '"+OPEN_BRACE+"'; got '"+c[0]+"'");
             else
                 SoReadError.post(in, "Expected '"+OPEN_BRACE+"'; got EOF");
             ret = false;
@@ -846,7 +846,7 @@ private static boolean readBase(SoInput in, final SbName className, final SoBase
             else if (! isBinary &&
                      (! (gotChar = in.read(c)) || c[0] != CLOSE_BRACE)) {
                 if (gotChar)
-                    SoReadError.post(in, "Expected '"+CLOSE_BRACE+"'; got '"+c+"'");
+                    SoReadError.post(in, "Expected '"+CLOSE_BRACE+"'; got '"+c[0]+"'");
                 else
                     SoReadError.post(in, "Expected '"+CLOSE_BRACE+"'; got EOF");
                 ret = false;

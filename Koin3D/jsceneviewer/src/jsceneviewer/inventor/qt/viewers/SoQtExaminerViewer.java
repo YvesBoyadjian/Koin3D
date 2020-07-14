@@ -270,9 +270,13 @@ public class SoQtExaminerViewer extends SoQtFullViewer {
     };
 
     restoreInteractions();
-    
-    getSceneHandler().registerDevice( new SoQtMouseWheel() ); // java port
 }
+    
+public void buildWidget(int style) {
+	super.buildWidget(style);
+    
+    getSceneHandler().registerDevice( new SoQtMouseWheel() ); // java port	
+}    
     
 
 public void destructor()

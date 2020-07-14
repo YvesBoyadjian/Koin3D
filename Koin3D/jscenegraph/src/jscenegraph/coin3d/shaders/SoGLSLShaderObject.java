@@ -105,6 +105,8 @@ load(String srcStr)
     sType = GL3.GL_GEOMETRY_SHADER/*_EXT*/;
     break;
   }
+    
+  SoGLSLShaderObject.didOpenGLErrorOccur("SoGLSLShaderObject::load() : previous errors",glctx); // YB : fixing bug in Coin3D
 
   this.shaderHandle = this.glctx.glCreateShaderObjectARB(sType);
   this.programid = 0;
@@ -123,8 +125,11 @@ load(String srcStr)
   this.glctx.glGetObjectParameterivARB(this.shaderHandle,
                                          GL2.GL_OBJECT_COMPILE_STATUS_ARB,
                                          flag);
-  SoGLSLShaderObject.printInfoLog(this.GLContext(), this.shaderHandle,
-                                   this.getShaderType().ordinal());
+  if ( SoGLSLShaderObject.printInfoLog(this.GLContext(), this.shaderHandle,
+                                   this.getShaderType().ordinal()) ) {
+	    SoDebugError.postInfoSource("SoGLSLShaderObject: shader source",
+	    		srcStr);	  
+  }
 
   if (flag[0]==0) this.shaderHandle = 0;
 }
@@ -177,7 +182,14 @@ isAttached()
   return this.isattached;
 }
 
-public static void
+/**
+ * return true if warning/error
+ * @param g
+ * @param handle
+ * @param objType
+ * @return
+ */
+public static boolean
 printInfoLog( cc_glglue g, /*COIN_GLhandle*/int handle, int objType)
 {
   final int[] length = new int[1];
@@ -198,7 +210,9 @@ printInfoLog( cc_glglue g, /*COIN_GLhandle*/int handle, int objType)
     SoDebugError.postInfo("SoGLSLShaderObject::printInfoLog",
                            s+" log: '"+Util.toString(infoLog)+"'");
     //delete [] infoLog; java port
+    return true;
   }
+  return false;
 }
 
 public static boolean

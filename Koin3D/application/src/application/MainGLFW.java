@@ -30,6 +30,8 @@ import java.util.Properties;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineEvent;
+import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
@@ -115,6 +117,8 @@ public class MainGLFW {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		//System.loadLibrary("opengl32");
 		
 		//System.setProperty("IV_DEBUG_CACHES", "1");
 		
@@ -231,7 +235,9 @@ public class MainGLFW {
 									SoGroup g = (SoGroup)parent;
 									SoMaterial c = new SoMaterial();
 									c.diffuseColor.setValue(1, 0, 0);
+									g.enableNotify(false);
 									g.insertChild(c, 0);
+									g.enableNotify(true);
 								}
 							}
 							//System.out.println(pp.getPath().getTail().getClass());							
@@ -249,9 +255,9 @@ public class MainGLFW {
 	    glf.depthSize = 24;
 	    glf.doubleBuffer = true;
 	    glf.majorVersion = 3;
-	    glf.minorVersion = 3;
+	    glf.minorVersion = 1;
 	    glf.api = GLData.API.GL;
-	    glf.profile = GLData.Profile.COMPATIBILITY;
+	    //glf.profile = GLData.Profile.COMPATIBILITY;
 	    glf.debug = false;//true; has no effect
 	    glf.grabCursor = true;
 	    viewer.setFormat(glf, style);
@@ -432,6 +438,16 @@ public class MainGLFW {
 		    public void run() {
 		      try {
 		        Clip clip = AudioSystem.getClip();
+		        clip.addLineListener(new LineListener() {
+
+					@Override
+					public void update(LineEvent event) {
+						if( event.getType() == LineEvent.Type.STOP ) {
+							clip.close();
+						}
+					}
+		        	
+		        });
 		        AudioInputStream inputStream = AudioSystem.getAudioInputStream(
 		        		new ByteArrayInputStream(sound));
 		        clip.open(inputStream);

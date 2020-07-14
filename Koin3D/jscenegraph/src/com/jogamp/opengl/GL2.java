@@ -3181,6 +3181,10 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glTexEnvi(arg1,arg2,arg3);
 	}
 
+	default int glGetTexEnvi(int arg1, int arg2) {
+		return org.lwjgl.opengl.GL11.glGetTexEnvi(arg1,arg2);
+	}
+
 	default void glTexEnvfv(int arg1, int arg2, float[] arg3, int arg4) {
 		org.lwjgl.opengl.GL11.glTexEnvfv(arg1,arg2,arg3);
 	}

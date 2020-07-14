@@ -29,6 +29,7 @@ import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
 import jscenegraph.coin3d.TidBits;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.port.Util;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
 
@@ -252,6 +253,39 @@ cc_glglue_context_max_dimensions(int[] width, int[] height)
 	width[0] = 4096;
 	height[0] = 4096;
 }
+
+public static boolean cc_glglue_can_do_anisotropic_filtering(cc_glglue glue) {
+	  if (!SoGL.glglue_allow_newer_opengl(glue)) return false;
+	  return glue.can_do_anisotropic_filtering;	
+}
+
+public static void
+cc_glglue_context_bind_pbuffer( Object ctx)
+{
+  /* No render-to-texture support in external offscreen rendering. */
+  if ( SoGL.offscreen_cb != null ) return;
+
+//#if defined(HAVE_GLX) || defined(HAVE_NOGL)
+//  /* FIXME: Implement for GLX.  The problem is that in GLX, there is
+//     no way to bind a PBuffer as a texture (i.e. there is no
+//     equivalent to the aglTexImagePBuffer() and wglBindTexImageARB()
+//     calls).  kyrah 20031123. */
+//  assert(FALSE && "unimplemented");
+//#elif defined(HAVE_WGL)
+  Gl_wgl.wglglue_context_bind_pbuffer(ctx);
+//#else
+//#if defined(HAVE_AGL)
+//  if (COIN_USE_AGL > 0) aglglue_context_bind_pbuffer(ctx); else
+//#endif
+//#if defined(HAVE_CGL)
+//  cglglue_context_bind_pbuffer(ctx);
+//#else
+//  ;
+//#endif
+//#endif
+}
+
+
 
 /* This abomination is needed to support SoOffscreenRenderer::getDC(). */
 public static Object

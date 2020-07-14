@@ -230,6 +230,49 @@ postInfo(String methodName, String formatString )
     error.handleError();
 }
 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Posts an informational (non-error) message.
+//
+// Use: extender
+
+public static void
+postInfoSource(String title, String sourceString )
+//
+////////////////////////////////////////////////////////////////////////
+{
+    SoDebugError        error = new SoDebugError();
+    String            str = new String();
+
+    // Same stuff as in base class
+//    char        buf[10000];
+//    va_list     ap;
+//
+//    va_start(ap, formatString);
+//    vsprintf(buf, formatString, ap);
+//    va_end(ap);
+
+    str  = "Inventor: ";
+    str += title;
+    str += ": \n";
+    
+    String lines[] = sourceString.split("\\r?\\n");
+    
+    int nb_lines = lines.length;
+    for( int i = 0; i< nb_lines; i++ ) {
+    	String line = lines[i];
+    	str += (i+1);
+    	str += ": ";
+    	str += line;
+    	str += "\n";
+    }
+
+    error.severity = Severity.INFO;
+    error.setDebugString(str/*.getString()*/);
+    error.handleError();
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //

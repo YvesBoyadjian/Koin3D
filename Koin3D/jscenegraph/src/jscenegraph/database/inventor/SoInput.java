@@ -869,6 +869,9 @@ private boolean checkHeader()
 
                 // Set the Inventor file version associated with the header
                 setIVVersion(versionNum[0]);
+                
+                curFile.vrml1file = SoDB.VRML1_HEADER.equals(bufStr);
+                curFile.vrml2file = SoDB.VRML2_HEADER.equals(bufStr);
 
                 // Invoke the pre-callback associated with the header
                 if (preCB[0] != null)
@@ -1053,6 +1056,28 @@ public boolean read(final char[] c)
 //! header.
 public float               getIVVersion()  
     { return curFile.ivVersion; }
+
+/*!
+  Returns \c TRUE if current file is a VRML V1.0 file.
+
+  \COIN_FUNCTION_EXTENSION
+*/
+public boolean isFileVRML1()
+{
+  this.checkHeader();
+  return curFile.vrml2file;
+}
+
+/*!
+  Returns \c TRUE if current file is a VRML 2 / VRML97 file.
+
+  \COIN_FUNCTION_EXTENSION
+*/
+public boolean isFileVRML2()
+{
+  this.checkHeader();
+  return curFile.vrml2file;
+}
 
 public boolean read(final int[] i)
 {

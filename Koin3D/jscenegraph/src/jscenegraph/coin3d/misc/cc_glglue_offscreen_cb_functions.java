@@ -27,4 +27,10 @@ public class cc_glglue_offscreen_cb_functions {
 	}
 	
 	ReinstatePrevious reinstate_previous;
+	
+	public interface Destruct {
+		Object apply(Object context);
+	}
+	
+	Destruct destruct;
 }

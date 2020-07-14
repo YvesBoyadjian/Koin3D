@@ -36,26 +36,28 @@ public class SoShaderGenerator {
 		*/
 		public void destructor()
 		{
+			main = null;
 		}
 
 		public void 
 		reset( boolean freeoldstrings)
 		{
+			  this.dirty = true;
 		  this.version = "";//.makeEmpty(freeoldstrings);
 		  this.defines = "";//.makeEmpty(freeoldstrings);
 		  this.declarations = "";//.makeEmpty(freeoldstrings);
 		  this.functions = "";//.makeEmpty(freeoldstrings);
 		  this.main = new StringBuilder(1024);//.makeEmpty(freeoldstrings);
 		  this.combined = "";//.makeEmpty(freeoldstrings);
-		  this.dirty = false;
 		}
 
 
 		public void 
 		setVersion( String str)
 		{
-		  this.version = str;
-		  this.version += "\n";
+			  this.dirty = true;
+			  this.version = str;
+			  this.version += "\n";
 		}
 
 		/*!
@@ -137,6 +139,7 @@ public class SoShaderGenerator {
 		getShaderProgram()
 		{
 		  if (this.dirty) {
+			  this.dirty = false;
 		    this.combined = "";//.makeEmpty(false);
 		    this.combined += this.version;
 		    this.combined += this.defines;

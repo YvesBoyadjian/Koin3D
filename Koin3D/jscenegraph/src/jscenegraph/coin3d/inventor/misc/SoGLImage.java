@@ -455,7 +455,7 @@ private void setPBuffer(SoState state, Object context) {
 	setPBuffer(state, context, Wrap.REPEAT, Wrap.REPEAT, 0.5f);
 }
   public void setPBuffer(SoState state,
-                  Object  context,
+                  Object pbuffer,
                   Wrap wraps,
                   Wrap wrapt,
                   float quality) {
@@ -767,7 +767,7 @@ createGLDisplayList(SoState state)
   dl.open(state);
 
   if (this.pbuffer != null) {
-    // this.reallyBindPBuffer(state); //TODO YB
+    this.reallyBindPBuffer(state); //TODO YB
   }
   else {
     this.reallyCreateTexture(state, imageptr, numcomponents[0],
@@ -868,6 +868,35 @@ translate_wrap(SoState state, SoGLImage.Wrap wrap)
   cc_glglue glw = SoGL.sogl_glue_instance(state);
   if (SoGLDriverDatabase.isSupported(glw, SoGLDriverDatabase.SO_GL_TEXTURE_EDGE_CLAMP)) return GL2.GL_CLAMP_TO_EDGE;
   return GL2.GL_CLAMP;
+}
+
+
+public void reallyBindPBuffer(SoState state)
+{
+  int target = (this.flags & SoGLImage.Flags.RECTANGLE.getValue()) != 0 ?
+    GL2.GL_TEXTURE_RECTANGLE : GL2.GL_TEXTURE_2D;
+
+  GL2 gl2 = state.getGL2();
+  
+  gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_S,
+                  translate_wrap(state, this.wraps));
+  gl2.glTexParameteri(target, GL2.GL_TEXTURE_WRAP_T,
+                  translate_wrap(state, this.wrapt));
+
+  boolean mipmap = false;
+
+//#if 0
+//  // disabled, we probably need to allocate space for the mipmaps in
+//  // the pbuffer pederb, 2003-11-27
+//  if (this->shouldCreateMipmap() && SoGLDriverDatabase::isSupported(glue, "GL_SGIS_generate_mipmap")) {
+//    glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+//    // glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+//    mipmap = TRUE;
+//  }
+//#endif // disabled
+
+  this.applyFilter(mipmap,gl2);
+  Gl.cc_glglue_context_bind_pbuffer(this.pbuffer);
 }
 
 

@@ -305,6 +305,26 @@ public class Util {
 		}
 	}
 
+	/**
+	 * Transform the array to a String, eliminating zero ending character
+	 * @param str
+	 * @return
+	 */
+	public static String toString(ByteBuffer str) {
+		int len = str.capacity();
+		int endIndex = len;
+		StringBuilder sb = new StringBuilder();
+		for(int i=0;i<len;i++) {
+			byte b = str.get(i); 
+			if(b == 0) {
+				endIndex = i;
+				break;
+			}
+			sb.append((char)b);
+		}
+		return sb.toString();
+	}
+
 	@SuppressWarnings("unchecked")
 	public static void qsort(Object base, int num, int size, Comparator comparator) {
 		if(base instanceof IntArrayPtr) {

@@ -210,9 +210,6 @@ public class SoShadowGroupP implements Destroyable {
 	    
 	    GL2 gl2 = Ctx.get(ctx);
 
-	    int error_pre = 0;
-	    int error_post = 0;
-
 	    for (int i = 0; i < thisp.shadowlights.getLength(); i++) {
 	      SoShadowLightCache cache = thisp.shadowlights.operator_square_bracket(i);
 	      int unit = cache.texunit;
@@ -223,22 +220,15 @@ public class SoShadowGroupP implements Destroyable {
 	      else {
 	        SoGL.cc_glglue_glActiveTexture(glue, /*(GLenum)*/ ((int)(GL2.GL_TEXTURE0) + unit));
 	        if (enable) {
-	  		  	error_pre = gl2.glGetError();
-
 	        	gl2.glEnable(GL2.GL_TEXTURE_2D);
-
-	        	error_post = gl2.glGetError();
 	        }
 	        else {
-	  		  	error_pre = gl2.glGetError();
-
 	  		  	gl2.glDisable(GL2.GL_TEXTURE_2D);
-
-	        	error_post = gl2.glGetError();
 	        }
 	        
 	        SoGL.cc_glglue_glActiveTexture(glue, GL2.GL_TEXTURE0);
 	      }
+	      gl2.glGetError(); //YB
 	    }
 	  }
 
@@ -667,6 +657,7 @@ setFragmentShader(SoState state)
 
   SoShaderGenerator gen = this.fragmentgenerator;
   gen.reset(false);
+  gen.setVersion("#version 120"); // YB : necessary for MESA 3D for Windows
 
   final boolean[] perpixelspot = new boolean[1];
   final boolean[] perpixelother = new boolean[1];

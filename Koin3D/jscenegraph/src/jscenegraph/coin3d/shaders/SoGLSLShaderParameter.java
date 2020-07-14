@@ -35,6 +35,7 @@ import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.Util;
 
 /**
  * @author Yves Boyadjian
@@ -304,21 +305,16 @@ isValid( SoGLShaderObject  shader,
   
 	ByteBuffer cacheNameBB = ByteBuffer.wrap(this.cacheName.getBytes(StandardCharsets.UTF_8));//BufferUtils.createByteBuffer(256);
   
+	int cacheNameBBLength = cacheNameBB.capacity();
   
   // this will only happen once after the variable has been added so
   // it's not a performance issue that we have to search for it here.
   for (i = 0; i < activeUniforms[0]; i++) {
     g.glGetActiveUniformARB(pHandle, i, /*128,*/ length, tmpSize, 
                              tmpType, myName);
-    int zeroIndex = 0;
-    for(int index=0;index<256;index++) {
-    	if(myName.get(index)==0 || myName.get(index)=='[') { // YB : trim the [x]
-    		zeroIndex = index;
-    		break;
-    	}
-    }
+
     int mismatch = cacheNameBB.mismatch(myName);
-    if (mismatch == -1 || mismatch >= zeroIndex/*Objects.equals(this.cacheName , new String(myName,0,zeroIndex))*/) {
+    if (mismatch == -1 || ( mismatch == cacheNameBBLength && (mismatch == 256 || myName.get(mismatch) == 0) ) ) {
       this.cacheSize = tmpSize[0];
       this.cacheType = tmpType[0];
       this.isActive = true;
@@ -349,10 +345,10 @@ isValid( SoGLShaderObject  shader,
     case GL2.GL_SAMPLER_2D_SHADOW_ARB:
     case GL2.GL_SAMPLER_2D_RECT_ARB:
     case GL2.GL_SAMPLER_2D_RECT_SHADOW_ARB: 
-    	this.cacheType = type;
-      break;
+    	this.cacheType = type; // YB
+    	break;
     default: 
-      return false;
+    	return false;
     }
   }
   else if (this.cacheType != type)

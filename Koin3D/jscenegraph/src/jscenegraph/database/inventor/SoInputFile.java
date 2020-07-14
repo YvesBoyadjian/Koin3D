@@ -95,6 +95,8 @@ public class SoInputFile {
     SbDict              refDict;       //!< Node/path reference dictionary
     boolean                borrowedDict;   //!< TRUE if dict from another SoInput
     float               ivVersion;      //!< Version if standard Inventor file;
+    boolean 	vrml1file;
+    boolean 	vrml2file;
     String            headerString;   //!< The header string of the input file
     SoDBHeaderCB        postReadCB;    //!< CB to be called after reading file
     Object                CBData;        //!< User data to pass to the postReadCB

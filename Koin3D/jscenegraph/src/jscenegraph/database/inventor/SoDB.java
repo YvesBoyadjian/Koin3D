@@ -134,6 +134,9 @@ SoBase, SoNode, SoEngine, SoField, SoInput, SoFile, SoPath, SoOneShotSensor, SoD
  *
  */
 public class SoDB {
+	
+	public static final String VRML1_HEADER = "#VRML V1.0 ascii";
+	public static final String VRML2_HEADER = "#VRML V2.0 utf8";
 
 	public interface SoDBHeaderCB {
 		void run(Object userData, SoInput in);
@@ -686,10 +689,15 @@ init()
         // In the future, we might want to verify that the VRML file
         // contains strictly VRML nodes, i.e. any Inventor (non-VRML)
         // nodes in the file generate read warnings.
-        SoDB.registerHeader("#VRML V1.0 ascii",  
+        SoDB.registerHeader(VRML1_HEADER,  
                                 false, 2.1f,
                                 null, null, null);
         
+        // YB : Let us give a chance to VRML V2.0
+        SoDB.registerHeader(VRML2_HEADER,  
+                false, 2.1f,
+                null, null, null);
+
         // Create realTime global field. We have to bypass the
         // standard createGlobalField stuff because there is no
         // specific typeId info for SoSFRealTime.

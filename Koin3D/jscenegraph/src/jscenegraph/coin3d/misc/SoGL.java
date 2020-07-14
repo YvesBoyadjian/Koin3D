@@ -12,6 +12,8 @@ import org.lwjgl.opengl.GLCapabilities;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.TidBits;
+import jscenegraph.coin3d.glue.Gl;
+import jscenegraph.coin3d.glue.Gl_wgl;
 import jscenegraph.coin3d.glue.Wglglue_contextdata;
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
@@ -63,7 +65,7 @@ public class SoGL {
 	
 	static int didwarn = 0;
 
-	static cc_glglue_offscreen_cb_functions offscreen_cb = null;
+	public static cc_glglue_offscreen_cb_functions offscreen_cb = null;
 	
 	// Convenience function for access to OpenGL wrapper from an SoState
 // pointer.
@@ -208,6 +210,35 @@ else { /*  3D textures */
 }
 }
 
+/* ********************************************************************** */
+
+public static boolean
+coin_glglue_non_power_of_two_textures(final cc_glglue glue)
+{
+  if (!glglue_allow_newer_opengl(glue)) return false;
+  
+  // ATi and Intel both seem to have problems with this feature,
+  // especially on old drivers. Disable for everything except nVidia
+  // until we can build a better driver database
+  //if (!glue.vendor_is_nvidia) return false; // YB : not relevant anymore
+  return glue.non_power_of_two_textures;
+}
+
+public static boolean
+coin_glglue_has_generate_mipmap(final cc_glglue glue)
+{
+  if (!glglue_allow_newer_opengl(glue)) return false; 
+  // ATi's handling of this function is very buggy. It's possible to
+  // work around these quirks, but we just disable it for now since we
+  // have other ways to generate mipmaps. Only disable on Windows. The
+  // OS X and Linux drivers are probably ok.
+//  if ((coin_runtime_os() == COIN_MSWINDOWS) && glue->vendor_is_ati) { // YB : not relevant anymore 
+//    return FALSE;
+//  }
+  return (glue.glGenerateMipmap != 0);
+}
+
+
 private static boolean cc_glglue_has_3d_textures(cc_glglue glw) {
 	return true;
 }
@@ -326,22 +357,38 @@ cc_glglue_glversion( cc_glglue  w,
   }
 }
 
+public static int
+coin_glglue_extension_available(String extensions, String ext)
+{
+	if( null == ext || ext.isBlank() ) {
+		throw new IllegalArgumentException("empty extension");
+	}
+	boolean found = extensions.indexOf(ext) != -1;
+	
+  if (Gl.coin_glglue_debug() != 0) {
+    Gl_wgl.cc_debugerror_postinfo("coin_glglue_extension_available",
+                           "extension '"+ext+"' is"+(found ? "" : " NOT")+" present");
+  }
+
+  return found ? 1 : 0;
+}
+
 public static boolean
 cc_glglue_glext_supported( cc_glglue wrapper, String extension)
 {
-	/*
-  uintptr_t key = (uintptr_t)cc_namemap_get_address(extension);
+	
+//  uintptr_t key = (uintptr_t)cc_namemap_get_address(extension);
 
-  void * result = null;
-  if (cc_dict_get(wrapper.glextdict, key, &result)) {
-    return result != null;
-  }
-  result = coin_glglue_extension_available(wrapper.extensionsstr, extension) ?
-    (void*) 1 : null;
-  cc_dict_put(wrapper.glextdict, key, result);
+  Object result = null;
+//  if (cc_dict_get(wrapper.glextdict, key, &result)) {
+//    return result != null;
+//  }
+  result = coin_glglue_extension_available(wrapper.extensionsstr, extension) !=0 ?
+    (Number) 1 : null;
+//  cc_dict_put(wrapper.glextdict, key, result);
 
-  return result != null;*/
-	return true;
+  return result != null;
+	//return true;
 }
 
 
@@ -468,7 +515,6 @@ cc_glglue_glCheckFramebufferStatus( cc_glglue glue, int target)
 
 public static void cc_glglue_context_destruct(Object ctx) {
 	
-/* TODO
 	  if (offscreen_cb != null && offscreen_cb.destruct != null) {
 		    (offscreen_cb.destruct).apply(ctx);
 		  } else {
@@ -477,8 +523,8 @@ public static void cc_glglue_context_destruct(Object ctx) {
 		//#elif defined(HAVE_GLX)
 		  //glxglue_context_destruct(ctx);
 		//#elif defined(HAVE_WGL)
-		  wglglue_context_destruct(ctx);
-		  */
+		  Gl_wgl.wglglue_context_destruct(ctx);
+		  }
 }
 
 public static void cc_glglue_glBindTexture(cc_glglue w, int target, int texture) {

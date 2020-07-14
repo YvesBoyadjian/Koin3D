@@ -1156,7 +1156,11 @@ SoSeparator createPlanet2(float radius, float distance,
 		//String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/modelos/escenaPepitoOficina.iv";
 		//String fileName = "examples_iv/ejemplos-ve3d/modelos/metralleta.wrl";
 		//String fileName = "../MountRainierIsland/jExample/examples_iv/ejemplos-ve3d/mundos-virtuales/forest.iv";
-		String fileName = "examples_iv/shadow-test.iv";
+		//String fileName = "examples_iv/shadow-test2.iv";
+		//String fileName = "examples_iv/shadow.iv";
+		//String fileName = "examples_iv/anya1.wrl";
+		//String fileName = "examples_iv/export_vrml.wrl";
+		String fileName = "C:/Coin3D/shadowSimple.iv";
 	boolean baseColor = false;
 
 	// create scene root

@@ -132,10 +132,10 @@ public class SoQtRenderArea extends SoQtGLWidget {
 	    GLData glf = new GLData(/*GLProfile.getDefault()*/);
 	    glf.depthSize = 24;
 	    glf.doubleBuffer = true;
-	    glf.majorVersion = 4;
-	    glf.minorVersion = 0;
+	    glf.majorVersion = 3;//4; YB : must be compatible with software rendering Mesa3D for Windows
+	    glf.minorVersion = 1;//0;
 	    glf.api = GLData.API.GL;
-	    glf.profile = GLData.Profile.COMPATIBILITY;
+	    //glf.profile = GLData.Profile.COMPATIBILITY; //no profile for 3.1
 	    glf.debug = true;
 	    // Call setFormat from parent class to avoid early construction of decoration which will fail
 	    super.setFormat(glf, style);

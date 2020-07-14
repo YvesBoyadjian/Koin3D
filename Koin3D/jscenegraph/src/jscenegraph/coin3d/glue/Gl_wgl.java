@@ -9,6 +9,11 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLCapabilities;
+import org.lwjgl.opengl.WGL;
+import org.lwjgl.opengl.WGLARBPbuffer;
+import org.lwjgl.opengl.WGLARBRenderTexture;
+import org.lwjgl.system.windows.User32;
+import org.lwjgl.system.windows.WinBase;
 
 /**
  * @author Yves Boyadjian
@@ -143,6 +148,81 @@ wglglue_contextdata_init( int width, int height)
 
   return context;
 }
+
+static void
+wglglue_contextdata_cleanup( Wglglue_contextdata ctx)
+{
+  if (ctx == null) { return; }
+
+  /* FIXME: the error handling below can and should be simplified, by
+     implementing and using excpetion catching wrappers from
+     glue/win32api. 20031124 mortene. */
+
+  if (ctx.wglcontext != 0 && ctx.noappglcontextavail) {
+    final boolean r = WGL.wglDeleteContext(ctx.wglcontext);
+    if (!r) {
+    	Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+                           "wglDeleteContext", WinBase.GetLastError());
+    }
+  }
+//  if (ctx.oldbitmap != 0) { YB : not implemented in LWJGL
+//    final HGDIOBJ o = SelectObject(ctx.memorydc, ctx.oldbitmap);
+//    if (!o) {
+//    	Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+//                           "SelectObject", WinBase.GetLastError());
+//    }
+//  }
+//  if (ctx.bitmap != 0) { YB : not implemented in LWJGL
+//    final boolean r = DeleteObject(ctx.bitmap);
+//    if (!r) {
+//    	Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+//                           "DeleteObject", WinBase.GetLastError());
+//    }
+//  }
+  if (ctx.hpbuffer != 0) {
+    {
+      final int r = WGLARBPbuffer.wglReleasePbufferDCARB(ctx.hpbuffer, WGLARBPbuffer.wglGetPbufferDCARB(ctx.hpbuffer));
+      if (r==0) {
+    	  Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+                             "wglReleasePbufferDC", WinBase.GetLastError());
+      }
+    }
+    {
+      final boolean r = WGLARBPbuffer.wglDestroyPbufferARB(ctx.hpbuffer);
+      if (!r) {
+    	  Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+                             "wglDestroyPbuffer", WinBase.GetLastError());
+      }
+    }
+  }
+  if (ctx.memorydc != 0) {
+    if (ctx.didcreatememorydc) { // YB : not implemented in LWJGL
+//      final boolean r = DeleteDC(ctx.memorydc);
+//      if (!r) {
+//    	  Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+//                             "DeleteDC", WinBase.GetLastError());
+//      }
+    }
+    else if (ctx.shouldreleasememorydc && ctx.pbufferwnd != 0) {
+      boolean ok = User32.ReleaseDC(ctx.pbufferwnd, ctx.memorydc);
+      if (!ok) {
+    	  Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+                             "ReleaseDC", WinBase.GetLastError());
+      }
+    }
+  }
+  if (ctx.pbufferwnd != 0) {
+    boolean r = User32.DestroyWindow(ctx.pbufferwnd);
+    if (!r) {
+    	Win32Api.cc_win32_print_error("wglglue_contextdata_cleanup",
+                           "DestroyWindow", WinBase.GetLastError());
+    }
+  }
+
+  // free(ctx); java port
+}
+
+
 
 static int didregister = 0;
 
@@ -493,9 +573,51 @@ wglglue_context_create_pbuffer( Wglglue_contextdata ctx, boolean warnonerrors)
   return true;
 }
 
-private static void cc_debugerror_postinfo(String string, String string2) {
-	// TODO Auto-generated method stub
+public static void
+wglglue_context_destruct(Object ctx)
+{
+  /* FIXME: needs to call into the (as of yet unimplemented)
+     "destructing GL context" handler. 20030310 mortene. */
+
+  Wglglue_contextdata context = ( Wglglue_contextdata )ctx;
+
+  if (Gl.coin_glglue_debug() != 0) {
+    cc_debugerror_postinfo("wglglue_context_destruct",
+                           "destroy context, HGLRC==" + context.wglcontext);
+  }
+
+  wglglue_contextdata_cleanup(context);
+}
+
+/* ********************************************************************** */
+
+public static void
+wglglue_context_bind_pbuffer(Object ctx)
+{
+  boolean ok;
+
+  Wglglue_contextdata context = ( Wglglue_contextdata )ctx;
+  //assert(WGLARBRenderTexture.wglBindTexImageARB != NULL);
+  assert(context.supports_render_to_texture);
+
+  ok = WGLARBRenderTexture.wglBindTexImageARB(context.hpbuffer, WGLARBRenderTexture.WGL_FRONT_LEFT_ARB);
+  assert(ok);
+  context.pbufferisbound = true;
+}
+
+public static void cc_debugerror_postinfo(String string, String string2) {
 	
+	System.err.println(string+ " : "+ string2);
+}
+
+public static void cc_debugerror_postwarning(String string, String string2) {
+	
+	System.err.println(string+ " : "+ string2);
+}
+
+public static void cc_debugerror_post(String string, String string2) {
+	
+	System.err.println(string+ " : "+ string2);
 }
 
 }

@@ -23,7 +23,7 @@ public class Wglglue_contextdata {
 	  /*HGLRC*/int storedcontext;
 	  /*HDC*/int storeddc;
 
-	  /*WGLGLUE_HPBUFFER*/int hpbuffer;
+	  /*WGLGLUE_HPBUFFER*/long hpbuffer;
 	  boolean noappglcontextavail;
 
 	  boolean supports_render_to_texture;

@@ -326,11 +326,7 @@ updateGL( int unit)
         gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_DECAL);
         break;
       case MODULATE:
-  		int error_pre = gl2.glGetError();
-
     	  gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_MODULATE);
-    	  
-    		int error_post = gl2.glGetError();
         break;
       case BLEND:
     	  gl2.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_BLEND);
@@ -349,6 +345,8 @@ updateGL( int unit)
         assert(false);// && "unknown model");
         break;
       }
+      gl2.glGetError(); // YB
+      gl2.glGetError();
     }
     else {
       SoTextureCombineElement.apply(state, unit);

@@ -99,7 +99,7 @@ setValue(final SbVec3s size, int bytesperpixel,
   //schedulecb = null;
   if (bytes != null /*&& datatype == SbImageP::INTERNAL_DATA*/) {
     // check for special case where we don't have to reallocate
-    if (bytes != null&& (size == this.size) && (bytesperpixel == bpp)) {    	
+    if (bytes != null&& (size.operator_equal_equal(this.size)) && (bytesperpixel == bpp)) {    	
       Util.memcpy(bytes, bytes, 
              (int)(size.getValue()[0]) * (int)(size.getValue()[1]) * (int)(size.getValue()[2]==0?1:size.getValue()[2]) *
              bytesperpixel);

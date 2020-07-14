@@ -91,4 +91,9 @@ setValue(short x, short y, short z)
 				vec[2] != other.vec[2];
 	}
 	
+	public boolean operator_equal_equal(final SbVec3s v2) {
+		final SbVec3s v1 = this;
+		  return ((v1.vec[0] == v2.vec[0]) && (v1.vec[1] == v2.vec[1]) && (v1.vec[2] == v2.vec[2]));
+		}
+
 }

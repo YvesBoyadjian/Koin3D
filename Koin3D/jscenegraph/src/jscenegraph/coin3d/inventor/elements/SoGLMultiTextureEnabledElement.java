@@ -103,11 +103,7 @@ public class SoGLMultiTextureEnabledElement extends SoMultiTextureEnabledElement
 	  case DISABLED:
 	    break;
 	  case TEXTURE2D:
-		  int error_pre = gl2.glGetError();
-
 	    gl2.glDisable(GL2.GL_TEXTURE_2D);
-
-		  int error_post = gl2.glGetError();
 	    break;
 	  case RECTANGLE:
 	    gl2.glDisable(GL2.GL_TEXTURE_RECTANGLE/*_EXT*/);
@@ -126,11 +122,7 @@ public class SoGLMultiTextureEnabledElement extends SoMultiTextureEnabledElement
 	  case DISABLED:
 	    break;
 	  case TEXTURE2D:
-		  int error_pre = gl2.glGetError();
-
 	    gl2.glEnable(GL2.GL_TEXTURE_2D);
-
-		  int error_post = gl2.glGetError();
 	    break;
 	  case RECTANGLE:
 	    gl2.glEnable(GL2.GL_TEXTURE_RECTANGLE/*_EXT*/);
@@ -145,6 +137,9 @@ public class SoGLMultiTextureEnabledElement extends SoMultiTextureEnabledElement
 	    assert(false);// && "should not happen");
 	    break;
 	  }
+	  gl2.glGetError(); // YB
+	  gl2.glGetError();
+	  
 	  SoGL.cc_glglue_glActiveTexture(glue, /*(GLenum)*/ GL2.GL_TEXTURE0);
 
 	}

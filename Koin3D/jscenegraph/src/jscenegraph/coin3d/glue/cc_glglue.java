@@ -8,6 +8,10 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.EXTGeometryShader4;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.system.MemoryStack;
 
 import static org.lwjgl.system.MemoryStack.*;
@@ -17,6 +21,7 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
 
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatBufferAble;
 import jscenegraph.port.IntArrayPtr;
@@ -42,18 +47,78 @@ public class cc_glglue {
 	}
 	
 	public Version version = new Version();
-	public int max_texture_size;
+	public String versionstr = "";
+	public String vendorstr = "";
+	public String extensionsstr = "";
 	public int maxtextureunits;
 	public boolean vendor_is_nvidia = false;
 	public boolean has_fbo = true;
 	  public float max_anisotropy = 16.0f; //TODO
 	public boolean vendor_is_ati = true;
 
+	public boolean can_do_anisotropic_filtering = true;
+
 	public boolean has_arb_fragment_program = true;
+	
+	public boolean non_power_of_two_textures = true;
+	
+	public int max_texture_size;
+	
+	public long glGenerateMipmap;
 	
 	public cc_glglue(int ctx) {
 		this.gl2 = Ctx.get(ctx);
 		this.contextid = ctx;
+		
+    extensionsstr = (String)GL11.glGetString(GL2.GL_EXTENSIONS);
+
+    /* Randall O'Reilly reports that the above call is deprecated from OpenGL 3.0
+       onwards and may, particularly on some Linux systems, return NULL.
+
+       The recommended method is to use glGetStringi to get each string in turn.
+       The following code, supplied by Randall, implements this to end up with the
+       same result as the old method.
+    */
+    if (extensionsstr == null || extensionsstr.isEmpty() || extensionsstr.isBlank()) {
+      // COIN_PFNGLGETSTRINGIPROC glGetStringi = NULL;
+      // glGetStringi = (COIN_PFNGLGETSTRINGIPROC)cc_glglue_getprocaddress(gi, "glGetStringi");
+    	GLCapabilities c = GL.getCapabilities();
+      if ( c.glGetStringi != NULL) {
+        final int[] num_strings = new int[1];
+        gl2.glGetIntegerv(GL2.GL_NUM_EXTENSIONS, num_strings);
+        if (num_strings[0] > 0) {
+          //int buffer_size = 1024;
+          StringBuilder ext_strings_buffer = new StringBuilder();
+          //int buffer_pos = 0;
+          for (int i_string = 0 ; i_string < num_strings[0] ; i_string++) {
+            String extension_string = (String)GL30.glGetStringi (GL2.GL_EXTENSIONS, i_string);
+            //int extension_string_length = (int)strlen(extension_string);
+//            if (buffer_pos + extension_string_length + 1 > buffer_size) {
+//              buffer_size += 1024;
+//              // ext_strings_buffer = (String)realloc(ext_strings_buffer, buffer_size * sizeof (char)); java port
+//            }
+            //strcpy(ext_strings_buffer + buffer_pos, extension_string);
+            ext_strings_buffer.append( extension_string );
+            //buffer_pos += extension_string_length;
+            ext_strings_buffer.append(' '); // Space separated, overwrites NULL.
+          }
+          //ext_strings_buffer[++buffer_pos] = '\0';  // NULL terminate.
+          extensionsstr = ext_strings_buffer.toString();   // Handing over ownership, don't free here.
+        } else {
+        	Gl_wgl.cc_debugerror_postwarning ("cc_glglue_instance",
+                                     "glGetIntegerv(GL_NUM_EXTENSIONS) did not return a value, "+
+                                     "so unable to get extensions for this GL driver, "+
+                                     "version: "+versionstr+", vendor: "+vendorstr+"");
+        }
+      } else {
+        Gl_wgl.cc_debugerror_postwarning ("cc_glglue_instance",
+                                   "glGetString(GL_EXTENSIONS) returned null, but glGetStringi "+
+                                   "procedure not found, so unable to get extensions for this GL driver, "+
+                                   "version: "+versionstr+", vendor: "+vendorstr+"");
+      }
+    }
+
+		
 
 		final int[] gltmp = new int[1];
 	    gl2.glGetIntegerv(GL2.GL_MAX_TEXTURE_SIZE, gltmp,0);
@@ -65,10 +130,27 @@ public class cc_glglue {
 	      gl2.glGetIntegerv(GL2.GL_MAX_TEXTURE_COORDS_ARB, tmp,0);
 	      maxtextureunits = (int) tmp[0];
 	    //}
+	      
+	      /* anisotropic test */
+	      can_do_anisotropic_filtering = false;
+	      max_anisotropy = 0.0f;
+	      if (SoGL.cc_glglue_glext_supported(this, "GL_EXT_texture_filter_anisotropic")) {
+	        can_do_anisotropic_filtering = true;
+		      final float[] tmp_float = new float[1];
+	        gl2.glGetFloatv(GL2.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, tmp_float/* &gi->max_anisotropy*/);
+	        max_anisotropy = tmp_float[0];
+	        if (Gl.coin_glglue_debug() != 0) {
+	          Gl_wgl.cc_debugerror_postinfo("cc_glglue_instance",
+	                                 "Anisotropic filtering: "+(can_do_anisotropic_filtering ? "TRUE" : "FALSE")+" ("+max_anisotropy+")");
+	        }
+	      }
+	      
+	      non_power_of_two_textures =
+	    	      (SoGL.cc_glglue_glversion_matches_at_least(this, 2, 1, 0) ||
+	    	       SoGL.cc_glglue_glext_supported(this, "GL_ARB_texture_non_power_of_two"));
 
-	      float[] dummy = new float[1];
-	      gl2.glGetFloatv(GL2.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, /*&gi->max_anisotropy*/dummy);
-	      max_anisotropy = dummy[0];
+	      GLCapabilities c = GL.getCapabilities();
+	      glGenerateMipmap = c.glGenerateMipmap;	      
 	}
 
 	public GL2 getGL2() {
