@@ -240,6 +240,9 @@ public void destructor()
 protected    void setIgnoreInBbox( boolean newVal ) { ignoreInBbox = newVal; }
 protected    boolean isIgnoreInBbox() { return ignoreInBbox; }
 
+public void setDoingTranslations( boolean doEm ) { doTranslations = doEm; }
+public boolean isDoingTranslations() { return doTranslations; }
+
 
 // Snaps numbers within epsilong of zero to zero
 private float FUDGE(float x,float epsilon) {

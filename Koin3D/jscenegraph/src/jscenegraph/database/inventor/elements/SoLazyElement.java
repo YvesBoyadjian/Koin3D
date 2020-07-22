@@ -71,6 +71,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
+import jscenegraph.port.ByteBufferAble;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbColorArray;
@@ -1811,7 +1812,15 @@ public static void drawElements( SoState state, /*GLenum*/int mode, /*GLsizei*/i
 		  glDrawElements(mode, count, type, 0);
 	  }
 	  else {
-		  glDrawElements(mode, /*count,*/ type, (ByteBuffer)indices);
+		  if ( indices instanceof ByteBuffer ) {
+			  glDrawElements(mode, /*count,*/ type, (ByteBuffer)indices);
+		  }
+		  else if ( indices instanceof ByteBufferAble ) {
+			  glDrawElements(mode, /*count,*/ type, ((ByteBufferAble)indices).toByteBuffer());
+		  }
+		  else {
+			  throw new IllegalArgumentException();
+		  }
 	  }
   }
 }

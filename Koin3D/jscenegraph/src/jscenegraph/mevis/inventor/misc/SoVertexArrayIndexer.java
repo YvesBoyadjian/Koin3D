@@ -123,7 +123,7 @@ public void render(SoState state, boolean useVbo)
     if (_indexVbo == null) {
       _indexVbo = new SoVBO(GL2.GL_ELEMENT_ARRAY_BUFFER);
     }
-    _indexVbo.setData(_numIndices* 4/*sizeof(uint32_t)*/, VoidPtr.create(_indices.getBuffer()), _nodeId, state);
+    _indexVbo.setData(_numIndices* 4/*sizeof(uint32_t)*/, VoidPtr.create(_indices./*getBuffer*/toByteBuffer()), _nodeId, state);
     if (_indexVbo.bind(state)) {
       // if the VBO could be bound, use it.
       dataPtr = null;

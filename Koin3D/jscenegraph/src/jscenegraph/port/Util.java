@@ -380,4 +380,12 @@ public class Util {
 		// TODO Auto-generated method stub
 		
 	}
+
+	public static int sizeof(byte[] geombuffer) {
+		return geombuffer.length;
+	}
+
+	public static int sizeof(short[] geombuffer) {
+		return geombuffer.length;
+	}
 }

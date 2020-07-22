@@ -1049,6 +1049,26 @@ public void unregisterChildDragger(SoDragger child)
     child.removeOtherEventCallback(SoDragger::childOtherEventCB, this);
 }
 
+void registerChildDraggerMovingIndependently(SoDragger child)
+{
+    child.addValueChangedCallback( SoDragger::childValueChangedCB, this );
+
+    child.addStartCallback(SoDragger::childStartCB, this);
+    child.addMotionCallback(SoDragger::childMotionCB, this);
+    child.addFinishCallback(SoDragger::childFinishCB, this);
+    child.addOtherEventCallback(SoDragger::childOtherEventCB, this);
+}
+
+void unregisterChildDraggerMovingIndependently(SoDragger child)
+{
+    child.removeValueChangedCallback( SoDragger::childValueChangedCB, this );
+
+    child.removeStartCallback(SoDragger::childStartCB, this);
+    child.removeMotionCallback(SoDragger::childMotionCB, this);
+    child.removeFinishCallback(SoDragger::childFinishCB, this);
+    child.removeOtherEventCallback(SoDragger::childOtherEventCB, this);
+}
+
 
 public static void childTransferMotionAndValueChangedCB(Object parentAsVoid, 
                                                      SoDragger childDragger)
@@ -1083,6 +1103,37 @@ public static void childTransferMotionAndValueChangedCB(Object parentAsVoid,
         parent.valueChanged();
     parent.setActiveChildDragger( savedChild );
 
+        // Restore saved values of our variables
+        parent.setHandleEventAction(oldHa);
+        parent.setViewVolume(oldVV);
+        parent.setViewportRegion(oldVPR);
+
+    if (savedChild != null) savedChild.unref();
+}
+
+public static void childValueChangedCB( Object parentAsVoid, SoDragger childDragger)
+{
+    SoDragger parent = (SoDragger) parentAsVoid;
+
+    SoDragger savedChild = parent.getActiveChildDragger();
+    if (savedChild != null) savedChild.ref();
+    parent.setActiveChildDragger( childDragger );
+        // Save these variables to we can put 'em back when we're done.
+        SoHandleEventAction oldHa  = parent.getHandleEventAction(); // ptr
+        SbViewVolume         oldVV  = new SbViewVolume(parent.getViewVolume());
+        SbViewportRegion     oldVPR = new SbViewportRegion(parent.getViewportRegion());
+
+        parent.setHandleEventAction(childDragger.getHandleEventAction());
+        parent.setViewVolume(childDragger.getViewVolume());
+        parent.setViewportRegion(childDragger.getViewportRegion());
+
+        SoPath pathToKid = childDragger.createPathToThis();
+        if (pathToKid != null) pathToKid.ref();
+        parent.setTempPathToThis( pathToKid );
+        if (pathToKid != null) pathToKid.unref();
+
+        parent.valueChanged();
+    parent.setActiveChildDragger( savedChild );
         // Restore saved values of our variables
         parent.setHandleEventAction(oldHa);
         parent.setViewVolume(oldVV);
@@ -2483,7 +2534,7 @@ appendRotation( final SbMatrix mtx,
 	       SoTranslate1Dragger.initClass();
 	       SoTranslate2Dragger.initClass();
 	       // simple rotation draggers
-	       //SoRotateSphericalDragger.initClass();
+	       SoRotateSphericalDragger.initClass();
 	       SoRotateCylindricalDragger.initClass();
 	       //SoRotateDiscDragger.initClass();
 	       // coord draggers
@@ -2491,7 +2542,7 @@ appendRotation( final SbMatrix mtx,
 	       // transform draggers
 	       //SoJackDragger.initClass();
 	       SoHandleBoxDragger.initClass();
-	       //SoCenterballDragger.initClass();
+	       SoCenterballDragger.initClass();
 	       //SoTabPlaneDragger.initClass();
 	       SoTabBoxDragger.initClass();
 	       SoTrackballDragger.initClass();

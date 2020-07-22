@@ -813,6 +813,37 @@ setPartAsDefault(final SbName partName,
 
 ////////////////////////////////////////////////////////////////////////
 //
+// Use: public
+//
+// Description:
+//     Sets the part, then sets the field for that part to default.
+//     using partField.setDefault(TRUE).
+//     Hence 'newNode' becomes the new default value, and the part 
+//     only writes if [a] the part is set to a different node. 
+//     [b] values are changes in the fields of newNode.
+//     [c] any child below newNode changes.
+//
+// setPartAsDefault will only set parts if the are public.
+// Returns FALSE on failure, TRUE otherwise. 
+//
+// This version sets the part to the given node.
+//
+////////////////////////////////////////////////////////////////////////
+public boolean setPartAsDefault(final SbName partName, 
+        SoNode newNode) {
+	return setPartAsDefault( partName, newNode, true );
+}
+
+public boolean
+setPartAsDefault(final SbName partName, final SoNode newNode,
+                                    boolean onlyIfAlready )
+{
+    return( setAnyPartAsDefault( partName, newNode, false, onlyIfAlready ) );
+}
+
+
+////////////////////////////////////////////////////////////////////////
+//
 // Use: protected
 //
 // Description:

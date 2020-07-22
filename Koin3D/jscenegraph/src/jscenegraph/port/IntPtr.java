@@ -12,7 +12,7 @@ import com.jogamp.common.nio.Buffers;
  * @author Yves Boyadjian
  *
  */
-public class IntPtr {
+public class IntPtr implements ByteBufferAble {
 	
 	private ByteBuffer buffer;
 	private IntBuffer asIntBuffer;
@@ -61,5 +61,13 @@ public class IntPtr {
 
 	public int get() {
 		return asIntBuffer.get(intOffset);
+	}
+
+	@Override
+	public ByteBuffer toByteBuffer() {
+		ByteBuffer retVal = buffer.duplicate();
+		int byteOffset = intOffset * Integer.BYTES;
+		retVal.position(byteOffset);
+		return retVal;
 	}
 }
