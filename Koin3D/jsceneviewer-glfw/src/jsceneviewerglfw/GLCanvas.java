@@ -50,6 +50,9 @@ public class GLCanvas extends Composite {
 	      if( format.profile != null ) {
 	    	  glfwWindowHint(GLFW_OPENGL_PROFILE, format.profile ==  GLData.Profile.COMPATIBILITY ? GLFW_OPENGL_COMPAT_PROFILE : GLFW_OPENGL_CORE_PROFILE);
 	      }
+	      if( format.debug) {
+	    	  glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+	      }
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_FALSE);
 		if(format.depthSize > 0) {
 			glfwWindowHint(GLFW_DEPTH_BITS, format.depthSize);			
