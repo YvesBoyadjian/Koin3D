@@ -366,7 +366,8 @@ public class SimpleExamples {
 	  // Initialize an examiner viewer:
 	  SoQtExaminerViewer eviewer = new SoQtExaminerViewer(BuildFlag.BUILD_ALL,Type.BROWSER,shell);
 	  eviewer.setSceneGraph(root);
-	  eviewer.show();
+	  //eviewer.show();
+	  eviewer.buildWidget(0);
 
 	  // Pop up the main window.
 	  //SoQt::show(&mainwin);
