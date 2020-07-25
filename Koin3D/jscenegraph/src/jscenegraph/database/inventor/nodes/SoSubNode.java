@@ -106,6 +106,7 @@ import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.SoType.CreateMethod;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFEnum;
 import jscenegraph.database.inventor.fields.SoMFInt32;
@@ -530,7 +531,20 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
   public <T> void SO_NODE_ADD_FIELD(SoSField<T> field,String fieldName, T defValue) {
 	  SO_NODE_ADD_SFIELD(field, fieldName, defValue);
   }
+  public void SO_NODE_ADD_FIELD(SoSFEnum field,String fieldName, Enum defValue) {
+	  SO_NODE_ADD_SFIELD(field, fieldName, defValue);
+  }
    public <T> void SO_NODE_ADD_SFIELD(SoSField<T> field,String fieldName, T defValue) {
+ 	   SO__NODE_CHECK_CONSTRUCT();
+        if (firstInstance())                    {                                
+        fieldData.get(thisClass)[0].addField(thisParent, fieldName,                   
+                            field);            
+        }
+    field.setValue(defValue);                                    
+    field.setContainer(thisParent);                                   
+   }
+   
+   public void SO_NODE_ADD_SFIELD(SoSFEnum field,String fieldName, Enum defValue) {
  	   SO__NODE_CHECK_CONSTRUCT();
         if (firstInstance())                    {                                
         fieldData.get(thisClass)[0].addField(thisParent, fieldName,                   
@@ -590,4 +604,39 @@ public boolean SO_NODE_IS_FIRST_INSTANCE()                                      
 public void SO_NODE_INTERNAL_CONSTRUCTOR(Class<? extends SoNode> class1) {
 	SO_NODE_INTERNAL_CONSTRUCTOR(); //TODO
 }
+
+public void SO_VRMLNODE_INTERNAL_CONSTRUCTOR(Class<? extends SoNode> _class_) {
+  SO_NODE_INTERNAL_CONSTRUCTOR(_class_);
+  thisParent.setNodeType(SoNode.NodeType.VRML2);
+}
+
+public void SO_VRMLNODE_ADD_EMPTY_EXPOSED_MFIELD(SoMField _field_, String fieldName) {
+  do { 
+    _field_.setFieldType(SoField.FieldType.EXPOSED_FIELD.getValue());
+    _field_.setContainer(thisParent);
+    fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+  } while(false);
+}
+
+public void SO_VRMLNODE_ADD_EVENT_IN(SoMField _field_, String fieldName) {
+  do { 
+    _field_.setFieldType(SoField.FieldType.EVENTIN_FIELD.getValue());
+    _field_.setContainer(thisParent);
+    fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+  } while(false);
+}
+
+public <T> void SO_VRMLNODE_ADD_FIELD(SoSField<T> field,String fieldName, T defValue) {
+	SO_NODE_ADD_FIELD(field,fieldName,defValue);
+}
+
+public void SO_VRMLNODE_ADD_FIELD(SoSFEnum field,String fieldName, Enum defValue) {
+	SO_NODE_ADD_FIELD(field,fieldName,defValue);
+}
+
+public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoSField<T> field,String fieldName, T defValue) {
+	field.setFieldType(SoField.FieldType.EXPOSED_FIELD.getValue()); 
+	SO_NODE_ADD_FIELD(field,fieldName,defValue);
+}
+
 }

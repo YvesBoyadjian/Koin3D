@@ -10,6 +10,7 @@ import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
+import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
@@ -17,15 +18,34 @@ import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.database.inventor.nodes.SoSubNode;
 
 /**
  * @author Yves Boyadjian
  *
  */
 public class SoVRMLBillboard extends SoVRMLParent {
+	
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoVRMLBillboard.class,this);
+	   
+	   public                                                                     
+	    static SoType       getClassTypeId()        /* Returns class type id */   
+	                                    { return SoSubNode.getClassTypeId(SoVRMLBillboard.class);  }                   
+	  public  SoType      getTypeId()      /* Returns type id      */
+	  {
+		  return nodeHeader.getClassTypeId();
+	  }
+	  public                                                                  
+	    SoFieldData   getFieldData()  {
+		  return nodeHeader.getFieldData();
+	  }
+	  public  static SoFieldData[] getFieldDataPtr()                              
+	        { return SoSubNode.getFieldDataPtr(SoVRMLBillboard.class); }    	  	
+		
 	
 	public final SoSFVec3f axisOfRotation = new SoSFVec3f();
 
@@ -259,4 +279,15 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	  dummyRot.constructor(matrix);
 	  return dummyRot;//new SbRotation(matrix);
 	}	
+
+/*!
+  \copydetails SoNode::initClass(void)
+*/
+public static void initClass()
+{
+  //SO_NODE_INTERNAL_INIT_CLASS(SoVRMLBillboard, SO_VRML97_NODE_TYPE);
+	  SoSubNode.SO__NODE_INIT_CLASS(SoVRMLBillboard.class, "VRMLBillboard", SoVRMLParent.class);
+}
+
+
 }

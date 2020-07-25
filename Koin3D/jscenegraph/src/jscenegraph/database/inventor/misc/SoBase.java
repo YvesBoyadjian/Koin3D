@@ -964,9 +964,25 @@ private static SoBase createInstance(SoInput in, SbName className, short ioFlags
 
     boolean isBinary = in.isBinary();
     boolean oldFileFormat = (in.getIVVersion() < 2.1f);
+    
+  final SoType type = new SoType(SoType.badType());
+  
+  if (in.isFileVRML2()) {
+    String newname = "VRML" + className.getString();
+    type.copyFrom(SoType.fromName(new SbName(newname)));
+//#if COIN_DEBUG && 0 // debug
+//    if (type != SoType::badType()) {
+//      SoDebugError::postInfo("SoBase::createInstance",
+//                             "Created VRML V2.0 type: %s",
+//                             type.getName().getString());
+//    }
+//#endif // debug
+  }
 
     // Find named type in class dictionary.
-    SoType type = SoType.fromName(className);
+  if (type.isBad()) {
+    type.copyFrom(SoType.fromName(className));
+  }
 
     // Need to create an unknown node or engine:
     if (type.isBad()) {

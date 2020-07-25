@@ -102,7 +102,8 @@ public class SoMFNode extends SoMField<SoNode[]> {
 	    // See if it's a null pointer
 	    if (in.read(name)) {
 	        if (name.operator_equal_equal("NULL")) {
-	            setVal(index, null);
+	        	SoNode[] nullVal = new SoNode[1];
+	            setVal(index, nullVal);
 	            return true;
 	        }
 	        else
@@ -111,7 +112,8 @@ public class SoMFNode extends SoMField<SoNode[]> {
 
 	    // Read node
 	    if (! SoBase.read(in, base, SoNode.getClassTypeId())) {
-	        setVal(index, null);
+        	SoNode[] nullVal = new SoNode[1];
+	        setVal(index, nullVal);
 	        return false;
 	    }
 
@@ -302,4 +304,15 @@ public void set1Value(int index, SoNode node) {
 	set1Value(index, nodePtr);
 }
 
+/*!
+  Returns the number of nodes in this field.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public int getNumNodes()
+{
+  return this.getNum();
+}
 }

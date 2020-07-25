@@ -215,6 +215,38 @@ public static final int FIELD_DEFAULT           =0x04;
 // Amount of values to allocate at a time when reading in multiple values.
 public static final int VALUE_CHUNK_SIZE        =32;
 
+  // enums for setFieldType()/getFieldType()
+  public enum FieldType {
+    NORMAL_FIELD,
+    EVENTIN_FIELD,
+    EVENTOUT_FIELD,
+    EXPOSED_FIELD;
+
+	public int getValue() {
+		return ordinal();
+	}
+  };
+
+  private static final int FLAG_TYPEMASK = 0x0007;  // need 3 bits for values [0-5]
+  private enum FieldFlags {
+    FLAG_ISDEFAULT(0x0008),
+    FLAG_IGNORE(0x0010),
+    FLAG_EXTSTORAGE(0x0020),
+    FLAG_ENABLECONNECTS(0x0040),
+    FLAG_NEEDEVALUATION(0x0080),
+    FLAG_READONLY(0x0100),
+    FLAG_DONOTIFY(0x0200),
+    FLAG_ISDESTRUCTING(0x0400),
+    FLAG_ISEVALUATING(0x0800),
+    FLAG_ISNOTIFIED(0x1000);
+	  
+	  private int value;
+	  
+	  FieldFlags( int value) {
+		  this.value = value;
+	  }
+  };
+
 	
 	// ! The "flags" field contains several bit flags:
 	public class Flags implements Cloneable {
@@ -284,6 +316,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 
 	public final Flags flags = new Flags();
 
+	private int statusbits;
 	private SoFieldContainer container; // ptr
 	private SoFieldAuditorInfo auditorInfo; // ptr
 
@@ -1877,7 +1910,52 @@ public boolean readConnection(SoInput in)
 
 	public void get(String[] s) {
 		// TODO Auto-generated method stub
-		
+		s[0] = "";
 	}
 
+/*!
+  Set type of this field.
+
+  The possible values for \a type is: 0 for ordinary fields, 1 for
+  eventIn fields, 2 for eventOut fields, 3 for internal fields, 4 for
+  VRML2 exposedField fields. There are also enum values in SoField.h.
+*/
+public void setFieldType(int type)
+{
+  this.clearStatusBits(FLAG_TYPEMASK);
+  assert(type >=0 && type <= FLAG_TYPEMASK);
+  this.setStatusBits((int)(type));
+}
+
+/*!
+  Return the type of this field.
+
+  \sa setFieldType()
+*/
+public int getFieldType()
+{
+  return this.statusbits & FLAG_TYPEMASK;
+}
+
+// private methods. Inlined inside this file only.
+
+// clear bits in statusbits
+public void clearStatusBits(int bits)
+{
+  this.statusbits &= ~bits;
+}
+
+// sets bits in statusbits
+public void setStatusBits(int bits)
+{
+  this.statusbits |= bits;
+}
+
+// return TRUE if any of bits is set
+public boolean getStatus(int bits)
+{
+  return (this.statusbits & bits) != 0;
+}
+
+	
 }

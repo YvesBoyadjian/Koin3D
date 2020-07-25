@@ -79,6 +79,7 @@ import jscenegraph.coin3d.inventor.nodes.SoVertexAttributeBinding;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoNodeList;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -191,7 +192,14 @@ public abstract class SoNode extends SoFieldContainer {
 		        }
 		      };
 
-		   	
+// defines for node state flags
+
+// we can currently have 31 node types. The last bit is used to store
+// the override flag.
+public static final int FLAG_TYPEMASK = 0x7fffffff;
+public static final int FLAG_OVERRIDE = 0x80000000;
+
+private int stateflags;		   	
 		   	
 	protected SoNode() {
 
@@ -789,7 +797,7 @@ getPrimitiveCount(SoGetPrimitiveCountAction action)
 	  private     static void         pickS(SoAction action, SoNode node) {
 		  node.pick((SoPickAction ) action);
 	  }
-	  private     static void         rayPickS(SoAction action, SoNode node) {
+	  public     static void         rayPickS(SoAction action, SoNode node) {
 		     node.rayPick((SoRayPickAction ) action);
 	  }
 	  private     static void         searchS(SoAction action, SoNode node) {
@@ -1091,7 +1099,42 @@ GLRenderOffPath(SoGLRenderAction action)
 	        // have a more general pick() method for any pick action.
 	        pick(action);
 	    }
+	    
+// clear bits in stateflags
+private void clearStateFlags(final int bits)
+{
+  this.stateflags &= ~bits;
+}
 
+// sets bits in stateflags
+private void setStateFlags(final int bits)
+{
+  this.stateflags |= bits;
+}
+
+	    
+
+/*!
+  Sets the node type for this node to \a type. Since some nodes
+  should be handled differently in VRML1 vs. Inventor, this
+  should be used to get correct behavior for those cases.
+  The default node type is INVENTOR.
+
+  This method is an extension versus the Open Inventor API.
+
+  \sa getNodeType()
+*/
+public void setNodeType(final NodeType type)
+{
+  // make sure we have enogh bits to store this type
+  assert((int) type.getValue() <= FLAG_TYPEMASK);
+  // clear old type
+  this.clearStateFlags(FLAG_TYPEMASK);
+  // set new type
+  this.setStateFlags((int) type.getValue());
+}
+
+	    
 	    /*!
 	    Returns the node type set for this node.
 
@@ -1102,9 +1145,13 @@ GLRenderOffPath(SoGLRenderAction action)
 	  public SoNode.NodeType
 	  getNodeType() 
 	  {
-	    int type = 0;// this.stateflags & FLAG_TYPEMASK; TODO
+	    int type = this.stateflags & FLAG_TYPEMASK;
 	    return NodeType.fromValue(type);
 	  }
 
-	    
+	  public boolean SoNode_readInstance(SoInput in,
+              short flags)
+{
+		  return super.readInstance(in, flags);
+}
 }

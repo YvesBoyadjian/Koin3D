@@ -166,7 +166,7 @@ public class SoOffscreenRendererP implements Destroyable {
 		        SoDebugError.postWarning("SoOffscreenRendererP::setCameraViewvolForTile",
 		                                  "The SoOffscreenRenderer does not yet work "+
 		                                  "properly with the SoCamera::viewportMapping "+
-		                                  "field set to '"+s+"'");
+		                                  "field set to '"+s[0]+"'");
 		        firstT = false;
 		      }
 		    }

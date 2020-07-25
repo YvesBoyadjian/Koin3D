@@ -852,6 +852,7 @@ private boolean checkHeader()
             // Read the file if the header is a registered header, or
             // if the file header is a superset of a registered header.
             String bufStr = new String(buf,0,i); // java port
+            bufStr = bufStr.trim(); // can contain '\r'
             
             if (SoDB.getHeaderData(bufStr, isBinary, versionNum,
                                         preCB, postCB, userData, true)) {
@@ -1064,7 +1065,9 @@ public float               getIVVersion()
 */
 public boolean isFileVRML1()
 {
-  this.checkHeader();
+	if(!curFile.readHeader) {
+		this.checkHeader();
+	}
   return curFile.vrml2file;
 }
 
@@ -1075,7 +1078,9 @@ public boolean isFileVRML1()
 */
 public boolean isFileVRML2()
 {
-  this.checkHeader();
+	if(!curFile.readHeader) {
+		this.checkHeader();
+	}
   return curFile.vrml2file;
 }
 

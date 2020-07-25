@@ -388,4 +388,12 @@ public class Util {
 	public static int sizeof(short[] geombuffer) {
 		return geombuffer.length;
 	}
+
+	public static int strtol(String str, Object object, int radix) {
+		try {
+			return Integer.parseInt(str, radix);
+		} catch( NumberFormatException e) {
+			return 0;
+		}
+	}
 }

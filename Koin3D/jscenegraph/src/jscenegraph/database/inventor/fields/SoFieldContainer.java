@@ -483,8 +483,17 @@ public boolean SoFieldContainer_readInstance(SoInput in,
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final boolean[] notBuiltIn = new boolean[1]; // Not used
-    return getFieldData().read(in, this, true, notBuiltIn);
+	  final SoFieldData fd = this.getFieldData();
+	  if (fd != null) {
+		  final boolean[] notBuiltIn = new boolean[1]; // Not used
+		  return fd.read(in, this,
+                  // The "error on unknown field" is FALSE when
+                  // we're a group node, since fields can be
+                  // followed by children node specifications.
+                  (flags & SoBase.BaseFlags.IS_GROUP.getValue()) != 0 ? false : true,
+				  notBuiltIn);
+	  }
+	  return true;
 }
 
 	
