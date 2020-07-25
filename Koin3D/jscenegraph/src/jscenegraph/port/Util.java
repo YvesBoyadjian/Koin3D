@@ -376,9 +376,11 @@ public class Util {
  		}
  	}
 
-	public static void strcpy(byte[] buf, int offset, String string) {
-		// TODO Auto-generated method stub
-		
+	public static void strcpy(byte[] buf, int offset, String string) {		
+		int length = string.length();
+		for( int i=0; i<length;i++) {
+			buf[i+offset] = (byte)string.charAt(i);
+		}
 	}
 
 	public static int sizeof(byte[] geombuffer) {

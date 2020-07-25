@@ -670,7 +670,7 @@ public boolean get(final char[] c)
 
     // Read from backBuf if it is not empty
     if (backBufIndex >= 0) {
-        c[0] = backBuf.charAt(backBufIndex);backBufIndex++;
+        c[0] = (backBufIndex < backBuf.length() ? backBuf.charAt(backBufIndex) : 0); backBufIndex++;
 
         if (c[0] != '\0')
             return true;

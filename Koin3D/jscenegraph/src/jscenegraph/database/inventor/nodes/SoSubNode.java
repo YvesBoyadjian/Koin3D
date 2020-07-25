@@ -639,4 +639,10 @@ public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoSField<T> field,String fieldName
 	SO_NODE_ADD_FIELD(field,fieldName,defValue);
 }
 
+public <T> void SO_VRMLNODE_ADD_EMPTY_MFIELD(SoMField<T>_field_,String fieldName) {
+do { 
+  _field_.setContainer(thisParent); 
+  fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+} while(false);
+}
 }

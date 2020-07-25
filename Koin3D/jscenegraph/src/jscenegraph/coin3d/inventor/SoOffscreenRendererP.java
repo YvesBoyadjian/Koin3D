@@ -624,7 +624,7 @@ writeToRGB(FILE fp, int w, int h,
   byte[] buf = new byte[BUFSIZE];
   //(void)memset(buf, 0, BUFSIZE); java port
   buf[7] = (byte)255; // set maximum pixel value to 255
-  Util.strcpy(buf,8, "http://www.coin3d.org");
+  Util.strcpy(buf,8, "https://github.com/coin3d/");
   int wrote = FILE.fwrite(buf, 1, BUFSIZE, fp);
   assert(wrote == BUFSIZE);
 

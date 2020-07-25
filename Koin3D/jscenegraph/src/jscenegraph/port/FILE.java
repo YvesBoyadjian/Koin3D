@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SbIntList;
@@ -223,9 +224,18 @@ public class FILE {
 		return i;
 	}
 
-	public static int sscanf(String backBuf, String string, double[] d) {
+	public static int sscanf(String s, String format, double[] arg) {
 		// TODO Auto-generated method stub
-		return 0;
+		if(Objects.equals(format,"%lf")) {
+			try {
+				arg[0] = Double.parseDouble(s);
+				return 1;
+			}
+			catch(NumberFormatException e) {
+				return FILE.EOF;
+			}
+		}
+		return FILE.EOF;
 	}
 
 	public static int fseek(

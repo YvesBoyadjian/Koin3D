@@ -12,10 +12,10 @@ public class Init {
 public static void
 so_vrml_init()
 {
-//  SoVRMLGeometry::initClass();
-//  SoVRMLVertexPoint::initClass();
-//  SoVRMLVertexShape::initClass();
-//  SoVRMLIndexedShape::initClass();
+  SoVRMLGeometry.initClass();
+  SoVRMLVertexPoint.initClass();
+  SoVRMLVertexShape.initClass();
+  SoVRMLIndexedShape.initClass();
 //
   SoVRMLParent.initClass();
   SoVRMLGroup.initClass();
@@ -36,10 +36,10 @@ so_vrml_init()
   SoVRMLBillboard.initClass();
 //  SoVRMLBox::initClass();
 //  SoVRMLCollision::initClass();
-//  SoVRMLColor::initClass();
+  SoVRMLColor.initClass();
 //  SoVRMLColorInterpolator::initClass();
 //  SoVRMLCone::initClass();
-//  SoVRMLCoordinate::initClass();
+  SoVRMLCoordinate.initClass();
 //  SoVRMLCoordinateInterpolator::initClass();
 //  SoVRMLCylinder::initClass();
 //  SoVRMLCylinderSensor::initClass();
@@ -49,15 +49,15 @@ so_vrml_init()
 //  SoVRMLFog::initClass();
 //  SoVRMLFontStyle::initClass();
 //  SoVRMLImageTexture::initClass();
-//  SoVRMLIndexedFaceSet::initClass();
+  SoVRMLIndexedFaceSet.initClass();
 //
-//  SoVRMLVertexLine::initClass();
-//  SoVRMLIndexedLine::initClass();
-//  SoVRMLIndexedLineSet::initClass();
+  SoVRMLVertexLine.initClass();
+  SoVRMLIndexedLine.initClass();
+  SoVRMLIndexedLineSet.initClass();
 //  SoVRMLInline::initClass();
 //  SoVRMLLOD::initClass();
   SoVRMLShape.initClass();
-//  SoVRMLMaterial::initClass();
+  SoVRMLMaterial.initClass();
 //  SoVRMLMovieTexture::initClass();
 //  SoVRMLNavigationInfo::initClass();
 //  SoVRMLNormal::initClass();
@@ -66,7 +66,7 @@ so_vrml_init()
 //  SoVRMLPixelTexture::initClass();
 //  SoVRMLPlaneSensor::initClass();
 //  SoVRMLPointLight::initClass();
-//  SoVRMLPointSet::initClass();
+  SoVRMLPointSet.initClass();
 //  SoVRMLPositionInterpolator::initClass();
 //  SoVRMLProximitySensor::initClass();
 //  SoVRMLScalarInterpolator::initClass();

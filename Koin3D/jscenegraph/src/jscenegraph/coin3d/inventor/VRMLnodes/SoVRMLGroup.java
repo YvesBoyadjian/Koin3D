@@ -6,6 +6,7 @@ package jscenegraph.coin3d.inventor.VRMLnodes;
 import jscenegraph.coin3d.TidBits;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -131,6 +132,11 @@ public static int getNumRenderCaches()
   return numRenderCaches;
 }
 
+//Doc in parent
+public void getBoundingBox(SoGetBoundingBoxAction action)
+{
+	//TODO
+}
 
 /*!
   \copydetails SoNode::initClass(void)
