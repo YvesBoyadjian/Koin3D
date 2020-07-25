@@ -345,7 +345,7 @@ GLRender(SoGLRenderAction action)
 
 	  SoState state = action.getState();
 
-	  SoCylinder.Part p = SoCylinder.Part.fromValue( this.parts.getValue());
+	  int p = this.parts.getValue();
 	  final SoMaterialBundle mb = new SoMaterialBundle(action);
 	  mb.sendFirst();
 
@@ -364,9 +364,9 @@ GLRender(SoGLRenderAction action)
 	      flags |= SoGL.SOGL_NEED_TEXCOORDS;
 	    }
 	  }
-	  if ((p.getValue() & Part.SIDES.getValue())!=0) flags |= SoGL.SOGL_RENDER_SIDE;
-	  if ((p.getValue() & Part.TOP.getValue())!=0) flags |= SoGL.SOGL_RENDER_TOP;
-	  if ((p.getValue() & Part.BOTTOM.getValue())!=0) flags |= SoGL.SOGL_RENDER_BOTTOM;
+	  if ((p & Part.SIDES.getValue())!=0) flags |= SoGL.SOGL_RENDER_SIDE;
+	  if ((p & Part.TOP.getValue())!=0) flags |= SoGL.SOGL_RENDER_TOP;
+	  if ((p & Part.BOTTOM.getValue())!=0) flags |= SoGL.SOGL_RENDER_BOTTOM;
 
 	  SoMaterialBindingElement.Binding bind =
 	    SoMaterialBindingElement.get(state);
@@ -2007,10 +2007,10 @@ rayPick(SoRayPickAction action)
 
 
   int flags = 0;
-  SoCylinder.Part p = SoCylinder.Part.fromValue( this.parts.getValue());
-  if ((p.getValue() & Part.SIDES.getValue())!=0) flags |= SoPick.SOPICK_SIDES;
-  if ((p.getValue() & Part.TOP.getValue())!=0) flags |= SoPick.SOPICK_TOP;
-  if ((p.getValue() & Part.BOTTOM.getValue())!=0) flags |= SoPick.SOPICK_BOTTOM;
+  int p = this.parts.getValue();
+  if ((p & Part.SIDES.getValue())!=0) flags |= SoPick.SOPICK_SIDES;
+  if ((p & Part.TOP.getValue())!=0) flags |= SoPick.SOPICK_TOP;
+  if ((p & Part.BOTTOM.getValue())!=0) flags |= SoPick.SOPICK_BOTTOM;
 
   SoMaterialBindingElement.Binding bind =
     SoMaterialBindingElement.get(action.getState());
