@@ -301,5 +301,9 @@ public static boolean isIdentStartChar(char c)
 	  }
 	  return emptyname;
 	}
+
+	public SbName operator_add(int beginIndex) {
+		return new SbName(this.getString().substring(beginIndex));
+	}
 	
 }

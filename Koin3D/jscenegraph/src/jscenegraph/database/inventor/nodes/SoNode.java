@@ -452,7 +452,7 @@ copyThroughConnection()
 //
 // Use: public
 
-public SoNode
+public static SoNode
 getByName( SbName name)
 //
 ////////////////////////////////////////////////////////////////////////

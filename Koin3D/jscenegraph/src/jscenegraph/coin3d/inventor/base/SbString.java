@@ -63,4 +63,19 @@ public class SbString {
 	  }
 	}
 
+	public static String getSubString(String that, int startidx) {
+		return getSubString(that, startidx,-1);
+	}
+	public static String getSubString(String that, int startidx, int endidx)
+	  {
+	    final String s[] = new String[1];
+	    cc_string_set_subtext(s, that, startidx, endidx);
+	    return s[0];
+	  }
+
+	public static void
+	cc_string_set_subtext(String[] me, String text, int start, int end)
+	{
+		me[0] = text.substring(start, end);
+	}
 }

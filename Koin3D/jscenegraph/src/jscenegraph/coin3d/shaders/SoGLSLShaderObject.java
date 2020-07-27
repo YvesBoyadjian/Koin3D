@@ -235,7 +235,7 @@ didOpenGLErrorOccur( String source, cc_glglue g)
                        "(set envvar COIN_GLERROR_DEBUGGING=1 "+
                        "and re-run to get more information)"));
     
-    retCode = /*true*/false; // YB TODO
+    retCode = true;
     glErr = g.getGL2().glGetError();
   }
   return retCode;

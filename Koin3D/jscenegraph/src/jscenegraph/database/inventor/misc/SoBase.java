@@ -57,6 +57,7 @@
 
 package jscenegraph.database.inventor.misc;
 
+import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
@@ -70,9 +71,12 @@ import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.fields.SoGlobalField;
 import jscenegraph.database.inventor.misc.upgraders.SoUpgrader;
+import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoUnknownNode;
 import jscenegraph.database.inventor.sensors.SoDataSensor;
+import jscenegraph.port.CString;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.Util;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,6 +105,8 @@ public abstract class SoBase implements Destroyable {
 	private static final String DEFINITION_KEYWORD      ="DEF";
 	private static final String REFERENCE_KEYWORD       ="USE";
 	private static final String NULL_KEYWORD            ="NULL";
+	private static final String PROTO_KEYWORD	 		="PROTO";
+	private static final String EXTERNPROTO_KEYWORD 	="EXTERNPROTO";
 
     //! This set of enums is used when reading and writing the base.
     //! Each enum represents a different bit in a bit field
@@ -601,7 +607,7 @@ protected SoBase()
 //
 // Use: internal, static
 
-public SoBase 
+public static SoBase 
 getNamedBase(final SbName name, final SoType type)
 //
 ////////////////////////////////////////////////////////////////////////
@@ -800,6 +806,25 @@ private static boolean readBase(SoInput in, final SbName className, final SoBase
     // Assume NULL for now
     base[0] = null;
 
+    if (in.isFileVRML2()) {
+        if (className.operator_equal_equal(PROTO_KEYWORD) ||
+            className.operator_equal_equal(EXTERNPROTO_KEYWORD)) { // special case to handle [EXTERN]PROTO definitions
+          SoProto proto = new SoProto(className.operator_equal_equal(EXTERNPROTO_KEYWORD));
+          proto.ref();
+          ret = proto.readInstance(in, (short)0);
+          if (ret) {
+            proto.unrefNoDelete();
+            in.addProto(proto);
+          }
+          else {
+            proto.unref();
+            return false;
+          }
+          base[0] = proto;
+          return true;
+        }
+      }    
+    
     // Check for definition of new node/path
     if (className.operator_equal_equal(new SbName(DEFINITION_KEYWORD))) {
 
@@ -1102,6 +1127,119 @@ private static void flushInput(SoInput in)
             nestLevel++;
     }
 }
+
+
+/*!
+  Connect a route from the node named \a fromnodename's field \a
+  fromfieldname to the node named \a tonodename's field \a
+  tofieldname. This method will consider the fields types (event in,
+  event out, etc) when connecting.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static boolean connectRoute(SoInput in,
+                     final SbName fromnodename, final SbName fromfieldname,
+                     final SbName tonodename, final SbName tofieldname)
+{
+  SoNode fromnode = SoNode.getByName(fromnodename);
+  SoNode tonode = SoNode.getByName(tonodename);
+  if (fromnode != null && tonode != null) {
+    SoDB.createRoute(fromnode, fromfieldname.getString(),
+                      tonode, tofieldname.getString());
+    return true;
+  }
+  return false;
+}
+
+
+
+/*!
+  \COININTERNAL
+
+  Reads a (VRML97) ROUTE. We decided to also add support for routes in
+  Coin, as a generic feature, since we think it is nicer than setting
+  up field connections inside the nodes.
+
+*/
+public static boolean readRoute(SoInput in)
+{
+  final String[] fromstring = new String[1], tostring = new String[1];
+
+  final SbName fromnodename = new SbName();
+  final SbName fromfieldname = new SbName();
+  final SbName toname = new SbName();
+  final SbName tonodename = new SbName();
+  final SbName tofieldname = new SbName();
+  boolean ok;
+
+  ok =
+    in.read(fromstring) &&
+    in.read(toname) &&
+    in.read(tostring);
+
+  if (ok) ok = (toname.operator_equal_equal(new SbName("TO")));
+
+  if (ok) {
+    ok = false;
+
+    // parse from-string
+    CString str1 = CString.create(fromstring[0]);
+    CString str2 = (str1 != null ? Util.strchr(str1, '.') : null);
+    if (str1 != null && str2 != null) {
+      str2.star((char)0); str2.plusPlus();
+
+      // now parse to-string
+      fromnodename.copyFrom(new SbName(str1.toString()));
+      fromfieldname.copyFrom(new SbName(str2.toString()));
+      str1 = CString.create(tostring[0]);
+      str2 = str1 != null ? Util.strchr(str1, '.') : null;
+      if (str1 != null && str2 != null) {
+        str2.star((char)0); str2.plusPlus();
+        tonodename.copyFrom(new SbName(str1.toString()));
+        tofieldname.copyFrom(new SbName(str2.toString()));
+
+        ok = true;
+      }
+    }
+  }
+
+//#if COIN_DEBUG && 0 // debug
+//  SoDebugError::postInfo("SoBase::readRoute",
+//                         "%s.%s %s %s.%s",
+//                         fromnodename.getString(),
+//                         fromfieldname.getString(),
+//                         toname.getString(),
+//                         tonodename.getString(),
+//                         tofieldname.getString());
+//#endif // debug
+
+  if (!ok) SoReadError.post(in, "Error parsing ROUTE keyword");
+  else {
+    SoProto proto = in.getCurrentProto();
+    if (proto != null) {
+      proto.addRoute(fromnodename, fromfieldname, tonodename, tofieldname);
+    }
+    else {
+      SoNode fromnode = SoNode.getByName(fromnodename);
+      SoNode tonode = SoNode.getByName(tonodename);
+
+      if (null == fromnode || null == tonode) {
+        SoReadError.post(in,
+                          "Unable to create ROUTE from "+fromnodename.getString()+"."+fromfieldname.getString()+" to "+tonodename.getString()+"."+tofieldname.getString()+". "+
+                          "Delaying.");
+        in.addRoute(fromnodename, fromfieldname, tonodename, tofieldname);
+      }
+
+      SoBase.connectRoute(in, fromnodename, fromfieldname,
+                                 tonodename, tofieldname);
+    }
+  }
+  return ok;
+}
+
+
 
 /*!
   \internal

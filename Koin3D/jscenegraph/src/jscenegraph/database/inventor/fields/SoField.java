@@ -225,6 +225,16 @@ public static final int VALUE_CHUNK_SIZE        =32;
 	public int getValue() {
 		return ordinal();
 	}
+
+	public static FieldType fromValue(int fieldType) {
+		switch(fieldType) {
+		case 0: return NORMAL_FIELD;
+		case 1: return EVENTIN_FIELD;
+		case 2: return EVENTOUT_FIELD;
+		case 3: return EXPOSED_FIELD;
+		}
+		return null;
+	}
   };
 
   private static final int FLAG_TYPEMASK = 0x0007;  // need 3 bits for values [0-5]
@@ -504,7 +514,35 @@ public static final int VALUE_CHUNK_SIZE        =32;
 	//
 	// Use: public
 
-	public boolean connectFrom(SoEngineOutput engineOutput)
+	public boolean connectFrom(SoEngineOutput engineOutput) {
+		return connectFrom(engineOutput,false,false);
+	}
+	
+/*!
+  Connects this field as a slave to \a master. This means that the value
+  of this field will be automatically updated when \a master is changed (as
+  long as the connection also is enabled).
+
+  If this field had any master-relationships beforehand, these are all
+  broken up if \a append is \c FALSE.
+
+  Call with \a notnotify if you want to avoid the initial notification
+  of connected auditors (a.k.a. \e slaves).
+
+  Function will return \c TRUE unless:
+
+  \li If the field output connected \e from is of a different type
+      from the engine output field-type connected \e to, a field
+      converter is inserted. For some combinations of fields no such
+      conversion is possible, and we'll return \c FALSE.
+
+  \li If this field is already connected to the \a master, we will
+      return \c FALSE.
+
+  \sa enableConnection(), isConnectionEnabled(), isConnectedFromField()
+  \sa getConnectedField(), appendConnection(SoEngineOutput *)
+*/
+	public boolean connectFrom(SoEngineOutput engineOutput, boolean notnotify, boolean append)
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
@@ -586,7 +624,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		// Tell the engine output about this connection
 		engineOutput.addConnection(this);
 
-		if (isConnectionEnabled() && engineOutput.isEnabled()) {
+		if (!notnotify && isConnectionEnabled() && engineOutput.isEnabled()) {
 			// A connection means that the field no longer contains the
 			// default value
 			setDefault(false);
@@ -612,7 +650,36 @@ public static final int VALUE_CHUNK_SIZE        =32;
 	//
 	// Use: public
 
-	public boolean connectFrom(SoField field)
+	public boolean connectFrom(SoField field) {
+		return connectFrom(field,false,false);
+	}
+	
+/*!
+  Connects this field as a slave to \a master. This means that the
+  value of this field will be automatically updated when \a master is
+  changed (as long as the connection also is enabled).
+
+  If this field had any connections to master fields beforehand, these
+  are all broken up if \a append is \c FALSE.
+
+  Call with \a notnotify if you want to avoid the initial notification
+  of connected auditors (a.k.a. \e slaves).
+
+  Function will return \c TRUE unless:
+
+  \li If the field connected \e from has a different type from the
+      field connected \e to, a field converter is inserted. For some
+      combinations of fields no such conversion is possible, and we'll
+      return \c FALSE.
+
+  \li If this field is already connected to the \a master, we will
+      return \c FALSE.
+
+  \sa enableConnection(), isConnectionEnabled(), isConnectedFromField()
+  \sa getConnectedField(), appendConnection(SoField *)
+*/
+	
+	public boolean connectFrom(SoField field,boolean notnotify,boolean append)
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
@@ -677,7 +744,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		// changes
 		field.addAuditor(this, SoNotRec.Type.FIELD);
 
-		if (isConnectionEnabled()) {
+		if (!notnotify && isConnectionEnabled()) {
 			// A connection means that the field no longer contains the
 			// default value
 			setDefault(false);

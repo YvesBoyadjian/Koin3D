@@ -69,6 +69,7 @@ import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 
+import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.database.inventor.SoDB.SoDBHeaderCB;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
@@ -286,6 +287,25 @@ public void destructor() {
     }
 }
 
+/*!
+  Adds a ROUTE from \a fromnode's \a fromfield, to \a tonode's
+  \a tofield. This makes it possible to define ROUTEs in files
+  before the \a fromnode or \a tonode is parsed.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void addRoute(final SbName fromnode, final SbName fromfield,
+                  final SbName tonode, final SbName tofield)
+{
+  SoInputFile info = curFile;//this->getTopOfStack();
+  assert(info != null);
+
+  info.addRoute(fromnode, fromfield,
+                   tonode, tofield);
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -421,6 +441,46 @@ private void initFile(FILE newFP,          // New file pointer
 
     return true;
 	}
+
+	
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Opens named file, pushes file pointer to result. If it can't open
+//    the file, it prints an error message and returns FALSE.
+//
+// Use: public
+
+public boolean
+pushFile( String fileName) // Name of file
+//
+////////////////////////////////////////////////////////////////////////
+{
+    final String[]    fullName = new String[1];
+
+    FILE newFP = findFile(fileName, fullName);
+
+    if (newFP == null) {
+        SoDebugError.post("SoInput::pushFile",
+                           "Can't open file \""+fileName+"\" for reading");
+        return false;
+    }
+
+    // Allocate a new file structure and push onto stack
+    curFile = new SoInputFile();
+    files.append(curFile);
+
+    // Initialize reading from file
+    initFile(newFP, fileName, fullName[0], true);
+
+    if (tmpBuffer == null) {
+        tmpBuffer = new byte[64];
+        tmpBufSize = 64;
+        curTmpBuf = 0;//(char *)tmpBuffer; java port
+    }
+
+    return true;
+}
 
 	
 ////////////////////////////////////////////////////////////////////////
@@ -2263,6 +2323,53 @@ private boolean readLong(final long[] l)
         { return (curFile.bufSize -
                   (curFile.curBuf/* - curFile.buffer*/)); }
 
+/*!
+  Adds a PROTO \a proto which should be active in the current scope.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void addProto(SoProto proto)
+{
+  SoInputFile info = curFile;
+  assert(info != null);
+  proto.ref(); // the PROTO is unref'ed when the file is popped
+  info.addProto(proto);
+}
+
+
+/*!
+  Pushed a PROTO \a proto onto the PROTO stack. The PROTO stack is used during
+  VRML2 file parsing.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \sa popProto()
+  \since Coin 2.0
+*/
+public void pushProto(SoProto proto)
+{
+  SoInputFile info = curFile;//this->getTopOfStack();
+  assert(info != null);
+  info.pushProto(proto);
+}
+
+/*!
+  Pops a PROTO off the PROTO stack.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \sa pushProto()
+  \since Coin 2.0
+*/
+public void popProto()
+{
+  SoInputFile info = curFile;//this->getTopOfStack();
+  assert(info != null);
+  info.popProto();
+}
+
 
 
 //! Adds a reference to dictionary in current file.  This may also
@@ -2953,6 +3060,21 @@ searchForFile( final String basename,
 //  }
   // none found
   return new String("");
+}
+
+/*!
+  Returns the PROTO at the top of the PROTO stack.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \sa pushProto()
+  \since Coin 2.0
+*/
+public SoProto getCurrentProto()
+{
+  SoInputFile info = curFile;//this->getTopOfStack();
+  assert(info != null);
+  return info.getCurrentProto();
 }
 
 

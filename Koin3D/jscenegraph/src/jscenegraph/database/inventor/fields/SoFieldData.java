@@ -56,12 +56,14 @@
 
 package jscenegraph.database.inventor.fields;
 
+import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IdentityOffset;
 import jscenegraph.port.Offset;
@@ -616,6 +618,23 @@ private boolean readFieldDescriptions(
     return true;
 }
 
+/*!
+  Read field data from the \a in stream for fields belonging to \a
+  object. Returns \c TRUE if everything went OK, or \c FALSE if any
+  error conditions occurs.
+
+  \a erroronunknownfield decides whether or not \c FALSE should be
+  returned if a name identifier not recognized as a field name of \a
+  object is encountered. Note that \a erroronunknownfield should be \c
+  FALSE if \a object is a container with child objects, otherwise the
+  code will fail upon the first child name specification.
+
+  If \a notbuiltin is \c TRUE on return, \a object is an unknown node
+  or engine type. Unknown nodes are recognized by the \c fields
+  keyword first in their file format definition, and unknown engines
+  by the \c inputs keyword.
+
+*/
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -697,6 +716,9 @@ private boolean readFieldDescriptions(
 
 	        // Only check for "fields" or "inputs" the first time:
 	        boolean firstTime = true;
+	        final SbName ROUTE_KEYWORD = new SbName("ROUTE");
+	        final SbName PROTO_KEYWORD = new SbName("PROTO");
+	        final SbName EXTERNPROTO_KEYWORD = new SbName("EXTERNPROTO");
 
 	        final SbName fieldName = new SbName();
 
@@ -707,6 +729,29 @@ private boolean readFieldDescriptions(
 	            if (!in.read(fieldName, true) || fieldName.operator_not())
 	                return true;
 
+      if (in.isFileVRML2()) {
+        // test for the VRML97 ROUTE keyword
+        if (fieldName.operator_equal_equal(ROUTE_KEYWORD)) {
+          if (!SoBase.readRoute(in)) return false;
+          continue; // skip to next field/route
+        }
+        // test for the VRML97 PROTO/EXTERNPROTO keyword
+        if (fieldName.operator_equal_equal(PROTO_KEYWORD) || fieldName.operator_equal_equal(EXTERNPROTO_KEYWORD)) {
+          SoProto proto = new SoProto(fieldName.operator_equal_equal(EXTERNPROTO_KEYWORD));
+          proto.ref();
+          if (proto.readInstance(in, (short)0)) {
+            proto.unrefNoDelete();
+            in.addProto(proto);
+          }
+          else {
+            proto.unref();
+            SoReadError.post(in, "Error while parsing PROTO definition inside node");
+            return false;
+          }
+          continue;  // skip to next field/route
+        }
+      }
+	            
 	            // Read field descriptions.  Field descriptions may be
 	            // given for built-in nodes, and do NOT have to be given
 	            // for non-built-in nodes as long as their code can be

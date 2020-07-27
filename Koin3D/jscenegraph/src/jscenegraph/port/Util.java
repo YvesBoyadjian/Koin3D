@@ -398,4 +398,30 @@ public class Util {
 			return 0;
 		}
 	}
+
+	public static int sizeof(String str) {
+		return str.length()+1;
+	}
+
+	public static int strcmp(String str1, String str2) {
+		return str1.compareTo(str2);
+	}
+
+	public static CString strchr(CString cstr, char c) {
+		if ( cstr == null) {
+			return null;
+		}
+		String str = cstr.toString();
+		int index;
+		if( c == 0) {
+			index = str.length();
+		}
+		else {
+			index = str.indexOf(c);
+		}
+		if (index >= 0) {
+			return CString.create(cstr, index);
+		}		
+		return null;
+	}
 }

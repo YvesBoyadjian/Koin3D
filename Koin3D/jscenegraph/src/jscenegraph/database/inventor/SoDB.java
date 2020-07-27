@@ -61,15 +61,19 @@ import java.nio.file.Path;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
 import jscenegraph.coin3d.inventor.VRMLnodes.Init;
 import jscenegraph.coin3d.inventor.annex.profiler.elements.SoProfilerElement;
+import jscenegraph.coin3d.inventor.base.SbString;
+import jscenegraph.coin3d.inventor.engines.SoNodeEngine;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
+import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.coin3d.inventor.threads.SbRWMutex;
 import jscenegraph.coin3d.shaders.SoShader;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoElement;
 import jscenegraph.database.inventor.engines.SoEngine;
+import jscenegraph.database.inventor.engines.SoEngineOutput;
 import jscenegraph.database.inventor.engines.SoFieldConverter;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
@@ -87,6 +91,7 @@ import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.database.inventor.sensors.SoSensorCB;
 import jscenegraph.database.inventor.sensors.SoSensorManager;
 import jscenegraph.database.inventor.sensors.SoTimerSensor;
+import jscenegraph.port.Util;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -654,6 +659,8 @@ init()
         SoEvent.initClasses();
         SoDetail.initClasses();
         
+        SoProto.initClass();        
+        
         SoGLDriverDatabase.init();
         SoGLImage.initClass();
         SoGLBigImage.initClass();        
@@ -972,6 +979,137 @@ public static boolean getHeaderData(final String header,
     userData[0] = data.userData;   
     return (true);      
 }
+
+
+// *************************************************************************
+
+//
+// helper function for createRoute(). First test the actual fieldname,
+// then set set_<fieldname>, then <fieldname>_changed.
+//
+private static SoField
+find_route_field(SoNode node, final SbName fieldname)
+{
+  SoField field = node.getField(fieldname);
+
+  if (null == field) {
+    if (Util.strncmp(fieldname.getString(), "set_", 4) == 0) {
+      SbName newname = fieldname.operator_add(4);
+      field = node.getField(newname);
+    }
+    else {
+      String str = fieldname.getString();
+      int len = str.length();
+      String CHANGED = "_changed";
+      int changedsize = Util.sizeof(CHANGED) - 1;
+
+      if (len > changedsize && Util.strcmp(new SbName(str).operator_add(len-changedsize).getString(),
+                                      CHANGED) == 0) {
+        String substr = SbString.getSubString(str,0, len-(changedsize+1));
+        SbName newname = new SbName(substr);
+        field = node.getField(newname);
+      }
+    }
+  }
+  return field;
+}
+
+/*!
+  Create a connection from one VRML97 node field to another.
+
+  ("Routes" are what field-to-field connections are called for the
+  VRML97 standard.)
+
+  Connections made in this manner will be persistent upon file export.
+
+  \sa SoDB::removeRoute()
+  \sa SoField::connectFrom(SoField*)
+
+  \since Coin 2.4
+  \since TGS Inventor 2.6
+*/
+public static void createRoute(final SoNode fromnode, String eventout,
+                  final SoNode tonode, String eventin)
+{
+  assert(fromnode != null && tonode != null && eventout != null && eventin != null);
+
+  final SbName fromfieldname = new SbName(eventout);
+  final SbName tofieldname = new SbName(eventin);
+
+  SoField from = find_route_field(fromnode, fromfieldname);
+  SoField to = find_route_field(tonode, tofieldname);
+
+  final SbName fromnodename = new SbName(fromnode.getName());
+  if (fromnodename.operator_equal_equal("")) {
+    fromnodename.copyFrom(new SbName("<noname>"));
+  }
+  final SbName tonodename = new SbName(tonode.getName());
+  if (tonodename.operator_equal_equal("")) {
+    tonodename.copyFrom(new SbName("<noname>"));
+  }
+  SoEngineOutput output = null;
+  if (from == null && fromnode.isOfType(SoNodeEngine.getClassTypeId())) {
+    output = ((SoNodeEngine) fromnode).getOutput(fromfieldname);
+  }
+
+  if (to != null && (from != null || output != null)) {
+    boolean notnotify = false;
+    boolean append = false;
+    if (output != null || from.getFieldType() == SoField.FieldType.EVENTOUT_FIELD.getValue()) {
+      notnotify = true;
+    }
+//#if 0 // seems like (reading the VRML97 spec.) fanIn in allowed even to regular fields
+//    if (to->getFieldType() == SoField::EVENTIN_FIELD) append = TRUE;
+//#else // fanIn
+    append = true;
+//#endif // fanIn fix
+
+    // Check if we're already connected.
+    final SoFieldList fl = new SoFieldList(); //TODO destructor
+    if (from != null) from.getForwardConnections(fl);
+    else output.getForwardConnections(fl);
+    int idx = fl.find(to);
+    if (idx != -1) {
+//#if COIN_DEBUG
+      SoDebugError.postWarning("SoDB::createRoute",
+                                "Tried to connect a ROUTE multiple times "+
+                                "(from "+fromnodename.getString()+"."+fromfieldname.getString()+" to "+tonodename.getString()+"."+tofieldname.getString()+")");
+//#endif // COIN_DEBUG
+      return;
+    }
+
+    // Check that there exists a field converter, if one is needed.
+    SoType totype = to.getTypeId();
+    SoType fromtype = from != null ? from.getTypeId() : output.getConnectionType();
+    if (totype.operator_not_equal(fromtype)) {
+      SoType convtype = SoDB.getConverter(fromtype, totype);
+      if (convtype == SoType.badType()) {
+//#if COIN_DEBUG
+        SoDebugError.postWarning("SoDB::createRoute",
+                                  "Tried to connect a ROUTE between entities "+
+                                  "that cannot be connected (due to lack of "+
+                                  "field type converter): "+fromnodename.getString()+"."+fromfieldname.getString()+" is of type "+
+                                  fromtype.getName().getString()+", and "+tonodename.getString()+"."+tofieldname.getString()+" is of type "+totype.getName().getString());
+//#endif // COIN_DEBUG
+        return;
+      }
+    }
+
+    boolean ok;
+    if (from != null) ok = to.connectFrom(from, notnotify, append);
+    else ok = to.connectFrom(output, notnotify, append);
+    // Both known possible failure points are caught above.
+    if(!ok) throw new IllegalArgumentException("unexpected connection error");
+  }
+//#if COIN_DEBUG
+  else {
+    SoDebugError.postWarning("SoDB::createRoute",
+                              "Unable to create route: "+fromnodename.getString()+"."+eventout+" TO "+tonodename.getString()+"."+eventin+"");
+  }
+//#endif  // COIN_DEBUG
+}
+
+
 
 // Note that the function names of the next four functions below are
 // all lowercase to be compatible with client code written on TGS

@@ -122,6 +122,20 @@ public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
       this.itembuffersize = items > DEFAULTSIZE ? items : DEFAULTSIZE;
     }
   }
+  
+  public void insert(T item, int insertbefore) {
+//#ifdef COIN_EXTRA_DEBUG
+//    assert(insertbefore >= 0 && insertbefore <= this->numitems);
+//#endif // COIN_EXTRA_DEBUG
+    if (this.numitems == this.itembuffersize) this.grow();
+
+    for (int i = this.numitems; i > insertbefore; i--)
+      this.itembuffer[i] = this.itembuffer[i-1];
+    this.itembuffer[insertbefore] = item;
+    this.numitems++;
+  }
+
+
 
 	public void remove(int index) {
 	    this.numitems--;
@@ -213,6 +227,19 @@ public void truncate( int length, int dofit /*= 0*/) {
   this.numitems = length;
   if (dofit != 0) this.fit();
 }
+
+  public void push(T item) {
+    this.append(item);
+  }
+
+  public T pop() {
+//#ifdef COIN_EXTRA_DEBUG
+    assert(this.numitems > 0);
+//#endif // COIN_EXTRA_DEBUG
+    this.itembuffer[this.numitems] = null; // java port
+	--this.numitems;
+    return (T)this.itembuffer[this.numitems];
+  }
 
   
 }

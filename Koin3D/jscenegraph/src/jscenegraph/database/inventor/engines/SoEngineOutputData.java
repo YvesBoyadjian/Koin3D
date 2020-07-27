@@ -56,10 +56,13 @@
 
 package jscenegraph.database.inventor.engines;
 
+import jscenegraph.coin3d.inventor.engines.SoNodeEngine;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.fields.SoFieldContainer;
+import jscenegraph.port.Offset;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -178,6 +181,24 @@ getOutputName(int index)
 		  // This generates a CC warning; there's not much we can do about it...
 		  return (SoEngineOutput ) func.plus(offset);
 	}
+	
+
+/*!
+  \overload
+*/
+public SoEngineOutput getOutput(final SoNodeEngine engine, int index)
+{
+  return this.getOutputInternal((SoFieldContainer)(engine), index);
+}
+
+// does the actual job of returning an engine output
+public SoEngineOutput getOutputInternal(final SoFieldContainer base, int index)
+{
+  assert(index >= 0 && index < this.outputs.getLength());
+  String offset = ((SoOutputEntry)this.outputs.operator_square_bracket(index)).offset;
+  return (SoEngineOutput) base.plus(new Offset(offset));
+}
+
 	
 	// Returns index of output, given the output and the engine it is in. 
 	public int getIndex(SoEngine func, SoEngineOutput output) {

@@ -60,6 +60,8 @@ package jscenegraph.database.inventor;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.database.inventor.SoDB.SoDBHeaderCB;
 import jscenegraph.port.FILE;
 
@@ -100,6 +102,9 @@ public class SoInputFile {
     String            headerString;   //!< The header string of the input file
     SoDBHeaderCB        postReadCB;    //!< CB to be called after reading file
     Object                CBData;        //!< User data to pass to the postReadCB
+    final SbList <SoProto> protolist = new SbList<>(); //COIN3D
+    final SbList <SbName> routelist = new SbList<>(); //COIN3D
+    final SbList <SoProto> protostack = new SbList<>(); //COIN3D
 
     public SoInputFile() {                      //!< Too complex for inlining
     // Initialize variables:
@@ -154,4 +159,31 @@ public class SoInputFile {
 			buf[i] = (byte)buffer.charAt(curBuf2);
 		}
 	}
+
+	public  void addProto(SoProto proto) {
+		    this.protolist.append(proto);
+		  }
+
+	
+  public void pushProto(SoProto proto) {
+    this.protostack.push(proto);
+  }
+  public void popProto() {
+    this.protostack.pop();
+  }
+	
+  public void addRoute(final SbName fromnode, final SbName fromfield,
+                final SbName tonode, final SbName tofield) {
+    this.routelist.append(fromnode);
+    this.routelist.append(fromfield);
+    this.routelist.append(tonode);
+    this.routelist.append(tofield);
+  }
+
+  public SoProto getCurrentProto() {
+	    int n = this.protostack.getLength();
+	    if (n != 0) return this.protostack.operator_square_bracket(n-1);
+	    return null;
+	  }
+
 }
