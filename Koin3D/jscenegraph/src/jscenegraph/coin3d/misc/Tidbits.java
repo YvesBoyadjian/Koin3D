@@ -85,4 +85,17 @@ public enum CoinEndiannessValues {
 			  return coin_endianness = CoinEndiannessValues.COIN_HOST_IS_LITTLEENDIAN;
 			}	}
 
+/* We provide our own version of the isspace() method, as we don't
+   really want it to be locale-dependent (which is known to have
+   caused trouble for us with some specific German characters under
+   Microsoft Windows, at least). */
+public static boolean
+coin_isspace( char c)
+{
+  /* This is what isspace() does under the POSIX and C locales,
+     according to the GNU libc man page. */
+  return (c==' ') || (c=='\n') || (c=='\t') ||
+         (c=='\r') || (c=='\f') /*|| (c=='\v')*/;
+}
+
 }

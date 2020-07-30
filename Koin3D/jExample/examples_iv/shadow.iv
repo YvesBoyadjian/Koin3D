@@ -11,7 +11,7 @@
       cutOffAngle 0.35
       dropOffRate 0.7
     }
-    ShadowStyle { style SHADOWED }
+    #ShadowStyle { style SHADOWED }
     Separator {
       Complexity { value 1.0 }
       Material { diffuseColor 1 1 0 specularColor 1 1 1 shininess 0.9 }

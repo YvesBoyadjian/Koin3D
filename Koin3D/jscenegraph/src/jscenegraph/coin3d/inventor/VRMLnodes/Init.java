@@ -72,7 +72,7 @@ so_vrml_init()
 //  SoVRMLScalarInterpolator::initClass();
 //  SoVRMLScript::initClass();
 //  SoVRMLSound::initClass();
-//  SoVRMLSphere::initClass();
+  SoVRMLSphere.initClass();
 //  SoVRMLSphereSensor::initClass();
 //  SoVRMLSpotLight::initClass();
 //  SoVRMLSwitch::initClass();

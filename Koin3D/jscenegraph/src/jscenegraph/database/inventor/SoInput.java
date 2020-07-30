@@ -65,15 +65,21 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 
 import jscenegraph.coin3d.inventor.misc.SoProto;
+import jscenegraph.coin3d.misc.Tidbits;
 import jscenegraph.database.inventor.SoDB.SoDBHeaderCB;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.misc.SoBase;
+import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.port.CString;
 import jscenegraph.port.FILE;
 import jscenegraph.port.Util;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
@@ -126,7 +132,7 @@ public class SoInput {
                                         //! has been read but can't be put back.
     private boolean                backupBufUsed;  //!< True if backupBuf contains data
     
-		   
+  final Map<String, SoBase> copied_references = new HashMap<>();		   
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -1068,8 +1074,13 @@ public void putBack(String string)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    backBuf = string;
-    backBufIndex = 0;
+	int length = string.length();
+	
+	for (int i = length-1; i>=0; i--) {
+		putBack(string.charAt(i));
+	}
+//    backBuf = string;
+//    backBufIndex = 0;
 }
 
 
@@ -1110,6 +1121,75 @@ public boolean read(final char[] c)
 {
     return (skipWhiteSpace() && get(c));
 }
+
+
+/*!
+  Reads next character in input stream, returns \c FALSE if encountering
+  end of file. If \a skip is \c TRUE, skips whitespace before reading a
+  character.
+*/
+public boolean read(char[] c, boolean skip)
+{
+  SoInputFile fi = getTopOfStackPopOnEOF();
+
+  if (! curFile.readHeader && !this.checkHeader()) return false;
+
+  boolean ok = true;
+  if (skip) ok = /*fi.*/skipWhiteSpace(); // FIXME YB
+  return (ok && /*fi.*/get(c)); // FIXME YB
+}
+
+// *************************************************************************
+/*
+  Important note: Up until Coin 3.1.1 we used to have a bug in SoInput
+  when reading files from other files (SoFile/SoVRMLInline++). The SoInput
+  dictionary was global for all files pushed onto the SoInput filestack,
+  and DEFs in extra files could therefore overwrite DEFs in the original
+  file. This minimal case reproduces this bug:
+
+  #Inventor V2.1 ascii
+
+  Switch {
+    whichChild -1
+    DEF cube Cube {}
+  }
+
+  File { name "minimal_ref.iv" }
+  USE cube
+
+  minimal_ref.iv looks something like this:
+
+  #Inventor V2.1 ascii
+  DEF cube Info {}
+
+  In older versions of Coin you'll not see the Cube when loading the first
+  file.
+
+ */
+// *************************************************************************
+
+
+// Helper function that pops the stack when the current file is at
+// EOF.  Then it returns the file at the top of the stack.
+private SoInputFile getTopOfStackPopOnEOF()
+{
+  SoInputFile fi = curFile;//getTopOfStack();
+  assert(fi != null); // Should always have a top of stack, because the last
+              // element on the stack is never removed until the
+              // SoInput is closed
+
+  // Pop the stack if end of current file
+  if (fi.isEndOfFile()) {
+    popFile(); // Only pops if more than one file is on
+                             // the stack.
+    fi = curFile;//getTopOfStack();
+    assert(fi != null);
+  }
+
+  return fi;
+}
+
+
 
 //! Returns the Inventor file version of the file being read (e.g. 2.1).
 //! If the file has a header registered through SoDB::registerHeader(),
@@ -3061,6 +3141,78 @@ searchForFile( final String basename,
   // none found
   return new String("");
 }
+
+
+/*!
+  Checks if the next bytes in \a in is the IS keyword. Returns \c TRUE
+  if the IS keyword was found, \a readok will be set to \c FALSE if
+  some error occurred while searching for the IS keyword.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public boolean checkISReference(SoFieldContainer container,
+                          final SbName fieldname, final boolean[] readok)
+{
+  readok[0] = true;
+  SoProto proto = this.getCurrentProto();
+  boolean foundis = false;
+  if (proto != null) {
+    // The reason for this specific parsing code is that we need
+    // to put back whitespace when the IS keyword isn't found.
+    // SoInput::read(SbName) skips whitespace automatically...
+    // pederb, 2001-10-26
+    String putback = "";
+    final int STATE_WAIT_I = 0;
+    final int STATE_EXPECT_S = 1;
+    final int STATE_EXPECT_SPACE = 2;
+    final int STATE_FOUND = 3;
+    final int STATE_NOTFOUND = 4;
+    int state = STATE_WAIT_I;
+    do {
+      final char[] c = new char[1];
+      readok[0] = this.read(c, false);
+      putback = putback + c[0];
+      if (readok[0]) {
+        switch (state) {
+        case STATE_WAIT_I:
+          if (c[0] == 'I') state = STATE_EXPECT_S;
+          else if (!Tidbits.coin_isspace(c[0])) state = STATE_NOTFOUND;
+          break;
+        case STATE_EXPECT_S:
+          if (c[0] == 'S') state = STATE_EXPECT_SPACE;
+          else state = STATE_NOTFOUND;
+          break;
+        case STATE_EXPECT_SPACE:
+          if (Tidbits.coin_isspace(c[0])) state = STATE_FOUND;
+          else state = STATE_NOTFOUND;
+          break;
+        default:
+          assert(false && "should not happen" != null);
+          break;
+        }
+      }
+    } while (readok[0] && state != STATE_FOUND && state != STATE_NOTFOUND);
+
+    if (state == STATE_FOUND) {
+      foundis = true;
+      final SbName iname = new SbName();
+      readok[0] = this.read(iname, true);
+      if (readok[0]) {
+        assert(container.isOfType(SoNode.getClassTypeId()));
+        proto.addISReference((SoNode) container, fieldname, iname);
+      }
+    }
+    else {
+      assert(state == STATE_NOTFOUND);
+      this.putBack(putback);
+      foundis = false;
+    }
+  }
+  return foundis;
+}
+
 
 /*!
   Returns the PROTO at the top of the PROTO stack.

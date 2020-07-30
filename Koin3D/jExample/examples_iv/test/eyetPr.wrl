@@ -1,0 +1,35 @@
+#VRML V2.0 utf8 
+#PROTO Definition begins 
+PROTO Eye [ field SFFloat pupilRadius 0.2 
+            field SFVec3f squashFactor 1 1 1] 
+{ 
+Transform { 
+    scale IS squashFactor
+    children [ 
+        Shape { 
+            appearance Appearance { 
+                material Material { # color of the whites part 
+                    diffuseColor 0.8 0.8 0.8 #light gray 
+                } 
+            } 
+        geometry Sphere { } 
+        } 
+        Transform { #the pupil 
+            translation 0 0 1 #move the pupil sphere forward 
+            scale 1 1 0.1     #squash the pupil sphere to flatten it out 
+            children [ 
+                Shape { 
+                    appearance Appearance { 
+                        material Material { 
+                            diffuseColor 0.2 0.2 0.2 #color of the pupil 
+                    } 
+                } 
+                geometry Sphere { radius IS pupilRadius } 
+                } 
+            ] 
+        } 
+    ] 
+} 
+
+} #PROTO Definition ends 
+

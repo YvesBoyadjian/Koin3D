@@ -508,18 +508,164 @@ getFieldName(int index)
 	  is expected after the field name in the SoInput stream.
 
 	*/
-	public boolean
-	readFieldDescriptions(SoInput in, SoFieldContainer object,
-	                                   int numdescriptionsexpected,
-	                                   boolean readfieldvalues)
-	{
-		if(readfieldvalues) {
-			throw new RuntimeException();
-		}
-		else {
-			return readFieldDescriptions(in,object,numdescriptionsexpected);
-		}
+	
+/*!
+  Reads a set of field specifications from \a in for an unknown node class type,
+  in the form "[ FIELDCLASS FIELDNAME, FIELDCLASS FIELDNAME, ... ]".
+
+  \a numdescriptionsexpected is used for binary format import to know
+  how many descriptions should be parsed.
+
+  If \a readfieldvalues is \e TRUE (the default), the field initial value
+  is expected after the field name in the SoInput stream.
+
+*/
+	
+	  // These two macros are convenient for reading with error detection.
+	private boolean READ_CHAR(SoInput in, char[] c) {
+	    if (!in.read(c)) {
+	        SoReadError.post(in, "Premature end of file");
+	        return false; 
+	      }		
+	    return true;
 	}
+	
+public boolean readFieldDescriptions(SoInput in, SoFieldContainer object,
+                                   int numdescriptionsexpected,
+                                   boolean readfieldvalues)
+{
+	if(!readfieldvalues) {
+		return readFieldDescriptions(in,object,numdescriptionsexpected);
+	}
+
+  // These two macros are convenient for reading with error detection.
+
+  final SbName EVENTIN = new SbName("eventIn");
+  final SbName EVENTOUT = new SbName("eventOut");
+  final SbName FIELD = new SbName("field");
+  final SbName EXPOSEDFIELD = new SbName("exposedField");
+  final SbName IS = new SbName("IS");
+
+  final char[] c = new char[1];
+  if (!in.isBinary()) {
+    if(!READ_CHAR(in, c)) return false;
+    if (c[0] != OPEN_BRACE_CHAR) {
+      SoReadError.post(in, "Expected '"+OPEN_BRACE_CHAR+"', got '"+c[0]+"'");
+      return false;
+    }
+  }
+
+  for (int j=0; !in.isBinary() || (j < numdescriptionsexpected); j++) {
+
+    if (!in.isBinary()) {
+      if(!READ_CHAR(in, c)) return false;
+      if (c[0] == CLOSE_BRACE_CHAR) return true;
+      else in.putBack(c[0]);
+    }
+
+    final SbName fieldtypename = new SbName();
+
+    if (!in.read(fieldtypename, true)) {
+      SoReadError.post(in, "Couldn't read name of field type");
+      return false;
+    }
+
+    final SbName fieldtype = new SbName("");
+    if (fieldtypename.operator_equal_equal(EVENTIN) ||
+        fieldtypename.operator_equal_equal(EVENTOUT) ||
+        fieldtypename.operator_equal_equal(FIELD) ||
+        fieldtypename.operator_equal_equal(EXPOSEDFIELD)) {
+      fieldtype.copyFrom(fieldtypename);
+      if (!in.read(fieldtypename, true)) {
+        SoReadError.post(in, "Couldn't read name of field type");
+        return false;
+      }
+    }
+
+    SoType type = SoType.fromName(fieldtypename);
+    if ((type == SoType.badType()) ||
+        !type.isDerivedFrom(SoField.getClassTypeId(SoField.class))) {
+      SoReadError.post(in, "Unknown field type '"+fieldtypename.getString()+"'");
+      return false;
+    }
+    else if (!type.canCreateInstance()) {
+      SoReadError.post(in, "Abstract class type '"+fieldtypename.getString()+"'");
+      return false;
+    }
+
+    final SbName fieldname = new SbName();
+    if (!in.read(fieldname, true)) {
+      SoReadError.post(in, "Couldn't read name of field");
+      return false;
+    }
+
+
+//#if COIN_DEBUG && 0 // debug
+//    SoDebugError::postInfo("SoFieldData::readFieldDescriptions",
+//                           "type: ``%s'', name: ``%s''",
+//                           fieldtypename.getString(), fieldname.getString());
+//#endif // debug
+
+    SoField newfield = null;
+    for (int i=0; newfield == null && (i < this.fields.getLength()); i++) {
+      if (((SoFieldEntry)this.fields.operator_square_bracket(i)).name.operator_equal_equal(fieldname)) {
+        newfield = this.getField(object, i);
+      }
+    }
+    if (newfield == null) {
+      // Cast away const -- ugly.
+      SoFieldData that = (SoFieldData)(this);
+      newfield = (SoField)(type.createInstance());
+      newfield.setContainer(object);
+      newfield.setDefault(true);
+      that.addField(object, fieldname.getString(), newfield);
+    }
+
+    if (fieldtype.operator_equal_equal(EVENTIN) || fieldtype.operator_equal_equal(EVENTOUT)) {
+      if (fieldtype.operator_equal_equal(EVENTIN)) {
+        newfield.setFieldType(SoField.FieldType.EVENTIN_FIELD.getValue());
+      }
+      else {
+        newfield.setFieldType(SoField.FieldType.EVENTOUT_FIELD.getValue());
+      }
+      final boolean[] readok = new boolean[1];
+      in.checkISReference(object, fieldname, readok);
+      if (!readok[0]) {
+        SoReadError.post(in, "Error while searching for IS keyword for field '"+fieldname.getString()+"'");
+        return false;
+      }
+    }
+    else if (fieldtype.operator_equal_equal(FIELD) || fieldtype.operator_equal_equal(EXPOSEDFIELD)) {
+      if (fieldtype.operator_equal_equal(EXPOSEDFIELD)) {
+        newfield.setFieldType(SoField.FieldType.EXPOSED_FIELD.getValue());
+      }
+      if (readfieldvalues && !newfield.read(in, fieldname)) {
+        SoFieldContainer fc = newfield.getContainer();
+        String s = ("");
+        if (fc != null) { s =" of "+ fc.getTypeId().getName().getString(); }
+        SoReadError.post(in, "Unable to read value for field '"+fieldname.getString()+"'"+s+"");
+        return false;
+      }
+    }
+
+    final boolean[] readok = new boolean[1];
+    in.checkISReference(object, fieldname, readok);
+    if (!readok[0]) {
+      SoReadError.post(in, "Unable to search for IS keyword");
+      return false;
+    }
+    if (!in.isBinary()) {
+      if(!READ_CHAR(in, c)) return false;
+      if (c[0] != VALUE_SEPARATOR_CHAR) in.putBack(c[0]);
+      // (Allow missing value separators (i.e. no "," character
+      // between two field descriptions)).
+    }
+  }
+
+  return true;
+}
+
+	
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -751,6 +897,17 @@ private boolean readFieldDescriptions(
           continue;  // skip to next field/route
         }
       }
+      
+      final boolean[] readok = new boolean[1];
+      if (in.checkISReference(object, fieldName, readok)) {
+        continue; // skip to next field
+      }
+      if (!readok[0]) {
+        SoReadError.post(in, "Error while searching for IS keyword for field \""+fieldName.getString()+"\"");
+        return false;
+      }
+      // This should be caught in SoInput::read(SbName, SbBool).
+      assert(!fieldName.getString().isEmpty());      
 	            
 	            // Read field descriptions.  Field descriptions may be
 	            // given for built-in nodes, and do NOT have to be given

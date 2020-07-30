@@ -50,15 +50,15 @@ public class SoVRMLParent extends SoGroup {
   private SoVRMLParentP pimpl; // ptr
 
 	  public SoVRMLParent() {
-		  commonConstructor();
+		  SoVRMLParent_commonConstructor();
 	  }
 	  
 	  public SoVRMLParent(int numChildren) {
 		  super( numChildren);
-		  commonConstructor();
+		  SoVRMLParent_commonConstructor();
 	  }
 	  
-private void commonConstructor()
+private void SoVRMLParent_commonConstructor()
 {
   pimpl = new SoVRMLParentP();
   pimpl.childlistvalid = false;

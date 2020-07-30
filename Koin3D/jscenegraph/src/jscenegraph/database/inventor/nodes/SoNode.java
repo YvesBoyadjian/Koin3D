@@ -1152,6 +1152,13 @@ public void setNodeType(final NodeType type)
 	  public boolean SoNode_readInstance(SoInput in,
               short flags)
 {
-		  return super.readInstance(in, flags);
+  // Overridden to set node type.
+
+  boolean ret = super.readInstance(in, flags);
+  if (ret) {
+    if (in.isFileVRML1()) this.setNodeType(SoNode.NodeType.VRML1);
+    else if (in.isFileVRML2()) this.setNodeType(SoNode.NodeType.VRML2);
+  }
+  return ret;
 }
 }

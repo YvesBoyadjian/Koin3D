@@ -200,7 +200,7 @@ public boolean readInstance(SoInput in, short flags)
 public boolean readDefinition(SoInput in)
 {
   Boolean ok = true;
-  final SoBase[] child = new SoBase[0]; //ptr
+  final SoBase[] child = new SoBase[1]; //ptr
   in.pushProto(this);
 
   while (ok) {
@@ -364,7 +364,20 @@ public boolean setupExtern(SoInput in, SoProto externproto)
   return true;
 }
 
-
+/*!
+  Adds an IS reference for this PROTO definition.
+*/
+public void addISReference(SoNode container,
+                        final SbName fieldname,
+                        final SbName interfacename)
+{
+  assert(container.isOfType(SoNode.getClassTypeId()));
+  SoNode[] dummy = new SoNode[1];
+  dummy[0] = container;
+  pimpl.isnodelist.append(/*container*/dummy);
+  pimpl.isfieldlist.append(fieldname);
+  pimpl.isnamelist.append(interfacename);
+}
 
 // doc in parent
 public static void initClass()

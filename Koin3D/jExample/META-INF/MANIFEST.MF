@@ -18,7 +18,8 @@ Require-Bundle: javax.inject;bundle-version="0.0.0",
  jsceneviewer;bundle-version="1.0.0",
  jscenegraph;bundle-version="1.0.0",
  org.lwjglx;bundle-version="1.0.0",
- javax.annotation;bundle-version="1.2.0"
+ javax.annotation;bundle-version="1.2.0",
+ lwjgl3-swt
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.lwjgl.glfw
 Bundle-ActivationPolicy: lazy

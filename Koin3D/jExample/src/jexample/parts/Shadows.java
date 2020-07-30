@@ -36,7 +36,8 @@ public class Shadows {
 		//String str = "C:/Coin3D/shadowDirectionalLight.iv";
 		//String str = "C:/Coin3D/spotlight.iv";
 		//String str = "C:/Coin3D/texture.iv";
-		String str = "F:/Partage/shadow.iv";
+		//String str = "F:/Partage/shadow.iv";
+		String str = "examples_iv/shadow.iv";
 		input.openFile(str);
 		
 		SoCallback callback = new SoCallback();

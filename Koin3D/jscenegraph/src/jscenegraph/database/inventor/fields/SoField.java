@@ -562,7 +562,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		engineCont.ref();
 
 		// Disconnect any previous connection
-		disconnect();
+		if(!append) disconnect(); //COIN3D
 
 		// Check the type of the field and the output for compatability
 		final SoType outputType = new SoType(engineOutput.getConnectionType());
@@ -684,7 +684,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 	////////////////////////////////////////////////////////////////////////
 	{
 		// Disconnect any previous connection
-		disconnect();
+		if(!append) disconnect();
 
 		// Check the types of the two fields
 		final SoType fieldType = new SoType(field.getTypeId());
@@ -729,6 +729,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 			}
 			return ret;
 		}
+		 // Can do direct field-to-field link.
 
 		createAuditorInfo();
 
@@ -1607,12 +1608,24 @@ public boolean readConnection(SoInput in)
     final char[]        c = new char[1];
     boolean        shouldReadConnection = false;
     boolean        gotValue = false;
+    final boolean[] readok = new boolean[1]; readok[0] = true;
 
     // Turn off notification during reading process.  It is turned
     // back on and notification is started below:
     boolean wasNotifyEnabled = flags.notifyEnabled;
     flags.notifyEnabled = false;
 
+  if (in.checkISReference(this.getContainer(), name, readok) || readok[0] == false) {
+    if (!readok[0]) {
+      SoFieldContainer fc = this.getContainer();
+      String s = ("");
+      if (fc != null) { s = " of "+ fc.getTypeId().getName().getString(); }
+      SoReadError.post(in, "Couldn't read value for field \""+name.getString()+"\""+s);
+    }
+    //goto sofield_read_return; java port : done with the else
+  }
+  else {
+    
     if (in.isBinary()) {
         final short[]   readFlags = new short[1];
 
@@ -1702,6 +1715,8 @@ public boolean readConnection(SoInput in)
         return false;
     }
 
+  }
+    sofield_read_return:
     // Turn notification back the way it was:
     flags.notifyEnabled = wasNotifyEnabled;
 

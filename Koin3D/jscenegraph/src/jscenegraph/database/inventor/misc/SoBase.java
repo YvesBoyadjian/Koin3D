@@ -920,7 +920,7 @@ private static boolean readBaseInstance(SoInput in, final SbName className,
     if (className.operator_equal_equal(globalFieldName)) {
         base[0] = SoGlobalField.read(in);
 
-        if (base == null) return false;
+        if (base[0] == null) return false;
         
         // Store instance in input dictionary if a name was given for
         // it (do NOT want to add it to the global dictionary; it's

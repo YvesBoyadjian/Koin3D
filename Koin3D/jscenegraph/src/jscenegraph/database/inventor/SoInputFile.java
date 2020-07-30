@@ -105,6 +105,8 @@ public class SoInputFile {
     final SbList <SoProto> protolist = new SbList<>(); //COIN3D
     final SbList <SbName> routelist = new SbList<>(); //COIN3D
     final SbList <SoProto> protostack = new SbList<>(); //COIN3D
+    
+    boolean eof; //COIN3D
 
     public SoInputFile() {                      //!< Too complex for inlining
     // Initialize variables:
@@ -185,5 +187,9 @@ public class SoInputFile {
 	    if (n != 0) return this.protostack.operator_square_bracket(n-1);
 	    return null;
 	  }
+  
+  boolean isEndOfFile() {
+    return this.eof;
+  }
 
 }

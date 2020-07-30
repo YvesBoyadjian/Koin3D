@@ -4,7 +4,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-
+import org.lwjgl.opengl.swt.GLData;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.database.inventor.nodes.SoFaceSet;
 import jscenegraph.database.inventor.nodes.SoMaterial;
@@ -366,6 +366,8 @@ public class SimpleExamples {
 	  // Initialize an examiner viewer:
 	  SoQtExaminerViewer eviewer = new SoQtExaminerViewer(BuildFlag.BUILD_ALL,Type.BROWSER,shell);
 	  eviewer.setSceneGraph(root);
+	  
+	  eviewer.setFormat(eviewer.format(), 0);
 	  //eviewer.show();
 	  eviewer.buildWidget(0);
 

@@ -258,11 +258,19 @@ public abstract class SoMField<T extends Object> extends SoField {
 						else if (c[0] == CLOSE_BRACE_CHAR)
 							break;
 
-						else {
-							SoReadError.post(in, "Expected '" + VALUE_SEPARATOR_CHAR + "' or '" + CLOSE_BRACE_CHAR
-									+ "' but got " + "'" + c + "' while reading value " + curIndex);
-							return false;
-						}
+          if (c[0] == '}') { //COIN3D
+            SoReadError.post(in, "Premature end of array, got '"+c[0]+"'");
+            return false;
+          }
+
+          in.putBack(c[0]);
+						
+          // COIN3D : This is no more an error
+//						else {
+//							SoReadError.post(in, "Expected '" + VALUE_SEPARATOR_CHAR + "' or '" + CLOSE_BRACE_CHAR
+//									+ "' but got " + "'" + c[0] + "' while reading value " + curIndex);
+//							return false;
+//						}
 					}
 				}
 
