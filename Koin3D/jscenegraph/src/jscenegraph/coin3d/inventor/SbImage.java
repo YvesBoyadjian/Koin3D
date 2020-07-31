@@ -45,11 +45,22 @@ import jscenegraph.port.memorybuffer.MemoryBuffer;
  */
 public class SbImage implements Destroyable {
 	
+	public interface SbImageScheduleReadCB {
+		boolean invoke(String str, SbImage img, Object obj);
+	}
+	
+	public interface SbImageReadImageCB {
+		boolean invoke(String str, SbImage img, Object obj);
+	}
+
+	
 	  private MemoryBuffer  bytes;
 	  //DataType datatype;
 	  private final SbVec3s size = new SbVec3s();
 	  int bpp;
 	  private String schedulename;
+	  SbImageScheduleReadCB schedulecb;
+	  Object scheduleclosure;
 	  
 	/**
 	 * 
@@ -511,6 +522,35 @@ private static boolean ReadImage(final SoInput in, final int[] w, final int[] h,
 	} catch (IOException e) {
 		return false;
 	}
+}
+
+/*!
+  Schedule a file for reading. \a cb will be called the first time
+  getValue() is called for this image, and the callback should then
+  start a thread to read the image. Do not read the image in the
+  callback, as this will lock up the application.
+
+  \sa readFile()
+  \since Coin 2.0
+*/
+public boolean scheduleReadFile(SbImageScheduleReadCB cb,
+                          Object closure,
+                          final String filename,
+                          final String[] searchdirectories,
+                          final int numdirectories)
+{
+  this.setValue(new SbVec3s((short)0,(short)0,(short)0), 0, null);
+  /*pimpl.*/writeLock();
+  /*pimpl.*/schedulecb = null;
+  /*pimpl.*/schedulename =
+    this.searchForFile(filename, searchdirectories, numdirectories);
+  int len = /*pimpl.*/schedulename.length();
+  if (len > 0) {
+    /*pimpl.*/schedulecb = cb;
+    /*pimpl.*/scheduleclosure = closure;
+  }
+  /*pimpl.*/writeUnlock();
+  return len > 0;
 }
 
 

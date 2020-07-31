@@ -235,7 +235,7 @@ public abstract class SoMField<T extends Object> extends SoField {
 
 						// Make some room at end if necessary
 						if (curIndex >= getNum())
-							makeRoom(getNum() + VALUE_CHUNK_SIZE);
+							makeRoom(getNum()*3/2 + VALUE_CHUNK_SIZE);
 
 						if (!read1Value(in, curIndex++) || !in.read(c)) {
 							SoReadError.post(in, "Couldn't read value " + curIndex + " of field");
@@ -250,8 +250,8 @@ public abstract class SoMField<T extends Object> extends SoField {
 							if (in.read(c)) {
 								if (c[0] == CLOSE_BRACE_CHAR)
 									break;
-								else
-									in.putBack(c[0]);
+//								else
+//									in.putBack(c[0]);
 							}
 						}
 

@@ -74,6 +74,7 @@
 package jscenegraph.database.inventor.sensors;
 
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.Destroyable;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Abstract base class for Inventor sensors.
@@ -96,7 +97,7 @@ SoAlarmSensor, SoDataSensor, SoFieldSensor, SoIdleSensor, SoNodeSensor, SoPathSe
  * @author Yves Boyadjian
  *
  */
-public abstract class SoSensor {
+public abstract class SoSensor implements Destroyable {
 	
 	protected SoSensorCB func;
 	protected Object funcData;
@@ -110,6 +111,12 @@ public abstract class SoSensor {
 	
 	public SoSensor(SoSensorCB f, Object d) {
 		func = f; funcData = d;
+	}
+	
+	public void destructor() {
+		func = null;
+		funcData = null;
+		nextInQueue = null;
 	}
 	
 	/**

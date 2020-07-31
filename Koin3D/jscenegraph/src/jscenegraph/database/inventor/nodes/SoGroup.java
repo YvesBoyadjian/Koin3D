@@ -191,7 +191,7 @@ public class SoGroup extends SoNode implements Destroyable {
 		   }
 		 //#endif /* DEBUG */
 		  
-		   children.append(child);
+		   getChildren().append(child);
 		 	}
 	
 ////////////////////////////////////////////////////////////////////////
@@ -220,17 +220,17 @@ public class SoGroup extends SoNode implements Destroyable {
 		   
 		       // See if adding at end
 		       if (newChildIndex >= getNumChildren())
-		           children.append(child);
+		    	   getChildren().append(child);
 		   
 		       else
-		           children.insert(child, newChildIndex);
+		    	   getChildren().insert(child, newChildIndex);
 		  	}
 	
 	
 	
 	// Returns pointer to child node with the given index.
 	public SoNode getChild(int index) {
-		return children.operator_square_bracket(index);
+		return getChildren().operator_square_bracket(index);
 	}
 	
 	/**
@@ -255,7 +255,7 @@ public class SoGroup extends SoNode implements Destroyable {
 	
 	// Returns number of children.
 	public int getNumChildren() {
-		return children.getLength();
+		return getChildren().getLength();
 	}
 	
 	// Removes child with given index from group. 
@@ -272,7 +272,7 @@ public class SoGroup extends SoNode implements Destroyable {
 		   
 		       // Play it safe anyway...
 		       if (index >= 0) {
-		           children.remove(index);
+		    	   getChildren().remove(index);
 		       }
 		  	}
 	
@@ -283,7 +283,7 @@ public class SoGroup extends SoNode implements Destroyable {
 	
 	// Removes all children from group. 
 	public void removeAllChildren() {
-		   children.truncate(0);
+		getChildren().truncate(0);
 	}
 	
 	// Replaces child with given index with new child. 
@@ -299,7 +299,7 @@ public class SoGroup extends SoNode implements Destroyable {
 		   
 		       // Play it safe anyway...
 		       if (index >= 0)
-		           children.set(index, newChild);
+		    	   getChildren().set(index, newChild);
 		   	}
 	
 	// Replaces first instance of given child with new child. 
@@ -451,10 +451,10 @@ public boolean readChildren(SoInput in)
 	        final int[][]   indices = new int[1][];
 	    
 	        if (action.getPathCode(numIndices, indices) == SoAction.PathCode.IN_PATH)
-	            children.traverse(action, 0, indices[0][numIndices[0] - 1]);
+	        	getChildren().traverse(action, 0, indices[0][numIndices[0] - 1]);
 	    
 	        else
-	            children.traverse(action);
+	        	getChildren().traverse(action);
 	    }
 	    	   
 	   
@@ -629,7 +629,7 @@ getBoundingBox(SoGetBoundingBoxAction action)
         lastChild = getNumChildren() - 1;
 
     for (int i = 0; i <= lastChild; i++) {
-        children.traverse(action, i, i);
+    	getChildren().traverse(action, i, i);
         if (action.isCenterSet()) {
             totalCenter.operator_add_equal(action.getCenter());
             numCenters++;
@@ -704,30 +704,41 @@ getMatrix(SoGetMatrixAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final int[]         numIndices = new int[1];
-    final int[][]   indices = new int[1][];
-
-    // Only need to compute matrix if group is a node in middle of
-    // current path chain or is off path chain (since the only way
-    // this could be called if it is off the chain is if the group is
-    // under a group that affects the chain).
-
-    switch (action.getPathCode(numIndices, indices)) {
-
-      case NO_PATH:
-        break;
-
-      case IN_PATH:
-        children.traverse(action, 0, indices[0][numIndices[0] - 1]);
-        break;
-
-      case BELOW_PATH:
-        break;
-
-      case OFF_PATH:
-        children.traverse(action);
-        break;
-    }
+	  switch (action.getCurPathCode()) { // COIN3D
+  case NO_PATH:
+  case BELOW_PATH:
+    break;
+  case OFF_PATH:
+  case IN_PATH:
+    SoGroup_doAction((SoAction)action);
+    break;
+  }
+	
+//	
+//    final int[]         numIndices = new int[1];
+//    final int[][]   indices = new int[1][];
+//
+//    // Only need to compute matrix if group is a node in middle of
+//    // current path chain or is off path chain (since the only way
+//    // this could be called if it is off the chain is if the group is
+//    // under a group that affects the chain).
+//
+//    switch (action.getPathCode(numIndices, indices)) {
+//
+//      case NO_PATH:
+//        break;
+//
+//      case IN_PATH:
+//        children.traverse(action, 0, indices[0][numIndices[0] - 1]);
+//        break;
+//
+//      case BELOW_PATH:
+//        break;
+//
+//      case OFF_PATH:
+//        children.traverse(action);
+//        break;
+//    }
 }
 
 

@@ -4,14 +4,23 @@
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.coin3d.TidBits;
+import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbXfBox3f;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
+import jscenegraph.database.inventor.actions.SoSearchAction;
+import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
+import jscenegraph.database.inventor.elements.SoCacheElement;
+import jscenegraph.database.inventor.elements.SoLocalBBoxMatrixElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
+import jscenegraph.database.inventor.misc.SoNotList;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
@@ -135,8 +144,142 @@ public static int getNumRenderCaches()
 //Doc in parent
 public void getBoundingBox(SoGetBoundingBoxAction action)
 {
-	//TODO
+  SoState state = action.getState();
+
+  final SbXfBox3f childrenbbox = new SbXfBox3f();
+  boolean childrencenterset;
+  final SbVec3f childrencenter = new SbVec3f();
+
+  // FIXME: AUTO is interpreted as ON for the boundingBoxCaching
+  // field, but we should trigger some heuristics based on scene graph
+  // "behavior" in the children subgraphs if the value is set to
+  // AUTO. 19990513 mortene.
+  boolean iscaching = this.boundingBoxCaching.getValue() != SoSeparator.CacheEnabled.OFF.getValue();
+
+  switch (action.getCurPathCode()) {
+  case IN_PATH:
+    // can't cache if we're not traversing all children
+    iscaching = false;
+    break;
+  case OFF_PATH:
+    return; // no need to do any more work
+  case BELOW_PATH:
+  case NO_PATH:
+    // check if this is a normal traversal
+    if (action.isInCameraSpace() || action.isResetPath()) iscaching = false;
+    break;
+  default:
+    iscaching = false;
+    assert(false && "unknown path code"!= null);
+    break;
+  }
+
+  boolean validcache = iscaching && pimpl.bboxcache != null && pimpl.bboxcache.isValid(state);
+
+  if (iscaching && validcache) {
+    SoCacheElement.addCacheDependency(state, pimpl.bboxcache);
+    pimpl.bboxcache_usecount++;
+    childrenbbox.copyFrom(pimpl.bboxcache.getBox());
+    childrencenterset = pimpl.bboxcache.isCenterSet();
+    childrencenter.copyFrom(pimpl.bboxcache.getCenter());
+    if (pimpl.bboxcache.hasLinesOrPoints()) {
+      SoBoundingBoxCache.setHasLinesOrPoints(state);
+    }
+  }
+  else {
+    SbXfBox3f abox = new SbXfBox3f(action.getXfBoundingBox());
+    boolean storedinvalid = false;
+
+    // check if we should disable auto caching
+    if (pimpl.bboxcache_destroycount > 10 && this.boundingBoxCaching.getValue() == SoSeparator.CacheEnabled.AUTO.getValue()) {
+      if ((float)(pimpl.bboxcache_usecount) / (float)(pimpl.bboxcache_destroycount) < 5.0f) { 
+        iscaching = false;
+      }
+    }
+    if (iscaching) {
+      storedinvalid = SoCacheElement.setInvalid(false);
+    }
+    state.push();
+
+    if (iscaching) {
+      // if we get here, we know bbox cache is not created or is invalid
+      pimpl.lock();
+      if (pimpl.bboxcache != null) {
+        pimpl.bboxcache_destroycount++;
+        pimpl.bboxcache.unref();
+      }
+      pimpl.bboxcache = new SoBoundingBoxCache(state);
+      pimpl.bboxcache.ref();
+      pimpl.unlock();
+      // set active cache to record cache dependencies
+      SoCacheElement.set(state, pimpl.bboxcache);
+    }
+
+    SoLocalBBoxMatrixElement.makeIdentity(state);
+    action.getXfBoundingBox().makeEmpty();
+    action.getXfBoundingBox().setTransform(SbMatrix.identity());
+    super.getBoundingBox(action);
+
+    childrenbbox.copyFrom(action.getXfBoundingBox());
+    childrencenterset = action.isCenterSet();
+    if (childrencenterset) childrencenter.copyFrom(action.getCenter());
+
+    action.getXfBoundingBox().copyFrom(abox); // reset action bbox
+
+    if (iscaching) {
+      pimpl.bboxcache.set(childrenbbox, childrencenterset, childrencenter);
+    }
+    state.pop();
+    if (iscaching) SoCacheElement.setInvalid(storedinvalid);
+  }
+
+  if (!childrenbbox.isEmpty()) {
+    action.extendBy(childrenbbox);
+    if (childrencenterset) {
+      // FIXME: shouldn't this assert() hold up? Investigate. 19990422 mortene.
+//#if 0 // disabled
+//      assert(!action->isCenterSet());
+//#else
+      action.resetCenter();
+//#endif
+      action.setCenter(childrencenter, true);
+    }
+  }
 }
+
+// Doc in parent
+public void notify(SoNotList list)
+{
+  super.notify(list);
+  
+  pimpl.lock();
+  if (pimpl.bboxcache != null) pimpl.bboxcache.invalidate();
+  pimpl.invalidateGLCaches();
+  pimpl.hassoundchild = SoVRMLGroupP.HasSound.MAYBE;
+  pimpl.unlock();
+}
+
+// Doc in parent
+public void
+SoVRMLGroup_doAction(SoAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  super.doAction(action);
+  state.pop();
+}
+
+
+// Doc in parent
+public void search(SoSearchAction action)
+{
+  SoNode_search(action);
+  if (action.isFound()) return;
+
+  SoVRMLGroup_doAction(action);
+}
+
+
 
 /*!
   \copydetails SoNode::initClass(void)

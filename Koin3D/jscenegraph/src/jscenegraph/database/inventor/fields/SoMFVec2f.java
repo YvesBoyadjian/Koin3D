@@ -197,9 +197,24 @@ public boolean read1Value(SoInput in, int index)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	DoubleConsumer[] ref = ((SbVec2f)values[index]).getRef();
-    return (in.read(ref[0]) &&
-            in.read(ref[1]));
+	float[] dummy = new float[1];
+	
+	if(in.read(dummy)) {
+		valuesArray.setFloat(index*2, dummy[0]);
+	}
+	else {
+		return false;
+	}
+	if(in.read(dummy)) {
+		valuesArray.setFloat(index*2+1, dummy[0]);
+	}	
+	else {
+		return false;
+	}
+	return true;
+//	DoubleConsumer[] ref = ((SbVec2f)values[index]).getRef();
+//    return (in.read(ref[0]) &&
+//            in.read(ref[1]));
 }
 
 /**

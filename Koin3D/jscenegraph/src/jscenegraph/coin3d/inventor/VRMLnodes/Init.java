@@ -20,7 +20,7 @@ so_vrml_init()
   SoVRMLParent.initClass();
   SoVRMLGroup.initClass();
 //
-//  SoVRMLTexture::initClass();
+  SoVRMLTexture.initClass();
 //
 //  SoVRMLInterpolator::initClass();
 //
@@ -48,7 +48,7 @@ so_vrml_init()
 //  SoVRMLExtrusion::initClass();
 //  SoVRMLFog::initClass();
 //  SoVRMLFontStyle::initClass();
-//  SoVRMLImageTexture::initClass();
+  SoVRMLImageTexture.initClass();
   SoVRMLIndexedFaceSet.initClass();
 //
   SoVRMLVertexLine.initClass();
@@ -77,7 +77,7 @@ so_vrml_init()
 //  SoVRMLSpotLight::initClass();
 //  SoVRMLSwitch::initClass();
 //  SoVRMLText::initClass();
-//  SoVRMLTextureCoordinate::initClass();
+  SoVRMLTextureCoordinate.initClass();
 //  SoVRMLTextureTransform::initClass();
 //  SoVRMLTimeSensor::initClass();
 //  SoVRMLTouchSensor::initClass();

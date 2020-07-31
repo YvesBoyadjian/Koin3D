@@ -26,6 +26,8 @@ package jscenegraph.coin3d.inventor.threads;
 
 import java.util.function.Supplier;
 
+import jscenegraph.coin3d.inventor.base.Dict;
+
 /**
  * @author Yves Boyadjian
  *
@@ -46,6 +48,15 @@ public class SbStorage<T extends Object> {
 	private Supplier<T> p;
 	private cc_storage storage;
 	
+	public static interface SbStorageApplyFunc{
+		void invoke(Object tls, Object closure);
+	}
+
+	public static interface cc_storage_apply_func {
+		void invoke(Object dataptr, Object closure);
+	}
+	
+	
 	public SbStorage(Supplier<T> p) {
 		this.p = p;
 	}
@@ -60,5 +71,67 @@ public class SbStorage<T extends Object> {
 		}
 		return p.get();
 	}
+	
+	/* struct needed for cc_dict wrapper callback */
+public static class cc_storage_hash_apply_data {
+  cc_storage_apply_func func;
+  Object closure;
+} ; 
+
+	
+/* callback from cc_dict_apply. will simply call the function specified
+   in cc_storage_apply_to_appl */
+public static void 
+storage_hash_apply(int key, Object val, Object closure)
+{
+  cc_storage_hash_apply_data data = 
+    (cc_storage_hash_apply_data) closure;
+  data.func.invoke(val, data.closure);
+}
+
+	
+
+	public static void 
+cc_storage_apply_to_all(cc_storage storage, 
+                        cc_storage_apply_func func, 
+                        Object closure)
+{
+  /* need to set up a struct to use cc_dict_apply */
+  cc_storage_hash_apply_data mydata = new cc_storage_hash_apply_data();
+  
+  /* store func and closure in struct */
+  mydata.func = func;
+  mydata.closure = closure;
+
+//#ifdef HAVE_THREADS
+//  cc_mutex_lock(storage->mutex);
+//  cc_dict_apply(storage->dict, storage_hash_apply, &mydata);
+//  cc_mutex_unlock(storage->mutex);
+//#else /* ! HAVE_THREADS */
+  Dict.cc_dict_apply(
+		  storage.dict,
+		  new Dict.cc_dict_apply_func() {
+			
+			@Override
+			public void invoke(Object key, Object val, Object closure) {
+				SbStorage.storage_hash_apply(((Number)key).intValue(),val, closure);				
+			}
+		}
+		  ,
+		  mydata);
+//#endif /* ! HAVE_THREADS */
+
+}
+
+	
+  public void applyToAll(SbStorageApplyFunc func, Object closure) {
+    SbStorage.cc_storage_apply_to_all(this.storage, 
+    		new SbStorage.cc_storage_apply_func() {
+		public void invoke(Object dataptr, Object closure2) {
+			func.invoke(dataptr, closure2);
+		}		
+    }
+                            /*(cc_storage_apply_func)(func)*/, closure);
+  }
 
 }

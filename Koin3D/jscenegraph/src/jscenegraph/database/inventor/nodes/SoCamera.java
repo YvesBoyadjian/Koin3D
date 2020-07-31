@@ -141,7 +141,7 @@ SoOrthographicCamera, SoPerspectiveCamera, SoCameraKit
  */
 public abstract class SoCamera extends SoNode {
 	
-	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoCamera.class,this);
+	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_ABSTRACT_HEADER(SoCamera.class,this);
 	   
 	   public                                                                     
 	    static SoType       getClassTypeId()        /* Returns class type id */   

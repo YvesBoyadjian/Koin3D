@@ -217,7 +217,7 @@ public static void updateChildList(final SoNode[][] nodes,
   all nodes in SoSFNode fields in \a nodewithsfnode.
 
 */
-public void updateChildList(SoNode nodewithsfnode,
+public static void updateChildList(SoNode nodewithsfnode,
                               SoChildList cl)
 {
   final SbList <SoNode[]> nodelist = new SbList<>();

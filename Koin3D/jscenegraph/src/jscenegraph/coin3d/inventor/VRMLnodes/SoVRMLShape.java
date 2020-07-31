@@ -4,11 +4,14 @@
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFNode;
 import jscenegraph.database.inventor.misc.SoChildList;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
@@ -68,6 +71,42 @@ public SoVRMLShape()
   pimpl.childlist = new SoChildList(null);
   pimpl.childlistvalid = false;
   pimpl.cachelist = null;
+}
+
+
+public void getBoundingBox(SoGetBoundingBoxAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  final int[] numindices = new int[1];
+  final int[][] indices = new int[1][];
+  if (action.getPathCode(numindices, indices) == SoAction.PathCode.IN_PATH) {
+    this.getChildren().traverseInPath(action, numindices[0], indices[0]);
+  }
+  else {
+    this.getChildren().traverse(action); // traverse all children
+  }
+  state.pop();
+}
+
+
+
+public SoChildList getChildren()
+{
+  if (!pimpl.childlistvalid) {
+    // this is not 100% thread safe. The assumption is that no nodes
+    // will be added or removed while a scene graph is being
+    // traversed. For Coin, this is an ok assumption.
+	  pimpl.lockChildList();
+    // test again after we've locked
+    if (!pimpl.childlistvalid) {
+      SoVRMLShape thisp = (SoVRMLShape) this;
+      SoVRMLParent.updateChildList(thisp, pimpl.childlist);
+      pimpl.childlistvalid = true;
+    }
+    pimpl.unlockChildList();
+  }
+  return pimpl.childlist;
 }
 
 	  

@@ -114,7 +114,7 @@ public class SoTimerQueueSensor extends SoSensor implements Destroyable {
 	    	public void destructor() {
 	    	    // Make sure sensor isn't still scheduled to be triggered
 	    	    unschedule();	    	 
-	    	    
+	    	    super.destructor();
 	    	}
 	
 	/**

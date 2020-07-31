@@ -424,4 +424,8 @@ public class Util {
 		}		
 		return null;
 	}
+
+	public static int sizeof(IntArrayPtr ptr) {
+		return Integer.BYTES;
+	}
 }

@@ -16,4 +16,12 @@ public class SoVRMLShapeP {
 		  SoGLCacheList cachelist; //ptr
 		  public SoChildList childlist; //ptr
 		  public boolean childlistvalid;
+		public void lockChildList() {
+			// TODO Auto-generated method stub
+			
+		}
+		public void unlockChildList() {
+			// TODO Auto-generated method stub
+			
+		}
 }
