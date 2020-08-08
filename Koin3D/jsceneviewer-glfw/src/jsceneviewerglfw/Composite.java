@@ -50,6 +50,9 @@ public class Composite {
 	private final List<MouseListener> mouseListeners = new ArrayList<>();
 	
 	private boolean redrawAsked;
+	
+	private int last_resize_cb_width = -1;
+	private int last_resize_cb_height= -1;
 
 	public Composite(Composite parent, int style) {
 		this.style = style;
@@ -186,13 +189,22 @@ public class Composite {
 		}
 	}
 	
-	public void resizeCB(int width, int height) {
-		List<Listener> resizeList = listeners.get(SWT.Resize);
-		if(resizeList == null) {
-			return;
+	public final void resizeCB(int width, int height) {
+		
+		if( last_resize_cb_width != width || last_resize_cb_height != height ) {
+			
+			last_resize_cb_width = width;
+			last_resize_cb_height = height;
+		
+			List<Listener> resizeList = listeners.get(SWT.Resize);
+			if(resizeList == null) {
+				return;
+			}
+			Event e = new Event();
+			resizeList.forEach((l)->l.handleEvent(e));
+			
+			System.out.println("w = "+width+", h = "+height);
 		}
-		Event e = new Event();
-		resizeList.forEach((l)->l.handleEvent(e));
 	}
 	
 	public void keyCB(int key, int scancode, int action, int mods) {

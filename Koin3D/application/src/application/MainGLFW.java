@@ -64,6 +64,7 @@ import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.actions.SoGLRenderAction.TransparencyType;
 import jscenegraph.database.inventor.events.SoMouseButtonEvent;
+import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCube;

@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.elements;
 
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.nodes.SoNode;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -236,6 +237,27 @@ set(SoState state, VertexOrdering _vertexOrdering,
     	elt.updateLazyElement(state);
     }
 }
+
+
+//! FIXME: write doc.
+
+public static void set(SoState state,
+                         SoNode node,
+                         VertexOrdering vertexOrdering,
+                         ShapeType shapeType,
+                         FaceType faceType)
+{
+  SoShapeHintsElement elem = (SoShapeHintsElement)
+    (
+     SoElement.getElement(state, classStackIndexMap.get(SoShapeHintsElement.class)) // java port
+     );
+  if (elem != null) {
+    elem.setElt(vertexOrdering, shapeType, faceType);
+    elem.updateLazyElement(state);
+  }
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////
 //

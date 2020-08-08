@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GLDebugMessageCallbackI;
+import org.lwjgl.opengl.swt.GLData;
 import org.osgi.framework.Bundle;
 
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
@@ -85,6 +86,11 @@ public class SamplePart {
 		//viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_ADD);
 		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
 		//viewer.getSceneHandler().setTransparencyType(TransparencyType.SORTED_LAYERS_BLEND);
+		
+//		viewer.format().debug = true;
+//		viewer.format().majorVersion = 3;
+//		viewer.format().minorVersion = 0;
+//		//viewer.format().profile = GLData.Profile.COMPATIBILITY;
 		
 	    viewer.buildWidget(style);
 	    
@@ -1158,10 +1164,11 @@ SoSeparator createPlanet2(float radius, float distance,
 		// failed String fileName = "examples_iv/ejemplos-ve3d/mundos-virtuales/forest.iv";
 		//String fileName = "examples_iv/shadow-test2.iv";
 		//String fileName = "examples_iv/shadow.iv";
-		// failed String fileName = "examples_iv/anya1.wrl";
+		//String fileName = "F:/Partage/shadow.iv"; // FIXME : can cause an error in OpenGL, if current OGL version is 2.1
+		String fileName = "examples_iv/anya1.wrl";
 		//String fileName = "examples_iv/export_vrml.wrl";
 		//String fileName = "C:/Coin3D/shadowSimple.iv";
-		String fileName = "examples_iv/export_vrml.wrl";
+		//String fileName = "examples_iv/export_vrml.wrl";
 	boolean baseColor = false;
 
 	// create scene root

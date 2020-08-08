@@ -4,6 +4,7 @@
 package jscenegraph.port;
 
 import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -13,15 +14,22 @@ public class FloatPtr implements Destroyable {
 	
 	private ByteBuffer buffer;
 	private int floatOffset;
+	private FloatBuffer floatBuffer;
 
 	public FloatPtr(CharPtr other) {
 		buffer = other.getBuffer();
 		floatOffset = other.getFloatOffset();
+		if( buffer != null) {
+			floatBuffer = buffer.asFloatBuffer();
+		}
 	}
 	
 	public FloatPtr(FloatPtr other, int floatOffset) {
 		buffer = other.getBuffer();
 		this.floatOffset = other.getFloatOffset() + floatOffset;
+		if( buffer != null) {
+			floatBuffer = buffer.asFloatBuffer();
+		}
 	}
 
 	public FloatPtr operator_add(int floatOffset) {
@@ -41,10 +49,11 @@ public class FloatPtr implements Destroyable {
 	}
 
 	public void asterisk(float value) {
-		buffer.asFloatBuffer().put(floatOffset, value);
+		floatBuffer.put(floatOffset, value);
 	}
 
 	public void destructor() {
 		buffer = null;
+		floatBuffer = null;
 	}
 }

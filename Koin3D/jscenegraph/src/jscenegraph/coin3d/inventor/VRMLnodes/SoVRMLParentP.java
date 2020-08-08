@@ -5,12 +5,13 @@ package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.database.inventor.nodes.SoInfo;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author BOYADJIAN
  *
  */
-public class SoVRMLParentP {
+public class SoVRMLParentP implements Destroyable {
 
   public boolean childlistvalid;
   public SoFieldSensor addsensor; //ptr
@@ -35,5 +36,10 @@ public void unlockChildList() {
     }
     return SoVRMLParentP.nullnode;
   }
+@Override
+public void destructor() {
+	// TODO Auto-generated method stub
+	
+}
 
 }

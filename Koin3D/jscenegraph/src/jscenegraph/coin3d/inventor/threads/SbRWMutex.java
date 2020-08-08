@@ -17,6 +17,9 @@ public class SbRWMutex implements Destroyable {
 		    WRITE_PRECEDENCE
 		  };
 
+		  public SbRWMutex() {
+			  this(Precedence.READ_PRECEDENCE);
+		  }
 	/**
 	 * 
 	 */

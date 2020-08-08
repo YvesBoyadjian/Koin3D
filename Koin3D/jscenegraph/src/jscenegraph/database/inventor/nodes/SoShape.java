@@ -509,7 +509,12 @@ getComplexityValue(SoAction action)
 // Use: protected 
 
 protected boolean
-shouldGLRender(SoGLRenderAction action)
+shouldGLRender(SoGLRenderAction action) {
+	return SoShape_shouldGLRender(action);
+}
+
+protected boolean
+SoShape_shouldGLRender(SoGLRenderAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {

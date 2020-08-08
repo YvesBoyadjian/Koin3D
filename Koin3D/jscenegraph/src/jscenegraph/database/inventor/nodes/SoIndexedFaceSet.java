@@ -1295,7 +1295,7 @@ private void DO_VERTEX(
 		final int[] normnr,
 		final MutableSbVec3fArray currnormal,
 		final SbVec3fArray normals,
-		SoTextureCoordinateBundle tb,
+		final SoTextureCoordinateBundle tb,
 		final SoCoordinateElement coords,
 		final int[] texidx,
 		int idx) {

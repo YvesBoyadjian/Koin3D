@@ -61,11 +61,17 @@ import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.caches.SoNormalCache;
+import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
+import jscenegraph.database.inventor.misc.SoNotList;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.Util;
 
 /**
@@ -108,6 +114,67 @@ public abstract class SoVRMLIndexedShape extends SoVRMLVertexShape {
 	  nodeHeader.SO_VRMLNODE_ADD_EMPTY_MFIELD(normalIndex,"normalIndex");
 	  nodeHeader.SO_VRMLNODE_ADD_EMPTY_MFIELD(texCoordIndex,"texCoordIndex");
 	}
+
+
+/*!
+  Convenience method that will fetch data needed for rendering or
+  generating primitives. Takes care of normal cache.
+*/
+public boolean getVertexData(SoState state,
+                                  SoCoordinateElement[] coords,
+                                  SbVec3fArray[] normals,
+                                  IntArrayPtr[] cindices,
+                                  IntArrayPtr[] nindices,
+                                  IntArrayPtr[] tindices,
+                                  IntArrayPtr[] mindices,
+                                  final int[]  numcindices,
+                                  boolean neednormals,
+                                  final boolean[] normalcacheused)
+{
+  super.getVertexData(state, coords, normals, neednormals);
+
+  cindices[0] = this.coordIndex.getValuesIntArrayPtr(0);
+  numcindices[0] = this.coordIndex.getNum();
+
+  mindices[0] = this.colorIndex.getValuesIntArrayPtr(0);
+  if (this.colorIndex.getNum() <= 0 || mindices[0].get() < 0) mindices[0] = null;
+
+  tindices[0] = this.texCoordIndex.getValuesIntArrayPtr(0);
+  if (this.texCoordIndex.getNum() <= 0 || tindices[0].get() < 0) tindices[0] = null;
+
+  normalcacheused[0] = false;
+  nindices[0] = null;
+
+  if (neednormals) {
+    nindices[0] = this.normalIndex.getValuesIntArrayPtr(0);
+    if (this.normalIndex.getNum() <= 0 || nindices[0].get() < 0) nindices[0] = null;
+    
+    if (normals[0] == null) {
+      SoNormalCache nc = this.generateAndReadLockNormalCache(state);
+      normals[0] = nc.getNormals();
+      nindices[0] = nc.getIndices();
+      normalcacheused[0] = true;
+      // if no normals were generated, unlock normal cache before
+      // returning
+      if (normals[0] == null) {
+        this.readUnlockNormalCache();
+        normalcacheused[0] = false;
+      }
+    }
+  }
+  return true;
+}
+
+// Doc in parent
+public void notify(SoNotList list)
+{
+  SoField f = list.getLastField();
+  if (f == this.coordIndex) {
+    SoNormalCache nc = this.getNormalCache();
+    if (nc != null) nc.invalidate();
+  }
+  super.notify(list);
+}
 
 	
 

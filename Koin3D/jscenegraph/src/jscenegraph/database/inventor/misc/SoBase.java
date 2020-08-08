@@ -349,6 +349,9 @@ protected SoBase()
 		   
 		    // Indicate to the database that the notification has completed
 		    SoDB.endNotify();
+		    
+		    list.destructor();
+		    rec.destructor();
 	}
 
 	/**

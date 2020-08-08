@@ -61,6 +61,8 @@ public class SoGetPrimitiveCountAction extends SoAction {
 	private	  int numtexts;
 	private	  int numimages;
 
+	private boolean approx;
+	  
 	/* (non-Javadoc)
 	 * @see jscenegraph.database.inventor.actions.SoAction#getTypeId()
 	 */
@@ -122,6 +124,19 @@ public void
 addNumTriangles( int num)
 {
   this.numtris += num;
+}
+
+
+/*!
+  Returns whether shapes can use an approximate value when counting
+  primitives. This is faster than doing an accurate count.  The
+  default is to not approximate.
+
+  \sa setCanApproximate()
+*/
+public boolean canApproximateCount()
+{
+  return this.approx;
 }
 
 	  

@@ -23,6 +23,10 @@ public class SbVec3fArray implements FloatBufferAble {
 	
 	//private FloatBuffer[] floatBuffer = new FloatBuffer[1];
 	
+	public SbVec3fArray(SbVec3fArray other) {
+		this(other,0);
+	}
+	
 	public SbVec3fArray(SbVec3fArray other, int delta) {
 		valuesArray = other.valuesArray;
 		this.delta = other.delta + delta;

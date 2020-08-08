@@ -85,7 +85,7 @@ The last comma is optional.
 public class SoMFFloat extends SoMField<Float> {
 
     public void setValue(float newValue) {
-    	super.setValue(new Float(newValue));
+    	super.setValue(newValue);
     }
     
     /**
@@ -104,7 +104,7 @@ public class SoMFFloat extends SoMField<Float> {
 
 	@Override
 	protected Float constructor() {
-		return new Float(0);
+		return 0f;
 	}
 
 	@Override

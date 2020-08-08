@@ -192,7 +192,13 @@ public class SoCullElement extends SoElement {
 	  the planes, and updates the element to detect when geometry is
 	  completely inside all planes.
 	*/
-	public boolean
+	public static boolean
+	cullBox(SoState state, final SbBox3f box)
+	{
+		return cullBox(state,box,true);
+	}
+	
+	public static boolean
 	cullBox(SoState state, final SbBox3f box, final boolean transform)
 	{
 	  return SoCullElement.docull(state, box, transform, true);
@@ -206,6 +212,12 @@ public class SoCullElement extends SoElement {
 	  perform a cull test against active planes.
 	*/
 	public static boolean
+	cullTest(SoState state, final SbBox3f box)
+	{
+		return cullTest(state,box,true);
+	}
+	
+	public static boolean
 	cullTest(SoState state, final SbBox3f box, final boolean transform)
 	{
 	  return SoCullElement.docull(state, box, transform, false);
@@ -215,7 +227,7 @@ public class SoCullElement extends SoElement {
 	  Returns \c true if the current geometry is completely inside all
 	  planes. There is no need to do a cull test if this is the case.
 	*/
-	public boolean
+	public static boolean
 	completelyInside(SoState state)
 	{
 	  // use SoState::getConstElement() to avoid cache dependency on this element

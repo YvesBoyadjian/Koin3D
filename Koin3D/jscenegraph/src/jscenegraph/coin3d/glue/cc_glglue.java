@@ -253,6 +253,7 @@ public class cc_glglue {
 	  static final String STACK_OVERFLOW = "GL_STACK_OVERFLOW";
 	  static final String STACK_UNDERFLOW = "GL_STACK_UNDERFLOW";
 	  static final String OUT_OF_MEMORY = "GL_OUT_OF_MEMORY";
+	  static final String INVALID_FRAMEBUFFER_OPERATION = "GL_INVALID_FRAMEBUFFER_OPERATION";
 	  static final String unknown = "Unknown OpenGL error";
 
 /* Convert an OpenGL enum error code to a textual representation. */
@@ -272,6 +273,8 @@ coin_glerror_string(/*GLenum*/int errorcode)
     return STACK_UNDERFLOW;
   case GL2.GL_OUT_OF_MEMORY:
     return OUT_OF_MEMORY;
+  case GL2.GL_INVALID_FRAMEBUFFER_OPERATION:
+	  return INVALID_FRAMEBUFFER_OPERATION;
   default:
     return unknown;
   }

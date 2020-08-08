@@ -19,7 +19,7 @@ abstract class AbstractPlatformGLCanvas implements PlatformGLCanvas {
                (major != 1 || minor <= 5) &&
                (major != 2 || minor <= 1) &&
                (major != 3 || minor <= 3) &&
-               (major != 4 || minor <= 5);
+               (major != 4 || minor <= 6);
     }
 
     protected static boolean validVersionGLES(int major, int minor) {

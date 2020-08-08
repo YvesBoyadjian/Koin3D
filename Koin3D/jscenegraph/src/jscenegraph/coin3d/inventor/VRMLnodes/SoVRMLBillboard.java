@@ -12,8 +12,12 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetMatrixAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
+import jscenegraph.database.inventor.actions.SoSearchAction;
 import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewVolumeElement;
@@ -49,6 +53,14 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	
 	public final SoSFVec3f axisOfRotation = new SoSFVec3f();
 
+// Doc in parent
+public void callback(SoCallbackAction action)
+{
+  SoVRMLBillboard_doAction((SoAction) action);
+}
+
+	
+	
 	// Doc in parent
 	public void
 	GLRender(SoGLRenderAction action)
@@ -66,6 +78,40 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	    break;
 	  }
 	}
+	
+
+// Doc in parent
+public void getBoundingBox(SoGetBoundingBoxAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  this.performRotation(state);
+  SoGroup_getBoundingBox(action);
+  state.pop();
+}
+
+// Doc in parent
+public void getMatrix(SoGetMatrixAction action)
+{
+  SoState state = action.getState();
+  state.push();
+
+  final SbViewVolume vv = SoViewVolumeElement.get(state);
+  SbRotation rot = new SbRotation();
+  rot = this.computeRotation(action.getInverse(), vv, rot);
+
+  final SbMatrix rotM = new SbMatrix();
+  rotM.setRotate(rot);
+  action.getMatrix().multLeft(rotM);
+  final SbMatrix invRotM = new SbMatrix();
+  invRotM.setRotate(rot.inverse());
+  action.getInverse().multRight(invRotM);
+
+  SoGroup_getMatrix(action);
+  state.pop();
+}
+
+	
 
     static boolean chkglerr = SoGL.sogl_glerror_debugging();
     
@@ -177,6 +223,10 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	  // do nothing
 	}
 	
+	public void doAction(SoAction action) {
+		SoVRMLBillboard_doAction(action);
+	}
+	
 	// Doc in parent
 	public void
 	SoVRMLBillboard_doAction(SoAction action)
@@ -194,6 +244,16 @@ public class SoVRMLBillboard extends SoVRMLParent {
 	{
 	  SoVRMLBillboard_doAction((SoAction) action);
 	}
+	
+// Doc in parent
+public void search(SoSearchAction action)
+{
+  SoNode_search(action);
+  if (action.isFound()) return;
+  SoGroup_doAction(action);
+}
+
+	
 
 	private final SbRotation rot = new SbRotation(); // SINGLE_THREAD
 	

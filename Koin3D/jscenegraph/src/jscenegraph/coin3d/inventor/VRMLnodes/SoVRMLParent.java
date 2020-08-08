@@ -19,6 +19,7 @@ import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SoNodePtr;
 
 /**
  * @author Yves Boyadjian
@@ -83,13 +84,114 @@ private void SoVRMLParent_commonConstructor()
   super.children = new SoChildList(null);
 }
 
+
+/*!
+  Destructor.
+*/
+public void destructor()
+{
+  pimpl.addsensor.detach();
+  pimpl.removesensor.detach();
+  Destroyable.delete( pimpl.addsensor);
+  Destroyable.delete( pimpl.removesensor);
+  Destroyable.delete( pimpl);
+}
+
+// Doc in parent
+public boolean affectsState()
+{
+  return false;
+}
+
+// Doc in parent
+public void addChild(SoNode child)
+{
+  this.children.addNode(child);
+  pimpl.childlistvalid = false;
+}
+
+// Doc in parent
+public void insertChild(SoNode child, int idx)
+{
+  this.children.insertNode(child, idx);
+  pimpl.childlistvalid = false;
+}
+
+// Doc in parent
+public SoNode getChild(int idx)
+{
+  return this.children.getNode(idx);
+}
+
+// Doc in parent
+public int findChild(SoNode child)
+{
+  return this.children.findNode(child);
+}
+
+// Doc in parent
+public int getNumChildren()
+{
+  return this.children.getNumNodes();
+}
+
+// Doc in parent
+public void removeChild(int idx)
+{
+  this.children.removeNode(idx);
+  if (this.children.getNum() > 0) {
+    pimpl.childlistvalid = false;
+  }
+  else {
+    super.children.truncate(0);
+    pimpl.childlistvalid = true;
+  }
+}
+
+
+// Doc in parent
+public void removeChild(SoNode child)
+{
+  this.children.removeNode(child);
+  if (this.children.getNum() > 0) {
+    pimpl.childlistvalid = false;
+  }
+  else {
+    super.children.truncate(0);
+    pimpl.childlistvalid = true;
+  }
+}
+
+// Doc in parent
+public void removeAllChildren()
+{
+  this.children.removeAllNodes();
+  super.children.truncate(0);
+  pimpl.childlistvalid = true;
+}
+
+// Doc in parent
+public void replaceChild(int idx, SoNode child)
+{
+  this.children.replaceNode(idx, child);
+  pimpl.childlistvalid = false;
+}
+
+// Doc in parent
+public void replaceChild(SoNode old,
+                           SoNode child)
+{
+  this.children.replaceNode(old, child);
+  pimpl.childlistvalid = false;
+}
+
 // add children in addChildren field
 public void processAddChildren()
 {
   int n = this.addChildren.getNum();
-  SoNode[][] nodes = this.addChildren.getValues(0);
+  SoNodePtr[] nodes = this.addChildren.getValues(0);
   for (int i = 0; i < n; i++) {
-    SoNode node = nodes[i][0];
+    SoNode node = nodes[i].get();
     if (this.findChild(node) < 0) {
       this.addChild((SoNode)node);
     }
@@ -100,9 +202,9 @@ public void processAddChildren()
 public void processRemoveChildren()
 {
   int n = this.removeChildren.getNum();
-  SoNode[][] nodes = this.removeChildren.getValues(0);
+  SoNodePtr[] nodes = this.removeChildren.getValues(0);
   for (int i = 0; i < n; i++) {
-    int idx = this.findChild(nodes[i][0]);
+    int idx = this.findChild(nodes[i].get());
     if (idx >= 0) {
       this.removeChild(idx);
     }
@@ -175,7 +277,7 @@ public SoChildList getChildren()
   list of nodes in \a nodes.
 
 */
-public static void updateChildList(final SoNode[][] nodes,
+public static void updateChildList(final SoNodePtr[] nodes,
                               final int numnodes,
                               SoChildList cl)
 {
@@ -189,10 +291,10 @@ public static void updateChildList(final SoNode[][] nodes,
       // (of type SoInfo). This is to simplify the traversal code, and
       // to make it easier to check if the SoChildList is up-to-date
       if (clarr[i] == null) {
-        if (nodes[i][0] != SoVRMLParentP.getNullNode()) break;
+        if (nodes[i].get() != SoVRMLParentP.getNullNode()) break;
       }
       else {
-        if (clarr[i][0] != nodes[i][0]) break;
+        if (clarr[i][0] != nodes[i].get()) break;
       }
     }
     if (i == numnodes) needcopy = false;
@@ -200,8 +302,8 @@ public static void updateChildList(final SoNode[][] nodes,
   if (needcopy) {
     cl.truncate(0);
     for (i = 0; i < numnodes; i++) {
-      if (nodes[i][0] != null) {
-        cl.append((SoNode) nodes[i][0]);
+      if (nodes[i].get() != null) {
+        cl.append((SoNode) nodes[i].get());
       }
       else {
         // insert a dummy SoInfo node
@@ -220,7 +322,7 @@ public static void updateChildList(final SoNode[][] nodes,
 public static void updateChildList(SoNode nodewithsfnode,
                               SoChildList cl)
 {
-  final SbList <SoNode[]> nodelist = new SbList<>();
+  final SbList <SoNodePtr> nodelist = new SbList<>();
 
   SoFieldData fd = nodewithsfnode.getFieldData();
   int n = fd.getNumFields();
@@ -230,25 +332,17 @@ public static void updateChildList(SoNode nodewithsfnode,
     SoField f = fd.getField(nodewithsfnode, i);
     if (f.getTypeId().operator_equal_equal(sosftype)) {
       SoNode node = ((SoSFNode) f).getValue();
-      SoNode[] elem = new SoNode[1];
-      elem[0] = node;
+      SoNodePtr elem = new SoNodePtr();
+      elem.set(node);
       if (node != null) nodelist.append(/*node*/elem);
     }
   }
-  SoNode[][] array = new SoNode[nodelist.getLength()][];
+  SoNodePtr[] array = new SoNodePtr[nodelist.getLength()];
   SoVRMLParent.updateChildList(nodelist.getArrayPtr(array),
                                 nodelist.getLength(),
                                 cl);
 }
 
-
-// Doc in parent
-public int getNumChildren()
-{
-  return this.children.getNumNodes();
-}
-
-	  
 /*!
   \copydetails SoNode::initClass(void)
 */

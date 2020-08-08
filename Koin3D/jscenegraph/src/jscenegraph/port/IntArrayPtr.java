@@ -137,6 +137,11 @@ public class IntArrayPtr implements Destroyable {
 		return intOffset >= other.intOffset;
 	}
 
+	public int star() {
+		int retVal = get();
+		return retVal;
+	}
+
 	public int starPlusPlus() {
 		int retVal = get();
 		plusPlus();

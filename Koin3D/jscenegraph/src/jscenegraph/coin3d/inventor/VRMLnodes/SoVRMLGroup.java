@@ -4,16 +4,23 @@
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.coin3d.TidBits;
+import jscenegraph.coin3d.glue.Gl;
+import jscenegraph.coin3d.inventor.annex.profiler.SoNodeProfiling;
+import jscenegraph.coin3d.misc.SoGL;
+import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbXfBox3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
 import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
+import jscenegraph.database.inventor.caches.SoGLCacheList;
 import jscenegraph.database.inventor.elements.SoCacheElement;
+import jscenegraph.database.inventor.elements.SoCullElement;
 import jscenegraph.database.inventor.elements.SoLocalBBoxMatrixElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -49,6 +56,16 @@ public class SoVRMLGroup extends SoVRMLParent {
 	  public  static SoFieldData[] getFieldDataPtr()                              
 	        { return SoSubNode.getFieldDataPtr(SoVRMLGroup.class); }    	  	
 	
+  public enum CacheEnabled {
+    OFF,
+    ON,
+    AUTO;
+
+	Integer getValue() {
+		return ordinal();
+	}
+  };
+
 	
 	protected static int numRenderCaches = 2;
 	
@@ -238,7 +255,7 @@ public void getBoundingBox(SoGetBoundingBoxAction action)
     if (childrencenterset) {
       // FIXME: shouldn't this assert() hold up? Investigate. 19990422 mortene.
 //#if 0 // disabled
-//      assert(!action->isCenterSet());
+//      assert(!action.isCenterSet());
 //#else
       action.resetCenter();
 //#endif
@@ -259,6 +276,48 @@ public void notify(SoNotList list)
   pimpl.unlock();
 }
 
+/*!
+  Returns TRUE if children can be culled.
+*/
+public boolean cullTest(SoState state)
+{
+  if (this.renderCulling.getValue() == SoVRMLGroup.CacheEnabled.OFF.getValue()) return false;
+  if (SoCullElement.completelyInside(state)) return false;
+  
+  boolean outside = false;
+  if (pimpl.bboxcache != null &&
+      pimpl.bboxcache.isValid(state)) {
+    SbBox3f bbox = pimpl.bboxcache.getProjectedBox();
+    if (!bbox.isEmpty()) {
+      outside = SoCullElement.cullBox(state, bbox);
+    }
+  }
+  return outside;
+}
+
+//
+// no-push culltest
+//
+public boolean cullTestNoPush(SoState state)
+{
+  if (this.renderCulling.getValue() == SoVRMLGroup.CacheEnabled.OFF.getValue()) return false;
+  if (SoCullElement.completelyInside(state)) return false;
+
+  boolean outside = false;
+  if (pimpl.bboxcache != null &&
+      pimpl.bboxcache.isValid(state)) {
+    final SbBox3f bbox = pimpl.bboxcache.getProjectedBox();
+    if (!bbox.isEmpty()) {
+      outside = SoCullElement.cullTest(state, bbox);
+    }
+  }
+  return outside;
+}
+
+public void doAction(SoAction action) {
+	SoVRMLGroup_doAction(action);
+}
+
 // Doc in parent
 public void
 SoVRMLGroup_doAction(SoAction action)
@@ -277,6 +336,94 @@ public void search(SoSearchAction action)
   if (action.isFound()) return;
 
   SoVRMLGroup_doAction(action);
+}
+
+static boolean chkglerr = SoGL.sogl_glerror_debugging();
+
+// Doc in parent
+public void GLRenderBelowPath(SoGLRenderAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  boolean didcull = false;
+  SoGLCacheList createcache = null;
+  if ((this.renderCaching.getValue() != SoSeparator.CacheEnabled.OFF.getValue()) && 
+      (SoVRMLGroup.getNumRenderCaches() > 0)) {
+    if (!state.isCacheOpen()) {
+      didcull = true;
+      if (this.cullTest(state)) {
+        // we're outside the view frustum
+        state.pop();
+        return;
+      }
+    }
+    
+    pimpl.lock();
+    SoGLCacheList glcachelist = pimpl.getGLCacheList(true);
+    pimpl.unlock();
+    if (glcachelist.call(action)) {
+//#if GLCACHE_DEBUG && 1 // debug
+//      SoDebugError::postInfo("SoVRMLGroup::GLRenderBelowPath",
+//                             "Executing GL cache: %p", this);
+//#endif // debug
+      state.pop();
+      return;
+    }
+    if (!SoCacheElement.anyOpen(state)) {
+//#if GLCACHE_DEBUG // debug
+//      SoDebugError::postInfo("SoVRMLGroup::GLRenderBelowPath",
+//                             "Creating GL cache: %p", this);
+//#endif // debug
+      createcache = glcachelist;
+    }
+  }
+
+  if (createcache != null) createcache.open(action);
+  
+  boolean outsidefrustum = (createcache != null || state.isCacheOpen() || didcull) ? 
+    false : this.cullTest(state);
+  
+  if (createcache != null || !outsidefrustum) {
+    int n = this.getChildren().getLength();
+    Object[] childarray = this.getChildren().getArrayPtr();
+    action.pushCurPath();
+    for (int i = 0; i < n && !action.hasTerminated(); i++) {
+      action.popPushCurPath(i, (SoNode)childarray[i]);
+      if (action.abortNow()) {
+        // only cache if we do a full traversal
+        SoCacheElement.invalidate(state);
+        break;
+      }
+      final SoNodeProfiling profiling = new SoNodeProfiling();
+      profiling.preTraversal(action);
+      ((SoNode)childarray[i]).GLRenderBelowPath(action);
+      profiling.postTraversal(action);
+
+//#if COIN_DEBUG
+      // The GL error test is default disabled for this optimized
+      // path.  If you get a GL error reporting an error in the
+      // Separator node, enable this code by setting the environment
+      // variable COIN_GLERROR_DEBUGGING to "1" to see exactly which
+      // node caused the error.
+      if (chkglerr) {
+        //cc_string str;
+        //cc_string_construct(&str);
+    	  final String[] str = new String[1];
+        final int errs = Gl.coin_catch_gl_errors(str);
+        if (errs > 0) {
+          SoDebugError.post("SoVRMLGroup::GLRenderBelowPath",
+                             "glGetError()s => '"+str[0]+"', nodetype: '"+this.getChildren().operator_square_bracket(i).getTypeId().getName().getString()+"'");
+        }
+        //cc_string_clean(&str);
+      }
+//#endif // COIN_DEBUG
+    }
+    action.popCurPath();
+  }
+  state.pop();
+  if (createcache != null) {
+    createcache.close(action);
+  }
 }
 
 

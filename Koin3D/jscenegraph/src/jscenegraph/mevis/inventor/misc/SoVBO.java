@@ -179,9 +179,14 @@ public static boolean shouldUseVBO( SoState state , int numData )
 
 public SoVBO( int type )
 {
-	usage = GL2.GL_STATIC_DRAW;
-  _type = type;
-  target = type; // COIN 3D
+	this(type, GL2.GL_STATIC_DRAW);
+}
+
+public SoVBO( int target_, int usage_ )
+{
+	usage = usage_;
+  _type = target_;
+  target = target_; // COIN 3D
   _ownsData = false;
   _numBytes = 0;
   _data = null;
@@ -189,6 +194,8 @@ public SoVBO( int type )
   _glBuffer = null;
   _hasSwappedRGBAData = false;
   _hadGLError = false;
+
+  SoContextHandler.addContextDestructionCallback(SoVBO::context_destruction_cb, this);
 }
 
 

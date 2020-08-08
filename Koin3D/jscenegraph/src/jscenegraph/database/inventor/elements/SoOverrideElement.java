@@ -293,6 +293,18 @@ matches( SoElement elt)
    //! Returns TRUE if SoMaterialBindingElement is overridden.
    public  static boolean       getMaterialBindingOverride(SoState state)
          { return SO_GET_OVERRIDE(state, ElementMask.MATERIAL_BINDING.getValue()); }
+   
+/*!
+  Returns normal binding override value.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static boolean getNormalBindingOverride(SoState state)
+{
+  return SO_GET_OVERRIDE(state, ElementMask.NORMAL_BINDING.getValue());
+}   
     
     //! Returns TRUE if SoLinePatternElement is overridden.
    public static boolean         getLinePatternOverride(SoState state)

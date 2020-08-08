@@ -3,19 +3,30 @@
  */
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
+import jscenegraph.coin3d.inventor.annex.profiler.SoNodeProfiling;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoCallbackAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
+import jscenegraph.database.inventor.actions.SoSearchAction;
+import jscenegraph.database.inventor.actions.SoWriteAction;
+import jscenegraph.database.inventor.elements.SoCacheElement;
+import jscenegraph.database.inventor.elements.SoLazyElement;
+import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFNode;
 import jscenegraph.database.inventor.misc.SoChildList;
+import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSubNode;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author BOYADJIAN
@@ -44,6 +55,7 @@ public class SoVRMLShape extends SoNode {
 	  public final SoSFEnum renderCaching = new SoSFEnum();
 	  public final SoSFEnum boundingBoxCaching = new SoSFEnum();
 
+	  private static int sovrmlshape_numrendercaches = 0;
 
 	  SoVRMLShapeP pimpl;
 	
@@ -74,6 +86,121 @@ public SoVRMLShape()
 }
 
 
+public void destructor()
+{
+  Destroyable.delete( pimpl.childlist);
+  Destroyable.delete( pimpl.cachelist);
+  Destroyable.delete( pimpl);
+  super.destructor();
+}
+
+public void setNumRenderCaches(int num)
+{
+  sovrmlshape_numrendercaches = num;
+}
+
+public int getNumRenderCaches()
+{
+  return sovrmlshape_numrendercaches;
+}
+
+public boolean affectsState()
+{
+  return false;
+}
+
+public void doAction(SoAction action) {
+	SoVRMLShape_doAction(action);
+}
+
+public void
+SoVRMLShape_doAction(SoAction action)
+{
+  SoState state = action.getState();
+
+  if (state.isElementEnabled(SoLazyElement.getClassStackIndex(SoLazyElement.class))) {
+    if ((this.appearance.getValue() == null) ||
+        (((SoVRMLAppearance)this.appearance.getValue()).material.getValue() == null)) {
+      SoLazyElement.setLightModel(state, SoLazyElement.LightModel.BASE_COLOR.getValue());
+    }
+  }
+
+  state.push();
+  final int[] numindices = new int[1];
+  final int[][] indices = new int[1][];
+  if (action.getPathCode(numindices, indices) == SoAction.PathCode.IN_PATH) {
+    this.getChildren().traverseInPath(action, numindices[0], indices[0]);
+  }
+  else {
+    this.getChildren().traverse(action); // traverse all children
+  }
+  state.pop();
+}
+
+public void callback(SoCallbackAction action)
+{
+  SoVRMLShape_doAction((SoAction) action);
+}
+
+public void GLRender(SoGLRenderAction action)
+{
+  SoState state = action.getState();
+  state.push();
+
+  if ((this.appearance.getValue() == null) ||
+      (((SoVRMLAppearance)this.appearance.getValue()).material.getValue() == null)) {
+    SoLazyElement.setLightModel(state, SoLazyElement.LightModel.BASE_COLOR.getValue());
+  }
+
+  final int[] numindices = new int[1];
+  final int[][] indices = new int[1][];
+  SoAction.PathCode pathcode = action.getPathCode(numindices, indices);
+
+  Object[] childarray = this.getChildren().getArrayPtr();
+
+  if (pathcode == SoAction.PathCode.IN_PATH) {
+    int lastchild = indices[0][numindices[0] - 1];
+    for (int i = 0; i <= lastchild && !action.hasTerminated(); i++) {
+      SoNode child = (SoNode)childarray[i];
+      action.pushCurPath(i, child);
+      if (action.getCurPathCode() != SoAction.PathCode.OFF_PATH ||
+          child.affectsState()) {
+        if (!action.abortNow()) {
+          final SoNodeProfiling profiling = new SoNodeProfiling();
+          profiling.preTraversal(action);
+          child.GLRender(action);
+          profiling.postTraversal(action);
+          //profiling.destructor();
+        }
+        else {
+          SoCacheElement.invalidate(state);
+        }
+      }
+      action.popCurPath(pathcode);
+    }
+  }
+  else {
+    action.pushCurPath();
+    int n = this.getChildren().getLength();
+    for (int i = 0; i < n && !action.hasTerminated(); i++) {
+      action.popPushCurPath(i, (SoNode)childarray[i]);
+      if (action.abortNow()) {
+        // only cache if we do a full traversal
+        SoCacheElement.invalidate(state);
+        break;
+      }
+      final SoNodeProfiling profiling = new SoNodeProfiling();
+      profiling.preTraversal(action);
+      ((SoNode)childarray[i]).GLRender(action);
+      profiling.postTraversal(action);
+    }
+    action.popCurPath();
+  }
+  state.pop();
+}
+
+
+
 public void getBoundingBox(SoGetBoundingBoxAction action)
 {
   SoState state = action.getState();
@@ -87,6 +214,35 @@ public void getBoundingBox(SoGetBoundingBoxAction action)
     this.getChildren().traverse(action); // traverse all children
   }
   state.pop();
+}
+
+
+public void rayPick(SoRayPickAction action)
+{
+  SoVRMLShape_doAction(action);
+}
+
+//// Doc in parent
+//public void write(SoWriteAction action)
+//{
+//  // do not call inherited::write() or SoGroup::write()
+//  this.boundingBoxCaching.setDefault(true);
+//  this.renderCaching.setDefault(true);
+//  super.write(action);
+//}
+
+public void search(SoSearchAction action)
+{
+  // Include this node in the search.
+  super.search(action);
+  if (action.isFound()) return;
+
+  SoVRMLShape_doAction(action);
+}
+
+public void getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  SoVRMLShape_doAction((SoAction) action);
 }
 
 
@@ -107,6 +263,15 @@ public SoChildList getChildren()
     pimpl.unlockChildList();
   }
   return pimpl.childlist;
+}
+
+public void notify(SoNotList list)
+{
+  SoField f = list.getLastField();
+  if (f != null && f.getTypeId() == SoSFNode.getClassTypeId(SoSFNode.class)) {
+    pimpl.childlistvalid = false;
+  }
+  super.notify(list);
 }
 
 	  

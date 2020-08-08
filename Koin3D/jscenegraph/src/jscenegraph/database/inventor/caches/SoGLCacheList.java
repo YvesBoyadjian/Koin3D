@@ -175,6 +175,11 @@ public SoGLCacheList(int num)
 // Use: public
 
 public void
+open(SoGLRenderAction action) {
+	open(action,true);
+}
+
+public void
 open(SoGLRenderAction action, boolean autoCache)
 //
 ////////////////////////////////////////////////////////////////////////

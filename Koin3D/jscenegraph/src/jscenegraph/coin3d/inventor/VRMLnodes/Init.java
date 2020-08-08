@@ -60,7 +60,7 @@ so_vrml_init()
   SoVRMLMaterial.initClass();
 //  SoVRMLMovieTexture::initClass();
 //  SoVRMLNavigationInfo::initClass();
-//  SoVRMLNormal::initClass();
+  SoVRMLNormal.initClass();
 //  SoVRMLNormalInterpolator::initClass();
 //  SoVRMLOrientationInterpolator::initClass();
 //  SoVRMLPixelTexture::initClass();

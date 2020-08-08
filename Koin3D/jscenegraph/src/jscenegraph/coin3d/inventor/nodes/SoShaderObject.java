@@ -589,7 +589,7 @@ updateParameters(final int cachecontext, int start, int num)
   end = (end > cnt) ? cnt : end;
   for (int i=start; i<end; i++) {
     SoUniformShaderParameter param =
-      (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i)[0];
+      (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i).get();
     param.updateParameter(shaderobject);
   }
 }
@@ -651,7 +651,7 @@ updateCoinParameters(final int cachecontext, SoState state)
 
   for (i = 0; i < cnt; i++) {
     SoUniformShaderParameter param =
-      (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i)[0];
+      (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i).get();
     SbName name = new SbName(param.name.getValue());
     
     if (Util.strncmp(name.getString(), "coin_", 5) == 0) {
@@ -703,7 +703,7 @@ updateAllParameters(final int cachecontext)
 
   for (i=0; i<cnt; i++) {
     SoUniformShaderParameter param =
-      (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i)[0];
+      (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i).get();
     param.updateParameter(shaderobject);
   }
   shaderobject.setParametersDirty(false);
@@ -721,7 +721,7 @@ updateStateMatrixParameters(final int cachecontext, SoState state)
 
   int i, cnt = this.owner.parameter.getNum();
   for (i= 0; i <cnt; i++) {
-	  SoUniformShaderParameter param = (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i)[0];
+	  SoUniformShaderParameter param = (SoUniformShaderParameter)this.owner.parameter.operator_square_bracket(i).get();
     if (param.isOfType(SoShaderStateMatrixParameter.getClassTypeId())) {
     	((SoShaderStateMatrixParameter)param).updateValue(state);
       ((SoShaderStateMatrixParameter)param).updateParameter(shaderobject);
@@ -736,7 +736,7 @@ containStateMatrixParameters()
 //#define STATE_PARAM SoShaderStateMatrixParameter
   int i, cnt = this.owner.parameter.getNum();
   for (i = 0; i < cnt; i++) {
-    if (this.owner.parameter.operator_square_bracket(i)[0].isOfType(SoShaderStateMatrixParameter.getClassTypeId()))
+    if (this.owner.parameter.operator_square_bracket(i).get().isOfType(SoShaderStateMatrixParameter.getClassTypeId()))
       return true;
   }
 //#undef STATE_PARAM

@@ -350,7 +350,7 @@ public void GLRender(SoGLRenderAction action)
 
 	  // load shader objects
 	  for (i = 0; i <cnt; i++) {
-	    SoNode node = this.shaderObject.operator_square_bracket(i)[0];
+	    SoNode node = this.shaderObject.operator_square_bracket(i).get();
 	    if (node.isOfType(SoShaderObject.getClassTypeId())) {
 	      ((SoShaderObject )node).GLRender(action);
 	    }
@@ -362,7 +362,7 @@ public void GLRender(SoGLRenderAction action)
 	  // update parameters after all shader objects have been added and enabled
 
 	  for (i = 0; i <cnt; i++) {
-	    SoNode node = this.shaderObject.operator_square_bracket(i)[0];
+	    SoNode node = this.shaderObject.operator_square_bracket(i).get();
 	    if (node.isOfType(SoShaderObject.getClassTypeId())) {
 	      ((SoShaderObject )node).updateParameters(state);
 	    }

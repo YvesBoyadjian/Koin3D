@@ -60,6 +60,7 @@ import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.port.SoNodePtr;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of pointers to nodes.
@@ -85,7 +86,7 @@ example:
  * @author Yves Boyadjian
  *
  */
-public class SoMFNode extends SoMField<SoNode[]> {
+public class SoMFNode extends SoMField<SoNodePtr> {
 	
 	public static Object[] SOMFNODE_NULL;
 	
@@ -125,13 +126,17 @@ public class SoMFNode extends SoMField<SoNode[]> {
 	}
 
 	@Override
-	protected SoNode[] constructor() {
-		return new SoNode[1];
+	protected SoNodePtr constructor() {
+		return new SoNodePtr();
 	}
 
 	@Override
-	protected SoNode[][] arrayConstructor(int length) {
-		return new SoNode[length][1];
+	protected SoNodePtr[] arrayConstructor(int length) {
+		SoNodePtr[] ret_val = new SoNodePtr[length];
+		for (int i=0; i<length; i++) {
+			ret_val[i] = new SoNodePtr();
+		}
+		return ret_val;
 	}
 
 	public void destructor() {
@@ -152,7 +157,7 @@ find(SoNode[] targetValue, boolean addIfNotFound)
     int i, num = getNum();
 
     for (i = 0; i < num; i++)
-        if (values[i][0] == targetValue[0])
+        if (values[i].get() == targetValue[0])
             return i;
 
     if (addIfNotFound)
@@ -215,23 +220,23 @@ setVal(int index, SoNode[] newValue)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoNode[]      value = values[index];
+    final SoNodePtr      value = values[index];
 
     // Play it safe if we are replacing one pointer with the same pointer
     if (newValue[0] != null)
         newValue[0].ref();
 
     // Get rid of old node, if any
-    if (value[0] != null) {
-        value[0].removeAuditor(this, SoNotRec.Type.FIELD);
-        value[0].unref();
+    if (value.get() != null) {
+        value.get().removeAuditor(this, SoNotRec.Type.FIELD);
+        value.get().unref();
     }
 
-    value[0] = values[index][0] = newValue[0];
+    value.set( values[index].set( newValue[0]));
 
-    if (value[0] != null) {
-        value[0].ref();
-        value[0].addAuditor(this, SoNotRec.Type.FIELD);
+    if (value.get() != null) {
+        value.get().ref();
+        value.get().addAuditor(this, SoNotRec.Type.FIELD);
     }
 
     if (newValue[0] != null)
@@ -253,24 +258,27 @@ allocValues(int newNum)
 
     if (values == null) {
         if (newNum > 0) {
-            values = new SoNode[newNum][1];
+            values = new SoNodePtr[newNum];
 
             // Make sure all pointers are initialized to NULL
             for (i = 0; i < newNum; i++)
-                values[i][0] = null;
+                values[i] = new SoNodePtr();
         }
     }
     else {
-        SoNode[][]  oldValues = values;
+        SoNodePtr[]  oldValues = values;
 
         if (newNum > 0) {
-            values = new SoNode[newNum][1];
+            values = new SoNodePtr[newNum];
+            for (i = 0; i < newNum; i++) // java port
+                values[i] = new SoNodePtr();
+            
             for (i = 0; i < num && i < newNum; i++)
-                values[i][0] = oldValues[i][0];
+                values[i].set( oldValues[i].get());
 
             // Initialize unused pointers to NULL
             for (i = num; i < newNum; i++)
-                values[i][0] = null;
+                values[i].set( null);
         }
         else
             values = null;
@@ -280,9 +288,9 @@ allocValues(int newNum)
 
             // Remove auditors and references on unused values
             for (i = newNum; i < num; i++) {
-                if (oldValues[i][0] != null) {
-                    oldValues[i][0].removeAuditor(this, SoNotRec.Type.FIELD);
-                    oldValues[i][0].unref();
+                if (oldValues[i].get() != null) {
+                    oldValues[i].get().removeAuditor(this, SoNotRec.Type.FIELD);
+                    oldValues[i].get().unref();
                 }
             }
 
@@ -305,6 +313,63 @@ public void set1Value(int index, SoNode node) {
 }
 
 /*!
+  Adds a node at the end of the array.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void addNode(SoNode node)
+{
+  this.set1Value(this.getNum(), node);
+}
+
+/*!
+  Inserts a node at index \a idx.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void insertNode(SoNode node, int idx)
+{
+  assert(idx >= 0 && idx <= this.getNum());
+  this.insertSpace(idx, 1);
+  this.set1Value(idx, node);
+}
+
+/*!
+  Returns the node at index \a idx.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public SoNode getNode(int idx)
+{
+  assert(idx >= 0 && idx < this.getNum());
+  return (SoNode)(this.getValues(0)[idx].get());
+}
+
+/*!
+  Returns the index for the first instance of \a node in the field,
+  or -1 if not found.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public int findNode(SoNode node)
+{
+  SoNodePtr[] ptr = this.getValues(0);
+  int n = this.getNum();
+  for (int i = 0; i < n; i++) {
+    if (ptr[i].get() == node) return i;
+  }
+  return -1;
+}
+
+/*!
   Returns the number of nodes in this field.
 
   \COIN_FUNCTION_EXTENSION
@@ -315,4 +380,68 @@ public int getNumNodes()
 {
   return this.getNum();
 }
+
+/*!
+  Removes the node at index \a idx.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void removeNode(int idx)
+{
+  assert(idx >= 0 && idx < this.getNum());
+  this.deleteValues(idx, 1);
+}
+
+/*!
+  Removes the first instance of \a node in the field.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void removeNode(SoNode node)
+{
+  int idx = this.findNode(node);
+  if (idx >= 0) this.removeNode(idx);
+}
+
+/*!
+  Removes all nodes from the field.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void removeAllNodes()
+{
+  this.setNum(0);
+}
+/*!
+  Replaces the node at index \a idx with \a newnode.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void replaceNode(int idx, SoNode newnode)
+{
+  assert(idx >= 0 && idx < this.getNum());
+  this.set1Value(idx, newnode);
+}
+
+/*!
+  Replaces the first instance of \a oldnode with \a newnode.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public void replaceNode(SoNode oldnode, SoNode newnode)
+{
+  int idx = this.findNode(oldnode);
+  if (idx >= 0) this.replaceNode(idx, newnode);
+}
+
 }

@@ -613,7 +613,11 @@ GLRender(SoGLRenderAction action)
 // Use: extender
 
 public void
-getBoundingBox(SoGetBoundingBoxAction action)
+getBoundingBox(SoGetBoundingBoxAction action) {
+	SoGroup_getBoundingBox(action);
+}
+public void
+SoGroup_getBoundingBox(SoGetBoundingBoxAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -700,7 +704,11 @@ search(SoSearchAction action)
 // Use: extender
 
 public void
-getMatrix(SoGetMatrixAction action)
+getMatrix(SoGetMatrixAction action) {
+	SoGroup_getMatrix(action);
+}
+public void
+SoGroup_getMatrix(SoGetMatrixAction action)
 //
 ////////////////////////////////////////////////////////////////////////
 {

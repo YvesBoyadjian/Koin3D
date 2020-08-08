@@ -116,6 +116,7 @@ import jscenegraph.database.inventor.fields.SoMField;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSField;
 import jscenegraph.database.inventor.misc.SoBase;
+import jscenegraph.port.SoNodePtr;
 
 /**
  * @author Yves Boyadjian
@@ -570,7 +571,7 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
     	   ((SoMFUInt32)field).setValue((int)defValue[0]);
        }
        else if(field instanceof SoMFNode && defValue == null) {
-    	   field.setValue(new SoNode[1]);    	   
+    	   field.setValue(new SoNodePtr());    	   
        }
        else {
     	   field.setValue(defValue[0]);

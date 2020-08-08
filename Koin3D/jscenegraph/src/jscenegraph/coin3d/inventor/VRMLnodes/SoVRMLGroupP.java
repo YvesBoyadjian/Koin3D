@@ -55,6 +55,17 @@ sovrmlgroup_storage_destruct(Object data)
                     SoVRMLGroupP::sovrmlgroup_storage_destruct);
   }
 
+
+public SoGLCacheList getGLCacheList(final boolean createifnull)
+{
+  sovrmlgroup_storage ptr = 
+    (sovrmlgroup_storage) this.glcachestorage.get();
+  if (createifnull && ptr.glcachelist == null) {
+    ptr.glcachelist = new SoGLCacheList(SoVRMLGroup.getNumRenderCaches());
+  }
+  return ptr.glcachelist;
+}
+
   
 
   public static void invalidate_gl_cache(Object tls, Object obj) {
