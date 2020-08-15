@@ -588,7 +588,7 @@ notify(SoNotList nl)
 		    SoSubNode.SO__NODE_INIT_CLASS(SoLevelOfDetail.class, "LevelOfDetail", SoGroup.class);	 
 	    //SO_NODE_INTERNAL_INIT_CLASS(SoLevelOfDetail, SO_FROM_INVENTOR_1);
 
-	    so_lod_storage = new SbStorage(so_lod_static_data.class,
+	    so_lod_storage = new SbStorage<so_lod_static_data>(so_lod_static_data.class,
 	                                   SoLevelOfDetail::so_lod_construct_data, SoLevelOfDetail::so_lod_destruct_data);
 	    //coin_atexit((coin_atexit_f*) so_lod_cleanup, CC_ATEXIT_NORMAL);
 	  }

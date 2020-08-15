@@ -350,6 +350,18 @@ getTransparencyTypeOverride(SoState state)
     public static boolean         getPolygonOffsetOverride(SoState state)
         { return SO_GET_OVERRIDE(state, ElementMask.POLYGON_OFFSET.getValue()); }
     
+
+/*!
+  Returns normal vector override value.
+
+  \COIN_FUNCTION_EXTENSION
+
+  \since Coin 2.0
+*/
+public static boolean getNormalVectorOverride(SoState state)
+{
+  return SO_GET_OVERRIDE(state,ElementMask.NORMAL_VECTOR.getValue());
+}
     
    
    public static boolean SO_GET_OVERRIDE(SoState state, int flag) {

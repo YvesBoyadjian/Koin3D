@@ -32,22 +32,22 @@ so_vrml_init()
 //  SoVRMLAnchor::initClass();
   SoVRMLAppearance.initClass();
 //  SoVRMLAudioClip::initClass();
-//  SoVRMLBackground::initClass();
+  SoVRMLBackground.initClass();
   SoVRMLBillboard.initClass();
-//  SoVRMLBox::initClass();
+  SoVRMLBox.initClass();
 //  SoVRMLCollision::initClass();
   SoVRMLColor.initClass();
 //  SoVRMLColorInterpolator::initClass();
-//  SoVRMLCone::initClass();
+  SoVRMLCone.initClass();
   SoVRMLCoordinate.initClass();
 //  SoVRMLCoordinateInterpolator::initClass();
-//  SoVRMLCylinder::initClass();
+  SoVRMLCylinder.initClass();
 //  SoVRMLCylinderSensor::initClass();
 //  SoVRMLDirectionalLight::initClass();
 //  SoVRMLElevationGrid::initClass();
-//  SoVRMLExtrusion::initClass();
-//  SoVRMLFog::initClass();
-//  SoVRMLFontStyle::initClass();
+  SoVRMLExtrusion.initClass();
+  SoVRMLFog.initClass();
+  SoVRMLFontStyle.initClass();
   SoVRMLImageTexture.initClass();
   SoVRMLIndexedFaceSet.initClass();
 //
@@ -59,7 +59,7 @@ so_vrml_init()
   SoVRMLShape.initClass();
   SoVRMLMaterial.initClass();
 //  SoVRMLMovieTexture::initClass();
-//  SoVRMLNavigationInfo::initClass();
+  SoVRMLNavigationInfo.initClass();
   SoVRMLNormal.initClass();
 //  SoVRMLNormalInterpolator::initClass();
 //  SoVRMLOrientationInterpolator::initClass();
@@ -76,14 +76,14 @@ so_vrml_init()
 //  SoVRMLSphereSensor::initClass();
 //  SoVRMLSpotLight::initClass();
 //  SoVRMLSwitch::initClass();
-//  SoVRMLText::initClass();
+  SoVRMLText.initClass();
   SoVRMLTextureCoordinate.initClass();
 //  SoVRMLTextureTransform::initClass();
 //  SoVRMLTimeSensor::initClass();
-//  SoVRMLTouchSensor::initClass();
+  SoVRMLTouchSensor.initClass();
   SoVRMLTransform.initClass();
-//  SoVRMLViewpoint::initClass();
+  SoVRMLViewpoint.initClass();
 //  SoVRMLVisibilitySensor::initClass();
-//  SoVRMLWorldInfo::initClass();
+  SoVRMLWorldInfo.initClass();
 }
 }

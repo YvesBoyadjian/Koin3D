@@ -104,6 +104,7 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 //	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
 //	
 	private SbVec3fArray vec3fArray;
+	private FloatArray floatArray;
 	
 	private FloatMemoryBuffer valuesArray;
 
@@ -386,6 +387,9 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 				//Destroyable.delete(vec3fArray);
 				vec3fArray = null;
 			}
+			if ( floatArray != null) {
+				floatArray = null;
+			}
 			// delete [] oldValues; java port
 		}
 
@@ -436,6 +440,16 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 			vec3fArray = new SbVec3fArray(valuesArray);
 		}
 		return vec3fArray;
+    }
+
+
+    public FloatArray getValuesFloatArray() {
+		evaluate();
+				
+		if( floatArray == null || floatArray.getValuesArray() != valuesArray ) {
+			floatArray = new FloatArray(0,valuesArray);
+		}
+		return floatArray;
     }
 }
 

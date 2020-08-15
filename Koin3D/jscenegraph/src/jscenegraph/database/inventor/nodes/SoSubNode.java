@@ -627,8 +627,36 @@ public void SO_VRMLNODE_ADD_EVENT_IN(SoMField _field_, String fieldName) {
   } while(false);
 }
 
+public void SO_VRMLNODE_ADD_EVENT_IN(SoField _field_, String fieldName) {
+	  do { 
+	    _field_.setFieldType(SoField.FieldType.EVENTIN_FIELD.getValue());
+	    _field_.setContainer(thisParent);
+	    fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+	  } while(false);
+	}
+
+public void SO_VRMLNODE_ADD_EVENT_OUT(SoMField _field_, String fieldName) {
+do { 
+  _field_.setFieldType(SoField.FieldType.EVENTOUT_FIELD.getValue()); 
+  _field_.setContainer(thisParent); 
+  fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+} while(false);
+}
+
+public void SO_VRMLNODE_ADD_EVENT_OUT(SoField _field_, String fieldName) {
+do { 
+  _field_.setFieldType(SoField.FieldType.EVENTOUT_FIELD.getValue()); 
+  _field_.setContainer(thisParent); 
+  fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+} while(false);
+}
+
 public <T> void SO_VRMLNODE_ADD_FIELD(SoSField<T> field,String fieldName, T defValue) {
 	SO_NODE_ADD_FIELD(field,fieldName,defValue);
+}
+
+public <T> void SO_VRMLNODE_ADD_MFIELD(SoMField<T> field,String fieldName, T defValue) {
+	SO_NODE_ADD_MFIELD(field,fieldName,defValue);
 }
 
 public void SO_VRMLNODE_ADD_FIELD(SoSFEnum field,String fieldName, Enum defValue) {
@@ -638,6 +666,11 @@ public void SO_VRMLNODE_ADD_FIELD(SoSFEnum field,String fieldName, Enum defValue
 public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoSField<T> field,String fieldName, T defValue) {
 	field.setFieldType(SoField.FieldType.EXPOSED_FIELD.getValue()); 
 	SO_NODE_ADD_FIELD(field,fieldName,defValue);
+}
+
+public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoMField<T> field,String fieldName, T defValue) {
+	field.setFieldType(SoField.FieldType.EXPOSED_FIELD.getValue()); 
+	SO_NODE_ADD_MFIELD(field,fieldName,defValue);
 }
 
 public <T> void SO_VRMLNODE_ADD_EMPTY_MFIELD(SoMField<T>_field_,String fieldName) {

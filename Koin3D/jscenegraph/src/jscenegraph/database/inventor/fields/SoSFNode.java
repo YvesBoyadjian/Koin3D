@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.nodes.SoNode;
@@ -154,32 +155,73 @@ operator_equal_equal(final SoSFNode f)
 //
 // Use: private
 
-public boolean readValue(SoInput in)
+//public boolean readValue(SoInput in)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    final SbName      name = new SbName();
+//    final SoBase[]      base = new SoBase[1];
 //
-////////////////////////////////////////////////////////////////////////
+//    // See if it's a null pointer
+//    if (in.read(name)) {
+//        if (name.operator_equal_equal(new SbName("NULL"))) {
+//            setVal(null);
+//            return true;
+//        }
+//        else
+//            in.putBack(name.getString());
+//    }
+//    
+//    // Read node
+//    if (! SoBase.read(in, base, SoNode.getClassTypeId())) {
+//        setVal(null);
+//        return false;
+//    }
+//
+//    setVal((SoNode ) base[0]);
+//
+//    return true;
+//}
+
+// Import node.
+public boolean readValue(SoInput in)
 {
-    final SbName      name = new SbName();
-    final SoBase[]      base = new SoBase[1];
+  final SoBase[] baseptr = new SoBase[1];
+  boolean isVRMLspecialCase = false;
 
-    // See if it's a null pointer
-    if (in.read(name)) {
-        if (name.operator_equal_equal(new SbName("NULL"))) {
-            setVal(null);
-            return true;
-        }
-        else
-            in.putBack(name.getString());
+  // Note: do *not* simply check for baseptr==NULL here, as that is a
+  // valid condition for VRML97 files, where nodes can indeed be
+  // explicitly given as a NULL value. See the 'vrml97nullchild' test
+  // case near the end of this file for a valid case that would fail.
+  if(in.isFileVRML1() || in.isFileVRML2()) {
+    final SbName name = new SbName();
+    in.read(name, true);
+    if (name.operator_equal_equal("NULL")) {
+      baseptr[0] = null;
+      isVRMLspecialCase = true;
     }
-    
-    // Read node
-    if (! SoBase.read(in, base, SoNode.getClassTypeId())) {
-        setVal(null);
-        return false;
+    else {
+      in.putBack(name.getString());
     }
+  }
 
-    setVal((SoNode ) base[0]);
+  if (!isVRMLspecialCase) {
+    if (!SoBase.read(in, baseptr, SoNode.getClassTypeId())) return false;
+    if (baseptr[0] == null) {
+      SoReadError.post(in, "Invalid node specification");
+      return false;
+    }
+  }
 
-    return true;
+  if (in.eof()) {
+    SoReadError.post(in, "Premature end of file");
+    return false;
+  }
+
+  if (baseptr[0] != null) {
+    this.setValue((SoNode)(baseptr[0]));
+  }
+  return true;
 }
 
 

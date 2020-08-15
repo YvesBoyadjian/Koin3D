@@ -26,7 +26,7 @@ public class SoVRMLGroupP {
   
   // when doing threadsafe rendering, each thread needs its own
 // glcachelist
-static class sovrmlgroup_storage {
+public static class sovrmlgroup_storage {
   public SoGLCacheList glcachelist; // ptr
 };
 
@@ -50,7 +50,7 @@ sovrmlgroup_storage_destruct(Object data)
   // lots of ifdefs here but it can't be helped...
   public SoVRMLGroupP() {
     this.glcachestorage = 
-      new SbStorage(sovrmlgroup_storage.class,
+      new SbStorage<sovrmlgroup_storage>(sovrmlgroup_storage.class,
                     SoVRMLGroupP::sovrmlgroup_storage_construct,
                     SoVRMLGroupP::sovrmlgroup_storage_destruct);
   }

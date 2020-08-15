@@ -323,7 +323,7 @@ GLRender(SoGLRenderAction action)
         nb.destructor();
       }
       vpCache.numNorms = normCache.getNum();
-      vpCache.normalPtr = normCache.getNormalsFloat();
+      vpCache.normalPtr = normCache.getNormals();
 
     }
 

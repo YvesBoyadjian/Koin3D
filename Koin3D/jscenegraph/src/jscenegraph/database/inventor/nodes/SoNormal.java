@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import com.jogamp.opengl.GL2;
+
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
@@ -63,8 +65,10 @@ import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.elements.SoGLNormalElement;
 import jscenegraph.database.inventor.elements.SoNormalElement;
+import jscenegraph.database.inventor.elements.SoOverrideElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
+import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
@@ -137,8 +141,7 @@ public class SoNormal extends SoNode {
     //! Surface normal vectors.
     final SoMFVec3f           vector = new SoMFVec3f();         
 
-  protected final SoVBO[] _vbo = new SoVBO[1];
-	  
+  private SoNormalP pimpl; //ptr
   
 ////////////////////////////////////////////////////////////////////////
 //
@@ -151,12 +154,12 @@ public SoNormal()
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	pimpl = new SoNormalP();
+	
     nodeHeader.SO_NODE_CONSTRUCTOR(/*SoNormal.class*/);
     nodeHeader.SO_NODE_ADD_MFIELD(vector,"vector", (new SbVec3f(0,0,0)));
     vector.deleteValues(0); // Nuke bogus normal
     isBuiltIn = true;
-
-    _vbo[0] = null;
 }
 
   
@@ -171,8 +174,7 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	if(_vbo[0] != null)
-		_vbo[0].destructor();
+	pimpl.destructor();
   super.destructor();
 }
 
@@ -183,17 +185,35 @@ public void destructor()
 //
 // Use: extender
 
+//public void SoNormal_doAction(SoAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//  if (! vector.isIgnored()) {
+//    SoState state = action.getState();
+//    SoNormalElement.set(action.getState(), this,
+//      vector.getNum(), vector.getValuesSbVec3fArray(/*0*/));
+//    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
+//      SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.NORMAL_VBO, _vbo,
+//        vector.getNum()*(SbVec3f.sizeof()), VoidPtr.create(vector.getValuesArray(0)), getNodeId());
+//    }
+//  }
+//}
+
+public void doAction(SoAction action) {
+	SoNormal_doAction(action);
+}
+
+// Doc in superclass.
 public void SoNormal_doAction(SoAction action)
-//
-////////////////////////////////////////////////////////////////////////
 {
-  if (! vector.isIgnored()) {
-    SoState state = action.getState();
-    SoNormalElement.set(action.getState(), this,
-      vector.getNum(), vector.getValuesSbVec3fArray(/*0*/));
-    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
-      SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.NORMAL_VBO, _vbo,
-        vector.getNum()*(SbVec3f.sizeof()), VoidPtr.create(vector.getValuesArray(0)), getNodeId());
+  SoState state = action.getState();
+  if (!this.vector.isIgnored() &&
+      !SoOverrideElement.getNormalVectorOverride(state)) {
+    SoNormalElement.set(state, this,
+                         this.vector.getNum(), this.vector.getValuesSbVec3fArray(/*0*/));
+    if (this.isOverride()) {
+      SoOverrideElement.setNormalVectorOverride(state, this, true);
     }
   }
 }
@@ -219,12 +239,52 @@ public void callback(SoCallbackAction action)
 //
 // Use: extender
 
+//public void GLRender(SoGLRenderAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    SoNormal_doAction(action);
+//}
+
+
+// Doc in superclass.
 public void GLRender(SoGLRenderAction action)
-//
-////////////////////////////////////////////////////////////////////////
 {
-    SoNormal_doAction(action);
+  //
+  // FIXME: code to test if all normals are unit length, and store
+  // this in some cached variable.  should be passed on to
+  // SoGLNormalizeElement to optimize rendering (pederb)
+  //
+  SoNormal_doAction(action);
+  SoState state = action.getState();
+  
+  SoBase.staticDataLock();
+  boolean setvbo = false;
+  final int num = this.vector.getNum();
+  if (SoGLVBOElement.shouldCreateVBO(state, num)) {
+    setvbo = true;
+    boolean dirty = false;
+    if (pimpl.vbo == null) {
+      pimpl.vbo = new SoVBO(GL2.GL_ARRAY_BUFFER, GL2.GL_STATIC_DRAW); 
+      dirty =  true;
+    }
+    else if (pimpl.vbo.getBufferDataId() != this.getNodeId()) {
+      dirty = true;
+    }
+    if (dirty) {
+      pimpl.vbo.setBufferData(VoidPtr.create(this.vector.getValuesArray(0)),
+                                        num*(SbVec3f.sizeof()),
+                                        this.getNodeId(),state); // YB 
+    }
+  }
+  else if (pimpl.vbo != null && pimpl.vbo.getBufferDataId() != 0) {
+    // clear buffers to deallocate VBO memory
+    pimpl.vbo.setBufferData(null, 0, 0);
+  }
+  SoBase.staticDataUnlock();
+  SoGLVBOElement.setNormalVBO(state, setvbo? pimpl.vbo : null);
 }
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -255,9 +315,9 @@ public static void initClass()
     SO__NODE_INIT_CLASS(SoNormal.class, "Normal", SoNode.class);
 
     // Enable elements for appropriate actions:
-    SO_ENABLE(SoGLRenderAction.class, SoGLNormalElement.class);
+    //SO_ENABLE(SoGLRenderAction.class, SoGLNormalElement.class);
     SO_ENABLE(SoGLRenderAction.class, SoNormalElement.class);
-    SO_ENABLE(SoGLRenderAction.class, SoGLVBOElement.class);
+    //SO_ENABLE(SoGLRenderAction.class, SoGLVBOElement.class);
     SO_ENABLE(SoCallbackAction.class, SoNormalElement.class);
     SO_ENABLE(SoGetPrimitiveCountAction.class, SoNormalElement.class);
     SO_ENABLE(SoPickAction.class,     SoNormalElement.class);

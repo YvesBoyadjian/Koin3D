@@ -2538,11 +2538,19 @@ sendDiffuseByIndex(int index)
 }
 
     //!Static sends, always send top-of-stack.  Intended for extender use.  
-   public  static void         sendAllMaterial(SoState state)
-        {SoGLLazyElement le = getInstance(state);
-        if ((le.invalidBits != 0)||(state.isCacheOpen()))  
-            le.reallySend(state, masks.ALL_MASK.getValue());}
+//   public  static void         sendAllMaterial(SoState state)
+//        {SoGLLazyElement le = getInstance(state);
+//        if ((le.invalidBits != 0)||(state.isCacheOpen()))  
+//            le.reallySend(state, masks.ALL_MASK.getValue());}
             
+//! FIXME: write doc
+
+public static void sendAllMaterial(SoState state)
+{
+  SoGLLazyElement elem = getInstance(state);
+  elem.send(state, masks.ALL_MASK.getValue());
+}
+
 
    public void
    sendVertexOrdering( VertexOrdering ordering) 

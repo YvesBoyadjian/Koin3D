@@ -3,6 +3,9 @@
  */
 package jscenegraph.port;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
@@ -10,7 +13,7 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  * @author Yves Boyadjian
  *
  */
-public class FloatArray {
+public class FloatArray implements ByteBufferAble {
 
 	private int start;
 	private FloatMemoryBuffer values;
@@ -20,6 +23,16 @@ public class FloatArray {
 		this.values = values;
 	}
 	
+	public FloatArray(SbVec3fArray other, int delta) {
+		values = other.valuesArray;
+		this.start = other.delta*3 + delta;
+	}
+
+	public FloatArray(SbVec4fArray other, int delta) {
+		values = other.valuesArray;
+		this.start = other.delta*4 + delta;
+	}
+
 	public FloatMemoryBuffer getValues() {
 		return values;
 	}
@@ -60,4 +73,38 @@ public class FloatArray {
 		v.setY(get(floatIndex++));
 		v.setZ(get(floatIndex));
 	}
+
+	public static FloatArray wrap(float value) {
+		FloatArray fa = new FloatArray(0, FloatMemoryBuffer.allocateFloats(1));
+		fa.set(0, value);
+		return fa;
+	}
+
+	public FloatMemoryBuffer getValuesArray() {
+		return values;
+	}
+	
+	public static FloatArray copyOf(SbVec3fArray other) {
+		if(other == null) {
+			return null;
+		}
+		FloatArray copy = new FloatArray(other,0);
+		return copy;
+	}
+	
+	public static FloatArray copyOf(SbVec4fArray other) {
+		if(other == null) {
+			return null;
+		}
+		FloatArray copy = new FloatArray(other,0);
+		return copy;
+	}
+
+	@Override
+	public ByteBuffer toByteBuffer() {
+		ByteBuffer bb = values.toByteBuffer();
+		bb.position(start*Float.BYTES);
+		return bb.slice();
+	}
+	
 }

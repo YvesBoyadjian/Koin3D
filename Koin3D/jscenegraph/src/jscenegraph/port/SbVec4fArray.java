@@ -17,9 +17,9 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  */
 public class SbVec4fArray implements FloatBufferAble {
 
-	private FloatMemoryBuffer valuesArray;
+	FloatMemoryBuffer valuesArray;
 
-	private int delta;
+	int delta;
 	
 	public SbVec4fArray(SbVec4fArray other, int delta) {
 		valuesArray = other.valuesArray;

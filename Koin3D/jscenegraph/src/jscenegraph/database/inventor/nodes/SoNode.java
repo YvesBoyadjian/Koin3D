@@ -59,11 +59,13 @@ import java.lang.reflect.Method;
 
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowSpotLight;
+import jscenegraph.coin3d.inventor.nodes.SoBlinker;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate4;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoLOD;
 import jscenegraph.coin3d.inventor.nodes.SoLevelOfDetail;
+import jscenegraph.coin3d.inventor.nodes.SoRotor;
 import jscenegraph.coin3d.inventor.nodes.SoSceneTexture2;
 import jscenegraph.coin3d.inventor.nodes.SoShuttle;
 import jscenegraph.coin3d.inventor.nodes.SoTexture;
@@ -624,9 +626,9 @@ doAction(SoAction action)
 
 		       // Four self-animating nodes. These are subclassed from
 		       // SoSwitch, SoRotation, and SoTranslation
-//		       SoBlinker.initClass();
+		       SoBlinker.initClass();
 //		       SoPendulum.initClass();
-//		       SoRotor.initClass();
+		       SoRotor.initClass();
 		       SoShuttle.initClass();
 
 		       SoTextureCombine.initClass(); // COIN 3D

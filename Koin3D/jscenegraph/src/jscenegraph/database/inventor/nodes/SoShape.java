@@ -398,7 +398,7 @@ public abstract class SoShape extends SoNode implements Destroyable {
 	    SoSubNode.SO__NODE_INIT_ABSTRACT_CLASS(SoShape.class, "Shape", SoNode.class);
 	    
 	    soshape_staticstorage =
-	    	    new SbStorage(soshape_staticdata.class,
+	    	    new SbStorage<soshape_staticdata>(soshape_staticdata.class,
 	    	                  SoShape::soshape_construct_staticdata,
 	    	                  SoShape::soshape_destruct_staticdata);
 	    

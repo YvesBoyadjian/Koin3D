@@ -83,6 +83,7 @@ import jscenegraph.database.inventor.elements.SoTextureCoordinateBindingElement;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
@@ -185,7 +186,7 @@ public class SoVertexPropertyCache {
 			}
         };
         vertexStride = SbVec3f.sizeof();
-        vertexPtr = (float[])vp.vertex./*getValuesFloat(0)*/getValuesRef();
+        vertexPtr = vp.vertex.getValuesFloatArray();///*getValuesFloat(0)*/getValuesRef();
         needFromState &= ~BitMask.COORD_FROM_STATE_BIT.getValue();
     } else {
         SoCoordinateElement ce =
@@ -211,7 +212,7 @@ public class SoVertexPropertyCache {
     			}
             };
             vertexStride = SbVec3f.sizeof();
-            vertexPtr = (float[]) ce.get3Ptr();
+            vertexPtr = ce.getArrayPtr3f();//get3Ptr();
         } else {
             vertexFunc = new SoVPCacheFunc() {
     			@Override
@@ -222,7 +223,7 @@ public class SoVertexPropertyCache {
     			}
             };
             vertexStride = SbVec4f.sizeof();
-            vertexPtr = (float[]) ce.get4Ptr();
+            vertexPtr = ce.getArrayPtr4f();//get4Ptr();
         }           
         needFromState |= BitMask.COORD_FROM_STATE_BIT.getValue();
     }
@@ -376,7 +377,7 @@ public class SoVertexPropertyCache {
     normalStride = SbVec3f.sizeof();
 
     if (vp != null && (numNorms = vp.normal.getNum()) != 0) {
-        normalPtr = (float[])vp.normal.getValuesFloat(0);
+        normalPtr = vp.normal.getValuesSbVec3fArray();// getValuesFloat(0);
         needFromState &= ~BitMask.NORMAL_FROM_STATE_BITS.getValue();
         generateNormals = false;
     } else {
@@ -385,7 +386,7 @@ public class SoVertexPropertyCache {
         SoNormalElement ne =
             SoNormalElement.getInstance(state);
         if ((numNorms = ne.getNum()) > 0) {
-            normalPtr = ne.get0();
+            normalPtr = ne.getArrayPtr();//get0();
             generateNormals = false;
         } else {
             generateNormals = true;
@@ -539,32 +540,36 @@ public class SoVertexPropertyCache {
   public   int         getNumColors()  { return numColors; }
   public  int         getNumTexCoords()  { return numTexCoords; }
 
-  public    Buffer getVertices(int i) 
+  public    FloatBuffer getVertices(int i) 
         {
-	  	int offset = (int)((long)vertexStride*i/(Float.SIZE/Byte.SIZE));
-	  	int length = vertexPtr.length - offset;
-	  	return Buffers.copyFloatBuffer(FloatBuffer.wrap(vertexPtr, offset, length));
+	  	int offset = (int)((long)vertexStride*i/Float.BYTES);
+	  	int length = vertexPtr.size()/* .length*/ - offset;
+	  	ByteBuffer bb = vertexPtr.toByteBuffer();
+	  	bb.position(offset*Float.BYTES);
+	  	return bb.asFloatBuffer(); //Buffers.copyFloatBuffer(FloatBuffer.wrap(vertexPtr, offset, length));
 	  }
-  public    Buffer getNormals(int i)  
+  public    FloatBuffer getNormals(int i)  
         { 
-	  	int offset = (int)((long)normalStride*i/(Float.SIZE/Byte.SIZE));
-	  	int length = normalPtr.length - offset;
-	  	return Buffers.copyFloatBuffer(FloatBuffer.wrap(normalPtr, offset, length));
+	  	int offset = (int)((long)normalStride*i/Float.BYTES);
+	  	int length = normalPtr.getSizeFloat()/*length*/ - offset;
+	  	ByteBuffer bb = normalPtr.toByteBuffer();
+	  	bb.position(offset*Float.BYTES);
+	  	return bb.asFloatBuffer(); //Buffers.copyFloatBuffer(FloatBuffer.wrap(normalPtr, offset, length));
 	  }
   public   /*Buffer*/VoidPtr getColors(int i) 
         { 
-	  	int offset = (int)((long)colorStride*i/(Integer.SIZE/Byte.SIZE));
+	  	int offset = (int)((long)colorStride*i/Integer.BYTES);
 	  	int length = colorPtr.size() - offset;
 	  	return VoidPtr.create(/*Buffers.copyIntBuffer(*/new IntArrayPtr(offset, colorPtr)/*IntBuffer.wrap(colorPtr, offset, length)*//*)*/);	  	
 	  }
-  public   Buffer getTexCoords(int i) 
+  public   FloatBuffer getTexCoords(int i) 
         { 
-	  	int offset = (int)((long)texCoordStride*i/(Float.SIZE/Byte.SIZE));
+	  	int offset = (int)((long)texCoordStride*i/Float.BYTES);
 	  	int length = texCoordPtr.numFloats() - offset;
 	  	
 	  	FloatBuffer fb = texCoordPtr.toByteBuffer().asFloatBuffer();
 	  	fb.position(offset);
-	  	return fb;
+	  	return fb.slice();
 	  	
 	  	//return Buffers.copyFloatBuffer(FloatBuffer.wrap(texCoordPtr, offset, length));
 	  }
@@ -594,7 +599,7 @@ public class SoVertexPropertyCache {
   public   SoVertexPropertyCache()
 {
     vertexFunc = normalFunc = colorFunc = texCoordFunc = null;
-    vertexPtr = normalPtr = null; colorPtr = null; texCoordPtr = null;
+    vertexPtr = null; normalPtr = null; colorPtr = null; texCoordPtr = null;
     vertexStride = normalStride = colorStride = texCoordStride = 0;
     numVerts = numNorms = numColors = numTexCoords = 0;
     colorIsInVP = transpIsInVP = false;
@@ -607,10 +612,10 @@ public class SoVertexPropertyCache {
 
     //! Tables of functions, data, and strides to increment through data.
     SoVPCacheFunc vertexFunc;
-  public    float[] vertexPtr;
+  public    FloatArray vertexPtr;
   public    int vertexStride, numVerts;
   public   SoVPCacheFunc normalFunc;
-  public    float[] normalPtr;
+  public    SbVec3fArray normalPtr;
   public    int normalStride, numNorms;
   public    SoVPCacheFunc colorFunc;
   public    IntArrayPtr colorPtr;

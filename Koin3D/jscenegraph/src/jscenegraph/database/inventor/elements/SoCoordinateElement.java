@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
+import jscenegraph.port.FloatArray;
 import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.SbVec4fArray;
 
@@ -374,6 +375,18 @@ getArrayPtr3()
   return SbVec3fArray.copyOf(this.coords3)/*D*/;
 }
 
+public FloatArray getArrayPtr3f() {
+	//#if COIN_DEBUG
+	  if (!this.is3D()) {
+	    SoDebugError.postWarning("SoDiffuseColorElement::getArrayPtr3",
+	                              "coordinates are *not* 3D -- use "+
+	                              "getArrayPtr4() instead");
+	  }
+	//#endif // COIN_DEBUG
+
+	return FloatArray.copyOf(this.coords3);
+}
+
 /*!
   Returns a pointer to the 4D coordinate array. Don't use this method
   unless SoCoordinateElement::is3D() returns \c FALSE.
@@ -396,5 +409,16 @@ getArrayPtr4()
   return SbVec4fArray.copyOf(this.coords4)/*D*/;
 }
 
+public FloatArray getArrayPtr4f() {
+	//#if COIN_DEBUG
+	  if (this.is3D()) {
+	    SoDebugError.postWarning("SoDiffuseColorElement::getArrayPtr4",
+	                              "coordinates are *not* 4D -- use "+
+	                              "getArrayPtr3() instead");
+	  }
+	//#endif // COIN_DEBUG
+
+	  return FloatArray.copyOf(this.coords4)/*D*/;
+}
 
   }

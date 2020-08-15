@@ -3,6 +3,7 @@
  */
 package jscenegraph.port;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
@@ -15,7 +16,7 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  * @author Yves Boyadjian
  *
  */
-public class SbVec3fArray implements FloatBufferAble {
+public class SbVec3fArray implements ByteBufferAble, FloatBufferAble {
 	
 	FloatMemoryBuffer valuesArray;
 
@@ -150,5 +151,12 @@ public class SbVec3fArray implements FloatBufferAble {
 		FloatBuffer fb = valuesArray.toFloatBuffer();
 		fb.position((delta+index)*3);
 		return fb;
+	}
+
+	@Override
+	public ByteBuffer toByteBuffer() {
+		ByteBuffer bb = valuesArray.toByteBuffer();
+		bb.position(delta*3*Float.BYTES);
+		return bb.slice();
 	}
 }

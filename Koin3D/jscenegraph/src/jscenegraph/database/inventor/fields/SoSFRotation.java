@@ -149,4 +149,15 @@ public void setValue(SbRotationd rotationd) {
 	setValue(new SbRotation(rotationd));
 }
 
+/*!
+  Return value of rotation as an \a axis and an \a angle around this
+  \a axis.
+*/
+public float getValue(final SbVec3f axis)
+{
+	final float[] angle = new float[1];
+  this.getValue().getValue(axis, angle);
+  return angle[0]; // java port
+}
+
 	   }
