@@ -64,7 +64,7 @@ import jsceneviewer.inventor.qt.viewers.SoQtFullViewer.BuildFlag;
 
 public class SamplePart {
 
-	private SoQtExaminerViewer viewer;
+	public SoQtExaminerViewer viewer;
 
 	@Inject
 	private MDirtyable dirty;
@@ -83,9 +83,9 @@ public class SamplePart {
 	    //viewer.setColorBitDepth (10);
 		//viewer.setAntialiasing(true, 16);
 		viewer.setHeadlight(true);
-		//viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_ADD);
-		viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
-		//viewer.getSceneHandler().setTransparencyType(TransparencyType.SORTED_LAYERS_BLEND);
+		//viewer.getSceneHandler().setTransparencyType(TransparencyType.DELAYED_BLEND);
+		//viewer.getSceneHandler().setTransparencyType(TransparencyType.BLEND);
+		viewer.getSceneHandler().setTransparencyType(TransparencyType.SORTED_LAYERS_BLEND);		
 		
 //		viewer.format().debug = true;
 //		viewer.format().majorVersion = 3;
@@ -1148,7 +1148,10 @@ SoSeparator createPlanet2(float radius, float distance,
 		//String fileName = "C:/eclipseWorkspaces/examples_iv/pc.iv"; // default model
 		//String fileName = "C:/eclipseWorkspaces/examples_iv/01.1.Windmill.iv"; // default model
 		//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/chair.iv"; // default model
-	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/buildings/Barcelona.iv";
+	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/buildings/Barcelona.wrl";
+		//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/buildings/windmill.iv";
+		//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/chess/chessboard.iv";
+		String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/chair.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/vehicles/spacestation.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/sgi/logo.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/CyberHeads/josie.iv";
@@ -1165,7 +1168,7 @@ SoSeparator createPlanet2(float radius, float distance,
 		//String fileName = "examples_iv/shadow-test2.iv";
 		//String fileName = "examples_iv/shadow.iv";
 		//String fileName = "F:/Partage/shadow.iv"; // FIXME : can cause an error in OpenGL, if current OGL version is 2.1
-		String fileName = "examples_iv/anya1.wrl";
+		//String fileName = "examples_iv/anya1.wrl";
 		//String fileName = "examples_iv/export_vrml.wrl";
 		//String fileName = "C:/Coin3D/shadowSimple.iv";
 		//String fileName = "examples_iv/export_vrml.wrl";
@@ -1173,7 +1176,7 @@ SoSeparator createPlanet2(float radius, float distance,
 
 	// create scene root
 	SoSeparator root = new SoSeparator();
-	root.ref();
+	//root.ref();
 
 	// base color
 	if (baseColor) {

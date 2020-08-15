@@ -1007,6 +1007,14 @@ private static SoBase createInstance(SoInput in, SbName className, short ioFlags
 //#endif // debug
   }
 
+  // search for PROTO in current SoInput instance
+  SoProto proto = in.findProto(className);
+  if (proto == null) {
+    // search in global PROTO list
+    proto = SoProto.findProto(className);
+  }
+  if (proto != null) return proto.createProtoInstance();
+
     // Find named type in class dictionary.
   if (type.isBad()) {
     type.copyFrom(SoType.fromName(className));

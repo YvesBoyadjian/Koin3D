@@ -60,6 +60,7 @@ import java.nio.IntBuffer;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL2;
 import com.jogamp.opengl.GL3;
+import com.jogamp.opengl.GL3ES3;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
@@ -242,6 +243,7 @@ public class SoIndexedLineSet extends SoIndexedShape {
     		renderFunc[i] = (ifs,a) -> SoError.post("SoIndexedLineSet RenderFunc number "+ii+" not yet implemented");
     	}
     	
+    	renderFunc[0] = (set, action) -> set.OmOn(action);
     	renderFunc[6] = (set, action) -> set.OmVn(action); 
     }
     
@@ -968,6 +970,53 @@ private void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway,
 //#endif
   }
 }
+
+
+// Material overall:
+
+public void
+OmOn
+    (SoGLRenderAction action ) {
+	
+	GL2 gl2 = Ctx.get(action.getCacheContext());
+	
+    int np = numPolylines;
+    int[] numverts = numVertices;
+    final int[] vertexIndex = coordIndex.getValuesI(0);
+    boolean renderAsPoints = (SoDrawStyleElement.get(action.getState()) ==
+		      SoDrawStyleElement.Style.POINTS);
+    boolean sendAdj = sendAdjacency.getValue();
+
+    // Send one normal, if there are any normals in vpCache:
+    if (vpCache.getNumNormals() > 0)
+	vpCache.sendNormal(gl2,vpCache.getNormals(0));
+    Buffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+    SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+
+    int vtxCtr = 0;
+    int v;
+    int numvertsIndex = 0; //java port
+    for (int polyline = 0; polyline < np; polyline++) {
+	final int nv = (numverts[numvertsIndex]);      
+	if(renderAsPoints){
+	    gl2.glBegin(GL2.GL_POINTS);
+	}
+	else {
+
+	    gl2.glBegin(sendAdj?GL3ES3.GL_LINE_STRIP_ADJACENCY:GL2.GL_LINE_STRIP);      
+	}
+	for (v = 0; v < nv; v++) {                 
+		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+		(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);    
+		vtxCtr++;
+	}
+	gl2.glEnd();
+	vtxCtr++;  //skip over -1 at end of polyline
+	++numvertsIndex; // java port
+    }
+}
+
 
 
 public void

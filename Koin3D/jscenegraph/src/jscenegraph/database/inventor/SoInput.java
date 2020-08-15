@@ -687,6 +687,10 @@ public boolean read(SbName n,                // Name to read into
             putBack(c[0]);
 
         n.copyFrom(new SbName(bufStr));
+        
+        if ( bufStr.isEmpty() ) {
+        	return false;
+        }
     }
 
     return true;
@@ -1074,13 +1078,17 @@ public void putBack(String string)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	int length = string.length();
-	
-	for (int i = length-1; i>=0; i--) {
-		putBack(string.charAt(i));
+	if (!isBinary()) {
+		int length = string.length();
+		
+		for (int i = length-1; i>=0; i--) {
+			putBack(string.charAt(i));
+		}
 	}
-//    backBuf = string;
-//    backBufIndex = 0;
+	else {
+		backBuf = string; // YB : Verify there is no regression 
+		backBufIndex = 0;
+	}
 }
 
 
@@ -1245,7 +1253,7 @@ public boolean read(final int[] i)
         }                                                                     
         else {                                                
             if (backupBufUsed == true) {                                      
-                tnum = (backupBuf[0] << 24)+(backupBuf[1] << 16)+(backupBuf[2] << 8)+(backupBuf[3]);//(type)(*(type *)backupBuf);                             
+                i[0] = (backupBuf[0] << 24)+(backupBuf[1] << 16)+(backupBuf[2] << 8)+(backupBuf[3]);//(type)(*(type *)backupBuf);                             
                 backupBufUsed = false;                                        
                 return true;                                                  
             }                                                                 
@@ -1288,7 +1296,15 @@ public boolean read(final long[] i)
         }                                                                     
         else {                                                
             if (backupBufUsed == true) {                                      
-                tnum = (backupBuf[0] << 24)+(backupBuf[1] << 16)+(backupBuf[2] << 8)+(backupBuf[3]);//(type)(*(type *)backupBuf);                             
+                i[0] = 
+                		((long)backupBuf[0] << 56)+
+                		((long)backupBuf[1] << 48)+
+                		((long)backupBuf[2] << 40)+
+                		((long)backupBuf[3] << 32)+
+                		((long)backupBuf[4] << 24)+
+                		((long)backupBuf[5] << 16)+
+                		((long)backupBuf[6] << 8)+
+                		((long)backupBuf[7]);//(type)(*(type *)backupBuf);                             
                 backupBufUsed = false;                                        
                 return true;                                                  
             }                                                                 
@@ -1341,6 +1357,21 @@ convertFloat(byte[] from)
 ////////////////////////////////////////////////////////////////////////
 {
     return SoMachine.DGL_NTOH_FLOAT( from );
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+//Description:
+//Converts double from network format and puts in buffer.
+//
+//Use: private
+
+private double
+convertDouble(byte[] from)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	return SoMachine.DGL_NTOH_DOUBLE( from );
 }
 
 
@@ -1448,9 +1479,9 @@ public boolean read(final short[] s)
                 curFile.curBuf += Integer.BYTES + pad;                   
             }                                                                 
         }                                                                     
-        else { //TODO                                                                
+        else {                                                                
             if (backupBufUsed == true) {                                      
-                tnum = (backupBuf[0] << 24)+(backupBuf[1] << 16)+(backupBuf[2] << 8)+(backupBuf[3]);//(type)(*(type *)backupBuf);                             
+                s[0] =(short)( (backupBuf[0] << 8)+(backupBuf[1]) );//(type)(*(type *)backupBuf);                             
                 backupBufUsed = false;                                        
                 return true;                                                  
             }                                                                 
@@ -1504,7 +1535,7 @@ public boolean read(final float[] f)
         else {                                                                
             if (backupBufUsed == true) {
             	
-                tnum = ByteBuffer.wrap(backupBuf).getFloat();//(float)(*(float *)backupBuf);                             
+                f[0] = ByteBuffer.wrap(backupBuf).getFloat();//(float)(*(float *)backupBuf);                             
                 backupBufUsed = false;                                        
                 return true;                                                  
             }                                                                 
@@ -1544,6 +1575,25 @@ convertFloat(String buffer, int from)
 		buf[i] = (byte)buffer.charAt(from+i);
 	}
     return SoMachine.DGL_NTOH_FLOAT(buf);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Converts float from network format and puts in buffer.
+//
+// Use: private
+
+private static double
+convertDouble(String buffer, int from)
+//
+////////////////////////////////////////////////////////////////////////
+{
+	byte[] buf = new byte[Double.BYTES];
+	for(int i=0;i<Double.BYTES;i++) {
+		buf[i] = (byte)buffer.charAt(from+i);
+	}
+    return SoMachine.DGL_NTOH_DOUBLE(buf);
 }
 
 
@@ -1751,7 +1801,7 @@ public boolean read(final String[] s)
 //
 // Use: private
 
-private boolean skipWhiteSpace()
+boolean skipWhiteSpace()
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -1825,10 +1875,14 @@ private boolean skipWhiteSpace()
         }
     }
 
-    // If EOF, pop to previous file and skip space again
-    while (eof() && popFile())
-        if (! skipWhiteSpace())
-            return false;
+//    // If EOF, pop to previous file and skip space again
+//    while (eof() && popFile())
+//        if (! skipWhiteSpace())
+//            return false;
+    
+    if (eof()) {
+    	return false;
+    }
 
     return true;
 }
@@ -1843,7 +1897,7 @@ private boolean skipWhiteSpace()
 //
 // Use: private
 
-private boolean popFile()
+boolean popFile()
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -2403,6 +2457,22 @@ private boolean readLong(final long[] l)
         { return (curFile.bufSize -
                   (curFile.curBuf/* - curFile.buffer*/)); }
 
+	/*!
+	  Searches for PROTO named \a name. This function will only return
+	  PROTOs that have been read by the current SoInput instance.
+
+	  \since Coin 2.3
+	*/
+	public SoProto findProto(final SbName name)
+	{
+	  //SoInput_FileInfo info = this.getTopOfStack();
+	  SoInputFile info = curFile;
+	  if (info != null) {
+	    return info.findProto(name);
+	  }
+	  return null;
+	}
+
 /*!
   Adds a PROTO \a proto which should be active in the current scope.
 
@@ -2791,33 +2861,33 @@ public boolean read(double[] f) {
     boolean ok = false;                                                                
     if (! skipWhiteSpace())                                                   
         ok = false;                                                           
-    else if (curFile.binary) { //TODO                                               
-//        int n = M_SIZEOF(dglType);                                            
-//        int pad = ((n+3) & ~0003) - n;                                        
-//        dglType tnum;                                                         
-//        if (fromBuffer()) {                                                   
-//            if (eof())                                                        
-//                ok = false;                                                   
-//            else {                                                            
-//                ok = true;                                                    
-//                dglFunc(curFile.curBuf, (dglType *)&tnum);                   
-//                curFile.curBuf += M_SIZEOF(dglType) + pad;                   
-//            }                                                                 
-//        }                                                                     
-//        else {                                                                
-//            if (backupBufUsed == true) {                                      
-//                num = (type)(*(type *)backupBuf);                             
-//                backupBufUsed = false;                                        
-//                return true;                                                  
-//            }                                                                 
-//            char padbuf[4];                                                   
-//            makeRoomInBuf(M_SIZEOF(dglType));                                 
-//            ok = fread(tmpBuffer, M_SIZEOF(dglType), 1, curFile.fp)!=0;      
-//            dglFunc((char *)tmpBuffer, (dglType *)&tnum);                     
-//            if (pad != 0)                                                     
-//                ok = fread((void *)padbuf, M_SIZEOF(char), pad, curFile.fp)!=0; 
-//        }                                                                     
-//        num = (type)tnum;       
+    else if (curFile.binary) {                                               
+        int n = Double.BYTES;//M_SIZEOF(dglType);                                            
+        int pad = ((n+3) & ~0003) - n;                                        
+        double tnum = 0;                                                         
+        if (fromBuffer()) {                                                   
+            if (eof())                                                        
+                ok = false;                                                   
+            else {                                                            
+                ok = true;                                                    
+                tnum = convertDouble(curFile.buffer, curFile.curBuf);                   
+                curFile.curBuf += Double.BYTES + pad;                   
+            }                                                                 
+        }                                                                     
+        else {                                                                
+            if (backupBufUsed == true) {                                      
+                f[0] = ByteBuffer.wrap(backupBuf).getDouble();//(type)(*(type *)backupBuf);                             
+                backupBufUsed = false;                                        
+                return true;                                                  
+            }                                                                 
+            byte[] padbuf = new byte[4];                                                   
+            makeRoomInBuf(Double.BYTES/*M_SIZEOF(dglType)*/);                                 
+            ok = FILE.fread(tmpBuffer, Double.BYTES/*M_SIZEOF(dglType)*/, 1, curFile.fp)!=0;      
+            tnum = convertDouble(tmpBuffer);                     
+            if (pad != 0)                                                     
+                ok = FILE.fread(padbuf, /*M_SIZEOF(char)*/1, pad, curFile.fp)!=0; 
+        }                                                                     
+        f[0] = (double)tnum;       
     }                                                                         
     else {                                                                    
         final double[] _tmp = new double[1];                                                        

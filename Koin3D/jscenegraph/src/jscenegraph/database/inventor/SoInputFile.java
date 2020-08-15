@@ -192,4 +192,16 @@ public class SoInputFile {
     return this.eof;
   }
 
+
+// search for PROTO in this SoInput instance
+public SoProto findProto(final SbName name)
+{
+  int n = this.protolist.getLength();
+  SoProto[] ptr = new SoProto[n];
+  ptr = this.protolist.getArrayPtr(ptr);
+  for (int i = 0; i < n; i++) {
+    if (ptr[i].getProtoName().operator_equal_equal(name)) return ptr[i];
+  }
+  return null;
+}
 }

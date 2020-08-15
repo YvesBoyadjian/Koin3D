@@ -55,6 +55,8 @@
 
 package jscenegraph.database.inventor.engines;
 
+import jscenegraph.coin3d.inventor.engines.SoEngineAble;
+import jscenegraph.coin3d.inventor.engines.SoNodeEngine;
 import jscenegraph.database.inventor.SoFieldList;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -95,7 +97,7 @@ public class SoEngineOutput {
 	
 	  boolean enabled;
 	  final SoFieldList connections = new SoFieldList();
-	  private SoEngine container;
+	  private SoFieldContainer container;
 	  
 ////////////////////////////////////////////////////////////////////////
 //
@@ -127,7 +129,11 @@ public SoEngineOutput()
 //		       }
 //		   #endif /* DEBUG */
 		   
-		       SoEngineOutputData od = container.getOutputData();
+		       SoEngineOutputData od =
+		    		   container instanceof SoEngine ?
+		    		((SoEngine)container).getOutputData() :
+		    	   ((SoNodeEngine)container).getOutputData();
+		    		   //container.getOutputData();
 		   
 //		   #ifdef DEBUG
 //		       if (od == NULL) {
@@ -199,7 +205,7 @@ public void                enable(boolean flag) {
             // that enable their outputs during inputChanged that we
             // prevent by not bothering to start notification if we're
             // already in the middle of notification:
-            SoEngine e = getContainer();
+            SoEngineAble e = getContainerEngine();
             if (e != null && e.isNotifying()) return;
 
             for (int j = 0; j < getNumConnections(); j++) {
@@ -221,9 +227,36 @@ public void                enable(boolean flag) {
 	  }
 
 	// Returns containing engine. 
-	public SoEngine getContainer() {
+	public SoFieldContainer getContainer() {
 		 return container; 
 	}
+	
+	// Returns containing engine. 
+	public SoEngineAble getContainerEngine() {
+		 return (SoEngineAble)container; 
+	}
+	
+	// Returns containing engine. 
+	public SoEngine getContainerSoEngine() {
+		 return (SoEngine)container; 
+	}
+	
+	/*!
+	  Sets the NodeEngine containing this output.
+
+	  \COIN_FUNCTION_EXTENSION
+
+	  \sa getNodeContainer()
+	  \since Coin 2.0
+	*/
+
+	public void setNodeContainer(SoNodeEngine nodeengine)
+	{
+	  // FIXME: hack cast to SoEngine. The type of the container member
+	  // needs to be SoFieldContainer, not SoEngine.
+	  this.container = (nodeengine);
+	}
+
 	
 	// Adds/removes connection to field. 
 	public void addConnection(SoField field) {
@@ -236,8 +269,9 @@ public void                enable(boolean flag) {
 	    	       }
 	    	   
 	    	       // This forces the engine to write to the new connection.
-	    	       container.needsEvaluation = true;
-	    	  		
+	     	if( container instanceof SoEngine) { //java port
+	    	       ((SoEngine)container).needsEvaluation = true;
+	     	}
 	}
 	
 	 //

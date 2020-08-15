@@ -59,6 +59,10 @@ public class SoMachine {
 		return ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN).getFloat();
 	}
 	
+	public static double DGL_NTOH_DOUBLE(byte[] array) {
+		return ByteBuffer.wrap(array).order(ByteOrder.BIG_ENDIAN).getDouble();
+	}
+	
 	/**
 	 * Helper method java port
 	 * @param b

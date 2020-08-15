@@ -534,9 +534,9 @@ public boolean readFieldDescriptions(SoInput in, SoFieldContainer object,
                                    int numdescriptionsexpected,
                                    boolean readfieldvalues)
 {
-	if(!readfieldvalues) {
-		return readFieldDescriptions(in,object,numdescriptionsexpected);
-	}
+//	if(!readfieldvalues) {
+//		return readFieldDescriptions(in,object,numdescriptionsexpected);
+//	}
 
   // These two macros are convenient for reading with error detection.
 
@@ -583,7 +583,7 @@ public boolean readFieldDescriptions(SoInput in, SoFieldContainer object,
     }
 
     SoType type = SoType.fromName(fieldtypename);
-    if ((type == SoType.badType()) ||
+    if ((type.operator_equal_equal(SoType.badType())) ||
         !type.isDerivedFrom(SoField.getClassTypeId(SoField.class))) {
       SoReadError.post(in, "Unknown field type '"+fieldtypename.getString()+"'");
       return false;

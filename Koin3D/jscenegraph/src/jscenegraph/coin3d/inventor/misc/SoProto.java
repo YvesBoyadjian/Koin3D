@@ -394,4 +394,57 @@ public static void initClass()
   SoProto.setFetchExternProtoCallback(null, null);
 }
 
+
+// doc in parent
+public SoType getTypeId()
+{
+  return soproto_type;
+}
+
+// doc in parent
+public static SoType getClassTypeId()
+{
+  return soproto_type;
+}
+
+
+/*!
+  Returns the PROTO definition named \a name or NULL if not found.
+*/
+public static SoProto findProto(final SbName name)
+{
+  SoProto ret = null;
+  //CC_MUTEX_LOCK(soproto_mutex);
+  if (protolist != null) {
+    int n = protolist.getLength();
+    SoProto[][] ptr = new SoProto[n][]; 
+    ptr = protolist.getArrayPtr(ptr);
+    for (int i = 0; (ret == null) && (i < n); i++) {
+      if (ptr[i][0].getProtoName().operator_equal_equal(name)) ret = ptr[i][0];
+    }
+  }
+  //CC_MUTEX_UNLOCK(soproto_mutex);
+  return ret;
+}
+
+/*!
+  Creates an instance of the PROTO.
+*/
+public SoProtoInstance createProtoInstance()
+{
+  if (pimpl.extprotonode != null) {
+    return pimpl.extprotonode.createProtoInstance();
+  }
+  SoProtoInstance inst = new SoProtoInstance(this, pimpl.fielddata);
+  inst.ref();
+  inst.setRootNode(this.createInstanceRoot(inst));
+  return inst;
+}
+
+
+private SoNode createInstanceRoot(SoProtoInstance inst) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
 }

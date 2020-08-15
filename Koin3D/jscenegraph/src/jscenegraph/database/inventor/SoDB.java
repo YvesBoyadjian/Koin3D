@@ -573,8 +573,13 @@ private static boolean read(SoInput in, final SoBase[] base)
                 }
             }
         }
-    } while (base[0] != null);
+    } while (base[0] != null && in.skipWhiteSpace());
 
+
+    // Make sure the current file (which is EOF) is popped off the stack.
+    in.popFile(); // No popping happens if there is just one file on
+                   // the stack
+    
     // If only one graph was read, and it had a separator for a root,
     // get rid of the one we created
     if (root.getNumChildren() == 1 &&

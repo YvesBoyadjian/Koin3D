@@ -58,6 +58,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
+import jscenegraph.coin3d.inventor.engines.SoEngineAble;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoFieldList;
@@ -1077,7 +1078,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 			fromField.getConnectedEngine(connectedOutput);
 
 			// Find the index of this output in the containing engine
-			SoEngine connectedEngine = connectedOutput[0].getContainer();
+			SoEngine connectedEngine = connectedOutput[0].getContainerSoEngine();
 			final SoEngineOutputData outputData = connectedEngine.getOutputData();
 			int outputIndex = outputData.getIndex(connectedEngine, connectedOutput[0]);
 
@@ -1407,7 +1408,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		// cause the value to be written into the field by the engine.
 		if (flags.fromEngine || flags.converted) {
 
-			SoEngine e = auditorInfo.connection_engineOutput().getContainer();
+			SoEngineAble e = auditorInfo.connection_engineOutput().getContainerEngine();
 			e.evaluateWrapper();
 		}
 

@@ -58,12 +58,16 @@
 
 package jscenegraph.database.inventor.fields;
 
+import java.lang.reflect.Field;
+
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoFieldList;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.engines.SoEngine;
+import jscenegraph.database.inventor.engines.SoEngineOutput;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoNotList;
@@ -597,6 +601,32 @@ set(String fieldDataString, SoInput dictIn)
     }
     else
         return false;
+}
+
+/**
+ * Java port : Gets offset of this field in engine
+ * @param output
+ * @return -1 if invalid offset
+ */
+public String fieldName(SoEngineOutput output) {
+	SoFieldContainer container  = output.getContainer();
+	if(this != container) {
+		return ""; // wrong container
+	}
+	Field[] publicFields = container.getClass().getFields();
+	for(Field publicField : publicFields) {			
+		try {
+			Object field = publicField.get(container);
+			if(field == output) {
+				String fieldName = publicField.getName();
+				return fieldName;
+			}
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	return "";
 }
 
 	

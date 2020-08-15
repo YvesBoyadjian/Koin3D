@@ -56,6 +56,8 @@
 
 package jscenegraph.database.inventor.engines;
 
+import java.util.Objects;
+
 import jscenegraph.coin3d.inventor.engines.SoNodeEngine;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
@@ -154,6 +156,57 @@ public void                addOutput(final SoEngine defEngine,
 		 return outputs.getLength(); 
 	}
 	
+	/*!
+	  \overload
+	*/
+	public void addOutput(final SoNodeEngine base, String name,
+	                              SoEngineOutput output, SoType type)
+	{
+	  //CC_GLOBAL_LOCK;
+	  if (!this.hasOutput(name)) {
+	    this.addOutputInternal((SoFieldContainer)(base), name, output, type);
+	  }
+	  //CC_GLOBAL_UNLOCK;
+	}
+
+    static boolean warn = true;
+    
+	// does the actual job of adding an engine output
+	public void addOutputInternal( SoFieldContainer base, String name,
+	                                      SoEngineOutput output, SoType type)
+	{
+//	  const ptrdiff_t range =
+//	    reinterpret_cast<const char *>(output) -
+//	    reinterpret_cast<const char *>(base);
+		
+	    SoOutputEntry newOutput = new SoOutputEntry();
+
+	    newOutput.name.copyFrom( new SbName(name));
+	    newOutput.offset = name;
+	    newOutput.type.copyFrom(type);
+
+		
+	  this.outputs.append(newOutput);
+
+//	#if COIN_DEBUG
+	  // FIXME: this is an ugly design flaw, which doesn't seem easily
+	  // resolvable while still keeping compatibility. 20000915 mortene.
+	  if (type.isDerivedFrom(SoType.fromName(new SbName("SFEnum"))) ||
+	      type.isDerivedFrom(SoType.fromName(new SbName("MFEnum")))) {
+	    if (warn) {
+	      warn = false; // Warn only once.
+	      SoDebugError.postWarning("SoEngineOutputData::addOutput",
+	                                "Using as engine output a field which has "+
+	                                "enum type is not advisable, as it contains "+
+	                                "more state than just the value of the field "+
+	                                "(i.e. the name<->value hash mapping must "+
+	                                "also be considered in certain situations). "+
+	                                "This is a design flaw.");
+	    }
+	  }
+//	#endif // COIN_DEBUG
+	}
+
 	
 ////////////////////////////////////////////////////////////////////////
 //
@@ -201,7 +254,7 @@ public SoEngineOutput getOutputInternal(final SoFieldContainer base, int index)
 
 	
 	// Returns index of output, given the output and the engine it is in. 
-	public int getIndex(SoEngine func, SoEngineOutput output) {
+	public int getIndex(SoFieldContainer func, SoEngineOutput output) {
 	     String offset = func.fieldName(output); // java port
 	      
 	          // Loop through the list looking for the correct offset:
@@ -236,4 +289,17 @@ public SoEngineOutput getOutputInternal(final SoFieldContainer base, int index)
 		// TODO Auto-generated method stub
 		
 	}
+
+
+/*!
+  \internal
+  \since Coin 2.3
+*/
+public boolean hasOutput(String name)
+{
+  for (int i = 0; i < this.outputs.getLength(); i++) {
+    if (Objects.equals(((SoOutputEntry )this.outputs.operator_square_bracket(i)).name.getString(), name)) return true;
+  }
+  return false;
+}
 }

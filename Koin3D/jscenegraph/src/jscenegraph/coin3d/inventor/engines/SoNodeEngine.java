@@ -12,8 +12,10 @@ import jscenegraph.database.inventor.nodes.SoNode;
  * @author BOYADJIAN
  *
  */
-public abstract class SoNodeEngine extends SoNode {
+public abstract class SoNodeEngine extends SoNode implements SoEngineAble {
 
+    private boolean notifying;
+    
 	/*!
 	  Returns the output with name \a outputname, or \c NULL if no such
 	  output exists.
@@ -31,5 +33,38 @@ public abstract class SoNodeEngine extends SoNode {
 	}
 
 	public abstract SoEngineOutputData getOutputData();
+
+	public abstract void evaluate();
+	  
+	/*!
+	  Returns the SoEngineOutputData class which holds information about
+	  the outputs in this engine.
+	*/
+	public static SoEngineOutputData[]
+	getOutputDataPtr()
+	{
+	  return null; // base class has no output
+	}
+
+    //! A very annoying double notification occurs with engines
+    //! that enable their outputs during inputChanged; this flag
+    //! prevents that:
+    public boolean                isNotifying() { return notifying; }
+
+    /*!
+    Triggers an engine evaluation.
+  */
+  public void evaluateWrapper()
+  {
+    SoEngineOutputData outputs = this.getOutputData();
+    int i, n = outputs.getNumOutputs();
+    for (i = 0; i < n; i++) {
+      outputs.getOutput(this, i).prepareToWrite();
+    }
+    this.evaluate();
+    for (i = 0; i < n; i++) {
+      outputs.getOutput(this, i).doneWriting();
+    }
+  }
 
 }

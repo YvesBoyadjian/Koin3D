@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.engines;
 
 import java.lang.reflect.Field;
 
+import jscenegraph.coin3d.inventor.engines.SoEngineAble;
 import jscenegraph.coin3d.inventor.engines.SoInterpolate;
 import jscenegraph.coin3d.inventor.engines.SoInterpolateVec3f;
 import jscenegraph.database.inventor.SbName;
@@ -103,7 +104,7 @@ SoBoolOperation, SoCalculator, SoComposeMatrix, SoComposeRotation, SoComposeRota
  * @author Yves Boyadjian
  *
  */
-public abstract class SoEngine extends SoFieldContainer {
+public abstract class SoEngine extends SoFieldContainer implements SoEngineAble {
 
 	protected SoSubEngine engineHeader; 
 	
@@ -613,32 +614,6 @@ shouldCopy()
 		  		
 	}
 	
-	/**
-	 * Java port : Gets offset of this field in engine
-	 * @param output
-	 * @return -1 if invalid offset
-	 */
-	public String fieldName(SoEngineOutput output) {
-		SoEngine container  = output.getContainer();
-		if(this != container) {
-			return ""; // wrong container
-		}
-		Field[] publicFields = container.getClass().getFields();
-		for(Field publicField : publicFields) {			
-			try {
-				Object field = publicField.get(container);
-				if(field == output) {
-					String fieldName = publicField.getName();
-					return fieldName;
-				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return "";
-	}
-
 	/**
 	 * Java port 
 	 * @param offset

@@ -24,7 +24,7 @@ so_vrml_init()
 //
 //  SoVRMLInterpolator::initClass();
 //
-//  SoVRMLLight::initClass();
+  SoVRMLLight.initClass();
 //  
 //  SoVRMLSensor::initClass();
 //  SoVRMLDragSensor::initClass();
@@ -43,7 +43,7 @@ so_vrml_init()
 //  SoVRMLCoordinateInterpolator::initClass();
   SoVRMLCylinder.initClass();
 //  SoVRMLCylinderSensor::initClass();
-//  SoVRMLDirectionalLight::initClass();
+  SoVRMLDirectionalLight.initClass();
 //  SoVRMLElevationGrid::initClass();
   SoVRMLExtrusion.initClass();
   SoVRMLFog.initClass();
@@ -54,7 +54,7 @@ so_vrml_init()
   SoVRMLVertexLine.initClass();
   SoVRMLIndexedLine.initClass();
   SoVRMLIndexedLineSet.initClass();
-//  SoVRMLInline::initClass();
+  SoVRMLInline.initClass();
 //  SoVRMLLOD::initClass();
   SoVRMLShape.initClass();
   SoVRMLMaterial.initClass();
@@ -65,7 +65,7 @@ so_vrml_init()
 //  SoVRMLOrientationInterpolator::initClass();
 //  SoVRMLPixelTexture::initClass();
 //  SoVRMLPlaneSensor::initClass();
-//  SoVRMLPointLight::initClass();
+  SoVRMLPointLight.initClass();
   SoVRMLPointSet.initClass();
 //  SoVRMLPositionInterpolator::initClass();
 //  SoVRMLProximitySensor::initClass();
@@ -74,12 +74,12 @@ so_vrml_init()
 //  SoVRMLSound::initClass();
   SoVRMLSphere.initClass();
 //  SoVRMLSphereSensor::initClass();
-//  SoVRMLSpotLight::initClass();
-//  SoVRMLSwitch::initClass();
+  SoVRMLSpotLight.initClass();
+  SoVRMLSwitch.initClass();
   SoVRMLText.initClass();
   SoVRMLTextureCoordinate.initClass();
-//  SoVRMLTextureTransform::initClass();
-//  SoVRMLTimeSensor::initClass();
+  SoVRMLTextureTransform.initClass();
+  SoVRMLTimeSensor.initClass();
   SoVRMLTouchSensor.initClass();
   SoVRMLTransform.initClass();
   SoVRMLViewpoint.initClass();
