@@ -323,7 +323,7 @@ FIXME: write doc
 */
 public static MemoryBuffer getImage(SoState state,
                                    int unit,
-                                   SbVec3s size,
+                                   final SbVec3s size,
                                    final int[] numComponents)
 {
 	SoMultiTextureImageElement elem =
@@ -333,7 +333,7 @@ public static MemoryBuffer getImage(SoState state,
 	elem.pimpl.ensureCapacity(unit);
 	UnitData ud = elem.pimpl.unitdata.operator_square_bracket(unit);
 
-	size = ud.size;
+	size.copyFrom(ud.size);
 	numComponents[0] = ud.numComponents;
 	return ud.bytes;
 }

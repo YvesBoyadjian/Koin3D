@@ -163,6 +163,8 @@ Note that the \e internalformat parameter corresponds to the \e
 internalFormat parameter to glTexImage2D; either the number of
 components per texel or a constant specifying the internal texture format.
 */
+static boolean first = true;
+
 public static boolean
 coin_glglue_is_texture_size_legal( cc_glglue glw,
                                 int xsize, int ysize, int zsize,
@@ -198,7 +200,6 @@ else { /*  3D textures */
   }
   else {
 //#if COIN_DEBUG
-    boolean first = true;
     if (first) {
       DebugError.cc_debugerror_post("glglue_is_texture_size_legal",
                          "3D not supported with this OpenGL driver");

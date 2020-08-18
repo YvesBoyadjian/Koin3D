@@ -81,8 +81,7 @@ public class SoSFUShort extends SoSField<Short> {
 
 	@Override
 	protected Short constructor() {
-		short s = 0;
-		return new Short(s);
+		return (short)0;
 	}
 
 

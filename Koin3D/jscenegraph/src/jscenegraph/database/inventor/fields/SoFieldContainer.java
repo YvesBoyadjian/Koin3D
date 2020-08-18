@@ -210,7 +210,7 @@ public abstract class SoFieldContainer extends SoBase {
 	        return;
 
 	    boolean profilingEntered = SoProfiling.isEnabled() && (SoProfiling.getEnterScopeFieldContainerNotifyCB()!= null)
-	      && (getTypeId() != SoGlobalField.getClassTypeId());
+	      && (getTypeId().operator_not_equal(SoGlobalField.getClassTypeId()));
 	    if (profilingEntered) {
 	      SoProfiling.getEnterScopeFieldContainerNotifyCB().run(this);
 	    }

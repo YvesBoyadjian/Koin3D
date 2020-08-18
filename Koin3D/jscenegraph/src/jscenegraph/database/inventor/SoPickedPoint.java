@@ -571,7 +571,7 @@ getMatrix( SoNode node)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SoPath xfPath;
+    SoPath xfPath; // ptr
 
     // Construct a path from the root down to this node. Use the given
     // path if it's the same

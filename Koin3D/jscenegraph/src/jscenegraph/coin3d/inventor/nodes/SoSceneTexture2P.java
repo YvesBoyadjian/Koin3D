@@ -178,7 +178,7 @@ public class SoSceneTexture2P implements Destroyable {
 		     cc_glglue glue = SoGL.cc_glglue_instance(cachecontext);
 		    boolean mipmap = this.shouldCreateMipmap(state);
 
-		    fbo_data fbodata = this.fbodata;
+		    fbo_data fbodata = this.fbodata; //ptr
 		    if (fbodata == null) {
 		      this.fbodata = fbodata = new fbo_data(0);
 		    }
@@ -713,7 +713,7 @@ public class SoSceneTexture2P implements Destroyable {
 		      break;
 		    default: break;
 		    }
-		    if (error != "") {
+		    if (!error.equals("")) {
 		      if (warn) {
 		        SoDebugError.post("SoSceneTexture2P.createFramebufferObjects",
 		                           "GL Framebuffer error: "+ error/*.getString()*/);

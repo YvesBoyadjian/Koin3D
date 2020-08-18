@@ -294,11 +294,11 @@ protected SoBase()
 	    }
 	    else {
 	        // Replace bad characters with underscores
-	        String goodString = "";
+	        StringBuilder goodString = new StringBuilder();
 
 	        // Prepend underscore if name begins with number:
 	        if (!SbName.isBaseNameStartChar(str.charAt(0))) {
-	            goodString += "_";
+	            goodString.append( "_" );
 	        }
 	        for (i = 0; i < newName.getLength(); i++) {
 	            // Ugly little hack so we can use SbString's += operator,
@@ -306,9 +306,9 @@ protected SoBase()
 	            char[] temp = new char[2];
 	            temp[0] = str.charAt(i); temp[1] = '\0';
 	            if (!SbName.isBaseNameChar(str.charAt(i)))
-	                goodString += "_";
+	                goodString.append( "_" );
 	            else
-	                goodString += temp;
+	                goodString.append( temp[0] );
 	        }
 //	#ifdef DEBUG
 //	        SoDebugError::post("SoBase::setName", "Bad characters in"
@@ -317,7 +317,7 @@ protected SoBase()
 //	#endif       
 	        // MUST create an SbName here to create persistent storage for
 	        // the name.
-	        SbName goodName = new SbName(goodString);
+	        SbName goodName = new SbName(goodString.toString());
 	        addName(this, goodName.getString());
 	    }
 		

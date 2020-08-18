@@ -623,25 +623,25 @@ public boolean                isDelaySensorPending()
 	// Use: public
 	 
 	private void remove(SoSensor s, final SoSensor [] head) {
-		
-	  SoSensor prev = null, cur;
-	 
-	  // Loop through all sensors in queue, looking for s
-	  for (cur = head[0]; cur != null; cur = cur.getNextInQueue()) {
-	 
-	  if (cur == s)
-	  break;
-	 
-	  prev = cur;
-	  }
-	 
-	  // Remove sensor from queue
-	  if (prev == null)
-	  head[0] = s.getNextInQueue();
-	  else
-	  prev.setNextInQueue(s.getNextInQueue());
-	  s.setNextInQueue(null);
-	 }
+
+		SoSensor prev = null, cur;
+
+		// Loop through all sensors in queue, looking for s
+		for (cur = head[0]; cur != null; cur = cur.getNextInQueue()) {
+
+			if (cur == s)
+				break;
+
+			prev = cur;
+		}
+
+		// Remove sensor from queue
+		if (prev == null)
+			head[0] = s.getNextInQueue();
+		else
+			prev.setNextInQueue(s.getNextInQueue());
+		s.setNextInQueue(null);
+	}
 	 
 	
 	//

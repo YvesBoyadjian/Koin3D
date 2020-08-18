@@ -3,12 +3,16 @@
  */
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
+import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFRotation;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 
 /**
@@ -67,6 +71,38 @@ SoVRMLTransform_commonConstructor()
   nodeHeader.SO_VRMLNODE_ADD_EXPOSED_FIELD(center,"center", new SbVec3f(0.0f, 0.0f, 0.0f));
 }
 
+// Doc in parent
+public void
+doAction(SoAction action)
+{
+	SoVRMLTransform_doAction(action);
+}
+
+public void
+SoVRMLTransform_doAction(SoAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  this.applyMatrix(state);
+  SoGroup_doAction(action);
+  state.pop();
+}
+
+//
+// applies transformation to state.
+//
+public void applyMatrix(SoState state)
+{
+  final SbMatrix matrix = new SbMatrix();
+  matrix.setTransform(this.translation.getValue(),
+                      this.rotation.getValue(),
+                      this.scale.getValue(),
+                      this.scaleOrientation.getValue(),
+                      this.center.getValue());
+  if (matrix.operator_not_equal(SbMatrix.identity())) {
+    SoModelMatrixElement.mult(state, this, matrix);
+  }
+}
 
 	/*!
 	  \copydetails SoNode::initClass(void)

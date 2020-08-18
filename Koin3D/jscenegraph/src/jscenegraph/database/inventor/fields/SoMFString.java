@@ -83,7 +83,7 @@ public class SoMFString extends SoMField<String> {
 
 	@Override
 	protected String constructor() {
-		return new String();
+		return "";
 	}
 
 	@Override

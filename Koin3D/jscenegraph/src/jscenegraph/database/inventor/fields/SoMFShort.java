@@ -83,7 +83,7 @@ public class SoMFShort extends SoMField<Short> {
 	 */
 	@Override
 	protected Short constructor() {
-		return new Short((short) 0);
+		return (short) 0;
 	}
 
 	/* (non-Javadoc)

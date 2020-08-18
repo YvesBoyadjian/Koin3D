@@ -927,7 +927,7 @@ public static void flSetHint(
 
 		  /* obtain Windows font path */
 		  String szPath = "";
-		  szPath = "C:/windows/fonts";//SHGetSpecialFolderPathA(NULL, szPath, CSIDL_FONTS, 0); //TODO
+		  szPath = System.getenv().get("SystemRoot")+"/fonts";//SHGetSpecialFolderPathA(NULL, szPath, CSIDL_FONTS, 0); //TODO
 		  fontPath = szPath;
 
 		  /* setup fallback font */

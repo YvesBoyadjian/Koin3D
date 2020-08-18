@@ -186,11 +186,11 @@ public class SoLineSet extends SoNonIndexedShape {
 // If fewer than this many lines, AND not using the vertexProperty
 // node, auto-cache.  
 
-	private final int AUTO_CACHE_LS_MIN_WITHOUT_VP = 20;
+	private static final int AUTO_CACHE_LS_MIN_WITHOUT_VP = 20;
 
 // And the number above which we'll say caches definitely SHOULDN'T be
 // built (because they'll use too much memory):
-	private final int AUTO_CACHE_LS_MAX = SoGLCacheContextElement.OIV_AUTO_CACHE_DEFAULT_MAX;
+	private static final int AUTO_CACHE_LS_MAX = SoGLCacheContextElement.OIV_AUTO_CACHE_DEFAULT_MAX;
 
 	
 	
@@ -212,7 +212,7 @@ public class SoLineSet extends SoNonIndexedShape {
 	
 	
 	
-	public final int SO_LINE_SET_USE_REST_OF_VERTICES  =      (-1);
+	public static final int SO_LINE_SET_USE_REST_OF_VERTICES  =      (-1);
 	
 	    //! This enum is used to indicate the current material or normal binding
     enum Binding {

@@ -325,7 +325,7 @@ public static void addDirectoryFirst(String dirName)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    directories.insert(new String(dirName), 0);
+    directories.insert(dirName, 0);
 }
 
 
@@ -398,7 +398,7 @@ private void initFile(FILE newFP,          // New file pointer
 	    directories = new SbStringList();
 
 	    // Default directory search path is current directory
-	    directories.append(new String("."));		
+	    directories.append(".");		
 	      	}
 
 
@@ -1066,7 +1066,7 @@ public void putBack(char c)
 
 public void putBack(char[] str, int pos) {
 	int index = pos;
-	StringBuffer buf = new StringBuffer();
+	StringBuilder buf = new StringBuilder();
 	while(str[index]!= 0) {
 		buf.append(str[index]);
 		index++;
@@ -1216,7 +1216,7 @@ public boolean isFileVRML1()
 	if(!curFile.readHeader) {
 		this.checkHeader();
 	}
-  return curFile.vrml2file;
+  return curFile.vrml1file;
 }
 
 /*!
@@ -3209,7 +3209,7 @@ searchForFile( final String basename,
 //    }
 //  }
   // none found
-  return new String("");
+  return "";
 }
 
 

@@ -282,7 +282,7 @@ replacePart( int partNum, SoNode newPartNode )
         }
 
         // Make sure container is of correct type.
-        if ( lp.getContainerType() != catalog.getListContainerType(partNum)) {
+        if ( lp.getContainerType().operator_not_equal( catalog.getListContainerType(partNum))) {
 //#ifdef DEBUG
 //        SoDebugError::post( "SoNodekitParts::replacePart",
 //                            "This new list part has wrong type container");

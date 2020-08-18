@@ -114,7 +114,7 @@ public class SoGLCacheContextElement extends SoElement {
 	
 	// Internal struct:
 private class extInfo {
-    String string = new String();
+    String string = "";
     final SbPList support = new SbPList();
 };
 

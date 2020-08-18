@@ -16,7 +16,7 @@ public class SoMFDouble extends SoMField<Double> { //TODO
 	 */
 	@Override
 	protected Double constructor() {
-		return new Double(0);
+		return 0.;
 	}
 
 	/* (non-Javadoc)

@@ -180,6 +180,9 @@ public void destructor()
 }
 
 // Doc from superclass.
+
+static boolean first = true;
+
 public void GLRender(SoGLRenderAction action)
 {
   SoTextureUnit_doAction((SoAction)action);
@@ -189,7 +192,6 @@ public void GLRender(SoGLRenderAction action)
   int maxunits = SoGL.cc_glglue_max_texture_units(glue);
 
   if (this.unit.getValue() >= maxunits) {
-    boolean first = true;
     if (first) {
       SoDebugError.postWarning("SoTextureUnit::GLRender",
                                 "Texture unit "+this.unit.getValue()+" (counting from 0) requested. "+

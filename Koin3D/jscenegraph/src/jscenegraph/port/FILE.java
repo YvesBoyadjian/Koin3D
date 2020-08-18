@@ -132,7 +132,7 @@ public class FILE {
 		try {
 		switch(string) {
 		case "%lf":
-			StringBuffer chars = new StringBuffer();
+			StringBuilder chars = new StringBuilder();
 			boolean isSpace = false;
 			do {
 					int c = fp.in.read();

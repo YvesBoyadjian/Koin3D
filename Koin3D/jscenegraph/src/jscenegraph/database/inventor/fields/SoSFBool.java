@@ -83,7 +83,7 @@ public class SoSFBool extends SoSField<Boolean> {
 
 	@Override
 	protected Boolean constructor() {		
-		return new Boolean(false);
+		return false;
 	}
 
 

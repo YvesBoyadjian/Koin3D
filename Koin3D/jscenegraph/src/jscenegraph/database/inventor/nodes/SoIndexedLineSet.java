@@ -224,11 +224,11 @@ public class SoIndexedLineSet extends SoIndexedShape {
     private SoVertexArrayIndexer _lineIndexer;
         
     // Constants for influencing auto-caching algorithm:
-    private final int AUTO_CACHE_ILS_MIN_WITHOUT_VP = 20;
+    private static final int AUTO_CACHE_ILS_MIN_WITHOUT_VP = 20;
 
     // And the number above which we'll say caches definitely SHOULDN'T be
     // built (because they'll use too much memory):
-    private final int AUTO_CACHE_ILS_MAX = SoGLCacheContextElement.OIV_AUTO_CACHE_DEFAULT_MAX;
+    private static final int AUTO_CACHE_ILS_MAX = SoGLCacheContextElement.OIV_AUTO_CACHE_DEFAULT_MAX;
 
     private interface PMILS {
     	void run(SoIndexedLineSet set, SoGLRenderAction action);

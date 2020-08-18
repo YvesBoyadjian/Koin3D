@@ -54,7 +54,7 @@ public class SoOutput {
 //Use: private, static
 
     public static String     padHeader(final String str) {
-        String paddedStr = new String(str);
+        String paddedStr = str;
         
         int pad = 3 - (str.length()%4);    
         for (int i = 0; i < pad; i++)

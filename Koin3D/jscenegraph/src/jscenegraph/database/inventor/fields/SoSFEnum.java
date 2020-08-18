@@ -125,7 +125,7 @@ public class SoSFEnum extends SoSField<Integer> {
 
 	@Override
 	protected Integer constructor() {		
-		return new Integer(0);
+		return 0;
 	}
 
 ////////////////////////////////////////////////////////////////////////

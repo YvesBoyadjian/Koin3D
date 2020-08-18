@@ -386,7 +386,7 @@ public boolean replaceNode( SoPath p )
         // protocol and let the kit set the part itself.
         SoBaseKit lastKit = (SoBaseKit ) (SoNodeKitPath.cast(p)).getTail();
         String partName = lastKit.getPartString(p);
-        if ( partName != "" ) {
+        if ( !partName.equals("") ) {
             SoTransform oldPart 
                 = (SoTransform ) lastKit.getPart(partName, true); 
             if (oldPart != null) {
@@ -520,7 +520,7 @@ public boolean replaceManip( SoPath p, SoTransform newOne )
         // protocol and let the kit set the part itself.
         SoBaseKit lastKit = (SoBaseKit ) SoNodeKitPath.cast(p).getTail();
         String partName = lastKit.getPartString(p);
-        if ( partName != "" ) {
+        if ( !partName.equals("") ) {
 
             if (newOne == null)
                 newOne = new SoTransform();

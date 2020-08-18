@@ -82,7 +82,7 @@ public class SoSFInt32 extends SoSField<Integer> {
 	
 	@Override
 	protected Integer constructor() {		
-		return new Integer(0);
+		return 0;
 	}
 
 

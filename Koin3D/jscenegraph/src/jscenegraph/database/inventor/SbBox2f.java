@@ -102,19 +102,19 @@ public class SbBox2f implements Mutable {
 
 	   
 	   
-	// Extends Box2f (if necessary) to contain given 2D point. 
-	public void extendBy(final SbVec2f pt) {
-		
-		float[] pt_ = pt.getValueRead(); // java port
-		float[] min_ = min.getValue();
-		float[] max_ = max.getValue();
-		
-	     if (pt_[0] < min_[0]) min_[0] = pt_[0];
-	          if (pt_[0] > max_[0]) max_[0] = pt_[0];
-	      
-	          if (pt_[1] < min_[1]) min_[1] = pt_[1];
-	          if (pt_[1] > max_[1]) max_[1] = pt_[1];
-	      	}
+    // Extends Box2f (if necessary) to contain given 2D point. 
+    public void extendBy(final SbVec2f pt) {
+
+    	float[] pt_ = pt.getValueRead(); // java port
+    	float[] min_ = min.getValue();
+    	float[] max_ = max.getValue();
+
+    	if (pt_[0] < min_[0]) min_[0] = pt_[0];
+    	if (pt_[0] > max_[0]) max_[0] = pt_[0];
+
+    	if (pt_[1] < min_[1]) min_[1] = pt_[1];
+    	if (pt_[1] > max_[1]) max_[1] = pt_[1];
+    }
 	
 	// Gets box size. (java port)
 	public void getSize(float[] sizeXY) {

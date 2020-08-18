@@ -281,7 +281,7 @@ public void notify(SoNotList list)
 */
 public boolean cullTest(SoState state)
 {
-  if (this.renderCulling.getValue() == SoVRMLGroup.CacheEnabled.OFF.getValue()) return false;
+  if (this.renderCulling.getValue().equals(SoVRMLGroup.CacheEnabled.OFF.getValue())) return false;
   if (SoCullElement.completelyInside(state)) return false;
   
   boolean outside = false;
@@ -300,7 +300,7 @@ public boolean cullTest(SoState state)
 //
 public boolean cullTestNoPush(SoState state)
 {
-  if (this.renderCulling.getValue() == SoVRMLGroup.CacheEnabled.OFF.getValue()) return false;
+  if (this.renderCulling.getValue().equals(SoVRMLGroup.CacheEnabled.OFF.getValue())) return false;
   if (SoCullElement.completelyInside(state)) return false;
 
   boolean outside = false;

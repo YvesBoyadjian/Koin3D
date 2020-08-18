@@ -495,7 +495,7 @@ public void destructor() {
                             // Try to look inside the nodekit part.
                             String subString 
                                 = ((SoBaseKit )kid).getPartString(part);
-                            if (subString != "") {
+                            if (!Objects.equals(subString,"")) {
                                 //char indxString[30];
                                 String indxString = "["+indx+"]";
                                 String answer = ( cat.getName(i).getString() );

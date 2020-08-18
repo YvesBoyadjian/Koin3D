@@ -18,7 +18,7 @@ public class SoSFDouble extends SoSField<Double> { //TODO
 	 */
 	@Override
 	protected Double constructor() {
-		return new Double(0);
+		return 0.;
 	}
 
 

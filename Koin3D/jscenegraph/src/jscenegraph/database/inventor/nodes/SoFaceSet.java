@@ -242,12 +242,12 @@ private static final int AUTO_CACHE_FS_MAX = SoGLCacheContextElement.OIV_AUTO_CA
     };
 
  // for concavestatus
-    private final int STATUS_UNKNOWN = 0;
-    private final int STATUS_CONVEX = 1;
-    private final int STATUS_CONCAVE = 2;
+    private static final int STATUS_UNKNOWN = 0;
+    private static final int STATUS_CONVEX = 1;
+    private static final int STATUS_CONCAVE = 2;
 
-    private final int UNKNOWN_TYPE = -1;
-    private final int MIXED_TYPE = -2;
+    private static final int UNKNOWN_TYPE = -1;
+    private static final int MIXED_TYPE = -2;
 
 	
 

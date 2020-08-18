@@ -1088,7 +1088,7 @@ public static void createRoute(final SoNode fromnode, String eventout,
     SoType fromtype = from != null ? from.getTypeId() : output.getConnectionType();
     if (totype.operator_not_equal(fromtype)) {
       SoType convtype = SoDB.getConverter(fromtype, totype);
-      if (convtype == SoType.badType()) {
+      if (convtype.operator_equal_equal(SoType.badType())) {
 //#if COIN_DEBUG
         SoDebugError.postWarning("SoDB::createRoute",
                                   "Tried to connect a ROUTE between entities "+

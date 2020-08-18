@@ -93,7 +93,7 @@ public class SoSFFloat extends SoSField<Float> {
 
 	@Override
 	protected Float constructor() {		
-		return new Float(0);
+		return 0.f;
 	}
 
 

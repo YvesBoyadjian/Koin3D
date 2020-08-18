@@ -148,11 +148,11 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if ( myNodeKit !=null)
-        myNodeKit.unref();
-    if ( myPart !=null)
-        myPart.unref();
-        super.destructor();
+	if ( myNodeKit !=null)
+		myNodeKit.unref();
+	if ( myPart !=null)
+		myPart.unref();
+	super.destructor();
 }
 
 

@@ -125,7 +125,7 @@ public void search(SoSearchAction action)
 public void notify(SoNotList list)
 {
   SoField f = list.getLastField();
-  if (f != null && f.getTypeId() == SoSFNode.getClassTypeId(SoSFNode.class)) {
+  if (f != null && f.getTypeId().operator_equal_equal(SoSFNode.getClassTypeId(SoSFNode.class))) {
     pimpl.childlistvalid = false;
   }
   super.notify(list);

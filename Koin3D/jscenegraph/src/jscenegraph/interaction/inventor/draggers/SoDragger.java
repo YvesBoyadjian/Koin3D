@@ -1094,14 +1094,14 @@ public static void childTransferMotionAndValueChangedCB(Object parentAsVoid,
 
         // Before calling the other valueChanged callbacks, transfer the
         // motion of the childDragger into our own motion matrix.
-            // We do not want to trigger any of our other valueChanged callbacks
-            // while this is being done...
-            boolean saveEnabled = parent.enableValueChangedCallbacks( false );
-            parent.transferMotion( childDragger );
-            parent.enableValueChangedCallbacks( saveEnabled );
+        // We do not want to trigger any of our other valueChanged callbacks
+        // while this is being done...
+        boolean saveEnabled = parent.enableValueChangedCallbacks( false );
+        parent.transferMotion( childDragger );
+        parent.enableValueChangedCallbacks( saveEnabled );
 
         parent.valueChanged();
-    parent.setActiveChildDragger( savedChild );
+        parent.setActiveChildDragger( savedChild );
 
         // Restore saved values of our variables
         parent.setHandleEventAction(oldHa);

@@ -91,7 +91,7 @@ public class SoSFString extends SoSField<String> {
 
 	@Override
 	protected String constructor() {		
-		return new String();
+		return "";
 	}
 
 

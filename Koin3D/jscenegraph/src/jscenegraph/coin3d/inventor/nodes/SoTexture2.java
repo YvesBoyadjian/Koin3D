@@ -247,7 +247,7 @@ readInstance(SoInput in, short flags)
   this.pimpl.filenamesensor.detach();
   boolean readOK = super.readInstance(in, flags);
   this.setReadStatus((int) (readOK? 1 : 0));
-  if (readOK && !filename.isDefault() && filename.getValue() != "") {
+  if (readOK && !filename.isDefault() && !filename.getValue().equals("")) {
     if (!this.loadFilename()) {
       SoReadError.post(in, "Could not read texture file '"+filename.getValue()+"'");
       this.setReadStatus(false ? 1 : 0);
@@ -518,7 +518,7 @@ filenameSensorCB(Object data, SoSensor sensor)
                               "Image file '"+thisp.filename.getValue()+"' could not be read");
     thisp.setReadStatus(0);
   }
-  else if (thisp.filename.getValue() == "") {
+  else if (thisp.filename.getValue().equals("")) {
     // setting filename to "" should reset the node to its initial state
     thisp.setReadStatus(0);
     thisp.image.setValue(new SbVec2s((short)0,(short)0), 0, null);

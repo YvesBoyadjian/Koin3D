@@ -91,7 +91,7 @@ public class SoMFUInt32 extends SoMField<Object> {
 
 	@Override
 	protected Integer constructor() {
-		return new Integer(0);
+		return 0;
 	}
 
 	@Override

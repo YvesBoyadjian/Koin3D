@@ -238,6 +238,7 @@ package jscenegraph.database.inventor.nodes;
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Objects;
 
 import com.jogamp.opengl.GL2;
 
@@ -483,11 +484,11 @@ public class SoIndexedFaceSet extends SoIndexedShape {
 
  // Constants for influencing auto-caching algorithm:
 
-    private final int AUTO_CACHE_IFS_MIN_WITHOUT_VP = 20;
+    private static final int AUTO_CACHE_IFS_MIN_WITHOUT_VP = 20;
 
  // And the number above which we'll say caches definitely SHOULDN'T be
  // built (because they'll use too much memory):
-    private final int AUTO_CACHE_IFS_MAX = SoGLCacheContextElement.OIV_AUTO_CACHE_DEFAULT_MAX;
+    private static final int AUTO_CACHE_IFS_MAX = SoGLCacheContextElement.OIV_AUTO_CACHE_DEFAULT_MAX;
 
 	
     private static void LOCK_VAINDEXER(Object obj) {
@@ -672,10 +673,10 @@ public void GLRender(SoGLRenderAction action)
 	  boolean dova =
 	    SoVBO.shouldRenderAsVertexArrays(state, contextid, numindices[0]) &&
 	    !convexcacheused && !normalCacheUsed[0] &&
-	    ((nbind == Binding.OVERALL) || ((nbind == Binding.PER_VERTEX_INDEXED) && ((nindices[0] == cindices[0]) || (nindices[0] == null)))) &&
+	    ((nbind == Binding.OVERALL) || ((nbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(nindices[0], cindices[0])) || (nindices[0] == null)))) &&
 	    ((tbind == Binding./*NONE*/OVERALL && !tb.needCoordinates()) || // no 
-	     ((tbind == Binding.PER_VERTEX_INDEXED) && ((tindices[0] == cindices[0]) || (tindices[0] == null)))) &&
-	    ((mbind == Binding./*NONE*/OVERALL) || ((mbind == Binding.PER_VERTEX_INDEXED) && ((mindices[0] == cindices[0]) || (mindices[0] == null)))) &&
+	     ((tbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(tindices[0], cindices[0])) || (tindices[0] == null)))) &&
+	    ((mbind == Binding./*NONE*/OVERALL) || ((mbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(mindices[0], cindices[0])) || (mindices[0] == null)))) &&
 	    SoGLDriverDatabase.isSupported(SoGL.sogl_glue_instance(state), SoGLDriverDatabase.SO_GL_VERTEX_ARRAY);
 
 	  SoGLVBOElement vboelem = SoGLVBOElement.getInstance(state);
@@ -684,7 +685,7 @@ public void GLRender(SoGLRenderAction action)
 	  boolean didrenderasvbo = false;
 	  if (dova && (mbind != Binding.OVERALL)) {
 	    dova = false;
-	    if ((mbind == Binding.PER_VERTEX_INDEXED) && ((mindices[0] == cindices[0]) || (mindices[0] == null))) {
+	    if ((mbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(mindices[0], cindices[0])) || (mindices[0] == null))) {
 	      lelem = (SoGLLazyElement) SoLazyElement.getInstance(state);
 	      colorvbo = vboelem.getColorVBO();
 	      if (colorvbo != null) dova = true;

@@ -285,7 +285,7 @@ public class SbTime implements Mutable {
 		long usec; // System long
 
 		sec = t0.t.getSeconds() - t1.t.getSeconds();
-		usec = t0.t.getMicroSeconds() - t1.t.getMicroSeconds();
+		usec = (long)t0.t.getMicroSeconds() - t1.t.getMicroSeconds();
 
 		while (usec < 0 && sec > 0) {
 			usec += 1000000;

@@ -281,7 +281,7 @@ soproto_fetchextern_default_cb(SoInput in,
 
     if (pl.getLength() == 1) {
       foundproto = (SoProto) pl.operator_square_bracket(0).getTail();
-      if (name.length() != 0 && name != foundproto.getProtoName().getString()) {
+      if (name.length() != 0 && !name.equals(foundproto.getProtoName().getString())) {
         foundproto = null;
       }
     }
@@ -289,7 +289,7 @@ soproto_fetchextern_default_cb(SoInput in,
       int i;
       for (i = 0; i < pl.getLength(); i++) {
         SoProto proto = (SoProto) pl.operator_square_bracket(i).getTail();
-        if (name == proto.getProtoName().getString()) break;
+        if (name.equals(proto.getProtoName().getString())) break;
       }
       if (i < pl.getLength()) {
         foundproto = (SoProto) pl.operator_square_bracket(i).getTail();

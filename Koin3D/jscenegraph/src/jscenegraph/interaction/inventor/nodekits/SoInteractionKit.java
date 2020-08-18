@@ -1068,7 +1068,7 @@ readFromBuffer(short[] defaultBuffer, int defBufSize )
         return null;
 
     int bufLen = defaultBuffer.length;
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     for(int i =0;i<bufLen;i++) {
     	buf.append((char)defaultBuffer[i]);
     }

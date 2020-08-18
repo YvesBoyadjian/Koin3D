@@ -785,7 +785,7 @@ setSearchDirectories(final SbStringList list)
   }
 
   for (i = 0; i < list.getLength(); i++) {
-    this.searchdirectories.append(new String(((String)list.operator_square_bracket(i))));
+    this.searchdirectories.append(((String)list.operator_square_bracket(i)));
   }
   this.didSetSearchDirectories = true;
 }

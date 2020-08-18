@@ -14,7 +14,7 @@ import com.jogamp.opengl.GL2;
  */
 public class Ctx {
 
-	public static Map<Integer,GL2> cacheContexts = new HashMap<>();
+	private static Map<Integer,GL2> cacheContexts = new HashMap<>();
 
 	public static void addContext(int ctx, GL2 gl2) {
 		if(cacheContexts.get(ctx)!= null) {

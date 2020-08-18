@@ -211,6 +211,8 @@
 
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
+import java.util.Objects;
+
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
@@ -516,7 +518,7 @@ public void GLRender(SoGLRenderAction action)
     }
     else {
       tbind = Binding.PER_VERTEX_INDEXED;
-      if (tindices == null) tindices[0] = cindices[0];
+      if (tindices[0] == null) tindices[0] = cindices[0];
     }
   }
   boolean convexcacheused = false;
@@ -545,10 +547,10 @@ public void GLRender(SoGLRenderAction action)
   boolean dova = 
     SoVBO.shouldRenderAsVertexArrays(state, contextid, numindices[0]) &&
     !convexcacheused && !normalCacheUsed[0] &&
-    ((nbind == Binding.NONE_OVERALL) || ((nbind == Binding.PER_VERTEX_INDEXED) && ((nindices[0] == cindices[0]) || (nindices[0] == null)))) &&
+    ((nbind == Binding.NONE_OVERALL) || ((nbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(nindices[0], cindices[0])) || (nindices[0] == null)))) &&
     ((tbind == Binding.NONE_OVERALL && !tb.needCoordinates()) || 
-     ((tbind == Binding.PER_VERTEX_INDEXED) && ((tindices == cindices) || (tindices == null)))) &&
-    ((mbind == Binding.NONE_OVERALL) || ((mbind == Binding.PER_VERTEX_INDEXED) && ((mindices[0] == cindices[0]) || (mindices[0] == null)))) &&
+     ((tbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(tindices[0], cindices[0])) || (tindices[0] == null)))) &&
+    ((mbind == Binding.NONE_OVERALL) || ((mbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(mindices[0], cindices[0])) || (mindices[0] == null)))) &&
     SoGLDriverDatabase.isSupported(SoGL.sogl_glue_instance(state), SoGLDriverDatabase.SO_GL_VERTEX_ARRAY);
 
   final SoGLVBOElement vboelem = SoGLVBOElement.getInstance(state);
@@ -556,7 +558,7 @@ public void GLRender(SoGLRenderAction action)
 
   if (dova && (mbind != Binding.NONE_OVERALL)) {
     dova = false;
-    if ((mbind == Binding.PER_VERTEX_INDEXED) && ((mindices[0] == cindices[0]) || (mindices[0] == null))) {
+    if ((mbind == Binding.PER_VERTEX_INDEXED) && ((Objects.equals(mindices[0], cindices[0])) || (mindices[0] == null))) {
       lelem = (SoGLLazyElement) SoLazyElement.getInstance(state);
       colorvbo = vboelem.getColorVBO();
       if (colorvbo != null) dova = true;
@@ -1123,7 +1125,7 @@ public boolean useConvexCache(SoAction action,
   Binding tbind = Binding.PER_VERTEX_INDEXED;
   if (tindices[0] == null) tindices[0] = cindices[0];
 
-  if (nbind == Binding.PER_VERTEX_INDEXED && nindices == null) {
+  if (nbind == Binding.PER_VERTEX_INDEXED && nindices[0] == null) {
     nindices[0] = cindices[0];
   }
   if (mbind == Binding.PER_VERTEX_INDEXED && mindices[0] == null) {

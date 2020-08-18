@@ -2496,7 +2496,7 @@ void generateFront(GL2 gl2, int line)
 //
 // Use: static, private
 
-void beginCB(int primType)
+static void beginCB(int primType)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -2512,7 +2512,7 @@ void beginCB(int primType)
 //
 // Use: static, private
 
-void endCB()
+static void endCB()
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -2526,7 +2526,7 @@ void endCB()
 //
 // Use: static, private
 
-void vtxCB(Object v)
+static void vtxCB(Object v)
 //
 ////////////////////////////////////////////////////////////////////////
 {

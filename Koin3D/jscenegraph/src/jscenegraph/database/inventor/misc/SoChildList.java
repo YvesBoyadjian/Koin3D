@@ -353,26 +353,26 @@ copy(final SoChildList cList)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	  if (this == cList) return;
+	if (this == cList) return;
 
-    int i;
+	int i;
 
-    // Truncate to get rid of old children
-    truncate(0);
+	// Truncate to get rid of old children
+	truncate(0);
 
-    // Copy children
-    super.copy(cList);
+	// Copy children
+	super.copy(cList);
 
-    // Express parent's interest in all children
-    // it's important to add parent as auditor for all nodes (this is
-    // usually done in SoChildList::append/insert)
-    if ( parent != null ) {
-	    for (i = 0; i < getLength(); i++)
-	        (this).operator_square_bracket(i).addAuditor(parent, SoNotRec.Type.PARENT);
-	
-	    // the parent has changed; notify its auditors
-	    parent.startNotify();
-    }
+	// Express parent's interest in all children
+	// it's important to add parent as auditor for all nodes (this is
+	// usually done in SoChildList::append/insert)
+	if ( parent != null ) {
+		for (i = 0; i < getLength(); i++)
+			(this).operator_square_bracket(i).addAuditor(parent, SoNotRec.Type.PARENT);
+
+		// the parent has changed; notify its auditors
+		parent.startNotify();
+	}
 }
 
 

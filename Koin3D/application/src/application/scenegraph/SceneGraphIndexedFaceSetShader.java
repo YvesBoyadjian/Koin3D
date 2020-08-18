@@ -469,8 +469,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 			}
 		};
 		shadowGroup.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
+		shadowGroup.isActive.setValue(true);
 	    shadowGroup.quality.setValue(1.0f);
-	    shadowGroup.precision.setValue(0.55f);
+	    shadowGroup.precision.setValue(0.4f);
 	    shadowGroup.intensity.setValue(1.0f);
 //	    shadowGroup.visibilityNearRadius.setValue(5000);
 //	    shadowGroup.visibilityRadius.setValue(10000);

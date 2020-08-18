@@ -285,7 +285,7 @@ public int glCreateShaderObjectARB(int sType) {
 }
 
 public void glShaderSourceARB(int shaderHandle, int count, String srcStr, int[] length) {
-	CharSequence string = new StringBuffer(srcStr);
+	CharSequence string = new StringBuilder(srcStr);
 	ARBShaderObjects.glShaderSourceARB(shaderHandle, string);
 }
 

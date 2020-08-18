@@ -52,6 +52,7 @@ import org.lwjgl.util.Rectangle;
 //import org.eclipse.swt.opengl.GLCanvas;
 //import org.eclipse.swt.opengl.GLData;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.GLUtil;
 //import org.lwjgl.opengl.swt.GLData;
@@ -616,6 +617,8 @@ public
 	        gl2.glGetIntegerv(GL_RED_BITS, rb);
 	        System.out.println("Color depth : "+rb[0]+" bits");
 	        
+	        gl2.glGetIntegerv(GL11.GL_DEPTH_BITS, rb);
+	        System.out.println("Depth precision : "+rb[0]+" bits");
 	        
 	        parent.initialized = false; // have to reinitialize
 	    }

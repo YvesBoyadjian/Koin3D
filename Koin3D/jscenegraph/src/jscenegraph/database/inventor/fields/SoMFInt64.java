@@ -29,7 +29,7 @@ public class SoMFInt64 extends SoMField<Long> {
 	 */
 	@Override
 	protected Long constructor() {
-		return new Long(0);
+		return 0l;
 	}
 
 	/* (non-Javadoc)

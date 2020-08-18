@@ -294,6 +294,12 @@ public static final int VALUE_CHUNK_SIZE        =32;
 									// ! needs evaluation
 			notifyContainerEnabled = other.notifyContainerEnabled; // !< If set to 0, the container
 		}
+		
+		public Object clone() throws CloneNotSupportedException {
+			Flags clone = (Flags)super.clone();
+			clone.copyFrom(this);
+			return clone;
+		}
 	};
 
 	// If the field is connected or there are any FieldSensors attached to
@@ -1136,7 +1142,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 		if (cont != null) {
 
 			boolean profilingEntered = SoProfiling.isEnabled() && (SoProfiling.getEnterScopeFieldNotifyCB() != null)
-					&& (cont.getTypeId() != SoGlobalField.getClassTypeId());
+					&& (cont.getTypeId().operator_not_equal(SoGlobalField.getClassTypeId()));
 			if (profilingEntered) {
 				SoProfiling.getEnterScopeFieldNotifyCB().run(this);
 			}
