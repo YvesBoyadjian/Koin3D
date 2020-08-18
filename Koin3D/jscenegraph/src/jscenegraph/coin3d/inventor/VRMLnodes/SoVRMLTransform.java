@@ -3,15 +3,23 @@
  */
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
+import jscenegraph.coin3d.inventor.actions.SoAudioRenderAction;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoCallbackAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetMatrixAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
+import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFRotation;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
+import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 
@@ -86,6 +94,104 @@ SoVRMLTransform_doAction(SoAction action)
   this.applyMatrix(state);
   SoGroup_doAction(action);
   state.pop();
+}
+
+// Doc in parent
+public void callback(SoCallbackAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  this.applyMatrix(state);
+  super.callback(action);
+  state.pop();
+}
+
+// Doc in parent
+public void getBoundingBox(SoGetBoundingBoxAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  this.applyMatrix(state);
+  super.getBoundingBox(action);
+  state.pop();
+}
+
+// Doc in parent
+public void getMatrix(SoGetMatrixAction action)
+{
+  // need to push/pop to handle SoUnitsElement correctly
+  action.getState().push();
+
+  final SbMatrix m = new SbMatrix();
+  m.setTransform(this.translation.getValue(),
+                 this.rotation.getValue(),
+                 this.scale.getValue(),
+                 this.scaleOrientation.getValue(),
+                 this.center.getValue());
+  action.getMatrix().multLeft(m);
+  SbMatrix mi = m.inverse();
+  action.getInverse().multRight(mi);
+
+  SoGroup_getMatrix(action);
+  action.getState().pop();
+}
+
+// Doc in parent
+public void rayPick(SoRayPickAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  this.applyMatrix(state);
+  super.rayPick(action);
+  state.pop();
+}
+
+// Doc in parent
+public void audioRender(SoAudioRenderAction action)
+{
+  SoVRMLTransform_doAction((SoAction)action);
+}
+
+// Doc in parent
+public void getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  this.applyMatrix(state);
+  SoGroup_getPrimitiveCount(action);
+  state.pop();
+}
+
+// Doc in parent
+public void GLRenderBelowPath(SoGLRenderAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  this.applyMatrix(state);
+  super.GLRenderBelowPath(action);
+  state.pop();
+}
+
+// Doc in parent
+public void GLRenderInPath(SoGLRenderAction action)
+{
+  if (action.getCurPathCode() == SoAction.PathCode.IN_PATH) {
+    SoState state = action.getState();
+    state.push();
+    this.applyMatrix(state);
+    super.GLRenderInPath(action);
+    state.pop();
+  }
+  else {
+    // we got to the end of the path
+    this.GLRenderBelowPath(action);
+  }
+}
+
+// Doc in parent
+public void notify(SoNotList list)
+{
+  super.notify(list);
 }
 
 //

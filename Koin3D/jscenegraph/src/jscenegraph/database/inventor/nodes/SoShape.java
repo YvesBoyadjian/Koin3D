@@ -430,25 +430,37 @@ public abstract class SoShape extends SoNode implements Destroyable {
 //
 // Use: extender
 
-public void
-getBoundingBox(SoGetBoundingBoxAction action)
+//public void
+//getBoundingBox(SoGetBoundingBoxAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    final SbBox3f     bbox = new SbBox3f();
+//    final SbVec3f     center = new SbVec3f();
 //
-////////////////////////////////////////////////////////////////////////
+//    computeBBox(action, bbox, center);
+//
+//    // 2004-09-01 Felix: Ignore bounding box and center if volume is empty
+//    if(bbox.isEmpty())
+//        return;
+//
+//    action.extendBy(bbox);
+//
+//    // Make sure the center is first transformed by the current local
+//    // transformation matrix
+//    action.setCenter(center, true);
+//}
+
+// Doc in parent.
+public void getBoundingBox(SoGetBoundingBoxAction action)
 {
-    final SbBox3f     bbox = new SbBox3f();
-    final SbVec3f     center = new SbVec3f();
-
-    computeBBox(action, bbox, center);
-
-    // 2004-09-01 Felix: Ignore bounding box and center if volume is empty
-    if(bbox.isEmpty())
-        return;
-
-    action.extendBy(bbox);
-
-    // Make sure the center is first transformed by the current local
-    // transformation matrix
+  final SbBox3f box = new SbBox3f();
+  final SbVec3f center = new SbVec3f();
+  this.getBBox(action, box, center);
+  if (!box.isEmpty()) {
+    action.extendBy(box);
     action.setCenter(center, true);
+  }
 }
 
     //! This method MUST be defined by each subclass to generate

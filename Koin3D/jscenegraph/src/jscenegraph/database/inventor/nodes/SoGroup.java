@@ -65,6 +65,7 @@ import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoGetMatrixAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
@@ -785,6 +786,18 @@ copyContents(final SoFieldContainer fromFC, boolean copyConnections)
     }
 }
 	   
+
+// Doc from parent class.
+public void
+getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+	SoGroup_getPrimitiveCount(action);
+}
+public void
+SoGroup_getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  SoGroup_doAction((SoAction )action);
+}
 	   
 	    	   
 	   ////////////////////////////////////////////////////////////////////////

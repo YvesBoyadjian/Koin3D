@@ -2605,7 +2605,7 @@ static void vtxCB(Object v)
     }
 }
 
-private void SWAP(int a, int b, SoPrimitiveVertex[] array) { 
+private static void SWAP(int a, int b, SoPrimitiveVertex[] array) { 
 	SoPrimitiveVertex t = array[a]; array[a] = array[b]; array[b] = t; 
 	}
 
