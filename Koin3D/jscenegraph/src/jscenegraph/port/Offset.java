@@ -4,6 +4,7 @@
 package jscenegraph.port;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.nodes.SoNode;
@@ -16,6 +17,23 @@ public class Offset {
 	
 	private Class<? extends SoFieldContainer> containerClass;
 	private String fieldName;
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(containerClass, fieldName);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof Offset)) {
+			return false;
+		}
+		Offset other = (Offset) obj;
+		return Objects.equals(containerClass, other.containerClass) && Objects.equals(fieldName, other.fieldName);
+	}
 
 	public Offset(Class<? extends SoFieldContainer> containerClass, String fieldName) {
 		this.containerClass = containerClass;

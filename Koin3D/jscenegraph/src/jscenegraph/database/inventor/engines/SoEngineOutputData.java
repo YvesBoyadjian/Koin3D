@@ -255,7 +255,8 @@ public SoEngineOutput getOutputInternal(final SoFieldContainer base, int index)
 	
 	// Returns index of output, given the output and the engine it is in. 
 	public int getIndex(SoFieldContainer func, SoEngineOutput output) {
-	     String offset = func.fieldName(output); // java port
+	     String offset_str = func.fieldName(output); // java port
+	     Offset offset = new Offset(func.getClass(),offset_str);
 	      
 	          // Loop through the list looking for the correct offset:
 	          // (we'll assume this won't be very slow, since the list will
