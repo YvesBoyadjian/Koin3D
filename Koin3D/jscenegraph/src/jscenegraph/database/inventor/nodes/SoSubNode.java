@@ -538,7 +538,7 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
    public <T> void SO_NODE_ADD_SFIELD(SoSField<T> field,String fieldName, T defValue) {
  	   SO__NODE_CHECK_CONSTRUCT();
         if (firstInstance())                    {                                
-        fieldData.get(thisClass)[0].addField(thisParent, fieldName,                   
+        fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName,                   
                             field);            
         }
     field.setValue(defValue);                                    
@@ -548,7 +548,7 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
    public void SO_NODE_ADD_SFIELD(SoSFEnum field,String fieldName, Enum defValue) {
  	   SO__NODE_CHECK_CONSTRUCT();
         if (firstInstance())                    {                                
-        fieldData.get(thisClass)[0].addField(thisParent, fieldName,                   
+        fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName,                   
                             field);            
         }
     field.setValue(defValue);                                    
@@ -561,7 +561,7 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
 	   
        SO__NODE_CHECK_CONSTRUCT(/*__FILE__*/);
        if (firstInstance()){
-           fieldData.get(thisClass)[0].addField(thisParent, fieldName,
+           fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName,
                                field);
        }
        if(field instanceof SoMFInt32) {
@@ -586,7 +586,7 @@ public static void SO_NODE_INIT_CLASS(Class className, Class parentClass,String 
 	   
        SO__NODE_CHECK_CONSTRUCT(/*__FILE__*/);
        if (firstInstance()){
-           fieldData.get(thisClass)[0].addField(thisParent, fieldName,
+           fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName,
                                field);
        }
        field.setContainer(thisParent);
@@ -615,7 +615,7 @@ public void SO_VRMLNODE_ADD_EMPTY_EXPOSED_MFIELD(SoMField _field_, String fieldN
   do { 
     _field_.setFieldType(SoField.FieldType.EXPOSED_FIELD.getValue());
     _field_.setContainer(thisParent);
-    fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+    fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName, _field_);
   } while(false);
 }
 
@@ -623,7 +623,7 @@ public void SO_VRMLNODE_ADD_EVENT_IN(SoMField _field_, String fieldName) {
   do { 
     _field_.setFieldType(SoField.FieldType.EVENTIN_FIELD.getValue());
     _field_.setContainer(thisParent);
-    fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+    fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName, _field_);
   } while(false);
 }
 
@@ -631,7 +631,7 @@ public void SO_VRMLNODE_ADD_EVENT_IN(SoField _field_, String fieldName) {
 	  do { 
 	    _field_.setFieldType(SoField.FieldType.EVENTIN_FIELD.getValue());
 	    _field_.setContainer(thisParent);
-	    fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+	    fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName, _field_);
 	  } while(false);
 	}
 
@@ -639,7 +639,7 @@ public void SO_VRMLNODE_ADD_EVENT_OUT(SoMField _field_, String fieldName) {
 do { 
   _field_.setFieldType(SoField.FieldType.EVENTOUT_FIELD.getValue()); 
   _field_.setContainer(thisParent); 
-  fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+  fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName, _field_);
 } while(false);
 }
 
@@ -647,7 +647,7 @@ public void SO_VRMLNODE_ADD_EVENT_OUT(SoField _field_, String fieldName) {
 do { 
   _field_.setFieldType(SoField.FieldType.EVENTOUT_FIELD.getValue()); 
   _field_.setContainer(thisParent); 
-  fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+  fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName, _field_);
 } while(false);
 }
 
@@ -676,7 +676,7 @@ public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoMField<T> field,String fieldName
 public <T> void SO_VRMLNODE_ADD_EMPTY_MFIELD(SoMField<T>_field_,String fieldName) {
 do { 
   _field_.setContainer(thisParent); 
-  fieldData.get(thisClass)[0].addField(thisParent, fieldName, _field_);
+  fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName, _field_);
 } while(false);
 }
 }

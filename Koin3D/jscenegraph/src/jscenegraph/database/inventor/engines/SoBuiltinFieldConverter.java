@@ -328,7 +328,7 @@ public class SoBuiltinFieldConverter extends SoFieldConverter {
 		// #endif
 
 		input.setContainer(this);
-		myInputData.addField(this, "input", input);
+		myInputData.addField(this.getClass(),this, "input", input);
 
 		return input;
 	}

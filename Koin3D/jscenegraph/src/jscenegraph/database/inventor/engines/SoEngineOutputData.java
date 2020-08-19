@@ -91,7 +91,7 @@ public class SoEngineOutputData {
 	
 	private class SoOutputEntry {
 		final SbName name = new SbName(); // Name of output
-		String offset; // Offset of output within object
+		Offset offset; // Offset of output within object
 		final SoType type = new SoType(); // Type of output
 		public void copyFrom(SoOutputEntry fromOutput) {
 			name.copyFrom(fromOutput.name);
@@ -145,7 +145,7 @@ public void                addOutput(final SoEngine defEngine,
     SoOutputEntry newOutput = new SoOutputEntry();
 
     newOutput.name.copyFrom( new SbName(outputName));
-    newOutput.offset = outputName;
+    newOutput.offset = new Offset(defEngine.getClass(),outputName);
     newOutput.type.copyFrom(type);
 
     outputs.append( newOutput);
@@ -182,7 +182,7 @@ public void                addOutput(final SoEngine defEngine,
 	    SoOutputEntry newOutput = new SoOutputEntry();
 
 	    newOutput.name.copyFrom( new SbName(name));
-	    newOutput.offset = name;
+	    newOutput.offset = new Offset(base.getClass(),name);
 	    newOutput.type.copyFrom(type);
 
 		
@@ -229,7 +229,7 @@ getOutputName(int index)
 	public SoEngineOutput getOutput(SoEngine func, int index) {
 		
 		SoOutputEntry soOutputEntry = (SoOutputEntry)outputs.operator_square_bracket(index);
-		String offset = soOutputEntry.offset;
+		Offset offset = soOutputEntry.offset;
 		
 		  // This generates a CC warning; there's not much we can do about it...
 		  return (SoEngineOutput ) func.plus(offset);
@@ -248,8 +248,8 @@ public SoEngineOutput getOutput(final SoNodeEngine engine, int index)
 public SoEngineOutput getOutputInternal(final SoFieldContainer base, int index)
 {
   assert(index >= 0 && index < this.outputs.getLength());
-  String offset = ((SoOutputEntry)this.outputs.operator_square_bracket(index)).offset;
-  return (SoEngineOutput) base.plus(new Offset(offset));
+  Offset offset = ((SoOutputEntry)this.outputs.operator_square_bracket(index)).offset;
+  return (SoEngineOutput) base.plus(offset);
 }
 
 	

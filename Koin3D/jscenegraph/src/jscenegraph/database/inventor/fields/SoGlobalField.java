@@ -198,7 +198,7 @@ create(final SbName name, SoType type, final boolean[] alreadyExists)
 	       nameDict.enter(key, this);
 	   
 	       fieldData = new SoFieldData();
-	       fieldData.addField(this, name.getString(), field);
+	       fieldData.addField(this.getClass(),this, name.getString(), field);
 	   
 	       ref();
 	   }
@@ -303,7 +303,7 @@ changeName( SbName newName)
     SoField field = value;
     fieldData.destructor();
     fieldData = new SoFieldData();
-    fieldData.addField(this, newName.getString(), field);
+    fieldData.addField(this.getClass(), this, newName.getString(), field);
     key = getName().getString();
 
     // If there is already an entry with the new name...

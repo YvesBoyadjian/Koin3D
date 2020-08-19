@@ -14,8 +14,8 @@ public class IdentityOffset extends Offset {
 	
 	private SoField field;
 
-	public IdentityOffset(String fieldName, SoField field) {
-		super(fieldName);
+	public IdentityOffset(Class<? extends SoFieldContainer> containerClass, String fieldName, SoField field) {
+		super(containerClass, fieldName);
 		this.field = field;
 	}
 

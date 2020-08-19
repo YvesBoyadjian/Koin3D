@@ -6,6 +6,7 @@ package jscenegraph.port;
 import java.lang.reflect.Field;
 
 import jscenegraph.database.inventor.fields.SoFieldContainer;
+import jscenegraph.database.inventor.nodes.SoNode;
 
 /**
  * @author Yves Boyadjian
@@ -13,9 +14,11 @@ import jscenegraph.database.inventor.fields.SoFieldContainer;
  */
 public class Offset {
 	
+	private Class<? extends SoFieldContainer> containerClass;
 	private String fieldName;
 
-	public Offset(String fieldName) {
+	public Offset(Class<? extends SoFieldContainer> containerClass, String fieldName) {
+		this.containerClass = containerClass;
 		this.fieldName = fieldName;
 	}
 
@@ -27,9 +30,9 @@ public class Offset {
 		return fieldName;
 	}
 	
-	public static boolean containerContains(SoFieldContainer container, String fieldName ) {
+	public static boolean containerContains(Class<? extends SoFieldContainer> class1, SoFieldContainer container, String fieldName ) {
 		try {
-			return null != plus(container,fieldName);
+			return null != plus(class1, container,fieldName);
 		}
 		catch(IllegalStateException e) {
 			return false;
@@ -37,12 +40,12 @@ public class Offset {
 	}
 
 	public Object plus(SoFieldContainer container) {
-		return plus( container, fieldName);
+		return plus( containerClass, container, fieldName);
 	}
 	
-	public static Object plus(SoFieldContainer container, String fieldName) {
+	public static Object plus(Class<? extends SoFieldContainer> class1, SoFieldContainer container, String fieldName) {
 		try {
-			Field field = getField(container.getClass(),fieldName);
+			Field field = getField(/*container.getClass()*/class1,fieldName);
 			field.setAccessible(true);
 			Object fieldObject = field.get(container);
 			return fieldObject;
@@ -57,15 +60,6 @@ public class Offset {
 	
 	private static Field getField(Class clazz, String fieldName)
 	        throws NoSuchFieldException {
-	    try {
 	      return clazz.getDeclaredField(fieldName);
-	    } catch (NoSuchFieldException e) {
-	      Class superClass = clazz.getSuperclass();
-	      if (superClass == null) {
-	        throw e;
-	      } else {
-	        return getField(superClass, fieldName);
-	      }
-	    }
 	  }
 }

@@ -112,6 +112,7 @@ import jscenegraph.database.inventor.fields.SoSField;
  */
 public class SoSubEngine {
 
+	Class<? extends SoEngine> class1; 
 	private final SoEngine soEngine;
 	
 	private boolean firstInstance = true;
@@ -119,7 +120,8 @@ public class SoSubEngine {
 	private SoFieldData[] inputData; 
 	private SoEngineOutputData[] outputData;
 	
-	public SoSubEngine(SoEngine soEngine2) {
+	public SoSubEngine(Class<? extends SoEngine> class2, SoEngine soEngine2) {
+		this.class1 = class2;
 		this.soEngine = soEngine2;
 	}
 
@@ -209,7 +211,7 @@ protected void SO__ENGINE_CHECK_INIT(Class<? extends SoEngine> className) {
 	}
 
 	public static SoSubEngine SO_ENGINE_ABSTRACT_HEADER(Class<? extends SoEngine> class1, SoEngine soEngine) {
-		return new SoSubEngine(soEngine);
+		return new SoSubEngine(class1,soEngine);
 	}
 
 /////////////////////////////////////////////
@@ -234,7 +236,7 @@ protected void SO__ENGINE_CHECK_INIT(Class<? extends SoEngine> className) {
     do {                                                                      
         //SO__ENGINE_CHECK_CONSTRUCT(__FILE__);                                 
         if (firstInstance)                                                    
-            inputData[0].addField(soEngine, inputName, input);                            
+            inputData[0].addField(class1,soEngine, inputName, input);                            
         input.setValue(defaultValue);                                    
         input.setContainer(soEngine);                                   
     } while (_value_false);                                                   
@@ -245,7 +247,7 @@ protected void SO__ENGINE_CHECK_INIT(Class<? extends SoEngine> className) {
 	    do {                                                                      
 	        //SO__ENGINE_CHECK_CONSTRUCT(__FILE__);                                 
 	        if (firstInstance)                                                    
-	            inputData[0].addField(soEngine, inputName, input);                            
+	            inputData[0].addField(class1,soEngine, inputName, input);                            
 	        input.setValue(defaultValue[0]);                                    
 	        input.setContainer(soEngine);                                   
 	    } while (_value_false);                                                   

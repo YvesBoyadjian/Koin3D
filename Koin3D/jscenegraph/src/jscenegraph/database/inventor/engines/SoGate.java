@@ -315,7 +315,7 @@ setup(SoType inputType)
 
         // Pass in the static field data as the parent field data for
         // the per-instance field data:
-        myInputData.addField(this, "input", input);
+        myInputData.addField(this.getClass(),this, "input", input);
     
         // Construct the output:
         output = new SoEngineOutput();

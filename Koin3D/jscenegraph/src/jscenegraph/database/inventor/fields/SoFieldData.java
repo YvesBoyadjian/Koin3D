@@ -64,6 +64,7 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.misc.SoBase;
+import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IdentityOffset;
 import jscenegraph.port.Offset;
@@ -206,20 +207,22 @@ public static final int NOT_BUILTIN_BIT = (1<<14);
 	   // Use: public
 	   
 	   public void
-	   addField(SoFieldContainer defobj, // Object with default values
-	                         String fieldName,    // Name of field
-	                         final SoField field)     // Pointer 2 field (in defNode)
+	   addField(
+			   Class<? extends SoFieldContainer> class1,
+			   SoFieldContainer defobj, // Object with default values
+	           String fieldName,    // Name of field
+	           final SoField field)     // Pointer 2 field (in defNode)
 	   //
 	   ////////////////////////////////////////////////////////////////////////
 	   {
 	       SoFieldEntry newField = new SoFieldEntry();
 	       newField.name.copyFrom(new SbName(fieldName));
 	       
-	       if ( Offset.containerContains(defobj, fieldName)) {
-	    	   newField.offset = new Offset(fieldName);
+	       if ( Offset.containerContains(class1,defobj, fieldName)) {
+	    	   newField.offset = new Offset(class1,fieldName);
 	       }
 	       else {
-	    	   newField.offset = new IdentityOffset(fieldName, field);
+	    	   newField.offset = new IdentityOffset(class1,fieldName, field);
 	       }
 	   
 	       fields.append((Object) newField);
@@ -618,7 +621,7 @@ public boolean readFieldDescriptions(SoInput in, SoFieldContainer object,
       newfield = (SoField)(type.createInstance());
       newfield.setContainer(object);
       newfield.setDefault(true);
-      that.addField(object, fieldname.getString(), newfield);
+      that.addField(object.getClass(),object, fieldname.getString(), newfield);
     }
 
     if (fieldtype.operator_equal_equal(EVENTIN) || fieldtype.operator_equal_equal(EVENTOUT)) {
@@ -732,7 +735,7 @@ private boolean readFieldDescriptions(
 
             // Cast const away:
             SoFieldData This = (SoFieldData )this;
-            This.addField(object, fieldName.getString(), fld);
+            This.addField(object.getClass(),object, fieldName.getString(), fld);
         }
 //#ifdef DEBUG
         else {

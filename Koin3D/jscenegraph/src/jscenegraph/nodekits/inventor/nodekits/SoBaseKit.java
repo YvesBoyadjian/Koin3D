@@ -1843,7 +1843,7 @@ readUnknownFields(SoInput in, final SoFieldData unknownfielddata)
     if (!foundname[0]) {
       // add a node pointer field with this name to the unknownFieldData,
       // and read it
-      unknownfielddata.addField(owner, fieldname.getString(),
+      unknownfielddata.addField(owner.getClass(),owner, fieldname.getString(),
                                  new SoSFNode());
       if (!unknownfielddata.read(in, owner, fieldname, foundname))
         return false;
