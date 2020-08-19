@@ -57,6 +57,7 @@ import jscenegraph.database.inventor.nodes.SoText3;
 import jscenegraph.database.inventor.nodes.SoTextureCoordinate2;
 import jscenegraph.database.inventor.nodes.SoTranslation;
 import jscenegraph.database.inventor.nodes.SoTriangleStripSet;
+import jscenegraph.freecad.SoFC;
 import jsceneviewer.inventor.qt.SoQt;
 import jsceneviewer.inventor.qt.SoQtCameraController.Type;
 import jsceneviewer.inventor.qt.viewers.SoQtExaminerViewer;
@@ -74,6 +75,7 @@ public class SamplePart {
 		//parent.setLayout(new GridLayout(1, false));
 
 		SoQt.init("demo");
+		SoFC.init();
 		//SoDB.setDelaySensorTimeout(new SbTime(10.0));
 		//SoDB.setRealTimeInterval(new SbTime(10.0));
 		
@@ -112,7 +114,7 @@ public class SamplePart {
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialBinding()
 	    		//SoMaterialBindingExample.createDemoSceneSoMaterialIndexedBinding()
 	    		//IndexedTriangleStrip.createDemoSceneSoIndexedTriangleStrip()
-	    		createDemoScenePerformance()
+	    		//createDemoScenePerformance()
 	    		//createDemoSceneSoMaterialShapeBinding()
 	    		//SoFaceSetTest.createDemoSceneSoFaceSet()
 	    		//SoIndexedFaceSetTest.createDemoSceneSoIndexedFaceSet()
@@ -132,7 +134,7 @@ public class SamplePart {
 	    		//Drapeau.makePennant()
 	    		//Arche.makeArch()
 	    		//RotatingSensor.create("C:/eclipseWorkspaces/examples_iv/transparentbluecylinder.iv")
-	    		//Canards.create("C:\\eclipseWorkspaces\\inventor-2.1.5-10.src\\inventor\\apps\\examples\\data\\duck.iv")
+	    		Canards.create(fileStr/*"C:\\eclipseWorkspaces\\inventor-2.1.5-10.src\\inventor\\apps\\examples\\data\\duck.iv"*/)
 	    		//Orbits.main()
 	    		//WorldAnimated.main()
 	    		//DualWorld.main()

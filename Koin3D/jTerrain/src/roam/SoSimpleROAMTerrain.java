@@ -107,7 +107,7 @@ public class SoSimpleROAMTerrain extends SoShape {
     ::SoSimpleROAMTerrain. */
   public static void initClass() {
   /* Inicializace tridy. */
-	  SoSubNode.SO_NODE_INIT_CLASS(SoSimpleROAMTerrain.class, SoShape.class, "Shape");
+	  SoSubNode.SO_NODE_INIT_CLASS(SoSimpleROAMTerrain.class,"SimpleROAMTerrain", SoShape.class, "Shape");
 	  SO_ENABLE(SoGLRenderAction.class, SoMaterialBindingElement.class);
 	  SO_ENABLE(SoGLRenderAction.class, SoCoordinateElement.class);
 	  SO_ENABLE(SoGLRenderAction.class, SoMultiTextureCoordinateElement.class);

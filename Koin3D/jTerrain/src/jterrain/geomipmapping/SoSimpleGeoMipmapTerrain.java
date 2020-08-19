@@ -156,7 +156,7 @@ public class SoSimpleGeoMipmapTerrain extends SoShape {
 public static void initClass()
 {
   /* Inicializace tridy. */
-  SoSubNode.SO_NODE_INIT_CLASS(SoSimpleGeoMipmapTerrain.class, SoShape.class, "Shape");
+  SoSubNode.SO_NODE_INIT_CLASS(SoSimpleGeoMipmapTerrain.class,"SimpleGeoMipmapTerrain", SoShape.class, "Shape");
   SO_ENABLE(SoGLRenderAction.class, SoCoordinateElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoMultiTextureCoordinateElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoMultiTextureEnabledElement.class);

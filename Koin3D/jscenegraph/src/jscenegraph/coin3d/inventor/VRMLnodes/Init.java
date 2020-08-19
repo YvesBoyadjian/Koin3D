@@ -26,8 +26,8 @@ so_vrml_init()
 //
   SoVRMLLight.initClass();
 //  
-//  SoVRMLSensor::initClass();
-//  SoVRMLDragSensor::initClass();
+  SoVRMLSensor.initClass();
+  SoVRMLDragSensor.initClass();
 //
 //  SoVRMLAnchor::initClass();
   SoVRMLAppearance.initClass();
@@ -42,7 +42,7 @@ so_vrml_init()
   SoVRMLCoordinate.initClass();
 //  SoVRMLCoordinateInterpolator::initClass();
   SoVRMLCylinder.initClass();
-//  SoVRMLCylinderSensor::initClass();
+  SoVRMLCylinderSensor.initClass();
   SoVRMLDirectionalLight.initClass();
 //  SoVRMLElevationGrid::initClass();
   SoVRMLExtrusion.initClass();

@@ -107,6 +107,11 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	private FloatArray floatArray;
 	
 	private FloatMemoryBuffer valuesArray;
+	
+	public SoMFVec3f() {
+		super();
+		allocValues(0);
+	}
 
 	/**
 	 * Sets the field to contain the given value and only the given value (if
@@ -364,22 +369,22 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 
 	protected void allocValues(int newNum) {
 		if (valuesArray == null) {
-			if (newNum > 0) {
+			//if (newNum > 0) {
 				valuesArray = arrayConstructorInternal(newNum);
-			}
+			//}
 		} else {
 			FloatMemoryBuffer oldValues = valuesArray;
 			int i;
 
-			if (newNum > 0) {
+			//if (newNum > 0) {
 				valuesArray = arrayConstructorInternal(newNum);
 				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
 					valuesArray.setFloat(3*i, oldValues.getFloat(3*i));
 					valuesArray.setFloat(3*i+1, oldValues.getFloat(3*i+1));
 					valuesArray.setFloat(3*i+2, oldValues.getFloat(3*i+2));
 				}
-			} else
-				valuesArray = null;
+			//} else
+			//	valuesArray = null;
 			if( vec3fArray != null ) {
 //				if( VoidPtr.has(vec3fArray)) {
 //					Destroyable.delete(VoidPtr.create(vec3fArray));

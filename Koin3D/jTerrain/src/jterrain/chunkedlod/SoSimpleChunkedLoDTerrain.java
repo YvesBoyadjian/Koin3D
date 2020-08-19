@@ -171,7 +171,7 @@ public class SoSimpleChunkedLoDTerrain extends SoShape {
 	public static void initClass()
 {
   // Init class.
-  SoSubNode.SO_NODE_INIT_CLASS(SoSimpleChunkedLoDTerrain.class, SoShape.class, "Shape");
+  SoSubNode.SO_NODE_INIT_CLASS(SoSimpleChunkedLoDTerrain.class,"SimpleChunkedLoDTerrain", SoShape.class, "Shape");
   SO_ENABLE(SoGLRenderAction.class, SoMaterialBindingElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoCoordinateElement.class);
   SO_ENABLE(SoGLRenderAction.class, SoMultiTextureCoordinateElement.class);

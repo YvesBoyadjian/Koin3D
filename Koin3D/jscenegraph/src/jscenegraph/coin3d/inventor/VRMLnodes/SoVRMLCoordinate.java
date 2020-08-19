@@ -121,6 +121,12 @@ public class SoVRMLCoordinate extends SoNode {
 	  }
 
 // Doc in parent
+	  public void
+	  doAction(SoAction action)
+	  {
+		  SoVRMLCoordinate_doAction(action);
+	  }
+	  
 public void
 SoVRMLCoordinate_doAction(SoAction action)
 {
