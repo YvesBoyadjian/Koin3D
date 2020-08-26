@@ -73,6 +73,7 @@ import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.port.ByteBufferAble;
 import jscenegraph.port.FloatArray;
+import jscenegraph.port.IntArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbColorArray;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
@@ -1113,7 +1114,7 @@ setTransparency(SoState state, SoNode node, int numvalues,
 //
 ///////////////////////////////////////////////////////////////////////  
 public static void setPacked(SoState state, SoNode node,
-        int numcolors, int[] colors) {
+        int numcolors, IntArray colors) {
 	
 	setPacked(state,node,numcolors,colors,false);
 }
@@ -1121,7 +1122,7 @@ public static void setPacked(SoState state, SoNode node,
 
 public static void
 setPacked(SoState state, SoNode node,
-                         int numcolors, int[] colors,
+                         int numcolors, IntArray colors,
                          boolean packedtransparency)
 {
   if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
@@ -1544,22 +1545,22 @@ setTranspTypeElt(  int type)
 
 protected void
 setPackedElt( SoNode node,  int numColors,  
-        final int[] colors)
+        final IntArray colors)
 {
 	setPackedElt(node,numColors,colors, false);
 }
 protected void
 setPackedElt( SoNode node,  int numColors,  
-        final int[] colors, boolean packedtransparency)
+        final IntArray colors, boolean packedtransparency)
 {
 	coinstate.diffusenodeid   = node.getNodeId();
     ivState.numDiffuseColors = numColors;
     ivState.numTransparencies = numColors;
     ivState.stippleNum = 0;     
     if ((coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.ordinal()) &&
-            ((colors[0]&0xff) != 0xff)){        
+            ((colors.get(0) & 0xff) != 0xff)){        
         ivState.stippleNum = (int)(getNumPatterns()*
-                (1.-(colors[0] & 0xff)*(1./255.)));         
+                (1.-(colors.get(0) & 0xff)*(1./255.)));         
     }   
     //ivState.packedColors = colors;
     ivState.packed = true;
@@ -1572,7 +1573,7 @@ setPackedElt( SoNode node,  int numColors,
     this.coinstate.packeddiffuse = true;
     this.coinstate.istransparent = packedtransparency;
 
-    int alpha = colors[0] & 0xff;
+    int alpha = colors.get(0) & 0xff;
     float transp = (float)(255-alpha)/255.0f;
     this.coinstate.stipplenum = SbBasic.SbClamp((int)(transp * 64.0f), 0, 64);
 }

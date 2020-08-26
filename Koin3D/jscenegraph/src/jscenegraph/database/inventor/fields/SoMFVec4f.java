@@ -97,9 +97,9 @@ example:
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-public class SoMFVec4f extends SoMField<SbVec4f> {
+public class SoMFVec4f extends SoMField<SbVec4f,SbVec4fArray> {
 
-	private FloatMemoryBuffer valuesArray;
+	//private FloatMemoryBuffer valuesArray;
 
 	@Override
 	protected SbVec4f constructor() {
@@ -107,8 +107,8 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	}
 
 	@Override
-	protected SbVec4f[] arrayConstructor(int length) {
-		return new SbVec4f[length];
+	protected SbVec4fArray arrayConstructor(int length) {
+		return new SbVec4fArray(FloatMemoryBuffer.allocateFloats(length*4));
 	}
 
 	/* Get pointer into array of values 
@@ -124,27 +124,27 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 //	}
 
 	/* Get pointer into array of values */
-	@Deprecated
-	public SbVec4f[] getValues(int start) {
-		evaluate();
-
-		SbVec4f[] shiftedValues = new SbVec4f[valuesArray.numFloats()/4 - start];
-		for (int i = start; i < valuesArray.numFloats()/4; i++) {
-			shiftedValues[i - start] = new SbVec4f(valuesArray,i*4);
-		}
-		return shiftedValues;
-	}
+//	@Deprecated
+//	public SbVec4f[] getValues(int start) {
+//		evaluate();
+//
+//		SbVec4f[] shiftedValues = new SbVec4f[valuesArray.numFloats()/4 - start];
+//		for (int i = start; i < valuesArray.numFloats()/4; i++) {
+//			shiftedValues[i - start] = new SbVec4f(valuesArray,i*4);
+//		}
+//		return shiftedValues;
+//	}
 
 	/**
 	 * Java port
 	 * @return
 	 */
-	public FloatMemoryBuffer getValuesRef() {
-		evaluate();
-		
-		return valuesArray;
-	}
-
+//	public FloatMemoryBuffer getValuesRef() {
+//		evaluate();
+//		
+//		return valuesArray;
+//	}
+//
 	/* Get pointer into array of values 
 	 * 
 	 * Faster method
@@ -153,14 +153,15 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	public FloatArray getValuesArray(int start) {
 		evaluate();
 				
-		FloatArray shiftedValues = new FloatArray( start*4, valuesArray);
-		return shiftedValues;
+		return values.toFloatArray().plus(start*4);
+//		FloatArray shiftedValues = new FloatArray( start*4, values.);
+//		return shiftedValues;
 	}
 
-	public ByteBuffer getValuesBytes(int start) {
-		FloatArray values = getValuesArray(start);
-		return Util.toByteBuffer(values);
-	}
+//	public ByteBuffer getValuesBytes(int start) {
+//		FloatArray values = getValuesArray(start);
+//		return Util.toByteBuffer(values);
+//	}
 
 	private FloatMemoryBuffer arrayConstructorInternal(int length) {
 		return FloatMemoryBuffer.allocateFloats(length*3);
@@ -169,7 +170,7 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	public void setValuesPointer(FloatMemoryBuffer userdata) {
 		makeRoom(0);
 		  if (userdata != null) { 
-			    valuesArray = userdata;
+			    values = new SbVec4fArray(userdata);
 			    // userDataIsUsed = true; COIN3D 
 			    num = maxNum = userdata.numFloats()/4; 
 			    valueChanged(); 
@@ -204,73 +205,79 @@ public class SoMFVec4f extends SoMField<SbVec4f> {
 	    set1Value(index, new SbVec4f(x, y, z, w));		
 	}
 
-	protected void allocValues(int newNum) {
-		if (valuesArray == null) {
-			if (newNum > 0) {
-				valuesArray = arrayConstructorInternal(newNum);
-			}
-		} else {
-			FloatMemoryBuffer oldValues = valuesArray;
-			int i;
-
-			if (newNum > 0) {
-				valuesArray = arrayConstructorInternal(newNum);
-				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
-					valuesArray.setFloat(4*i, oldValues.getFloat(4*i));
-					valuesArray.setFloat(4*i+1, oldValues.getFloat(4*i+1));
-					valuesArray.setFloat(4*i+2, oldValues.getFloat(4*i+2));
-					valuesArray.setFloat(4*i+3, oldValues.getFloat(4*i+3));
-				}
-			} else
-				valuesArray = null;
-			// delete [] oldValues; java port
-		}
-
-		num = maxNum = newNum;
-	}
+//	protected void allocValues(int newNum) {
+//		if (valuesArray == null) {
+//			if (newNum > 0) {
+//				valuesArray = arrayConstructorInternal(newNum);
+//			}
+//		} else {
+//			FloatMemoryBuffer oldValues = valuesArray;
+//			int i;
+//
+//			if (newNum > 0) {
+//				valuesArray = arrayConstructorInternal(newNum);
+//				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
+//					valuesArray.setFloat(4*i, oldValues.getFloat(4*i));
+//					valuesArray.setFloat(4*i+1, oldValues.getFloat(4*i+1));
+//					valuesArray.setFloat(4*i+2, oldValues.getFloat(4*i+2));
+//					valuesArray.setFloat(4*i+3, oldValues.getFloat(4*i+3));
+//				}
+//			} else
+//				valuesArray = null;
+//			// delete [] oldValues; java port
+//		}
+//
+//		num = maxNum = newNum;
+//	}
 
 	/* Set field to have one value */
 	public void setValue(SbVec4f newValue) {
 		makeRoom(1);
-		Mutable dest = new SbVec4f(valuesArray,0);
+		Mutable dest = values.getO(0);// new SbVec4f(valuesArray,0);
 		Mutable src = (Mutable) newValue;
 		dest.copyFrom(src);
 		valueChanged();
 	}
 
     /* Get non-const pointer into array of values for batch edits */          
-    public SbVec4f[] startEditing()                                
-        { 
-    	evaluate(); 
-    	return getValues(0); 
-    	}                                        
+//    public SbVec4f[] startEditing()                                
+//        { 
+//    	evaluate(); 
+//    	return getValues(0); 
+//    	}                                        
                                                                               
 	/* Set 1 value at given index */
 	public void set1Value(int index, SbVec4f newValue) {
 		if (index >= getNum())
 			makeRoom(index + 1);
-		valuesArray.setFloat(index*4, newValue.getX());
-		valuesArray.setFloat(index*4+1, newValue.getY());
-		valuesArray.setFloat(index*4+2, newValue.getZ());
-		valuesArray.setFloat(index*4+3, newValue.getW());
+		values.setO(index,newValue);
+//		valuesArray.setFloat(index*4, newValue.getX());
+//		valuesArray.setFloat(index*4+1, newValue.getY());
+//		valuesArray.setFloat(index*4+2, newValue.getZ());
+//		valuesArray.setFloat(index*4+3, newValue.getW());
 		valueChanged();
 	}
 
 	public SbVec4f operator_square_bracket(int i) {
 		evaluate();
-		return new SbVec4f(valuesArray,i*4);
+		return values.getO(i);
 	}
 	
     public SbVec4fArray startEditingFast()                                
     { 
     	evaluate(); 
-    	return new SbVec4fArray(valuesArray); 
+    	return values;//new SbVec4fArray(valuesArray); 
 	}                                        
 
 
     public SbVec4fArray getValuesSbVec4fArray() {
 		evaluate();
 
-		return new SbVec4fArray(valuesArray); 		
+		return values;//new SbVec4fArray(valuesArray); 		
     }
+
+	@Override
+	public SbVec4fArray doGetValues(int start) {
+		return values.plus(start);
+	}
 }

@@ -15,7 +15,7 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  * @author Yves Boyadjian
  *
  */
-public class SbVec4fArray implements FloatBufferAble {
+public class SbVec4fArray extends Indexable<SbVec4f> implements FloatBufferAble {
 
 	FloatMemoryBuffer valuesArray;
 
@@ -73,5 +73,31 @@ public class SbVec4fArray implements FloatBufferAble {
 		if(coords4 == null)
 			return null;
 		return new SbVec4fArray(coords4,0);
+	}
+
+	@Override
+	public SbVec4f getO(int index) {		
+		return get(index);
+	}
+
+	@Override
+	public int length() {
+		return valuesArray.numFloats()/4 - delta;
+	}
+
+	@Override
+	public void setO(int i, SbVec4f object) {
+		getO(i).copyFrom(object);
+		
+	}
+
+	@Override
+	public int delta() {
+		return delta;
+	}
+
+	@Override
+	public Object values() {
+		return valuesArray;
 	}
 }

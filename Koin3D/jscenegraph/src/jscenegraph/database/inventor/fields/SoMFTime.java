@@ -5,12 +5,13 @@ package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbTime;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.SbTimeArray;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoMFTime extends SoMField<SbTime> { //TODO
+public class SoMFTime extends SoMField<SbTime,SbTimeArray> { //TODO
 
 	@Override
 	protected SbTime constructor() {
@@ -18,8 +19,8 @@ public class SoMFTime extends SoMField<SbTime> { //TODO
 	}
 
 	@Override
-	protected SbTime[] arrayConstructor(int length) {		
-		return new SbTime[length];
+	protected SbTimeArray arrayConstructor(int length) {		
+		return new SbTimeArray(length);
 	}
 
 
@@ -39,9 +40,14 @@ public boolean read1Value(SoInput in, int index)
     if (! in.read(seconds))
         return false;
 
-    ((SbTime)values[index]).setValue(seconds[0]);
+    ((SbTime)values.getO(index)).setValue(seconds[0]);
 
     return true;
+}
+
+@Override
+public SbTimeArray doGetValues(int start) {
+	return values.plus(start);
 }
 
 }

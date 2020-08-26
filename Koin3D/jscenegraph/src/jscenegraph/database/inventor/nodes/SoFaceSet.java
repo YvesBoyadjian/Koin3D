@@ -537,7 +537,7 @@ generatePrimitives(SoAction action)
 	  int idx = startIndex.getValue();
 	  int[] dummyarray = new int[1];
 	  IntArrayPtr ptr = this.numVertices.getValuesIntArrayPtr(0);
-	  IntArrayPtr end = ptr.plus(this.numVertices.getNum());
+	  IntArrayPtr end = IntArrayPtr.plus(ptr,this.numVertices.getNum());
 	  IntArrayPtr[] dptr = new IntArrayPtr[1]; dptr[0] = ptr;
 	  IntArrayPtr[] dend = new IntArrayPtr[1]; dend[0] = end;
 	  this.fixNumVerticesPointers(state, dptr, dend, dummyarray);
@@ -562,7 +562,7 @@ generatePrimitives(SoAction action)
 	  vertex.setDetail(pointDetail);
 	  vertex.setNormal(currnormal.get(0));
 
-	  while (ptr.lessThan(end)) {
+	  while (IntArrayPtr.lessThan(ptr,end)) {
 	    n = ptr.get(); ptr.plusPlus();
 	    if (n == 3) newmode = SoShape.TriangleShape.TRIANGLES;
 	    else if (n == 4) newmode = SoShape.TriangleShape.QUADS;
@@ -863,7 +863,7 @@ generateDefaultNormals(SoState state, SoNormalCache nc)
   int idx = startIndex.getValue();
   final int[] dummyarray = new int[1];
   IntArrayPtr ptr = this.numVertices.getValuesIntArrayPtr(0);
-  IntArrayPtr end = ptr.plus(this.numVertices.getNum());
+  IntArrayPtr end = IntArrayPtr.plus(ptr,this.numVertices.getNum());
   IntArrayPtr[] ptr_dummy = new IntArrayPtr[1];ptr_dummy[0] = ptr;
   IntArrayPtr[] end_dummy = new IntArrayPtr[1];end_dummy[0] = end;
   this.fixNumVerticesPointers(state, ptr_dummy, end_dummy, dummyarray);
@@ -891,7 +891,7 @@ generateDefaultNormals(SoState state, SoNormalCache nc)
   }
 
   // Generate normals for the faceset
-  while (ptr.lessThan(end)) {
+  while (IntArrayPtr.lessThan(ptr,end)) {
     int num = ptr.get(); ptr.plusPlus();
     // If a valid number of points for the faceset has been specified,
     // and the end index is below the number of points available, then
@@ -950,7 +950,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
   int                         numFaces, curCoord, vertsInFace, i, j;
   int                         startInd;
   SoCoordinateElement   ce = null;
-  SbVec3f[]               vpCoords = null;
+  SbVec3fArray               vpCoords = null;
 
   int numCoords = 0;
   SoVertexProperty vp = (SoVertexProperty )vertexProperty.getValue();
@@ -974,7 +974,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
 
     for (j = 0; j < vertsInFace; j++) {
       if(ce != null)  nb.polygonVertex(ce.get3(curCoord));
-      else    nb.polygonVertex(vpCoords[curCoord]); 
+      else    nb.polygonVertex(vpCoords.get(curCoord)); 
       curCoord++;
     }
     nb.endPolygon();
@@ -1072,7 +1072,7 @@ GLRender(SoGLRenderAction action)
 {
 	  int[] dummyarray = new int[1];
 	  IntArrayPtr ptr = this.numVertices.getValuesIntArrayPtr(0); //java port
-	  IntArrayPtr end = ptr.plus(this.numVertices.getNum());
+	  IntArrayPtr end = IntArrayPtr.plus(ptr,this.numVertices.getNum());
 	  if ((end.minus(ptr) == 1) && (ptr.get(0) == 0)) return; // nothing to render
 
 	  if (pimpl.primitivetype == UNKNOWN_TYPE) {
@@ -1402,17 +1402,17 @@ useConvexCache(SoAction action)
 
   int idx = this.startIndex.getValue();
   final IntArrayPtr[] ptr = new IntArrayPtr[1]; ptr[0] = this.numVertices.getValuesIntArrayPtr(0);
-  final IntArrayPtr[] end = new IntArrayPtr[1]; end[0] = ptr[0].plus(this.numVertices.getNum());
+  final IntArrayPtr[] end = new IntArrayPtr[1]; end[0] = IntArrayPtr.plus(ptr[0],this.numVertices.getNum());
   final int[] dummyarray = new int[1];
   this.fixNumVerticesPointers(state, ptr, end, dummyarray);
 
   if (pimpl.concavestatus == STATUS_UNKNOWN) {
     final IntArrayPtr tst = new IntArrayPtr(ptr[0]);
-    while (tst.lessThan(end[0])) {
+    while (IntArrayPtr.lessThan(tst,end[0])) {
       if (tst.get() > 3) break;
       tst.plusPlus();
     }
-    if (tst.lessThan(end[0])) pimpl.concavestatus = STATUS_CONCAVE;
+    if (IntArrayPtr.lessThan(tst,end[0])) pimpl.concavestatus = STATUS_CONCAVE;
     else pimpl.concavestatus = STATUS_CONVEX;
   }
   if (pimpl.concavestatus == STATUS_CONVEX) {
@@ -1518,7 +1518,7 @@ useConvexCache(SoAction action)
     final int diff = end[0].minus(ptr[0]);
     final SbListInt dummyidx = new SbListInt((int)(diff * 4));
     final IntArrayPtr tptr = new IntArrayPtr(ptr[0]);
-    while (tptr.lessThan(end[0])) {
+    while (IntArrayPtr.lessThan(tptr,end[0])) {
       int num = tptr.get(0); tptr.plusPlus();
       while (num-- != 0) {
         dummyidx.append(idx++);
@@ -2050,7 +2050,7 @@ else gl2.glVertex4fv(coords4d.get(_idx_).getValueRead(),0);
       if (needNormals) gl2.glNormal3fv(currnormal.get(0).getValueRead(),0);
     }
 
-    while (ptr.lessThan(end)) {
+    while (IntArrayPtr.lessThan(ptr,end)) {
       n = ptr.get(); ptr.plusPlus();
 
       if (n < 3 || idx + n > numcoords) {

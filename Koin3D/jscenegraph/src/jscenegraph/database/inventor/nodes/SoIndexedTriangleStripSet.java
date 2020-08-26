@@ -93,6 +93,8 @@ import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.IntArray;
+import jscenegraph.port.SbVec3fArray;
 
 /**
  * @author Yves Boyadjian
@@ -699,7 +701,7 @@ public boolean generateDefaultNormals(SoState state,
 {
   int                         numIndices = coordIndex.getNum(), curIndex = 0;
   SoCoordinateElement   ce = null;
-  SbVec3f[]               vpCoords = null;
+  SbVec3fArray               vpCoords = null;
 
   SoVertexProperty vp = getVertexProperty();
   if (vp != null && vp.vertex.getNum() > 0) {
@@ -725,7 +727,7 @@ public boolean generateDefaultNormals(SoState state,
         if (ce != null)
           verts[whichVert%3] = ce.get3((int)coordIndex.operator_square_bracketI(curIndex));
         else
-          verts[whichVert%3] = vpCoords[coordIndex.operator_square_bracketI(curIndex)];
+          verts[whichVert%3] = vpCoords.get(coordIndex.operator_square_bracketI(curIndex));
 
         ++numInStrip;
 
@@ -1106,7 +1108,7 @@ private void OmOnT (SoGLRenderAction action ) {
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    final int[] tCoordIndx = getTexCoordIndices();
+    final IntArray tCoordIndx = getTexCoordIndices();
     int v;
     int vtxCtr = 0;
     int numvertsIndex = 0;
@@ -1114,18 +1116,18 @@ private void OmOnT (SoGLRenderAction action ) {
 	final int nv = (numverts[numvertsIndex]);
 	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
 	for (v = 0; v < nv-1; v+=2) {
-		texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES);
+		texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES);
 		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); vtxCtr++;
 	    (texCoordFunc).run(gl2, texCoordPtr);
 	    (vertexFunc).run(gl2, vertexPtr);         
 
-		texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES);
+		texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES);
 		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); vtxCtr++;           
 	    (texCoordFunc).run(gl2, texCoordPtr);
 	    (vertexFunc).run(gl2, vertexPtr);         
 	}
 	if (v < nv) { // Leftovers
-		texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES);
+		texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES);
 		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); vtxCtr++;
 	    (texCoordFunc).run(gl2, texCoordPtr);
 	    (vertexFunc).run(gl2, vertexPtr);         
@@ -1150,7 +1152,7 @@ private void OmFn (SoGLRenderAction action) {
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     int nrmCtr=0;
     gl2.glShadeModel(GL2.GL_FLAT);
     int v;
@@ -1162,7 +1164,7 @@ private void OmFn (SoGLRenderAction action) {
 	for (v = 0; v < nv-1; v+=2) {
 	    // Per-face cases:
 	    if (v != 0) {
-	    	normalPtr.position(normalStride*normalIndx[nrmCtr]/Float.BYTES);nrmCtr++;             
+	    	normalPtr.position(normalStride*normalIndx.get(nrmCtr)/Float.BYTES);nrmCtr++;             
 		    (normalFunc).run(gl2, normalPtr);
 	    }
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);vtxCtr++;
@@ -1170,14 +1172,14 @@ private void OmFn (SoGLRenderAction action) {
 
 	    // Per-face cases:
 	    if (v != 0) {
-	    	normalPtr.position(normalStride*normalIndx[nrmCtr]/Float.BYTES);nrmCtr++;             
+	    	normalPtr.position(normalStride*normalIndx.get(nrmCtr)/Float.BYTES);nrmCtr++;             
 		    (normalFunc).run(gl2, normalPtr);
 	    }
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);vtxCtr++ ;          
 	    (vertexFunc).run(gl2, vertexPtr);
 	}
 	if (v < nv) { // Leftovers
-		normalPtr.position(normalStride*normalIndx[nrmCtr]/Float.BYTES);nrmCtr++;
+		normalPtr.position(normalStride*normalIndx.get(nrmCtr)/Float.BYTES);nrmCtr++;
 	    (normalFunc).run(gl2, normalPtr);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);vtxCtr++;       
 	    (vertexFunc).run(gl2, vertexPtr);
@@ -1203,7 +1205,7 @@ public void OmVn (SoGLRenderAction action ) {
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     int v;
     int vtxCtr = 0;
     int numvertsIndex = 0; // java port
@@ -1211,18 +1213,18 @@ public void OmVn (SoGLRenderAction action ) {
 	final int nv = (numverts)[numvertsIndex];
 	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
 	for (v = 0; v < nv-1; v+=2) {
-		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+		normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);
 	    (normalFunc).run(gl2, normalPtr);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES);
 	    (vertexFunc).run(gl2, vertexPtr);
 
-	    normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);       
+	    normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);       
 	    (normalFunc).run(gl2, normalPtr);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES);           
 	    (vertexFunc).run(gl2, vertexPtr);
 	}
 	if (v < nv) { // Leftovers
-		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+		normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);
 	    (normalFunc).run(gl2, normalPtr);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES);         
 	    (vertexFunc).run(gl2, vertexPtr);
@@ -1248,11 +1250,11 @@ public void OmVnT
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
     int v;
     int vtxCtr = 0;
     int numvertsIndex = 0; // java port    
@@ -1260,17 +1262,17 @@ public void OmVnT
 	final int nv = (numverts)[numvertsIndex];
 	gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
 	for (v = 0; v < nv-1; v+=2) {
-	    (normalFunc).run(gl2, normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES));
-	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES));
+	    (normalFunc).run(gl2, normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES));
+	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES));
 	    (vertexFunc).run(gl2,vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES));
 
-	    (normalFunc).run(gl2,normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES));       
-	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES));        
+	    (normalFunc).run(gl2,normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES));       
+	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES));        
 	    (vertexFunc).run(gl2,vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES));           
 	}
 	if (v < nv) { // Leftovers
-	    (normalFunc).run(gl2,normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES));
-	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES));         
+	    (normalFunc).run(gl2,normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES));
+	    (texCoordFunc).run(gl2,texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES));         
 	    (vertexFunc).run(gl2,vertexPtr.position(vertexStride*vertexIndex[vtxCtr++]/Float.BYTES));         
 	}
 	gl2.glEnd();

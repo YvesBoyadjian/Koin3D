@@ -269,7 +269,7 @@ public void getTrimCurve(SoState state, IntConsumer numPoints, Consumer<float[]>
         }
     }   
     numKnots.accept(0);
-    knotVector = null;
+    knotVector.accept(null);
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -688,10 +688,10 @@ public void getPrimitiveCount(SoGetPrimitiveCountAction action)
   }
   else {
     IntArrayPtr ptr = this.coordIndex.getValuesIntArrayPtr(0);
-    IntArrayPtr endptr = ptr.plus(n);
+    IntArrayPtr endptr = IntArrayPtr.plus(ptr,n);
     int cnt = 0;
     int add = 0;
-    while (ptr.lessThan(endptr)) {
+    while (IntArrayPtr.lessThan(ptr,endptr)) {
     	ptr.plusPlus();
       if (ptr.get(-1) >= 0) {
     	  cnt++;
@@ -867,7 +867,7 @@ private void DO_VERTEX(
   TriangleShape mode = TriangleShape.POLYGON;
   TriangleShape newmode;
   IntArrayPtr viptr = new IntArrayPtr(cindices[0]);
-  IntArrayPtr viendptr = viptr.plus(numindices[0]);
+  IntArrayPtr viendptr = IntArrayPtr.plus(viptr,numindices[0]);
   int v1, v2, v3, v4, v5 = 0; // v5 init unnecessary, but kills a compiler warning.
 
   final SoPrimitiveVertex vertex = new SoPrimitiveVertex();
@@ -889,10 +889,10 @@ private void DO_VERTEX(
     v2 = viptr.starPlusPlus();
     v3 = viptr.starPlusPlus();
     assert(v1 >= 0 && v2 >= 0 && v3 >= 0);
-    v4 = viptr.lessThan(viendptr) ? viptr.starPlusPlus() : -1;
+    v4 = IntArrayPtr.lessThan(viptr,viendptr) ? viptr.starPlusPlus() : -1;
     if (v4  < 0) newmode = TriangleShape.TRIANGLES;
     else {
-      v5 = viptr.lessThan(viendptr) ? viptr.starPlusPlus() : -1;
+      v5 = IntArrayPtr.lessThan(viptr,viendptr) ? viptr.starPlusPlus() : -1;
       if (v5 < 0) newmode = TriangleShape.QUADS;
       else newmode = TriangleShape.POLYGON;
     }
@@ -946,11 +946,11 @@ private void DO_VERTEX(
       if (mode == TriangleShape.POLYGON) {
         DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,
         		v5);
-        v1 = viptr.lessThan(viendptr) ? viptr.starPlusPlus() : -1;
+        v1 = IntArrayPtr.lessThan(viptr,viendptr) ? viptr.starPlusPlus() : -1;
         while (v1 >= 0) {
           DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,
         		  v1);
-          v1 = viptr.lessThan(viendptr) ? viptr.starPlusPlus() : -1;
+          v1 = IntArrayPtr.lessThan(viptr,viendptr) ? viptr.starPlusPlus() : -1;
         }
         this.endShape();
       }

@@ -243,6 +243,7 @@ GLRender(SoGLRenderAction action)
       switch (InputType.fromValue(this.inputType.getValue())) {
       default:
         assert(false);// && "invalid input type");
+        break;
       case POINTS_IN:
         input = GL2.GL_POINTS;
         break;
@@ -256,6 +257,7 @@ GLRender(SoGLRenderAction action)
       switch (OutputType.fromValue(this.outputType.getValue())) {
       default:
         assert(false);// && "invalid input type");
+        break;
       case POINTS_OUT:
         output = GL2.GL_POINTS;
         break;

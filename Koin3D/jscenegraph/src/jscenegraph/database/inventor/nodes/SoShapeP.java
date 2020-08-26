@@ -86,8 +86,12 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.database.inventor.SbBox3f;
+import jscenegraph.database.inventor.SbTime;
 import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -121,4 +125,30 @@ public class SoShapeP implements Destroyable {
 //	    if (this.pvcache != null) { this.pvcache.unref(); } FIXME
 //	    Destroyable.delete( this.bumprender);
 	}
+
+public static void calibrateBBoxCache()
+{
+  int i;
+  int ARRAYSIZE = 100;
+
+  // just create 100 random vertices
+  final SbVec3fArray vecarray = new SbVec3fArray(FloatMemoryBuffer.allocateFloats(ARRAYSIZE*3));
+  for (i = 0; i < ARRAYSIZE; i++) {	  
+      vecarray.getO(i).setX( ((float) Math.random()) /*/ ((float) RAND_MAX)*/ );
+      vecarray.getO(i).setY( ((float) Math.random()) /*/ ((float) RAND_MAX)*/ );
+      vecarray.getO(i).setZ( ((float) Math.random()) /*/ ((float) RAND_MAX)*/ );
+  }
+
+  // FIXME: should really measure CPU time spent, and not just wall
+  // time. See the item in Coin/docs/todo.txt on implementing a
+  // "stopwatch" ADT. 20021111 mortene.
+  final SbTime begin = new SbTime(SbTime.getTimeOfDay());
+  final SbBox3f bbox = new SbBox3f();
+  bbox.makeEmpty();
+  for (i = 0; i < ARRAYSIZE; i++) {
+    bbox.extendBy(vecarray.getO(i));
+  }
+  final SbTime end = new SbTime(SbTime.getTimeOfDay());
+  SoShapeP.bboxcachetimelimit = end.getValue() - begin.getValue();
+}
 }

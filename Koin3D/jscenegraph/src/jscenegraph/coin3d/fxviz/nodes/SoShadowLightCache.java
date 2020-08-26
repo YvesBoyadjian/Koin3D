@@ -54,6 +54,8 @@ import jscenegraph.database.inventor.nodes.SoPerspectiveCamera;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoShapeHints;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.FloatArray;
+import jscenegraph.port.SbVec2fArray;
 
 /**
  * @author Yves Boyadjian
@@ -419,8 +421,8 @@ createGaussFilter( int texsize, int size, float gaussstandarddeviation)
   int center = size / 2;
   float dt = 1.0f / (float)(texsize);
 
-  SbVec2f[] offsetptr = offset.value.startEditing();
-  Float[] kernelptr = kernel.value.startEditing();
+  SbVec2fArray offsetptr = offset.value.startEditing();
+  FloatArray kernelptr = kernel.value.startEditing();
 
   int c = 0;
   for (int y = 0; y < size; y++) {
@@ -428,8 +430,8 @@ createGaussFilter( int texsize, int size, float gaussstandarddeviation)
     for (int x = 0; x < size; x++) {
       int dx = Math.abs(x - center);
 
-      kernelptr[c] = (float) ((1.0 /  (2.0 * Math.PI * sigma * sigma)) * Math.exp(- (double)(dx*dx + dy*dy) / (2.0 * sigma * sigma)));
-      offsetptr[c] = new SbVec2f((float)(x-center) * dt, (float)(y-center)*dt);
+      kernelptr.set(c, (float) ((1.0 /  (2.0 * Math.PI * sigma * sigma)) * Math.exp(- (double)(dx*dx + dy*dy) / (2.0 * sigma * sigma))));
+      offsetptr.setO(c, new SbVec2f((float)(x-center) * dt, (float)(y-center)*dt));
       c++;
 
     }

@@ -186,12 +186,12 @@ public void notify(SoNotList list)
   if (node == null) return;
 
   int numCoords = node.point.getNum();
-  SbVec3f[] coords = node.point.getValues(0);
+  SbVec3fArray coords = node.point.getValues(0);
 
   box.makeEmpty();
   IntArrayPtr ptr = coordIndex.getValuesIntArrayPtr(0); // java port
-  IntArrayPtr endptr = ptr.plus(coordIndex.getNum());
-  while (ptr.lessThan(endptr)) {
+  IntArrayPtr endptr = IntArrayPtr.plus(ptr,coordIndex.getNum());
+  while (IntArrayPtr.lessThan(ptr,endptr)) {
     int idx = ptr.starPlusPlus();
 
     if (idx >= numCoords) {
@@ -200,7 +200,7 @@ public void notify(SoNotList list)
       continue;
     }
 
-    if (idx >= 0) box.extendBy(coords[idx]);
+    if (idx >= 0) box.extendBy(coords.get(idx));
   }
   if (!box.isEmpty()) center.copyFrom(box.getCenter());
 	}

@@ -65,6 +65,7 @@ import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoGetMatrixAction;
 import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
+import jscenegraph.database.inventor.actions.SoSearchAction;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFString;
@@ -151,6 +152,7 @@ public class SoFile extends SoNode {
 	  public  static SoFieldData[] getFieldDataPtr()                              
 	        { return SoSubNode.getFieldDataPtr(SoFile.class); }    
 	  
+	  static boolean searchok = false;
 
   public
     //! \name Fields
@@ -457,6 +459,14 @@ public void getMatrix(SoGetMatrixAction action)
         children.traverse(action);
         break;
     }
+}
+
+public void search(SoSearchAction action)
+{
+  super.search(action); // always include this node in the search
+
+  // only search children if the user has requested it
+  if (searchok) SoFile_doAction((SoAction)action);
 }
     
     

@@ -6,12 +6,13 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbRotationd;
 import jscenegraph.database.inventor.SbVec3d;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.SbRotationdArray;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoMFRotationd extends SoMField<SbRotationd> { //TODO
+public class SoMFRotationd extends SoMField<SbRotationd,SbRotationdArray> { //TODO
 
 	@Override
 	protected SbRotationd constructor() {
@@ -19,8 +20,8 @@ public class SoMFRotationd extends SoMField<SbRotationd> { //TODO
 	}
 
 	@Override
-	protected SbRotationd[] arrayConstructor(int length) {
-		return new SbRotationd[length];
+	protected SbRotationdArray arrayConstructor(int length) {
+		return new SbRotationdArray(length);
 	}
 
 
@@ -62,6 +63,11 @@ public void set1Value(int index, final SbVec3d axis, double angle)
 ////////////////////////////////////////////////////////////////////////
 {
     set1Value(index, new SbRotationd(axis, angle));
+}
+
+@Override
+public SbRotationdArray doGetValues(int start) {
+	return values.plus(start);
 }
 
 }

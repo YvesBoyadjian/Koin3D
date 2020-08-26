@@ -396,7 +396,7 @@ generatePrimitives(SoAction action)
 	  int idx = this.startIndex.getValue();
 	  final int[] dummyarray = new int[1];
 	  IntArrayPtr ptr = this.numVertices.getValuesIntArrayPtr(0);
-	  IntArrayPtr end = ptr.plus(this.numVertices.getNum());
+	  IntArrayPtr end = IntArrayPtr.plus(ptr,this.numVertices.getNum());
 	  IntArrayPtr[] dptr = new IntArrayPtr[1]; dptr[0] = ptr;
 	  IntArrayPtr[] dend = new IntArrayPtr[1]; dend[0] = end;
 	  this.fixNumVerticesPointers(state, dptr, dend, dummyarray);
@@ -410,7 +410,7 @@ generatePrimitives(SoAction action)
 	  if (nbind == Binding.PER_SEGMENT || mbind == Binding.PER_SEGMENT) {
 	    this.beginShape(action, SoShape.TriangleShape.LINES, lineDetail);
 
-	    while (ptr.lessThan(end)) {
+	    while (IntArrayPtr.lessThan(ptr,end)) {
 	      int n = ptr.get(); ptr.plusPlus();
 	      if (n < 2) {
 	        idx += n;
@@ -475,7 +475,7 @@ generatePrimitives(SoAction action)
 	    this.endShape();
 	  }
 	  else {
-	    while (ptr.lessThan(end)) {
+	    while (IntArrayPtr.lessThan(ptr,end)) {
 	      lineDetail.setPartIndex(0);
 	      int n = ptr.get(); ptr.plusPlus();
 	      if (n < 2) {

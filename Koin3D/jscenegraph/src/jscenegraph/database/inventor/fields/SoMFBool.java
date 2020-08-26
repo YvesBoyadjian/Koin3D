@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.port.BoolArray;
 
 /**
  * @author Yves Boyadjian
@@ -87,7 +88,7 @@ example:
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-public class SoMFBool extends SoMField<Boolean> {
+public class SoMFBool extends SoMField<Boolean,BoolArray> {
 
 	/* (non-Javadoc)
 	 * @see jscenegraph.database.inventor.fields.SoMField#read1Value(jscenegraph.database.inventor.SoInput, int)
@@ -98,7 +99,7 @@ public class SoMFBool extends SoMField<Boolean> {
     // with integer fields)
     final int[] intValue = new int[1];
     if (in.read(intValue)) {
-        values[index] = intValue[0]!=0;
+        values.setO(index, intValue[0]!=0);
         if (intValue[0] != 0 && intValue[0] != 1) {
             SoReadError.post(in, "Illegal value for SoMFBool: "+intValue+" "+
                               "(must be 0 or 1)");
@@ -117,12 +118,12 @@ public class SoMFBool extends SoMField<Boolean> {
         return false;
     
     if (n.operator_equal_equal("TRUE")) {
-        values[index] = true;
+        values.setO(index, true);
         return true;
     }
 
     if (n.operator_equal_equal("FALSE")) {
-        values[index] = false;
+        values.setO(index, false);
         return true;
     }
 
@@ -143,8 +144,16 @@ public class SoMFBool extends SoMField<Boolean> {
 	 * @see jscenegraph.database.inventor.fields.SoMField#arrayConstructor(int)
 	 */
 	@Override
-	protected Boolean[] arrayConstructor(int length) {
-		return new Boolean[length];
+	protected BoolArray arrayConstructor(int length) {
+		return new BoolArray(length);
+	}
+
+	@Override
+	public BoolArray doGetValues(int start) {
+		if ( start == 0) {
+			return values;
+		}
+		return new BoolArray(start,values);
 	}
 
 }

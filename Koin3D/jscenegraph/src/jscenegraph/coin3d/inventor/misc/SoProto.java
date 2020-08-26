@@ -22,6 +22,7 @@ import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.StringArray;
 
 /**
  * @author BOYADJIAN
@@ -112,7 +113,7 @@ public class SoProto extends SoNode {
 
 	static public interface SoFetchExternProtoCB {
 		SoProto invoke(SoInput in,
-            final String[] urls,
+            final StringArray urls,
             final int numurls,
             Object closure);
 	}
@@ -226,12 +227,12 @@ public boolean readDefinition(SoInput in)
 
 private static SoProto
 soproto_fetchextern_default_cb(SoInput in,
-                               final String[] urls,
+                               final StringArray urls,
                                int numurls,
                                Object closure)
 {
   if (numurls == 0) return null;
-  String filename = urls[0];
+  String filename = urls.getO(0);
   String name = "";
 
   int nameidx = SbString.find(filename,"#");

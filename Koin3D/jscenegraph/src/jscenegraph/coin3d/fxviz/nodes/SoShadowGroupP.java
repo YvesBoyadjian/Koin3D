@@ -602,6 +602,7 @@ setVertexShader(SoState state)
   switch (fogType) {
   default:
     assert(false);// && "unknown fog type");
+    break;
   case NONE:
     // do nothing
     break;
@@ -900,6 +901,7 @@ setFragmentShader(SoState state)
   switch (fogType) {
   default:
     assert(false);// && "unknown fog type");
+    break;
   case NONE:
     // do nothing
     break;

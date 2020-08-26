@@ -4,6 +4,7 @@
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.database.inventor.misc.SoChildList;
+import jscenegraph.port.IntArray;
 
 /**
  * @author BOYADJIAN
@@ -22,5 +23,5 @@ public class SoVRMLAppearanceP {
 			// TODO Auto-generated method stub
 			
 		}
-		  final int[] fakecolor = new int[1];
+		  final IntArray fakecolor = new IntArray(1);
 }

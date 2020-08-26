@@ -14,7 +14,7 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  * @author Yves Boyadjian
  *
  */
-public class SbColorArray implements FloatBufferAble {
+public class SbColorArray extends Indexable<SbColor> implements FloatBufferAble {
 
 	private FloatMemoryBuffer valuesArray;
 
@@ -64,5 +64,30 @@ public class SbColorArray implements FloatBufferAble {
 		if(other == null)
 			return null;
 		return new SbColorArray(other,0);
+	}
+
+	@Override
+	public int length() {
+		return valuesArray.numFloats()/3 - delta;
+	}
+
+	@Override
+	public SbColor getO(int index) {
+		return get(index);
+	}
+
+	@Override
+	public void setO(int i, SbColor object) {
+		getO(i).copyFrom(object);
+	}
+
+	@Override
+	public int delta() {
+		return delta;
+	}
+
+	@Override
+	public Object values() {
+		return valuesArray;
 	}
 }

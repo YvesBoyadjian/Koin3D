@@ -58,6 +58,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.IntArray;
 import jscenegraph.port.IntArrayPtr;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,9 +85,9 @@ separated by commas; for example:
  * @author Yves Boyadjian
  *
  */
-public class SoMFInt32 extends SoMField<Object> {
+public class SoMFInt32 extends SoMField<Integer,IntArray> {
 
-	private int[] values;
+	//private int[] values;
 
 	/**
 	 * java port
@@ -115,7 +116,7 @@ public class SoMFInt32 extends SoMField<Object> {
         makeRoom(newNum);                                                     
                                                                               
     for (i = 0; i < localNum; i++)                                                    
-        values[start + i] = newValues[i];                                     
+        values.set(start + i, newValues[i]);                                     
                                                                               
     valueChanged();                                                           
 }                                                                             
@@ -127,8 +128,8 @@ public class SoMFInt32 extends SoMField<Object> {
 	}
 
 	@Override
-	protected Integer[] arrayConstructor(int length) {
-		return new Integer[length];
+	protected IntArray arrayConstructor(int length) {
+		return new IntArray(length);
 	}
 	
 	// java port
@@ -156,7 +157,7 @@ public boolean read1Value(SoInput in, int index)
 {
 	final int[] ret = new int[1];
     if (in.read(ret)) {
-    	values[index] = ret[0];
+    	values.set(index, ret[0]);
     	return true;
     }
     return false;
@@ -179,7 +180,7 @@ readBinaryValues(SoInput in,    // Reading specification
 	int[] valuesI = new int[numToRead];
 	boolean retVal = (in.readBinaryArray(valuesI, numToRead));
 	if(retVal) {
-		for(int i=0;i<numToRead;i++) values[i] = valuesI[i];
+		for(int i=0;i<numToRead;i++) values.set(i, valuesI[i]);
 	}
 	return retVal;
 }
@@ -196,31 +197,31 @@ public void setValuesBuffer(ByteBuffer buffer) {
 	setValues(0,array);
 }
 
-protected void allocValues(int newNum) {
-	if (values == null) {
-		if (newNum > 0) {
-			values = new int[newNum];
-		}
-	} else {
-		int[] oldValues = values;
-		int i;
-
-		if (newNum > 0) {
-			values = new int[newNum];
-			for (i = 0; i < num && i < newNum; i++)
-				values[i] = oldValues[i];
-		} else
-			values = null;
-		// delete [] oldValues; java port
-	}
-
-	num = maxNum = newNum;
-}
+//protected void allocValues(int newNum) {
+//	if (values == null) {
+//		if (newNum > 0) {
+//			values = new int[newNum];
+//		}
+//	} else {
+//		int[] oldValues = values;
+//		int i;
+//
+//		if (newNum > 0) {
+//			values = new int[newNum];
+//			for (i = 0; i < num && i < newNum; i++)
+//				values[i] = oldValues[i];
+//		} else
+//			values = null;
+//		// delete [] oldValues; java port
+//	}
+//
+//	num = maxNum = newNum;
+//}
 
 /* Set field to have one value */
 public void setValue(int newValue) {
 	makeRoom(1);
-	values[0] = newValue;
+	values.set(0, newValue);
 	valueChanged();
 }
 
@@ -232,7 +233,7 @@ public void setValues(int start, int[] newValues) {
 		makeRoom(newNum);
 
 	for (i = 0; i < localNum; i++) {
-		values[start + i] = newValues[i];
+		values.set(start + i, newValues[i]);
 	}
 	valueChanged();
 
@@ -241,7 +242,7 @@ public void setValues(int start, int[] newValues) {
 public void setValuesPointer(int[] newValues) {
 	makeRoom(0);
 	if(newValues != null) {
-		values = newValues;
+		values = new IntArray(0,newValues);
 		num = maxNum = newValues.length;
 		valueChanged();
 	}
@@ -251,7 +252,7 @@ public void setValuesPointer(int[] newValues) {
 public void set1Value(int index, int newValue) {
 	if (index >= getNum())
 		makeRoom(index + 1);
-	values[index] = newValue;
+	values.set(index, newValue);
 	valueChanged();
 }
 
@@ -260,17 +261,19 @@ public int[] getValuesI(int start) {
 	evaluate();
 	
 	if(start == 0) {
-		return values;
+		return values.values();
 	}
+	
+	throw new IllegalArgumentException();
 
-	int retLength = values.length - start;
-
-	int[] retVal = new int[retLength];
-
-	for (int i = 0; i < retLength; i++) {
-		retVal[i] = (int) values[i + start];
-	}
-	return retVal;
+//	int retLength = values.length() - start;
+//
+//	int[] retVal = new int[retLength];
+//
+//	for (int i = 0; i < retLength; i++) {
+//		retVal[i] = (int) values.get(i + start);
+//	}
+//	return retVal;
 }
 
 /**
@@ -280,27 +283,37 @@ public int[] getValuesI(int start) {
  */
 public IntArrayPtr getValuesIntArrayPtr(int start) {
 	evaluate();
+	
+	if( values == null ) {
+		return null;
+	}
 
 	return new IntArrayPtr(start, values);
 }
 
 public int operator_square_bracketI(int i) {
 	evaluate();
-	return (int) values[i];
+	return (int) values.get(i);
 }
 
-public Object operator_square_bracket(int i) {
-	evaluate();
-	return (Integer) values[i];
-}
+//public Integer operator_square_bracket(int i) {
+//	evaluate();
+//	return (Integer) values.getO(i);
+//}
 
 // ! Copies value indexed by "from" to value indexed by "to"
 protected void copyValue(int to, int from) {
-	values[to] = values[from];
+	values.set(to, values.get(from));
 }
 
-/* Get non-const pointer into array of values for batch edits */          
-public int[] startEditingI()                                
-    { evaluate(); return values; }                                        
+
+@Override
+public IntArray doGetValues(int start) {	
+	return values.plus(start);
+}
+
+///* Get non-const pointer into array of values for batch edits */          
+//public int[] startEditingI()                                
+//    { evaluate(); return values; }                                        
                                                                           
 }

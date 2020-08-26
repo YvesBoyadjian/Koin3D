@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.fields;
 import java.util.function.IntConsumer;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.IntArray;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of uint32_tegers.
@@ -85,9 +86,9 @@ example:
  * @author Yves Boyadjian
  *
  */
-public class SoMFUInt32 extends SoMField<Object> {
+public class SoMFUInt32 extends SoMField<Integer, IntArray> {
 
-	private int[] values;
+	//private int[] values;
 
 	@Override
 	protected Integer constructor() {
@@ -95,55 +96,55 @@ public class SoMFUInt32 extends SoMField<Object> {
 	}
 
 	@Override
-	protected Integer[] arrayConstructor(int length) {
-		return new Integer[length];
+	protected IntArray arrayConstructor(int length) {
+		return new IntArray(length);
 	}
 
 
-protected void allocValues(int newNum) {
-	if (values == null) {
-		if (newNum > 0) {
-			values = new int[newNum];
-		}
-	} else {
-		int[] oldValues = values;
-		int i;
-
-		if (newNum > 0) {
-			values = new int[newNum];
-			for (i = 0; i < num && i < newNum; i++)
-				values[i] = oldValues[i];
-		} else
-			values = null;
-		// delete [] oldValues; java port
-	}
-
-	num = maxNum = newNum;
-}
+//protected void allocValues(int newNum) {
+//	if (values == null) {
+//		if (newNum > 0) {
+//			values = new int[newNum];
+//		}
+//	} else {
+//		int[] oldValues = values;
+//		int i;
+//
+//		if (newNum > 0) {
+//			values = new int[newNum];
+//			for (i = 0; i < num && i < newNum; i++)
+//				values[i] = oldValues[i];
+//		} else
+//			values = null;
+//		// delete [] oldValues; java port
+//	}
+//
+//	num = maxNum = newNum;
+//}
 
 //! Copies value indexed by "from" to value indexed by "to"
 protected void copyValue(int to, int from) {
-	values[to] = values[from];
+	values.set(to, values.get(from));
 }
 
 	
 	// java port
-	public int[] getValuesI(int start) {
-		evaluate();
-		
-		if(start == 0) {
-			return values;
-		}
-
-		int retLength = values.length - start;
-
-		int[] retVal = new int[retLength];
-
-		for (int i = 0; i < retLength; i++) {
-			retVal[i] = (int) values[i + start];
-		}
-		return retVal;
-	}
+//	public int[] getValuesI(int start) {
+//		evaluate();
+//		
+//		if(start == 0) {
+//			return values;
+//		}
+//
+//		int retLength = values.length - start;
+//
+//		int[] retVal = new int[retLength];
+//
+//		for (int i = 0; i < retLength; i++) {
+//			retVal[i] = (int) values[i + start];
+//		}
+//		return retVal;
+//	}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -161,7 +162,7 @@ public boolean read1Value(SoInput in, int index)
 
 		@Override
 		public void accept(int value) {
-			values[index] = value;
+			values.set(index, value);
 		}
 	});
 }
@@ -169,7 +170,7 @@ public boolean read1Value(SoInput in, int index)
 /* Set field to have one value */
 public void setValue(int newValue) {
 	makeRoom(1);
-	values[0] = newValue;
+	values.set(0, newValue);
 	valueChanged();
 }
 
@@ -186,7 +187,7 @@ public void setValues(int start, int[] newValues) {
 		makeRoom(newNum);
 
 	for (i = 0; i < localNum; i++) {
-		values[start + i] = newValues[i];
+		values.set(start + i, newValues[i]);
 	}
 	valueChanged();
 
@@ -194,7 +195,12 @@ public void setValues(int start, int[] newValues) {
 
 public int operator_square_bracketI(int i) {
 	evaluate();
-	return (int) values[i];
+	return (int) values.get(i);
+}
+
+@Override
+public IntArray doGetValues(int start) {
+	return values.plus(start);
 }
 
 }

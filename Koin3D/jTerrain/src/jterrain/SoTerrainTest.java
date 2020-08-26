@@ -67,6 +67,7 @@ import jscenegraph.database.inventor.sensors.SoTimerSensor;
 import jscenegraph.interaction.inventor.SoSceneManager;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.IntArray;
 import jscenegraph.port.SbVec2fArray;
 import jscenegraph.port.SbVec3fArray;
 import jsceneviewer.inventor.qt.SoQt;
@@ -743,17 +744,17 @@ public class SoTerrainTest {
 
 	      /* Create terrain heightmap vertices indices. */
 	      terrain.coordIndex.setNum((height[0] - 1) * ((2 * width[0]) + 1));
-	      int[] indices = terrain.coordIndex.startEditingI();
+	      IntArray indices = terrain.coordIndex.startEditing();
 
 	      int I = 0;
 	      for (int Y = 0; Y < (height[0] - 1); Y++)
 	      {
 	        for (int X = 0; X < width[0]; X++)
 	        {
-	          indices[I++] = (Y * width[0]) + X;
-	          indices[I++] = ((Y + 1) * width[0]) + X;
+	          indices.set(I, (Y * width[0]) + X); I++;
+	          indices.set(I, ((Y + 1) * width[0]) + X); I++;
 	        }
-	        indices[I++] = -1;
+	        indices.set(I, -1); I++;
 	      }
 	      terrain.coordIndex.finishEditing();
 	      separator.addChild(terrain);

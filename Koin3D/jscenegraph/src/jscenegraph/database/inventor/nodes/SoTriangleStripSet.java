@@ -606,7 +606,7 @@ public void GLRender(SoGLRenderAction action)
 	  int idx = startIndex.getValue();
 	  int[] dummyarray = new int[1];
 	  IntArrayPtr ptr = numVertices.getValuesIntArrayPtr(0);
-	  IntArrayPtr end = ptr.plus(numVertices.getNum());
+	  IntArrayPtr end = IntArrayPtr.plus(ptr,numVertices.getNum());
 	  IntArrayPtr[] dptr = new IntArrayPtr[1]; dptr[0] = ptr;
 	  IntArrayPtr[] dend = new IntArrayPtr[1]; dend[0] = end;
 	  this.fixNumVerticesPointers(action.getState(), dptr, dend, dummyarray);
@@ -629,7 +629,7 @@ public void GLRender(SoGLRenderAction action)
 	  vertex.setNormal(currnormal.get(0));
 	  vertex.setDetail(pointDetail);
 
-	  while (ptr.lessThan(end)) {
+	  while (IntArrayPtr.lessThan(ptr,end)) {
 	    n = ptr.get() - 3; ptr.plusPlus();
 	    if (n < 0) continue; // triangle with < 3 vertices, try next one
 
@@ -989,7 +989,7 @@ public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
   int numCoords = 0;
   SoVertexProperty vp = getVertexProperty();
   SoCoordinateElement ce = null;
-  SbVec3f[] coords = null;
+  SbVec3fArray coords = null;
   if (vp != null && (numCoords = vp.vertex.getNum()) > 0) {
     coords = vp.vertex.getValues(0);
   } else {
@@ -1014,9 +1014,9 @@ public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
     for (int vert = 0; vert < vertsInStrip-2; vert++) {
       SbVec3f coord0, coord1, coord2;
       if (coords != null) {
-        coord0 = coords[curCoord];
-        coord1 = coords[curCoord+1];
-        coord2 = coords[curCoord+2];
+        coord0 = coords.getO(curCoord);
+        coord1 = coords.getO(curCoord+1);
+        coord2 = coords.getO(curCoord+2);
       } else {
         coord0 = ce.get3(curCoord);
         coord1 = ce.get3(curCoord+1);

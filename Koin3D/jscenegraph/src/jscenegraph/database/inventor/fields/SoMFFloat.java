@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.FloatArray;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ The last comma is optional.
  * @author Yves Boyadjian
  *
  */
-public class SoMFFloat extends SoMField<Float> {
+public class SoMFFloat extends SoMField<Float,FloatArray> {
 
     public void setValue(float newValue) {
     	super.setValue(newValue);
@@ -95,11 +96,12 @@ public class SoMFFloat extends SoMField<Float> {
      */
     public void setValues(int start, float[] newValues) {
     	int nbFloats = newValues.length;
-    	Float[] floats = new Float[nbFloats];
+    	FloatArray floats = new FloatArray(nbFloats);
     	for(int i=0;i<nbFloats;i++) {
-    		floats[i] = newValues[i];
+    		floats.set(i, newValues[i]);
     	}
 		setValues(start, floats);
+		floats.getValues().destructor(); // java port
     }
 
 	@Override
@@ -108,28 +110,28 @@ public class SoMFFloat extends SoMField<Float> {
 	}
 
 	@Override
-	protected Float[] arrayConstructor(int length) {
-		return new Float[length];
+	protected FloatArray arrayConstructor(int length) {
+		return new FloatArray(length);
 	}
 
 	// java port
 	public float[] getValuesFloat(int index) {
-		Float[] valuesFloat = getValues(index);
-		int returnLength = valuesFloat.length;
+		FloatArray valuesFloat = getValues(index);
+		int returnLength = valuesFloat.length();
 		float[] returnValue = new float[returnLength];
 		for(int i=0; i< returnLength;i++) {
-			returnValue[i] = valuesFloat[i];
+			returnValue[i] = valuesFloat.get(i);
 		}
 		return returnValue;
 	}
 
 	// java port
 	public FloatMemoryBuffer getValuesFloat() {
-		Float[] valuesFloat = getValues(0);
-		int returnLength = valuesFloat.length;
+		FloatArray valuesFloat = getValues(0);
+		int returnLength = valuesFloat.length();
 		float[] returnValue = new float[returnLength];
 		for(int i=0; i< returnLength;i++) {
-			returnValue[i] = valuesFloat[i];
+			returnValue[i] = valuesFloat.get(i);
 		}
 		return FloatMemoryBuffer.allocateFromFloatArray(returnValue);
 	}
@@ -147,10 +149,15 @@ public boolean read1Value(SoInput in, int index)
 {
 	final float[] ret = new float[1];
     if( in.read(ret)) {    	
-    	values[index] = ret[0];
+    	values.setO(index, ret[0]);
     	return true;
     }
     return false;
+}
+
+@Override
+public FloatArray doGetValues(int start) {
+	return new FloatArray(start,values);
 }
 
 }

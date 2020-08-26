@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.SbNameArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,15 +89,15 @@ example:
  * @author Yves Boyadjian
  *
  */
-public class SoMFName extends SoMField<SbName> {
+public class SoMFName extends SoMField<SbName,SbNameArray> {
 	
-	public void set1Value(int index, SbName newValue)                            
-	   {                                                                             
-	       if (index >= getNum())                                                    
-	           makeRoom(index + 1);                                                  
-	       values[index] = newValue;                                                 
-	       valueChanged();                                                           
-	   }
+//	public void set1Value(int index, SbName newValue)                            
+//	   {                                                                             
+//	       if (index >= getNum())                                                    
+//	           makeRoom(index + 1);                                                  
+//	       values[index] = newValue;                                                 
+//	       valueChanged();                                                           
+//	   }
 
 	@Override
 	protected SbName constructor() {
@@ -104,8 +105,8 @@ public class SoMFName extends SoMField<SbName> {
 	}
 
 	@Override
-	protected SbName[] arrayConstructor(int length) {
-		return new SbName[length];
+	protected SbNameArray arrayConstructor(int length) {
+		return new SbNameArray(length);
 	}
 	
 
@@ -120,7 +121,12 @@ public boolean read1Value(SoInput in, int index)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    return in.read(values[index]);
+    return in.read(values.getO(index));
+}
+
+@Override
+public SbNameArray doGetValues(int start) {
+	return values.plus(start);
 }
 
 }

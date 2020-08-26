@@ -524,8 +524,8 @@ figureNormals(SoState state, SoNormalBundle nb)
 //
 // Use: private
 
-private SbVec3f VX(int r, int c, SbVec3f[] vpCoords, int numPerRow, int t) {
-	return vpCoords[((int) (t + (r) * numPerRow + (c)))];
+private SbVec3f VX(int r, int c, SbVec3fArray vpCoords, int numPerRow, int t) {
+	return vpCoords.get(((int) (t + (r) * numPerRow + (c))));
 }
 		
 private SbVec3f CX(int r, int c, final SoCoordinateElement   ce, int numPerRow, int t) {
@@ -545,7 +545,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
     final SbVec3f     dr = new SbVec3f(), dc = new SbVec3f(), norm = new SbVec3f();
     SbVec3fArray normals;
     SoCoordinateElement   ce = null;
-    SbVec3f[]               vpCoords = null;
+    SbVec3fArray               vpCoords = null;
 
     SoVertexProperty vp = getVertexProperty();
     if (vp!=null && vp.vertex.getNum() > 0) {

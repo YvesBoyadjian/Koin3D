@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.StringArray;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of strings.
@@ -79,7 +80,7 @@ precede it with a backslash.  For example:
  * @author Yves Boyadjian
  *
  */
-public class SoMFString extends SoMField<String> {
+public class SoMFString extends SoMField<String,StringArray> {
 
 	@Override
 	protected String constructor() {
@@ -87,8 +88,8 @@ public class SoMFString extends SoMField<String> {
 	}
 
 	@Override
-	protected String[] arrayConstructor(int length) {
-		return new String[length];
+	protected StringArray arrayConstructor(int length) {
+		return new StringArray(length);
 	}
 
 
@@ -105,10 +106,21 @@ public boolean read1Value(SoInput in, int index)
 {
 	final String[] ret = new String[1];
     if (in.read(ret)) {
-    	values[index] = ret[0];
+    	values.setO(index, ret[0]);
     	return true;
     }
     return false;
 }
 
+@Override
+public StringArray doGetValues(int start) {
+	return values.plus(start);
+}
+
+	public void setValues(int start, String[] values) {
+		int length = values.length;
+		for( int i=0; i<length;i++) {
+			this.values.setO(i+start, values[i]);
+		}
+	}
 }

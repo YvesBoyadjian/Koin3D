@@ -50,12 +50,13 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.ShortArray;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoMFShort extends SoMField<Short> {
+public class SoMFShort extends SoMField<Short,ShortArray> {
 
 	/**
 	 * 
@@ -72,7 +73,7 @@ public class SoMFShort extends SoMField<Short> {
 		  assert(idx < this.maxNum);
 		  final short[] dummy = new short[1];
 		  if( in.read(/*this.values[idx]*/dummy)) {
-			  this.values[idx] = dummy[0];
+			  this.values.setO(idx, dummy[0]);
 			  return true;
 		  }
 		  return false;
@@ -90,8 +91,8 @@ public class SoMFShort extends SoMField<Short> {
 	 * @see jscenegraph.database.inventor.fields.SoMField#arrayConstructor(int)
 	 */
 	@Override
-	protected Short[] arrayConstructor(int length) {
-		return new Short[length];
+	protected ShortArray arrayConstructor(int length) {
+		return new ShortArray(length);
 	}
 
 
@@ -101,5 +102,10 @@ public class SoMFShort extends SoMField<Short> {
 	getNumValuesPerLine()
 	{
 	  return 8;
+	}
+
+	@Override
+	public ShortArray doGetValues(int start) {
+		return values.plus(start);
 	}
 }

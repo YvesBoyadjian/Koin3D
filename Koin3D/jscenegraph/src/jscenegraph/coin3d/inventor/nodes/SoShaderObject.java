@@ -486,8 +486,8 @@ readSource()
     if (this.cachedSourceType != SoShaderObject.SourceType.FILENAME) {
 
       final SbStringList subdirs = new SbStringList();
-      subdirs.append(new String("shader"));
-      subdirs.append(new String("shaders"));
+      subdirs.append("shader");
+      subdirs.append("shaders");
       String fileName = SoInput.searchForFile(this.owner.sourceProgram.getValue(),
                                                  this.searchdirectories,
                                                  subdirs);

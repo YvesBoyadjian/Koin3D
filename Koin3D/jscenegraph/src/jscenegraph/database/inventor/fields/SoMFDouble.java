@@ -4,12 +4,13 @@
 package jscenegraph.database.inventor.fields;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.DoubleArray;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoMFDouble extends SoMField<Double> { //TODO
+public class SoMFDouble extends SoMField<Double,DoubleArray> { //TODO
 
 	/* (non-Javadoc)
 	 * @see jscenegraph.database.inventor.fields.SoMField#constructor()
@@ -23,8 +24,8 @@ public class SoMFDouble extends SoMField<Double> { //TODO
 	 * @see jscenegraph.database.inventor.fields.SoMField#arrayConstructor(int)
 	 */
 	@Override
-	protected Double[] arrayConstructor(int length) {
-		return new Double[length];
+	protected DoubleArray arrayConstructor(int length) {
+		return new DoubleArray(length);
 	}
 
 
@@ -41,10 +42,15 @@ public boolean read1Value(SoInput in, int index)
 {
 	final double[] ret = new double[1]; 
 	if( in.read(ret)) {
-		values[index] = ret[0];
+		values.setO(index, ret[0]);
 		return true;
 	}
 	return false;
+}
+
+@Override
+public DoubleArray doGetValues(int start) {
+	return new DoubleArray(start,values);
 }
 
 }

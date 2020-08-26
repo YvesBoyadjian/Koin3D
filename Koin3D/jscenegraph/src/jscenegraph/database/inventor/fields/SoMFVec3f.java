@@ -97,20 +97,20 @@ example:
  * @author Yves Boyadjian
  *
  */
-public class SoMFVec3f extends SoMField<SbVec3f> {
+public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 	
 //	private float[] valuesArray;
 //	
 //	private FloatBuffer[] valuesBuffer = new FloatBuffer[1];
 //	
-	private SbVec3fArray vec3fArray;
+	//private SbVec3fArray vec3fArray;
 	private FloatArray floatArray;
 	
 	private FloatMemoryBuffer valuesArray;
 	
 	public SoMFVec3f() {
 		super();
-		allocValues(0);
+		//allocValues(0);
 	}
 
 	/**
@@ -131,16 +131,16 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	}
 
 	/* Get pointer into array of values */
-	@Deprecated
-	public SbVec3f[] getValues(int start) {
-		evaluate();
-
-		SbVec3f[] shiftedValues = new SbVec3f[valuesArray.numFloats()/3 - start];
-		for (int i = start; i < valuesArray.numFloats()/3; i++) {
-			shiftedValues[i - start] = new SbVec3f(valuesArray,i*3);
-		}
-		return shiftedValues;
-	}
+//	@Deprecated
+//	public SbVec3f[] getValues(int start) {
+//		evaluate();
+//
+//		SbVec3f[] shiftedValues = new SbVec3f[valuesArray.numFloats()/3 - start];
+//		for (int i = start; i < valuesArray.numFloats()/3; i++) {
+//			shiftedValues[i - start] = new SbVec3f(valuesArray,i*3);
+//		}
+//		return shiftedValues;
+//	}
 
 	/* Get pointer into array of values 
 	 * 
@@ -154,40 +154,30 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		return shiftedValues;
 	}
 
-	@Deprecated
-	public ByteBuffer getValuesBytes(int start) {
-		FloatArray values = getValuesArray(start);
-		return Util.toByteBuffer(values);
-	}
+//	@Deprecated
+//	public ByteBuffer getValuesBytes(int start) {
+//		FloatArray values = getValuesArray(start);
+//		return Util.toByteBuffer(values);
+//	}
 
-	// java port
-	@Deprecated
-	public float[] getValuesFloat(int start) {
-		evaluate();
-
-		float[] shiftedValues = new float[(valuesArray.numFloats()/3 - start) * 3];
-		int index = 0;
-		for (int i = start; i < valuesArray.numFloats()/3; i++) {
-			shiftedValues[index] = valuesArray.getFloat(i*3);
-			index++;
-			shiftedValues[index] = valuesArray.getFloat(i*3+1);
-			index++;
-			shiftedValues[index] = valuesArray.getFloat(i*3+2);
-			index++;
-		}
-		return shiftedValues;
-	}
+//	// java port
+//	@Deprecated
+//	public float[] getValuesFloat(int start) {
+//		evaluate();
+//
+//		float[] shiftedValues = new float[(valuesArray.numFloats()/3 - start) * 3];
+//		int index = 0;
+//		for (int i = start; i < valuesArray.numFloats()/3; i++) {
+//			shiftedValues[index] = valuesArray.getFloat(i*3);
+//			index++;
+//			shiftedValues[index] = valuesArray.getFloat(i*3+1);
+//			index++;
+//			shiftedValues[index] = valuesArray.getFloat(i*3+2);
+//			index++;
+//		}
+//		return shiftedValues;
+//	}
 	
-	/**
-	 * Java port
-	 * @return
-	 */
-	public float[] getValuesRef() {
-		evaluate();
-		
-		return valuesArray.toFloatArray();
-	}
-
 	// Set values from array of arrays of 3 floats.
 
 	//
@@ -251,6 +241,7 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		makeRoom(0);
 		  if (userdata != null) { 
 			    valuesArray = userdata;
+			    values = new SbVec3fArray(valuesArray);
 //			    if(buffer != null && buffer.capacity() == userdata.length) {
 //			    	valuesBuffer[0] = buffer;
 //			    }
@@ -332,8 +323,8 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	}
 
 	@Override
-	protected SbVec3f[] arrayConstructor(int length) {
-		return new SbVec3f[length];
+	protected SbVec3fArray arrayConstructor(int length) {
+		return new SbVec3fArray(FloatMemoryBuffer.allocateFloats(length*3));
 	}
 	
 	private FloatMemoryBuffer arrayConstructorInternal(int length) {
@@ -367,39 +358,44 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	    set1Value(index, new SbVec3f(x, y, z));		
 	}
 
-	protected void allocValues(int newNum) {
-		if (valuesArray == null) {
-			//if (newNum > 0) {
-				valuesArray = arrayConstructorInternal(newNum);
-			//}
-		} else {
-			FloatMemoryBuffer oldValues = valuesArray;
-			int i;
-
-			//if (newNum > 0) {
-				valuesArray = arrayConstructorInternal(newNum);
-				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
-					valuesArray.setFloat(3*i, oldValues.getFloat(3*i));
-					valuesArray.setFloat(3*i+1, oldValues.getFloat(3*i+1));
-					valuesArray.setFloat(3*i+2, oldValues.getFloat(3*i+2));
-				}
-			//} else
-			//	valuesArray = null;
-			if( vec3fArray != null ) {
-//				if( VoidPtr.has(vec3fArray)) {
-//					Destroyable.delete(VoidPtr.create(vec3fArray));
-//				}
-				//Destroyable.delete(vec3fArray);
-				vec3fArray = null;
-			}
-			if ( floatArray != null) {
-				floatArray = null;
-			}
-			// delete [] oldValues; java port
-		}
-
-		num = maxNum = newNum;
+	protected void allocValues(int newnum) {
+		super.allocValues(newnum);		
+		valuesArray = (values != null ? values.getValuesArray() : null);
 	}
+	
+//	protected void allocValues(int newNum) {
+//		if (valuesArray == null) {
+//			//if (newNum > 0) {
+//				valuesArray = arrayConstructorInternal(newNum);
+//			//}
+//		} else {
+//			FloatMemoryBuffer oldValues = valuesArray;
+//			int i;
+//
+//			//if (newNum > 0) {
+//				valuesArray = arrayConstructorInternal(newNum);
+//				for (i = 0; i < num && i < newNum; i++) { // FIXME : array optimisation
+//					valuesArray.setFloat(3*i, oldValues.getFloat(3*i));
+//					valuesArray.setFloat(3*i+1, oldValues.getFloat(3*i+1));
+//					valuesArray.setFloat(3*i+2, oldValues.getFloat(3*i+2));
+//				}
+//			//} else
+//			//	valuesArray = null;
+//			if( values != null ) {
+////				if( VoidPtr.has(vec3fArray)) {
+////					Destroyable.delete(VoidPtr.create(vec3fArray));
+////				}
+//				//Destroyable.delete(vec3fArray);
+//				values = null;
+//			}
+//			if ( floatArray != null) {
+//				floatArray = null;
+//			}
+//			// delete [] oldValues; java port
+//		}
+//
+//		num = maxNum = newNum;
+//	}
 
 	/* Set field to have one value */
 	public void setValue(SbVec3f newValue) {
@@ -411,11 +407,11 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 	}
 
     /* Get non-const pointer into array of values for batch edits */          
-    public SbVec3f[] startEditing()                                
-        { 
-    	evaluate(); 
-    	return getValues(0); 
-    	}                                        
+//    public SbVec3f[] startEditing()                                
+//        { 
+//    	evaluate(); 
+//    	return getValues(0); 
+//    	}                                        
                                                                               
 	/* Set 1 value at given index */
 	public void set1Value(int index, SbVec3f newValue) {
@@ -441,10 +437,11 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
     public SbVec3fArray getValuesSbVec3fArray() {
 		evaluate();
 				
-		if( vec3fArray == null || vec3fArray.getValuesArray() != valuesArray ) {
-			vec3fArray = new SbVec3fArray(valuesArray);
-		}
-		return vec3fArray;
+//		if( vec3fArray == null || vec3fArray.getValuesArray() != valuesArray ) {
+//			vec3fArray = new SbVec3fArray(valuesArray);
+//		}
+//		return vec3fArray;
+		return values;
     }
 
 
@@ -456,5 +453,10 @@ public class SoMFVec3f extends SoMField<SbVec3f> {
 		}
 		return floatArray;
     }
+
+	@Override
+	public SbVec3fArray doGetValues(int start) {		
+		return values.plus(start);
+	}
 }
 

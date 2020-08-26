@@ -269,16 +269,16 @@ SoTextureCombine_doAction(SoAction action)
   };
   int i;
   for (i = 0; i < this.rgbSource.getNum() && i < 3; i++) {
-    rgbsource[i] = SoTextureCombineElement.Source.fromValue( this.rgbSource.getValues(0)[i]);
+    rgbsource[i] = SoTextureCombineElement.Source.fromValue( this.rgbSource.getValues(0).get(i));
   }
   for (i = 0; i < this.alphaSource.getNum() && i < 3; i++) {
-    alphasource[i] = SoTextureCombineElement.Source.fromValue(this.alphaSource.getValues(0)[i]);
+    alphasource[i] = SoTextureCombineElement.Source.fromValue(this.alphaSource.getValues(0).get(i));
   }
   for (i = 0; i < this.rgbOperand.getNum() && i < 3; i++) {
-    rgboperand[i] = SoTextureCombineElement.Operand.fromValue( this.rgbOperand.getValues(0)[i]);
+    rgboperand[i] = SoTextureCombineElement.Operand.fromValue( this.rgbOperand.getValues(0).get(i));
   }
   for (i = 0; i < this.alphaOperand.getNum() && i < 3; i++) {
-    alphaoperand[i] = SoTextureCombineElement.Operand.fromValue( this.alphaOperand.getValues(0)[i]);
+    alphaoperand[i] = SoTextureCombineElement.Operand.fromValue( this.alphaOperand.getValues(0).get(i));
   }
 
   final SbColor4f col = new SbColor4f();

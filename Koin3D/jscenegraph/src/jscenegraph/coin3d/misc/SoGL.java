@@ -1333,7 +1333,7 @@ private static int current_errors = 0;
         current_errors++;
         break;
       }
-      if(viptr.lessThan(viendptr)) { v4 = viptr.get(); viptr.plusPlus();} else { v4 = -1;};
+      if(IntArrayPtr.lessThan(viptr,viendptr)) { v4 = viptr.get(); viptr.plusPlus();} else { v4 = -1;};
       if (v4  < 0) newmode = GL2.GL_TRIANGLES;
       // This test for numverts is for robustness upon buggy data sets
       else if (v4 >= numverts) {
@@ -1349,7 +1349,7 @@ private static int current_errors = 0;
         current_errors++;
       }
       else {
-        if(viptr.lessThan(viendptr)) { v5 = viptr.get(); viptr.plusPlus(); } else {v5 = -1;}
+        if(IntArrayPtr.lessThan(viptr,viendptr)) { v5 = viptr.get(); viptr.plusPlus(); } else {v5 = -1;}
         if (v5 < 0) newmode = GL2.GL_QUADS;
         // This test for numverts is for robustness upon buggy data sets
         else if (v5 >= numverts) {
@@ -1599,7 +1599,7 @@ private static int current_errors = 0;
 
           SEND_VERTEX(v5,is3d,coords3d,coords4d,gl2);
 
-          if(viptr.lessThan(viendptr)) { v1 = viptr.get(); viptr.plusPlus();}else { v1 = -1;}
+          if(IntArrayPtr.lessThan(viptr,viendptr)) { v1 = viptr.get(); viptr.plusPlus();}else { v1 = -1;}
           while (v1 >= 0) {
             // For robustness upon buggy data sets
             if (v1 >= numverts) {
@@ -1658,7 +1658,7 @@ private static int current_errors = 0;
             }
             SEND_VERTEX(v1,is3d,coords3d,coords4d,gl2);
 
-            if(viptr.lessThan(viendptr)) { v1 = viptr.get(); viptr.plusPlus();}else {v1 = -1;}
+            if(IntArrayPtr.lessThan(viptr,viendptr)) { v1 = viptr.get(); viptr.plusPlus();}else {v1 = -1;}
           }
           gl2.glEnd(); /* draw polygon */
         }

@@ -511,13 +511,13 @@ generatePerFace(SbVec3fArray coords,
   pimpl.normalArray.truncate(0, true);
 
   IntArrayPtr cstart = new IntArrayPtr(cind);
-  IntArrayPtr endptr = cind.plus(nv);
+  IntArrayPtr endptr = IntArrayPtr.plus(cind,nv);
 
   final SbVec3fSingle tmpvec = new SbVec3fSingle();
 
   int maxcoordidx = numcoords - 1;
 
-  while (cind.plus(2).lessThan(endptr)) {
+  while (IntArrayPtr.lessThan(IntArrayPtr.plus(cind,2),endptr)) {
     int v0 = cind.get(0);
     int v1 = cind.get(1);
     int v2 = cind.get(2);
@@ -539,23 +539,23 @@ generatePerFace(SbVec3fArray coords,
 
       // Skip ahead to next possible index
       if (cind.get(0) < 0 || cind.get(0) > maxcoordidx) {
-        cind = cind.plus(1);
+        cind = IntArrayPtr.plus(cind,1);
       }
       else if (cind.get(1) < 0 || cind.get(1) > maxcoordidx) {
-        cind = cind.plus(2);
+        cind = IntArrayPtr.plus(cind,2);
       }
-      else if (cind.plus(3).lessThan(endptr) && (cind.get(2) < 0 || cind.get(2) > maxcoordidx)) {
-        cind = cind.plus(3);
+      else if (IntArrayPtr.lessThan(IntArrayPtr.plus(cind,3),endptr) && (cind.get(2) < 0 || cind.get(2) > maxcoordidx)) {
+        cind = IntArrayPtr.plus(cind,3);
       }
       else {
-        cind = cind.plus(3); // For robustness check after while loop
+        cind = IntArrayPtr.plus(cind,3); // For robustness check after while loop
         break;
       }
 
       continue;
     }
     
-    if (cind.plus(3).greaterOrEqual(endptr) || cind.get(3) < 0 || cind.get(3) > maxcoordidx) { // triangle
+    if (IntArrayPtr.plus(cind,3).greaterOrEqual(endptr) || cind.get(3) < 0 || cind.get(3) > maxcoordidx) { // triangle
       if (!ccw)
         tmpvec.copyFrom((coords.get(v0).operator_minus(coords.get(v1))).cross(coords.get(v2).operator_minus(coords.get(v1))));
       else
@@ -575,7 +575,7 @@ generatePerFace(SbVec3fArray coords,
       }
       
       pimpl.normalArray.append(new SbVec3f(tmpvec));
-      cind = cind.plus(4); // goto next triangle/polygon
+      cind = IntArrayPtr.plus(cind,4); // goto next triangle/polygon
     }
     else { // more than 3 vertices
       // use Newell's method to calculate normal vector
@@ -587,7 +587,7 @@ generatePerFace(SbVec3fArray coords,
       // The cind < endptr check makes us robust with regard to a
       // missing "-1" termination of the coordIndex field of the
       // IndexedShape nodetype.
-      while (cind.lessThan(endptr) && cind.get() >= 0 && cind.get() <= maxcoordidx) {
+      while (IntArrayPtr.lessThan(cind,endptr) && cind.get() >= 0 && cind.get() <= maxcoordidx) {
         vert1 = SbVec3fArray.copyOf(vert2);
         vert2 = coords.plus(cind.starPlusPlus());
         tmpvec.getValue()[0] += ((vert1.get(0)).getValueRead()[1] - (vert2.get(0)).getValueRead()[1]) * ((vert1.get(0)).getValueRead()[2] + (vert2.get(0)).getValueRead()[2]);
@@ -662,7 +662,7 @@ generatePerFaceStrip(SbVec3fArray coords,
   pimpl.normalArray.truncate(0, true);
 
   IntArrayPtr cstart = new IntArrayPtr(cind);
-  IntArrayPtr endptr = cind.plus(nv);
+  IntArrayPtr endptr = IntArrayPtr.plus(cind,nv);
 
   SbVec3fArray c0, c1, c2; //ptr
   final SbVec3f n = new SbVec3f();
@@ -671,12 +671,12 @@ generatePerFaceStrip(SbVec3fArray coords,
 
   int maxcoordidx = numcoords - 1;
 
-  while (cind.plus(2).lessThan(endptr)) {
+  while (IntArrayPtr.lessThan(IntArrayPtr.plus(cind,2),endptr)) {
     if (cind.get(0) < 0 || cind.get(1) < 0 || cind.get(2) < 0 ||
         cind.get(0) > maxcoordidx || cind.get(1) > maxcoordidx || cind.get(2) > maxcoordidx) {
 //#if COIN_DEBUG
       SoDebugError.postWarning("SoNormalCache::generatePerFaceStrip", "Erroneous "+
-                                "coordinate index detected (offset: "+cind.minus(cstart)+", ["+cind.get()+" "+cind.plus(1).get()+" "+cind.plus(2).get()+"]). Should be "+
+                                "coordinate index detected (offset: "+cind.minus(cstart)+", ["+cind.get()+" "+IntArrayPtr.plus(cind,1).get()+" "+IntArrayPtr.plus(cind,2).get()+"]). Should be "+
                                 "within [0, "+maxcoordidx+"]."
                                 );
 //#endif // COIN_DEBUG
@@ -688,16 +688,16 @@ generatePerFaceStrip(SbVec3fArray coords,
 
       // Skip to next possibly valid index
       if (cind.get(0) < 0 || cind.get(0) > maxcoordidx) {
-        cind = cind.plus(1);
+        cind = IntArrayPtr.plus(cind,1);
       }
       else if (cind.get(1) < 0 || cind.get(1) > maxcoordidx) {
-        cind = cind.plus(2);
+        cind = IntArrayPtr.plus(cind,2);
       }
-      else if (cind.plus(3).lessThan(endptr) && (cind.get(2) < 0 || cind.get(2) > maxcoordidx)) {
-        cind = cind.plus(3);
+      else if (IntArrayPtr.lessThan(IntArrayPtr.plus(cind,3),endptr) && (cind.get(2) < 0 || cind.get(2) > maxcoordidx)) {
+        cind = IntArrayPtr.plus(cind,3);
       }
       else {
-        cind = cind.plus(3); // For robustness check after while loop
+        cind = IntArrayPtr.plus(cind,3); // For robustness check after while loop
         break;
       }
 
@@ -730,7 +730,7 @@ generatePerFaceStrip(SbVec3fArray coords,
     
     pimpl.normalArray.append(n);
 
-    int idx = cind.lessThan(endptr) ? cind.starPlusPlus() : -1;
+    int idx = IntArrayPtr.lessThan(cind,endptr) ? cind.starPlusPlus() : -1;
     while (idx >= 0 && idx <= maxcoordidx) {
       c0 = SbVec3fArray.copyOf(c1);
       c1 = SbVec3fArray.copyOf(c2);
@@ -753,7 +753,7 @@ generatePerFaceStrip(SbVec3fArray coords,
       }
 
       pimpl.normalArray.append(n);
-      idx = cind.lessThan(endptr) ? cind.starPlusPlus() : -1;
+      idx = IntArrayPtr.lessThan(cind,endptr) ? cind.starPlusPlus() : -1;
     }
 //#if COIN_DEBUG
     if (idx > maxcoordidx) {

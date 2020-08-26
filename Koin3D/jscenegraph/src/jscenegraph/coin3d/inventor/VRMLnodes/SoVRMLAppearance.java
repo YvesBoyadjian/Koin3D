@@ -164,7 +164,7 @@ public void GLRender(SoGLRenderAction action)
 
     // lock just in case two threads get here at the same time
     pimpl.lock();
-    pimpl.fakecolor[0] = 0xffffff00 | alpha;
+    pimpl.fakecolor.set(0, 0xffffff00 | alpha);
     pimpl.unlock();
     SoLazyElement.setPacked(state, this, 1, pimpl.fakecolor, alpha != 255);
   }

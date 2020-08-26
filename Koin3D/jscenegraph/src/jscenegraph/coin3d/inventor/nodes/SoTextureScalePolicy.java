@@ -93,6 +93,7 @@ convert_policy( SoTextureScalePolicy.Policy policy)
   switch (policy) {
   default:
     assert(false);// && "unknown policy");
+    break;
   case USE_TEXTURE_QUALITY:
     return SoTextureScalePolicyElement.Policy.USE_TEXTURE_QUALITY;
     //break;
@@ -107,7 +108,7 @@ convert_policy( SoTextureScalePolicy.Policy policy)
     //break;
   }
   // needed for gcc 4.0.1 (Mac OS X)
-  //return SoTextureScalePolicyElement.Policy.USE_TEXTURE_QUALITY;
+  return SoTextureScalePolicyElement.Policy.USE_TEXTURE_QUALITY;
 }
 
 // Doc from superclass.

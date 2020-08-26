@@ -16,6 +16,7 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.database.inventor.nodes.SoSubNode;
+import jscenegraph.port.SbVec2fArray;
 
 /**
  * @author Yves Boyadjian
@@ -77,12 +78,12 @@ public class SoVRMLExtrusion extends SoVRMLGeometry {
 
 	  nodeHeader.SO_NODE_ADD_MFIELD(crossSection,"crossSection", new SbVec2f(0.0f, 0.0f));
 	  this.crossSection.setNum(5);
-	  SbVec2f[] cs = this.crossSection.startEditing();
-	  cs[0] = new SbVec2f(1.0f, 1.0f);
-	  cs[1] = new SbVec2f(1.0f, -1.0f);
-	  cs[2] = new SbVec2f(-1.0f, -1.0f);
-	  cs[3] = new SbVec2f(-1.0f, 1.0f);
-	  cs[4] = new SbVec2f(1.0f, 1.0f);
+	  SbVec2fArray cs = this.crossSection.startEditing();
+	  cs.setO(0, new SbVec2f(1.0f, 1.0f));
+	  cs.setO(1, new SbVec2f(1.0f, -1.0f));
+	  cs.setO(2, new SbVec2f(-1.0f, -1.0f));
+	  cs.setO(3, new SbVec2f(-1.0f, 1.0f));
+	  cs.setO(4, new SbVec2f(1.0f, 1.0f));
 	  this.crossSection.finishEditing();
 	  this.crossSection.setDefault(true);
 

@@ -656,7 +656,7 @@ public <T> void SO_VRMLNODE_ADD_FIELD(SoSField<T> field,String fieldName, T defV
 	SO_NODE_ADD_FIELD(field,fieldName,defValue);
 }
 
-public <T> void SO_VRMLNODE_ADD_MFIELD(SoMField<T> field,String fieldName, T defValue) {
+public <T> void SO_VRMLNODE_ADD_MFIELD(SoMField<T, ? extends Object> field,String fieldName, T defValue) {
 	SO_NODE_ADD_MFIELD(field,fieldName,defValue);
 }
 
@@ -669,12 +669,12 @@ public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoSField<T> field,String fieldName
 	SO_NODE_ADD_FIELD(field,fieldName,defValue);
 }
 
-public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoMField<T> field,String fieldName, T defValue) {
+public <T> void SO_VRMLNODE_ADD_EXPOSED_FIELD(SoMField<T,? extends Object> field,String fieldName, T defValue) {
 	field.setFieldType(SoField.FieldType.EXPOSED_FIELD.getValue()); 
 	SO_NODE_ADD_MFIELD(field,fieldName,defValue);
 }
 
-public <T> void SO_VRMLNODE_ADD_EMPTY_MFIELD(SoMField<T>_field_,String fieldName) {
+public <T> void SO_VRMLNODE_ADD_EMPTY_MFIELD(SoMField<T,? extends Object>_field_,String fieldName) {
 do { 
   _field_.setContainer(thisParent); 
   fieldData.get(thisClass)[0].addField(thisClass,thisParent, fieldName, _field_);

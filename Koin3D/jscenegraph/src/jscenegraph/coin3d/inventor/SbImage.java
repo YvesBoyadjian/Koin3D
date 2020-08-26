@@ -207,11 +207,11 @@ searchForFile(final String  basename,
   for (i = 0; i < numdirs; i++) {
     directories.append((String)(dirlist[i]));
   }
-  subdirectories.append(new String("texture"));
-  subdirectories.append(new String("textures"));
-  subdirectories.append(new String("images"));
-  subdirectories.append(new String("pics"));
-  subdirectories.append(new String("pictures"));
+  subdirectories.append("texture");
+  subdirectories.append("textures");
+  subdirectories.append("images");
+  subdirectories.append("pics");
+  subdirectories.append("pictures");
 
   String ret = SoInput.searchForFile(basename, directories, subdirectories);
   for (i = 0; i < subdirectories.getLength(); i++) {

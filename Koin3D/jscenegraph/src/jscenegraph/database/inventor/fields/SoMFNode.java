@@ -61,6 +61,7 @@ import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.SoNodePtr;
+import jscenegraph.port.SoNodePtrArray;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Multiple-value field containing any number of pointers to nodes.
@@ -86,7 +87,7 @@ example:
  * @author Yves Boyadjian
  *
  */
-public class SoMFNode extends SoMField<SoNodePtr> {
+public class SoMFNode extends SoMField<SoNodePtr,SoNodePtrArray> {
 	
 	public static Object[] SOMFNODE_NULL;
 	
@@ -131,11 +132,8 @@ public class SoMFNode extends SoMField<SoNodePtr> {
 	}
 
 	@Override
-	protected SoNodePtr[] arrayConstructor(int length) {
-		SoNodePtr[] ret_val = new SoNodePtr[length];
-		for (int i=0; i<length; i++) {
-			ret_val[i] = new SoNodePtr();
-		}
+	protected SoNodePtrArray arrayConstructor(int length) {
+		SoNodePtrArray ret_val = new SoNodePtrArray(length);
 		return ret_val;
 	}
 
@@ -157,7 +155,7 @@ find(SoNode[] targetValue, boolean addIfNotFound)
     int i, num = getNum();
 
     for (i = 0; i < num; i++)
-        if (values[i].get() == targetValue[0])
+        if (values.getO(i).get() == targetValue[0])
             return i;
 
     if (addIfNotFound)
@@ -220,7 +218,7 @@ setVal(int index, SoNode[] newValue)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final SoNodePtr      value = values[index];
+    final SoNodePtr      value = values.getO(index);
 
     // Play it safe if we are replacing one pointer with the same pointer
     if (newValue[0] != null)
@@ -232,7 +230,7 @@ setVal(int index, SoNode[] newValue)
         value.get().unref();
     }
 
-    value.set( values[index].set( newValue[0]));
+    value.set( values.getO(index).set( newValue[0]));
 
     if (value.get() != null) {
         value.get().ref();
@@ -258,27 +256,27 @@ allocValues(int newNum)
 
     if (values == null) {
         if (newNum > 0) {
-            values = new SoNodePtr[newNum];
+            values = new SoNodePtrArray(newNum);
 
             // Make sure all pointers are initialized to NULL
-            for (i = 0; i < newNum; i++)
-                values[i] = new SoNodePtr();
+//            for (i = 0; i < newNum; i++)
+//                values[i] = new SoNodePtr();
         }
     }
     else {
-        SoNodePtr[]  oldValues = values;
+        SoNodePtrArray  oldValues = values;
 
         if (newNum > 0) {
-            values = new SoNodePtr[newNum];
-            for (i = 0; i < newNum; i++) // java port
-                values[i] = new SoNodePtr();
+            values = new SoNodePtrArray(newNum);
+//            for (i = 0; i < newNum; i++) // java port
+//                values[i] = new SoNodePtr();
             
             for (i = 0; i < num && i < newNum; i++)
-                values[i].set( oldValues[i].get());
+                values.getO(i).set( oldValues.getO(i).get());
 
             // Initialize unused pointers to NULL
             for (i = num; i < newNum; i++)
-                values[i].set( null);
+                values.getO(i).set( null);
         }
         else
             values = null;
@@ -288,9 +286,9 @@ allocValues(int newNum)
 
             // Remove auditors and references on unused values
             for (i = newNum; i < num; i++) {
-                if (oldValues[i].get() != null) {
-                    oldValues[i].get().removeAuditor(this, SoNotRec.Type.FIELD);
-                    oldValues[i].get().unref();
+                if (oldValues.getO(i).get() != null) {
+                    oldValues.getO(i).get().removeAuditor(this, SoNotRec.Type.FIELD);
+                    oldValues.getO(i).get().unref();
                 }
             }
 
@@ -348,7 +346,7 @@ public void insertNode(SoNode node, int idx)
 public SoNode getNode(int idx)
 {
   assert(idx >= 0 && idx < this.getNum());
-  return (SoNode)(this.getValues(0)[idx].get());
+  return (SoNode)(this.getValues(0).getO(idx).get());
 }
 
 /*!
@@ -361,10 +359,10 @@ public SoNode getNode(int idx)
 */
 public int findNode(SoNode node)
 {
-  SoNodePtr[] ptr = this.getValues(0);
+  SoNodePtrArray ptr = this.getValues(0);
   int n = this.getNum();
   for (int i = 0; i < n; i++) {
-    if (ptr[i].get() == node) return i;
+    if (ptr.getO(i).get() == node) return i;
   }
   return -1;
 }
@@ -442,6 +440,11 @@ public void replaceNode(SoNode oldnode, SoNode newnode)
 {
   int idx = this.findNode(oldnode);
   if (idx >= 0) this.replaceNode(idx, newnode);
+}
+
+@Override
+public SoNodePtrArray doGetValues(int start) {
+	return values.plus(start);
 }
 
 }

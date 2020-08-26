@@ -24,6 +24,7 @@
 package jscenegraph.coin3d.inventor.lists;
 
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.Indexable;
 import jscenegraph.port.Mutable;
 
 /**
@@ -213,6 +214,15 @@ public T[] getArrayPtr(T[] arrayWithGoodSize) {
 	}
 	return arrayWithGoodSize;
 }
+
+public Indexable<T> getArrayPtr(Indexable<T> arrayWithGoodSize) {
+	
+	for(int i=0;i<getLength();i++) {
+		arrayWithGoodSize.setO(i, operator_square_bracket(i));
+	}
+	return arrayWithGoodSize;
+}
+
 public void truncate(int length, boolean b) {
 	truncate(length, b ? 1 : 0);
 }

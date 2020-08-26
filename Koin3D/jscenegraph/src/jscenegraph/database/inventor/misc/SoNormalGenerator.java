@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.misc;
 
+import java.util.Objects;
+
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.port.Destroyable;
@@ -157,11 +159,14 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if (points != null)
+    if (points != null) {
+    	Destroyable.delete(points.getValuesArray());
         points = null;
-
-    if (vertNormals != faceNormals)
+    }
+    if (!Objects.equals(vertNormals, faceNormals)) {
+    	Destroyable.delete(faceNormals.getValuesArray());
         faceNormals = null;
+    }
 
     // Do NOT delete vertNormals. The caller is responsible for this.
 }
@@ -532,8 +537,8 @@ setNormal(int index, final SbVec3f newNormal)
         final SbVec3fArray newVertNormals = SbVec3fArray.allocate(newNumVertNormals);//new SbVec3f [newNumVertNormals]; for(int i=0; i<newNumVertNormals;i++) {newVertNormals[i] = new SbVec3f();}
         //memcpy(newVertNormals, vertNormals, (int) (numVertNormals * sizeof(SbVec3f)));
         for(int i=0; i<numVertNormals;i++) {newVertNormals.get(i).copyFrom(vertNormals.get(i));}
-        if (vertNormals != faceNormals) {
-            //delete [] vertNormals; java port
+        if (!Objects.equals(vertNormals, faceNormals)) {
+            Destroyable.delete( vertNormals.getValuesArray() );
         }
         vertNormals    = newVertNormals;
         numVertNormals = newNumVertNormals;

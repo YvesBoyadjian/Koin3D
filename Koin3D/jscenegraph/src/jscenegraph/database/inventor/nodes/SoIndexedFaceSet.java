@@ -296,6 +296,7 @@ import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.IntArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.MutableSbVec3fArray;
 import jscenegraph.port.SbVec3fArray;
@@ -980,10 +981,10 @@ useConvexCache(SoAction action,
   
   if (pimpl.concavestatus == STATUS_UNKNOWN) {
     IntArrayPtr ptr = this.coordIndex.getValuesIntArrayPtr(0);
-    IntArrayPtr endptr = ptr.plus(this.coordIndex.getNum());
+    IntArrayPtr endptr = IntArrayPtr.plus(ptr,this.coordIndex.getNum());
     int cnt = 0;
     pimpl.concavestatus = STATUS_CONVEX;
-    while (ptr.lessThan(endptr)) {
+    while (IntArrayPtr.lessThan(ptr,endptr)) {
       if (ptr.get() >= 0) {
     	  ptr.plusPlus();
     	  cnt++;
@@ -1451,7 +1452,7 @@ generatePrimitives(SoAction action)
   TriangleShape mode = TriangleShape.POLYGON;
   TriangleShape newmode;
   IntArrayPtr viptr = IntArrayPtr.copyOf(cindices[0]);
-  IntArrayPtr viendptr = viptr.plus(numindices[0]);
+  IntArrayPtr viendptr = IntArrayPtr.plus(viptr,numindices[0]);
   int v1, v2, v3, v4, v5 = 0; // v5 init unnecessary, but kills a compiler warning.
 
   final SoPrimitiveVertex vertex = new SoPrimitiveVertex();
@@ -1481,7 +1482,7 @@ generatePrimitives(SoAction action)
       
       break;
     } 
-    if(viptr.lessThan(viendptr)) {
+    if(IntArrayPtr.lessThan(viptr,viendptr)) {
     	v4 = viptr.get();
     	viptr.plusPlus();
     }
@@ -1491,7 +1492,7 @@ generatePrimitives(SoAction action)
     //v4 = viptr < viendptr ? *viptr++ : -1;
     if (v4  < 0) newmode = TriangleShape.TRIANGLES;
     else {
-    	if(viptr.lessThan(viendptr)) {
+    	if(IntArrayPtr.lessThan(viptr,viendptr)) {
     		v5 = viptr.get();
     		viptr.plusPlus();
     	}
@@ -1562,7 +1563,7 @@ generatePrimitives(SoAction action)
       DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v4);
       if (mode == TriangleShape.POLYGON) {
         DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v5);
-        if(viptr.lessThan(viendptr)) {
+        if(IntArrayPtr.lessThan(viptr,viendptr)) {
         	v1 = viptr.get();
         	viptr.plusPlus();
         }
@@ -1572,7 +1573,7 @@ generatePrimitives(SoAction action)
         //v1 = viptr < viendptr ? *viptr++ : -1;
         while (v1 >= 0) {
           DO_VERTEX(pointDetail,vertex,mindices[0],nindices[0],tindices[0],mbind,nbind,tbind,matnr,normnr,currnormal,normals[0],tb,coords[0],texidx,v1);
-          if(viptr.lessThan(viendptr)) {
+          if(IntArrayPtr.lessThan(viptr,viendptr)) {
         	  v1 = viptr.get();
         	  viptr.plusPlus();
           }
@@ -1638,19 +1639,19 @@ public SoDetail createTriangleDetail(SoRayPickAction action,
   final SoFaceDetail  oldFD = ( SoFaceDetail ) v1.getDetail();
 
   // Get pointers to all indices, just in case
-  int[]       coordIndices, matlIndices;
-  int[]       normIndices, texCoordIndices;
+  IntArray       coordIndices, matlIndices;
+  IntArray       normIndices, texCoordIndices;
 
-  coordIndices    = coordIndex.getValuesI(0);
-  matlIndices     = materialIndex.getValuesI(0);
-  normIndices     = normalIndex.getValuesI(0);
-  texCoordIndices = textureCoordIndex.getValuesI(0);
-  if (materialIndex.getNum() == 1 && matlIndices[0] == SO_END_FACE_INDEX)
+  coordIndices    = coordIndex.getValues(0);
+  matlIndices     = materialIndex.getValues(0);
+  normIndices     = normalIndex.getValues(0);
+  texCoordIndices = textureCoordIndex.getValues(0);
+  if (materialIndex.getNum() == 1 && matlIndices.get(0) == SO_END_FACE_INDEX)
     matlIndices = coordIndices;
-  if (normalIndex.getNum() == 1 && normIndices[0] == SO_END_FACE_INDEX) 
+  if (normalIndex.getNum() == 1 && normIndices.get(0) == SO_END_FACE_INDEX) 
     normIndices = coordIndices;
   if (textureCoordIndex.getNum() == 1 &&
-    texCoordIndices[0] == SO_END_FACE_INDEX)
+    texCoordIndices.get(0) == SO_END_FACE_INDEX);
     texCoordIndices = coordIndices;
 
   // Find out which face was hit
@@ -1693,13 +1694,13 @@ public SoDetail createTriangleDetail(SoRayPickAction action,
       matlIndex = hitFace;
       break;
     case PER_FACE_INDEXED:
-      matlIndex = (int) matlIndices[hitFace];
+      matlIndex = (int) matlIndices.get(hitFace);
       break;
     case PER_VERTEX:
       matlIndex = curVert;
       break;
     case PER_VERTEX_INDEXED:
-      matlIndex = (int) matlIndices[curIndex];
+      matlIndex = (int) matlIndices.get(curIndex);
       break;
     }
     switch (normalBinding) {
@@ -1710,19 +1711,19 @@ public SoDetail createTriangleDetail(SoRayPickAction action,
       normIndex = hitFace;
       break;
     case PER_FACE_INDEXED:
-      normIndex = (int) normIndices[hitFace];
+      normIndex = (int) normIndices.get(hitFace);
       break;
     case PER_VERTEX:
       normIndex = curVert;
       break;
     case PER_VERTEX_INDEXED:
-      normIndex = (int) normIndices[curIndex];
+      normIndex = (int) normIndices.get(curIndex);
       break;
     }
     tcIndex = (texCoordsIndexed ?
-      (int) texCoordIndices[curIndex] : curVert);
+      (int) texCoordIndices.get(curIndex) : curVert);
 
-    pd.setCoordinateIndex(coordIndices[curIndex]);
+    pd.setCoordinateIndex(coordIndices.get(curIndex));
     pd.setMaterialIndex(matlIndex);
     pd.setNormalIndex(normIndex);
     pd.setTextureCoordIndex(tcb.isFunction() ? 0 : tcIndex);
@@ -1866,7 +1867,7 @@ public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
 {
   int                         numIndices = coordIndex.getNum(), curIndex = 0;
   SoCoordinateElement   ce = null;
-  SbVec3f[]               vpCoords = null;
+  SbVec3fArray               vpCoords = null;
 
   SoVertexProperty vp = getVertexProperty();
   if (vp != null && vp.vertex.getNum() > 0) {
@@ -1900,7 +1901,7 @@ public boolean generateDefaultNormals(SoState state, SoNormalBundle nb)
         if (ce != null)
           nb.polygonVertex(ce.get3((int)coordIndex.operator_square_bracketI(curIndex)));
         else
-          nb.polygonVertex(vpCoords[coordIndex.operator_square_bracketI(curIndex)]);
+          nb.polygonVertex(vpCoords.get(coordIndex.operator_square_bracketI(curIndex)));
 
         curIndex++;
     }
@@ -2138,9 +2139,9 @@ public void GLRenderInternal( SoGLRenderAction action , int useTexCoordsAnyway, 
       // VA rendering is only possible if there is a color VBO, since it manages the packed color swapping
       ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getColorVBO()/*getVBO(SoGLVBOElement.VBOType.COLOR_VBO)*/ != null) &&
       (vpCache.getNumTexCoords()==0 || (vpCache.getTexCoordBinding() == SoTextureCoordinateBindingElement.Binding.PER_VERTEX_INDEXED)) &&
-      (materialIndex.getNum()==1 && materialIndex.getValuesI(0)[0]==-1) && 
-      (normalIndex.getNum()==1 && normalIndex.getValuesI(0)[0]==-1) && 
-      (textureCoordIndex.getNum()==1 && textureCoordIndex.getValuesI(0)[0]==-1))
+      (materialIndex.getNum()==1 && materialIndex.getValues(0).get(0)==-1) && 
+      (normalIndex.getNum()==1 && normalIndex.getValues(0).get(0)==-1) && 
+      (textureCoordIndex.getNum()==1 && textureCoordIndex.getValues(0).get(0)==-1))
   {
     fastPathTaken = true;
     if (numTris > 0 || numQuads > 0) {
@@ -2239,19 +2240,19 @@ public void TriOmVn (SoGLRenderAction action) {
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-    	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES); (normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
 
-    	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES); (normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
 
-    	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES); (normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
     	vtxCtr += 4; // Skip past END_OF_FACE_INDEX
     }
@@ -2272,7 +2273,7 @@ QuadOmVn
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(GL2.GL_QUADS);
     int vtxCtr = numTris*4;
@@ -2289,16 +2290,16 @@ QuadOmVn
 //
 //	(*normalFunc)(normalPtr+normalStride*normalIndx[vtxCtr+3]);
 //	(*vertexFunc)(vertexPtr+vertexStride*vertexIndex[vtxCtr+3]);
-    	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES); (normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
 
-    	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES); (normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
 
-    	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES); (normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
 
-    	normalPtr.position(normalStride*normalIndx[vtxCtr+3]/Float.BYTES); (normalFunc).run(gl2, normalPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr+3)/Float.BYTES); (normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+3]/Float.BYTES); (vertexFunc).run(gl2, vertexPtr);
 	vtxCtr += 5; // Skip past END_OF_FACE_INDEX
     }
@@ -2318,24 +2319,24 @@ public void TriFmVn (SoGLRenderAction action) {
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	colorPtr.position(colorStride*colorIndx[tri]/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(tri)/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2, normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2, normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);(vertexFunc).run(gl2, vertexPtr);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2, normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2, normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES);(vertexFunc).run(gl2, vertexPtr);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2, normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2, normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES);(vertexFunc).run(gl2, vertexPtr);
 	vtxCtr += 4; // Skip past END_OF_FACE_INDEX
     }
@@ -2357,36 +2358,36 @@ QuadFmVn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(GL2.GL_QUADS);
     int vtxCtr = numTris*4;
     int faceCtr = numTris;
     for (int quad = 0; quad < numQuads; quad++) {
-    	colorPtr.position(colorStride*colorIndx[faceCtr]/Integer.BYTES);
+    	colorPtr.position(colorStride*colorIndx.get(faceCtr)/Integer.BYTES);
 	(colorFunc).run(gl2,colorPtr/*+colorStride*colorIndx[faceCtr]*/);
 	++faceCtr;
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);
 	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr]*/);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
 	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);
 	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr+1]*/);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES);
 	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);
 	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr+2]*/);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES);
 	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+3]/Float.BYTES);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+3)/Float.BYTES);
 	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr+3]*/);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+3]/Float.BYTES);
 	(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+3]*/);
@@ -2408,26 +2409,26 @@ public void TriVmVn (SoGLRenderAction action ) {
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-    	colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
-    	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2, normalPtr);
+    	colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
+    	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2, normalPtr);
     	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);(vertexFunc).run(gl2, vertexPtr);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+1]/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2, normalPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+1)/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2, normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES);(vertexFunc).run(gl2, vertexPtr);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+2]/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2, normalPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+2)/Integer.BYTES);(colorFunc).run(gl2, colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2, normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES);(vertexFunc).run(gl2, vertexPtr);
 	vtxCtr += 4; // Skip past END_OF_FACE_INDEX
     }
@@ -2448,12 +2449,12 @@ public void GenOmVn(SoGLRenderAction action)
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     int vtxCtr = numQuads*5 + numTris*4;
     while (vtxCtr < numVI) {
 	gl2.glBegin(GL2.GL_POLYGON);
 	while (vtxCtr < numVI && (vertexIndex[vtxCtr] != SO_END_FACE_INDEX)) {
-		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+		normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);
 	    (normalFunc).run(gl2, normalPtr);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
 	    (vertexFunc).run(gl2, vertexPtr);
@@ -2483,13 +2484,13 @@ GenVmOn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     int vtxCtr = numQuads*5 + numTris*4;
     while (vtxCtr < numVI) {
 	gl2.glBegin(GL2.GL_POLYGON);
 	while (vtxCtr < numVI &&
 	       (vertexIndex[vtxCtr] != SO_END_FACE_INDEX)) {
-		colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);
+		colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);
 	    (colorFunc).run(gl2,colorPtr/*+colorStride*colorIndx[vtxCtr]*/);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
 	    (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
@@ -2517,21 +2518,21 @@ GenFmVn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    final int[] normalIndx = getNormalIndices();
+    final IntArray normalIndx = getNormalIndices();
     int vtxCtr = numQuads*5 + numTris*4;
     int faceCtr = numQuads + numTris;
     while (vtxCtr < numVI) {
-    	colorPtr.position(colorStride*colorIndx[faceCtr]/Integer.BYTES);
+    	colorPtr.position(colorStride*colorIndx.get(faceCtr)/Integer.BYTES);
 	(colorFunc).run(gl2,colorPtr/*+colorStride*colorIndx[faceCtr]*/);
 	++faceCtr;
 	gl2.glBegin(GL2.GL_POLYGON);
 	while (vtxCtr < numVI &&
 	       (vertexIndex[vtxCtr] != SO_END_FACE_INDEX)) {
-		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+		normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);
 	    (normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[vtxCtr]*/);
 	    vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
 	    (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
@@ -2559,11 +2560,11 @@ GenOmFn
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    final int[] normalIndx = getNormalIndices();
+    final IntArray normalIndx = getNormalIndices();
     int vtxCtr = numQuads*5 + numTris*4;
     int faceCtr = numQuads + numTris;
     while (vtxCtr < numVI) {
-    	normalPtr.position(+normalStride*normalIndx[faceCtr]/Float.BYTES);
+    	normalPtr.position(+normalStride*normalIndx.get(faceCtr)/Float.BYTES);
 	(normalFunc).run(gl2,normalPtr/*+normalStride*normalIndx[faceCtr]*/);
 	++faceCtr;
 	gl2.glBegin(GL2.GL_POLYGON);

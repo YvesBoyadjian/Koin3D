@@ -58,6 +58,7 @@ import java.util.function.DoubleConsumer;
 
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.port.SbMatrixArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +85,7 @@ commas; for example, two identity matrices might be written as:
  * @author Yves Boyadjian
  *
  */
-public class SoMFMatrix extends SoMField<SbMatrix> {
+public class SoMFMatrix extends SoMField<SbMatrix,SbMatrixArray> {
 
 	@Override
 	protected SbMatrix constructor() {
@@ -92,8 +93,8 @@ public class SoMFMatrix extends SoMField<SbMatrix> {
 	}
 
 	@Override
-	protected SbMatrix[] arrayConstructor(int length) {
-		return new SbMatrix[length];
+	protected SbMatrixArray arrayConstructor(int length) {
+		return new SbMatrixArray(length);
 	}
 
 
@@ -108,7 +109,7 @@ public boolean read1Value(SoInput in, int index)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	DoubleConsumer[][] ref = ((SbMatrix)values[index]).getRef();
+	DoubleConsumer[][] ref = ((SbMatrix)values.getO(index)).getRef();
     return  in.read(ref[0][0]) && in.read(ref[0][1])
          && in.read(ref[0][2]) && in.read(ref[0][3])
          && in.read(ref[1][0]) && in.read(ref[1][1])
@@ -117,6 +118,11 @@ public boolean read1Value(SoInput in, int index)
          && in.read(ref[2][2]) && in.read(ref[2][3])
          && in.read(ref[3][0]) && in.read(ref[3][1])
          && in.read(ref[3][2]) && in.read(ref[3][3]);
+}
+
+@Override
+public SbMatrixArray doGetValues(int start) {
+	return values.plus(start);
 }
 
 }

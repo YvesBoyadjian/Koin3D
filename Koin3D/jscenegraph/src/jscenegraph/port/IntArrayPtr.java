@@ -73,6 +73,16 @@ public class IntArrayPtr implements Destroyable {
 		this.intBuffer = intArrayPtr.intBuffer;
 	}
 
+	public IntArrayPtr(int start, IntArray values) {
+		this.array = values.values;
+		intOffset = start + values.start;		
+	}
+
+	public IntArrayPtr(IntArray values) {
+		this.array = values.values;
+		this.intOffset = values.start;
+	}
+
 	public void plusPlus() {
 		intOffset++;
 	}
@@ -108,7 +118,15 @@ public class IntArrayPtr implements Destroyable {
 			return other.plus(num);
 		}
 	}
-	public IntArrayPtr plus(int num) {
+	
+	public static boolean lessThan(IntArrayPtr first, IntArrayPtr last) {
+		if(first == null && last == null) {
+			return false;
+		}
+		return first.lessThan(last);
+	}
+	
+	private IntArrayPtr plus(int num) {
 		return new IntArrayPtr(intOffset+num,array);
 	}
 
@@ -119,7 +137,7 @@ public class IntArrayPtr implements Destroyable {
 		return other.intOffset - intOffset;
 	}
 
-	public boolean lessThan(IntArrayPtr other) {
+	private boolean lessThan(IntArrayPtr other) {
 		if(array != other.array) {
 			throw new IllegalArgumentException();
 		}

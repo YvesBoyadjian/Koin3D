@@ -209,10 +209,10 @@ public class SoBuiltinFieldConverter extends SoFieldConverter {
 					SO__CONCAT("So", klass.name())))) {
 				inType = klass.getValue();
 				if (input instanceof SoSField) {
-					SoSField soSField = (SoSField<Object>) input;
+					SoSField soSField = /*(SoSField<Object>)*/(SoSField) input;
 					soSField.setValue(defaultValue);
 				} else if (input instanceof SoMField) {
-					SoMField soMField = (SoMField<Object>) input;
+					SoMField soMField = /*(SoMField<Object,Object>)*/(SoMField) input;
 					soMField.setValue(defaultValue);
 				}
 				// SO__CONCAT("So",klass.name())input.setValue(defaultValue);

@@ -61,6 +61,9 @@ import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
+import jscenegraph.port.SbVec2fArray;
+import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -85,12 +88,12 @@ public class SoProfileCoordinateElement extends SoReplacedElement {
 
   protected
     int             numCoords;
-  protected  SbVec2f[]       coords2;
-  protected  SbVec3f[]       coords3;
+  protected  SbVec2fArray       coords2;
+  protected  SbVec3fArray       coords3;
   protected boolean                coordsAre2D;
 
   private
-	    static SbVec2f      defaultCoord2;
+	    static SbVec2fArray      defaultCoord2;
 
   private final SbVec2fSingle             convert2 = new SbVec2fSingle();       //!< To convert from 3-D to 2-D
   private final SbVec3fSingle             convert3 = new SbVec3fSingle();       //!< To convert from 2-D to 3-D
@@ -121,13 +124,13 @@ public void init(SoState state)
 
     // Initialize default coordinate storage if not already done
     if (defaultCoord2 == null) {
-        defaultCoord2  = new SbVec2f();
-        defaultCoord2.copyFrom(getDefault2());
+        defaultCoord2  = new SbVec2fArray(FloatMemoryBuffer.allocateFloats(2));
+        defaultCoord2.getO(0).copyFrom(getDefault2());
     }
 
     // Assume 2D until told otherwise
     coordsAre2D = true;
-    coords2     = new SbVec2f[1]; coords2[0] = defaultCoord2;
+    coords2     = defaultCoord2;
     numCoords   = 1;
 }
 
@@ -139,7 +142,7 @@ public void init(SoState state)
 // Use: public
 
 public static void set2(SoState state, SoNode node,
-                          int numCoords, final SbVec2f[] coords)
+                          int numCoords, final SbVec2fArray coords)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -164,7 +167,7 @@ public static void set2(SoState state, SoNode node,
 // Use: public
 
 public static void set3(SoState state, SoNode node,
-                          int numCoords, final SbVec3f[] coords)
+                          int numCoords, final SbVec3fArray coords)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -214,13 +217,13 @@ public SbVec2f get2(int index)
 //#endif /* DEBUG */
 
     if (coordsAre2D)
-        return coords2[index];
+        return coords2.getO(index);
 
     // Convert from 3-D if necessary
     else {
         // Cast the const away...
         SoProfileCoordinateElement elt = (SoProfileCoordinateElement ) this;
-        final SbVec3f           c3  = coords3[index];
+        final SbVec3f           c3  = coords3.getO(index);
 
         elt.convert2.getValue()[0] = c3.getValueRead()[0] / c3.getValueRead()[2];
         elt.convert2.getValue()[1] = c3.getValueRead()[1] / c3.getValueRead()[2];
@@ -250,7 +253,7 @@ public SbVec3f get3(int index)
     if (coordsAre2D) {
         // Cast the const away...
         SoProfileCoordinateElement elt = (SoProfileCoordinateElement ) this;
-        final SbVec2f           c2  = coords2[index];
+        final SbVec2f           c2  = coords2.getO(index);
 
         elt.convert3.getValue()[0] = c2.getValueRead()[0];
         elt.convert3.getValue()[1] = c2.getValueRead()[1];
@@ -260,7 +263,7 @@ public SbVec3f get3(int index)
     }
 
     else
-        return coords3[index];
+        return coords3.getO(index);
 }
 
     

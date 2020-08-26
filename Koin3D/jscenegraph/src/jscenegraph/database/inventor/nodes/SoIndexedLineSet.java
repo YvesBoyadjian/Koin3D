@@ -102,6 +102,7 @@ import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.IntArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -327,8 +328,8 @@ generatePrimitives(SoAction action)
   int                         curMaterial = -1, curNormal = -1, curTexCoord;
   int                         vertsInLine;
   int                         numIndices;
-  int[]                       coordIndices, matlIndices;
-  int[]                       normIndices, texCoordIndices;
+  IntArray                    coordIndices, matlIndices;
+  IntArray                    normIndices, texCoordIndices;
   Binding                     materialBinding, normalBinding;
   boolean                      texCoordsIndexed;
 
@@ -350,20 +351,20 @@ generatePrimitives(SoAction action)
   pvs[1].setDetail(detail);
 
   numIndices      = coordIndex.getNum();
-  coordIndices    = coordIndex.getValuesI(0);
-  matlIndices     = materialIndex.getValuesI(0);
-  normIndices     = normalIndex.getValuesI(0);
-  texCoordIndices = textureCoordIndex.getValuesI(0);
+  coordIndices    = coordIndex.getValues(0);
+  matlIndices     = materialIndex.getValues(0);
+  normIndices     = normalIndex.getValues(0);
+  texCoordIndices = textureCoordIndex.getValues(0);
 
   // Check for special case of 1 index of SO_END_LINE_INDEX. This
   // means that coord indices are to be used for materials, normals,
   // or texture coords as well
-  if (materialIndex.getNum() == 1 && matlIndices[0] == SO_END_LINE_INDEX)
+  if (materialIndex.getNum() == 1 && matlIndices.get(0) == SO_END_LINE_INDEX)
     matlIndices = coordIndices;
-  if (normalIndex.getNum() == 1 && normIndices[0] == SO_END_LINE_INDEX) 
+  if (normalIndex.getNum() == 1 && normIndices.get(0) == SO_END_LINE_INDEX) 
     normIndices = coordIndices;
   if (textureCoordIndex.getNum() == 1 &&
-    texCoordIndices[0] == SO_END_LINE_INDEX)
+    texCoordIndices.get(0) == SO_END_LINE_INDEX)
     texCoordIndices = coordIndices;
 
   if (forPicking) {
@@ -381,7 +382,7 @@ generatePrimitives(SoAction action)
 
     // Loop through all vertices of current line
     while (curCoord < numIndices &&
-      coordIndices[curCoord] != SO_END_LINE_INDEX) {
+      coordIndices.get(curCoord) != SO_END_LINE_INDEX) {
 
         switch (materialBinding) {
         case OVERALL:
@@ -391,19 +392,19 @@ generatePrimitives(SoAction action)
           curMaterial = curSeg;
           break;
         case PER_SEGMENT_INDEXED:
-          curMaterial = (int) matlIndices[curSeg];
+          curMaterial = (int) matlIndices.get(curSeg);
           break;
         case PER_LINE:
           curMaterial = curLine;
           break;
         case PER_LINE_INDEXED:
-          curMaterial = (int) matlIndices[curLine];
+          curMaterial = (int) matlIndices.get(curLine);
           break;
         case PER_VERTEX:
           curMaterial = curVert;
           break;
         case PER_VERTEX_INDEXED:
-          curMaterial = (int) matlIndices[curCoord];
+          curMaterial = (int) matlIndices.get(curCoord);
           break;
         }
         switch (normalBinding) {
@@ -414,34 +415,34 @@ generatePrimitives(SoAction action)
           curNormal = curSeg;
           break;
         case PER_SEGMENT_INDEXED:
-          curNormal = (int) normIndices[curSeg];
+          curNormal = (int) normIndices.get(curSeg);
           break;
         case PER_LINE:
           curNormal = curLine;
           break;
         case PER_LINE_INDEXED:
-          curNormal = (int) normIndices[curLine];
+          curNormal = (int) normIndices.get(curLine);
           break;
         case PER_VERTEX:
           curNormal = curVert;
           break;
         case PER_VERTEX_INDEXED:
-          curNormal = (int) normIndices[curCoord];
+          curNormal = (int) normIndices.get(curCoord);
           break;
         }
         curTexCoord = (texCoordsIndexed ?
-          (int) texCoordIndices[curCoord] : curCoord);
+          (int) texCoordIndices.get(curCoord) : curCoord);
 
         pv = pvs[curVert % 2];
 
-        pv.setPoint(ce.get3((int) coordIndices[curCoord]));
+        pv.setPoint(ce.get3((int) coordIndices.get(curCoord)));
         pv.setMaterialIndex(curMaterial);
         if (curNormal < ne.getNum())
           pv.setNormal(ne.get(curNormal));
         else pv.setNormal(new SbVec3f(0,0,0));
 
         // Set up a point detail for the current vertex
-        pd.setCoordinateIndex((int) coordIndices[curCoord]);
+        pd.setCoordinateIndex((int) coordIndices.get(curCoord));
         pd.setMaterialIndex(curMaterial);
         pd.setNormalIndex(curNormal);
         pd.setTextureCoordIndex(curTexCoord);
@@ -935,9 +936,9 @@ private void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway,
       // VA rendering is only possible if there is a color VBO, since it manages the packed color swapping
       ((vpCache.getMaterialBinding() != SoMaterialBindingElement.Binding.PER_VERTEX_INDEXED) || SoGLVBOElement.getInstance(state).getColorVBO()/*getVBO(SoGLVBOElement.VBOType.COLOR_VBO)*/ != null) &&
       (vpCache.getNumTexCoords()==0 || (vpCache.getTexCoordBinding() == SoTextureCoordinateBindingElement.Binding.PER_VERTEX_INDEXED)) &&
-      (materialIndex.getNum()==1 && materialIndex.getValuesI(0)[0]==-1) && 
-      (normalIndex.getNum()==1 && normalIndex.getValuesI(0)[0]==-1) && 
-      (textureCoordIndex.getNum()==1 && textureCoordIndex.getValuesI(0)[0]==-1) &&
+      (materialIndex.getNum()==1 && materialIndex.getValues(0).get(0)==-1) && 
+      (normalIndex.getNum()==1 && normalIndex.getValues(0).get(0)==-1) && 
+      (textureCoordIndex.getNum()==1 && textureCoordIndex.getValues(0).get(0)==-1) &&
       (SoDrawStyleElement.get(action.getState()) != SoDrawStyleElement.Style.POINTS))
   {
     // we have exactly N separate lines (numPolylines == numSegments)
@@ -949,7 +950,7 @@ private void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway,
     _lineIndexer.setType(sendAdjacency.getValue()?GL3.GL_LINES_ADJACENCY:GL2.GL_LINES);
 
     if (_lineIndexer.getDataId()!=getNodeId()) {
-      _lineIndexer.setInventorLines(numPolylines, coordIndex.getValuesI(0), getNodeId());
+      _lineIndexer.setInventorLines(numPolylines, coordIndex.getValues(0), getNodeId());
     }
     _lineIndexer.render(state, useVBO);
 
@@ -982,14 +983,14 @@ OmOn
 	
     int np = numPolylines;
     int[] numverts = numVertices;
-    final int[] vertexIndex = coordIndex.getValuesI(0);
+    final IntArray vertexIndex = coordIndex.getValues(0);
     boolean renderAsPoints = (SoDrawStyleElement.get(action.getState()) ==
 		      SoDrawStyleElement.Style.POINTS);
     boolean sendAdj = sendAdjacency.getValue();
 
     // Send one normal, if there are any normals in vpCache:
     if (vpCache.getNumNormals() > 0)
-	vpCache.sendNormal(gl2,vpCache.getNormals(0));
+    	vpCache.sendNormal(gl2,vpCache.getNormals(0));
     Buffer vertexPtr = vpCache.getVertices(0);
     final int vertexStride = vpCache.getVertexStride();
     SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
@@ -1007,7 +1008,7 @@ OmOn
 	    gl2.glBegin(sendAdj?GL3ES3.GL_LINE_STRIP_ADJACENCY:GL2.GL_LINE_STRIP);      
 	}
 	for (v = 0; v < nv; v++) {                 
-		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+		vertexPtr.position(vertexStride*vertexIndex.get(vtxCtr)/Float.BYTES);
 		(vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);    
 		vtxCtr++;
 	}
@@ -1028,7 +1029,7 @@ OmVn
 	
     int np = numPolylines;
     final int[] numverts = numVertices;
-    final int[] vertexIndex = coordIndex.getValuesI(0);
+    final IntArray vertexIndex = coordIndex.getValues(0);
     boolean renderAsPoints = (SoDrawStyleElement.get(action.getState()) ==
 		      SoDrawStyleElement.Style.POINTS);
     boolean sendAdj = sendAdjacency.getValue();
@@ -1039,7 +1040,7 @@ OmVn
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     int vtxCtr = 0;
     int v;
@@ -1054,9 +1055,9 @@ OmVn
 	    gl2.glBegin(sendAdj?GL3.GL_LINE_STRIP_ADJACENCY:GL2.GL_LINE_STRIP);      
 	}
 	for (v = 0; v < nv; v++) {                  
-		normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);
+		normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);
 		(normalFunc).run(gl2,normalPtr);
-		vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES);
+		vertexPtr.position(vertexStride*vertexIndex.get(vtxCtr)/Float.BYTES);
 		(vertexFunc).run(gl2,vertexPtr);
 		vtxCtr++;
 	}

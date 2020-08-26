@@ -239,6 +239,7 @@ import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.IntArray;
 import jscenegraph.port.SbVec2fArray;
 import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.VoidPtr;
@@ -609,7 +610,7 @@ public class SoVertexProperty extends SoNode {
 	      !TEST_OVERRIDE(SoOverrideElement.ElementMask.DIFFUSE_COLOR, overrideflags)) {
 	    
 	    SoLazyElement.setPacked(state, this, num,
-	                             this.orderedRGBA.getValuesI(0),
+	                             this.orderedRGBA.getValues(0),
 	                             this.pimpl.transparent);
 	    if (this.isOverride()) {
 	      SoOverrideElement.setDiffuseColorOverride(state, this, true);
@@ -628,16 +629,21 @@ public class SoVertexProperty extends SoNode {
 	        }
 	        if (dirty) {
 	          if (Tidbits.coin_host_get_endianness() == Tidbits.CoinEndiannessValues.COIN_HOST_IS_BIGENDIAN) {
-	            this.pimpl.colorvbo[0].setBufferData(VoidPtr.create(this.orderedRGBA.getValuesI(0)),
+	            this.pimpl.colorvbo[0].setBufferData(VoidPtr.create(this.orderedRGBA.getValues(0)),
 	                                                   num*Integer.BYTES,
 	                                                   this.getNodeId(),state);
 	          }
 	          else {
-	             int[] src = this.orderedRGBA.getValuesI(0);
+	             IntArray src = this.orderedRGBA.getValues(0);
 	            ByteBuffer dst = (ByteBuffer) 
 	              this.pimpl.colorvbo[0].allocBufferData(num*Integer.BYTES, 
 	                                                       this.getNodeId(),state).toByteBuffer().duplicate();  // YB
-	            dst.asIntBuffer().put(src);
+	            if( src.delta() == 0) {
+	            	dst.asIntBuffer().put(src.values());
+	            }
+	            else {
+	            	throw new IllegalStateException();
+	            }
 //	            for (int i = 0; i < num; i++) {
 //	              int tmp = src[i];
 //	              dst.put(i, 

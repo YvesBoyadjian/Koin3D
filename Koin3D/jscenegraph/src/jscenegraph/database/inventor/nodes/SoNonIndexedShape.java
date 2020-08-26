@@ -64,6 +64,7 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.IntArrayPtr;
+import jscenegraph.port.SbVec3fArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -162,7 +163,7 @@ public SoNonIndexedShape()
             final SbBox3f box, final SbVec3f center) {
     int                     i, lastIndex;
     SoCoordinateElement   ce = null;
-    SbVec3f[]               vpCoords = null;
+    SbVec3fArray               vpCoords = null;
 
     SoVertexProperty vp = (SoVertexProperty )vertexProperty.getValue();
     if (vp != null && vp.vertex.getNum() > 0) {
@@ -186,7 +187,7 @@ public SoNonIndexedShape()
 
     while (i <= lastIndex) {
 
-        SbVec3f v = (ce != null ? ce.get3((int) i) : vpCoords[i]);
+        SbVec3f v = (ce != null ? ce.get3((int) i) : vpCoords.get(i));
 
         box.extendBy(v);
         center.operator_add_equal(v);
@@ -214,7 +215,7 @@ public SoNonIndexedShape()
 	fixNumVerticesPointers(final SoState state, final IntArrayPtr[] start, final IntArrayPtr[] end,
 	                                          int[] dummyarray) // COIN3D
 	{
-	  if ((start[0].plus(1).equals(end[0])) && (start[0].get(0) == -1)) {
+	  if ((IntArrayPtr.plus(start[0],1).equals(end[0])) && (start[0].get(0) == -1)) {
 	    final SoCoordinateElement coordelem =
 	      SoCoordinateElement.getInstance(state);
 	    SoVertexProperty vp = (SoVertexProperty ) this.vertexProperty.getValue();
@@ -226,7 +227,7 @@ public SoNonIndexedShape()
 
 	    dummyarray[0] = numCoords - startIndex.getValue();
 	    start[0] = new IntArrayPtr(dummyarray);
-	    end[0] = numCoords > 1 ? start[0].plus(1) : start[0];
+	    end[0] = numCoords > 1 ? IntArrayPtr.plus(start[0],1) : start[0];
 	  }
 	}
 	

@@ -250,7 +250,7 @@ public class SoVertexPropertyCache {
     } else {
         if ((!colorOverride) &&         
             (vp != null && (numColors = vp.orderedRGBA.getNum()) != 0)) {
-            colorPtr = (IntArrayPtr)new IntArrayPtr(vp.orderedRGBA.getValuesI(0));
+            colorPtr = (IntArrayPtr)new IntArrayPtr(vp.orderedRGBA.getValues(0));
             colorFunc = new SoVPCacheFunc () {
 
 				@Override
@@ -444,7 +444,7 @@ public class SoVertexPropertyCache {
         	//glTexCoord2fv;
         };
         texCoordStride = SbVec2f.sizeof();
-        texCoordPtr = vp.texCoord.getValuesRef();
+        texCoordPtr = vp.texCoord.getValues(0).getValuesArray();
         needFromState &= ~BitMask.TEXCOORD_FROM_STATE_BIT.getValue();
         needFromState |= BitMask.TEXTURE_FUNCTION_BIT.getValue();
         texCoordBinding =

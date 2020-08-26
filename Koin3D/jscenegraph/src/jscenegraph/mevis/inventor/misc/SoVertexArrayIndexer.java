@@ -42,6 +42,7 @@ import com.jogamp.opengl.GL2;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.IntArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.IntPtr;
 import jscenegraph.port.VoidPtr;
@@ -182,7 +183,7 @@ public void setInventorQuads( int numQuads, final int[] inventorIndices, long no
   }
 }
 
-public void setInventorLines( int numLines, int[] inventorIndices, long nodeId )
+public void setInventorLines( int numLines, IntArray inventorIndices, long nodeId )
 {
   clear();
   _ownsIndices = true;

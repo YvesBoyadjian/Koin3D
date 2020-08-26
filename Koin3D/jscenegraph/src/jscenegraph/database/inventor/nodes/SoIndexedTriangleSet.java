@@ -99,6 +99,8 @@ import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.IntArray;
+import jscenegraph.port.SbVec3fArray;
 
 /**
  * @author Yves Boyadjian
@@ -821,7 +823,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
 {
   int                         numIndices = coordIndex.getNum(), curIndex = 0;
   SoCoordinateElement   ce = null;
-  SbVec3f[]               vpCoords = null;
+  SbVec3fArray               vpCoords = null;
 
   SoVertexProperty vp = getVertexProperty();
   if (vp != null && vp.vertex.getNum() > 0) {
@@ -846,7 +848,7 @@ generateDefaultNormals(SoState state, SoNormalBundle nb)
       if (ce != null)
         nb.polygonVertex(ce.get3((int)coordIndex.operator_square_bracket(curIndex)));
       else
-        nb.polygonVertex(vpCoords[coordIndex.operator_square_bracketI(curIndex)]);
+        nb.polygonVertex(vpCoords.get(coordIndex.operator_square_bracketI(curIndex)));
 
       curIndex++;
     }
@@ -1015,19 +1017,19 @@ TriOmOnT
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1047,12 +1049,12 @@ TriOmFn
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	normalPtr.position(normalStride*normalIndx[tri]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(tri)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
@@ -1077,24 +1079,24 @@ TriOmFnT
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	normalPtr.position(normalStride*normalIndx[tri]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(tri)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1114,19 +1116,19 @@ TriOmVn
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1146,26 +1148,26 @@ TriOmVnT
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1188,12 +1190,12 @@ TriFmOn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	colorPtr.position(colorStride*colorIndx[tri]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(tri)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
@@ -1221,24 +1223,24 @@ TriFmOnT
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	colorPtr.position(colorStride*colorIndx[tri]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(tri)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1258,17 +1260,17 @@ TriFmFn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	colorPtr.position(colorStride*colorIndx[tri]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[tri]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	colorPtr.position(colorStride*colorIndx.get(tri)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(tri)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
@@ -1293,29 +1295,29 @@ TriFmFnT
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	colorPtr.position(colorStride*colorIndx[tri]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[tri]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	colorPtr.position(colorStride*colorIndx.get(tri)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(tri)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1335,24 +1337,24 @@ TriFmVn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	colorPtr.position(colorStride*colorIndx[tri]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(tri)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1372,31 +1374,31 @@ TriFmVnT
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	colorPtr.position(colorStride*colorIndx[tri]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(tri)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1419,19 +1421,19 @@ TriVmOn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+1]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+1)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+2]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+2)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1454,26 +1456,26 @@ TriVmOnT
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+1]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+1)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+2]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+2)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1493,24 +1495,24 @@ TriVmFn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	normalPtr.position(normalStride*normalIndx[tri]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(tri)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+1]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+1)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+2]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+2)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1530,31 +1532,31 @@ TriVmFnT
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
-	normalPtr.position(normalStride*normalIndx[tri]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	normalPtr.position(normalStride*normalIndx.get(tri)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+1]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+1)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+2]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+2)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1574,26 +1576,26 @@ TriVmVn
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+1]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+1)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+2]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+2)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }
@@ -1613,33 +1615,33 @@ TriVmVnT
     Buffer colorPtr = vpCache.getColors(0).toBuffer();
     final int colorStride = vpCache.getColorStride();
     SoVPCacheFunc colorFunc = vpCache.colorFunc;
-    int[] colorIndx = getColorIndices();
+    IntArray colorIndx = getColorIndices();
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    int[] normalIndx = getNormalIndices();
+    IntArray normalIndx = getNormalIndices();
     Buffer texCoordPtr = vpCache.getTexCoords(0);
     final int texCoordStride = vpCache.getTexCoordStride();
     SoVPCacheFunc texCoordFunc = vpCache.texCoordFunc;
-    int[] tCoordIndx = getTexCoordIndices();
+    IntArray tCoordIndx = getTexCoordIndices();
 
     gl2.glBegin(sendAdj?GL3.GL_TRIANGLES_ADJACENCY:GL2.GL_TRIANGLES);
     int vtxCtr = 0;
     for (int tri = 0; tri < numTris; tri++) {
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+1]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr+1]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+1]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+1)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+1)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+1)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+1]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+1]*/);
 
-	colorPtr.position(colorStride*colorIndx[vtxCtr+2]/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
-	normalPtr.position(normalStride*normalIndx[vtxCtr+2]/Float.BYTES);(normalFunc).run(gl2,normalPtr);
-	texCoordPtr.position(texCoordStride*tCoordIndx[vtxCtr+2]/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
+	colorPtr.position(colorStride*colorIndx.get(vtxCtr+2)/Integer.BYTES);(colorFunc).run(gl2,colorPtr);
+	normalPtr.position(normalStride*normalIndx.get(vtxCtr+2)/Float.BYTES);(normalFunc).run(gl2,normalPtr);
+	texCoordPtr.position(texCoordStride*tCoordIndx.get(vtxCtr+2)/Float.BYTES); (texCoordFunc).run(gl2,texCoordPtr);
 	vertexPtr.position(vertexStride*vertexIndex[vtxCtr+2]/Float.BYTES); (vertexFunc).run(gl2,vertexPtr/*+vertexStride*vertexIndex[vtxCtr+2]*/);
 	vtxCtr += 3;
     }

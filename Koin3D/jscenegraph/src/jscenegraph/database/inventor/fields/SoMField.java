@@ -57,6 +57,7 @@ import java.util.Objects;
 
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.port.Indexable;
 import jscenegraph.port.Mutable;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,12 +127,12 @@ SoNode, SoEngine
  * @author Yves Boyadjian
  *
  */
-public abstract class SoMField<T extends Object> extends SoField {
+public abstract class SoMField<T extends Object, U extends Indexable<T>> extends SoField {
 
 	protected int num;
 	protected int maxNum;
 
-	protected T[] values;
+	protected /*T[]*/U values;
 
 	/*
 	 * (non-Javadoc)
@@ -141,10 +142,10 @@ public abstract class SoMField<T extends Object> extends SoField {
 	 */
 	@Override
 	public void copyFrom(SoField f) {
-		this.operator_equal((SoMField<T>) f);
+		this.operator_equal((SoMField<T,U>) f);
 	}
 
-	public SoMField<T> operator_equal(final SoMField<T> f) {
+	public SoMField<T,U> operator_equal(final SoMField<T,U> f) {
 		if (f.getNum() < getNum())
 			deleteAllValues();
 		setValues(0, /* f.getNum(), */ f.getValues(0));
@@ -320,20 +321,20 @@ public abstract class SoMField<T extends Object> extends SoField {
 			if (newNum > 0) {
 				values = arrayConstructor(newNum);
 				for (int i = 0; i < newNum; i++) {
-					values[i] = constructor();
+					values.setO(i, constructor());
 				}
 			}
 		} else {
-			T[] oldValues = values;
+			/*T[]*/U oldValues = values;
 			int i;
 
 			if (newNum > 0) {
 				values = arrayConstructor(newNum);
 				for (i = 0; i < newNum; i++) {
-					values[i] = constructor();
+					values.setO(i, constructor());
 				}
 				for (i = 0; i < num && i < newNum; i++)
-					values[i] = oldValues[i];
+					values.setO(i, oldValues.getO(i));
 			} else
 				values = null;
 			// delete [] oldValues; java port
@@ -345,31 +346,31 @@ public abstract class SoMField<T extends Object> extends SoField {
 	/* Set field to have one value */
 	public void setValue(T newValue) {
 		makeRoom(1);
-		if (values[0] instanceof Mutable) {
-			Mutable dest = (Mutable) (values[0]);
+		if (values.getO(0) instanceof Mutable) {
+			Mutable dest = (Mutable) (values.getO(0));
 			Mutable src = (Mutable) newValue;
 			dest.copyFrom(src);
-		} else if( newValue instanceof Integer && values[0] instanceof Float){
-			values[0] = (T)Float.valueOf(((Integer)newValue).floatValue());
+		} else if( newValue instanceof Integer && values.getO(0) instanceof Float){
+			values.setO(0, (T)Float.valueOf(((Integer)newValue).floatValue()));
 		}
 		else {
-			values[0] = newValue;
+			values.setO(0, newValue);
 		}
 		valueChanged();
 	}
 
-	public void setValues(int start, T[] newValues) {
-		int localNum = newValues.length;
+	public void setValues(int start, /*T[]*/U newValues) {
+		int localNum = newValues.length();
 		int newNum = start + localNum, i;
 
 		if (newNum > getNum())
 			makeRoom(newNum);
 
 		for (i = 0; i < localNum; i++) {
-			if (values[start + i] instanceof Mutable) {
-				((Mutable) values[start + i]).copyFrom((Mutable) newValues[i]);
+			if (values.getO(start + i) instanceof Mutable) {
+				((Mutable) values.getO(start + i)).copyFrom((Mutable) newValues.getO(i));
 			} else {
-				values[start + i] = newValues[i];
+				values.setO(start + i, newValues.getO(i));
 			}
 		}
 		valueChanged();
@@ -380,40 +381,53 @@ public abstract class SoMField<T extends Object> extends SoField {
 	public void set1Value(int index, T newValue) {
 		if (index >= getNum())
 			makeRoom(index + 1);
-		if (values[index] instanceof Mutable) {
-			((Mutable) values[index]).copyFrom((Mutable) newValue);
+		if (values.getO(index) instanceof Mutable) {
+			((Mutable) values.getO(index)).copyFrom((Mutable) newValue);
 		} else {
-			values[index] = newValue;
+			values.setO(index, newValue);
 		}
 		valueChanged();
 	}
 
 	/* Get pointer into array of values */
-	public T[] getValues(int start) {
+	public /*T[]*/U getValues(int start) {
 		evaluate();
 		
-		if(start == 0) {
-			return values;
+		if(values == null) {
+			if (start == 0) {
+				return null;
+			}
+			else {
+				throw new IllegalArgumentException();
+			}
 		}
-
-		int retLength = values.length - start;
-
-		T[] retVal = arrayConstructor(retLength);
-
-		for (int i = 0; i < retLength; i++) {
-			retVal[i] = (T) values[i + start];
-		}
-		return retVal;
+		
+		return doGetValues(start);
+//		
+//		if(start == 0) {
+//			return values;
+//		}
+//
+//		int retLength = values.length - start;
+//
+//		T[] retVal = arrayConstructor(retLength);
+//
+//		for (int i = 0; i < retLength; i++) {
+//			retVal[i] = (T) values[i + start];
+//		}
+//		return retVal;
 	}
+	
+	public abstract U doGetValues(int start);
 
 	public T operator_square_bracket(int i) {
 		evaluate();
-		return (T) values[i];
+		return (T) values.getO(i);
 	}
 
 	protected abstract T constructor();
 
-	protected abstract T[] arrayConstructor(int length);
+	protected abstract /*T[]*/U arrayConstructor(int length);
 
 	// ! Deletes all current values
 	protected void deleteAllValues() {
@@ -422,10 +436,10 @@ public abstract class SoMField<T extends Object> extends SoField {
 
 	// ! Copies value indexed by "from" to value indexed by "to"
 	protected void copyValue(int to, int from) {
-		if (values[to] instanceof Mutable) {
-			((Mutable) (values[to])).copyFrom(values[from]);
+		if (values.getO(to) instanceof Mutable) {
+			((Mutable) (values.getO(to))).copyFrom(values.getO(from));
 		} else {
-			values[to] = values[from];
+			values.setO(to, values.getO(from));
 		}
 	}
 
@@ -540,12 +554,15 @@ insertSpace(int start,        // Starting index
 	public String get1(int index) {
 		String valueString = "";
 		// TODO
-		return valueString;
+		
+		throw new RuntimeException();
+		
+		//return valueString;
 	}
 
-	public boolean operator_equal_equal(final SoMField<T> f) {
+	public boolean operator_equal_equal(final SoMField<T,U> f) {
 		int i, localNum = getNum();
-		T[] myVals, itsVals;
+		/*T[]*/U myVals, itsVals;
 
 		if (localNum != f.getNum())
 			return false;
@@ -554,7 +571,7 @@ insertSpace(int start,        // Starting index
 		itsVals = f.getValues(0);
 
 		for (i = 0; i < localNum; i++)
-			if (!Objects.equals(myVals[i], itsVals[i]))
+			if (!Objects.equals(myVals.getO(i), itsVals.getO(i)))
 				return false;
 
 		return true;
@@ -574,8 +591,12 @@ insertSpace(int start,        // Starting index
 	}
 
     /* Get non-const pointer into array of values for batch edits */          
-    public T[] startEditing()                                
-        { evaluate(); return values; }                                        
+    public /*T[]*/U startEditing()                                
+        {
+    	return getValues(0); // java port
+//    	evaluate(); 
+//    	return values; 
+    	}                                        
                                                                               
     /* Indicate that batch edits have finished */                             
     public void finishEditing() { valueChanged(); }           

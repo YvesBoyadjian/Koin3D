@@ -223,7 +223,7 @@ SoPackedColor_doAction(SoAction action)
             SoOverrideElement.setDiffuseColorOverride(state, this, true);
         }
         SoLazyElement.setPacked(state, this,
-                        orderedRGBA.getNum(), orderedRGBA.getValuesI(0));
+                        orderedRGBA.getNum(), orderedRGBA.getValues(0));
 
         if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
           // update the VBO, no data is passed since that is done by SoColorPacker later on

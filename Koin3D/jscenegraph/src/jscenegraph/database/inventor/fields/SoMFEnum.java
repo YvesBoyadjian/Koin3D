@@ -63,6 +63,7 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoDebugError;
+import jscenegraph.port.IntArray;
 
 /**
  * @author Yves Boyadjian
@@ -94,7 +95,7 @@ square brackets and separated by commas.
 */
 ////////////////////////////////////////////////////////////////////////////////
 
-public class SoMFEnum extends SoMField<Integer> {
+public class SoMFEnum extends SoMField<Integer,IntArray> {
 
   protected boolean                legalValuesSet; //!< TRUE if setEnums called
   protected int                 numEnums;       //!< Number of enumeration values
@@ -123,8 +124,8 @@ public class SoMFEnum extends SoMField<Integer> {
 	 * @see jscenegraph.database.inventor.fields.SoMField#arrayConstructor(int)
 	 */
 	@Override
-	protected Integer[] arrayConstructor(int length) {
-		return new Integer[length];
+	protected IntArray arrayConstructor(int length) {
+		return new IntArray(length);
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -150,6 +151,14 @@ public void setEnums(int num, int[] vals, SbName[] names)
     numEnums = num;
     enumValues = vals;
     enumNames = names;
+}
+
+@Override
+public IntArray doGetValues(int start) {
+	if( start == 0) {
+		return values;
+	}
+	return new IntArray(start,values);
 }
 
 }

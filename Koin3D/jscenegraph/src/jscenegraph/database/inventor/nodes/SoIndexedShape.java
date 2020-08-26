@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.util.Objects;
+
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
@@ -73,6 +75,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.FloatArray;
+import jscenegraph.port.IntArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbVec3fArray;
 
@@ -174,10 +177,10 @@ public abstract class SoIndexedShape extends SoVertexShape implements Destroyabl
 	   public final SoMFInt32 textureCoordIndex = new SoMFInt32();
 	   
     //! These are filled in by the setupIndices routine:
-    private int[]       texCoordI;
-    private int[]       colorI;
-    private int[]       normalI;
-    private static int[]      consecutiveIndices;
+    private IntArray       texCoordI;
+    private IntArray       colorI;
+    private IntArray       normalI;
+    private static IntArray      consecutiveIndices;
     private static int  numConsecutiveIndicesAllocated;
 
     private int materialBinding;
@@ -263,7 +266,7 @@ notify(SoNotList list)
 	@Override
 	public void computeBBox(SoAction action, SbBox3f box, SbVec3f center) {
     int                     i, numIndices, numUsed;
-    int[]                       indices;
+    IntArray                indices;
     SoCoordinateElement   ce = null;
     FloatArray               vpCoords = null;
 
@@ -280,19 +283,19 @@ notify(SoNotList list)
 
     // Loop through coordinates, keeping bounding box and sum of coords
     numIndices = coordIndex.getNum();
-    indices    = coordIndex.getValuesI(0);
+    indices    = coordIndex.getValues(0);
     numUsed    = 0;
     
 	SbVec3f v = new SbVec3f();
     for (i = 0; i < numIndices; i++) {
 
         // Look only at non-negative index values
-        if (indices[i] >= 0) {
+        if (indices.get(i) >= 0) {
         	if( ce != null) {
-        		v = ce.get3((int) indices[i]);
+        		v = ce.get3((int) indices.get(i));
         	}
         	else {
-        		vpCoords.getSbVec3f(indices[i], v);
+        		vpCoords.getSbVec3f(indices.get(i), v);
         		//v = new SbVec3f(vpCoords,indices[i]);
         	}
             box.extendBy(v);
@@ -349,11 +352,11 @@ getNumVerts(int startCoord)
 }
 
     //! These must not be called unless setupIndices has been called first:
-    public int[]     getNormalIndices()
+    public IntArray     getNormalIndices()
         { return (normalI != null ? normalI : consecutiveIndices); }
-    public int[]     getColorIndices()
+    public IntArray     getColorIndices()
         { return (colorI != null ? colorI : consecutiveIndices); }
-    public int[]     getTexCoordIndices()
+    public IntArray     getTexCoordIndices()
         { return (texCoordI != null ? texCoordI : consecutiveIndices); }
 
 
@@ -476,14 +479,14 @@ setupIndices(int numParts, int numFaces,
 
           case PER_PART_INDEXED:
             if (materialIndex.operator_square_bracketI(0) < 0)
-                colorI = coordIndex.getValuesI(0);
+                colorI = coordIndex.getValues(0);
             else
-                colorI = materialIndex.getValuesI(0);
+                colorI = materialIndex.getValues(0);
 //#ifdef DEBUG
             useCoordIndexOK = false;
             numIndicesNeeded = numParts;
             bindingString = "PER_PART_INDEXED";
-            if (colorI == coordIndex.getValuesI(0)) {
+            if (Objects.equals(colorI, coordIndex.getValues(0))) {
                 numIndices = coordIndex.getNum();
             } else {
                 numIndices = materialIndex.getNum();
@@ -492,14 +495,14 @@ setupIndices(int numParts, int numFaces,
             break;
           case PER_FACE_INDEXED:
             if (materialIndex.operator_square_bracketI(0) < 0)
-                colorI = coordIndex.getValuesI(0);
+                colorI = coordIndex.getValues(0);
             else
-                colorI = materialIndex.getValuesI(0);
+                colorI = materialIndex.getValues(0);
 //#ifdef DEBUG
             useCoordIndexOK = false;
             numIndicesNeeded = numFaces;
             bindingString = "PER_FACE_INDEXED";
-            if (colorI == coordIndex.getValuesI(0)) {
+            if (Objects.equals(colorI, coordIndex.getValues(0))) {
                 numIndices = coordIndex.getNum();
             } else {
                 numIndices = materialIndex.getNum();
@@ -508,14 +511,14 @@ setupIndices(int numParts, int numFaces,
             break;
           case PER_VERTEX_INDEXED:
             if (materialIndex.operator_square_bracketI(0) < 0)
-                colorI = coordIndex.getValuesI(0);
+                colorI = coordIndex.getValues(0);
             else
-                colorI = materialIndex.getValuesI(0);
+                colorI = materialIndex.getValues(0);
 //#ifdef DEBUG
             useCoordIndexOK = true;
             numIndicesNeeded = coordIndex.getNum();
             bindingString = "PER_VERTEX_INDEXED";
-            if (colorI == coordIndex.getValuesI(0)) {
+            if (Objects.equals(colorI, coordIndex.getValues(0))) {
                 numIndices = coordIndex.getNum();
             } else {
                 numIndices = materialIndex.getNum();
@@ -527,7 +530,7 @@ setupIndices(int numParts, int numFaces,
 //#ifdef DEBUG
         // Check for mis-use of default materialIndex field
         if (useCoordIndexOK == false && 
-            colorI == coordIndex.getValuesI(0)) {
+        		Objects.equals(colorI, coordIndex.getValues(0))) {
             SoDebugError.post("SoIndexedShape",
                 "Material binding is "+bindingString+
                 " but materialIndex[0] < 0; coordIndex"+
@@ -543,8 +546,8 @@ setupIndices(int numParts, int numFaces,
         else if (numIndices > 0) {
             // Find greatest index:
             for (int i = 0; i < numIndices; i++) {
-                if (colorI[i] > numColorsNeeded)
-                    numColorsNeeded = colorI[i];
+                if (colorI.get(i) > numColorsNeeded)
+                    numColorsNeeded = colorI.get(i);
             }
         }
         if (vpCache.getNumColors() < numColorsNeeded) {
@@ -606,14 +609,14 @@ setupIndices(int numParts, int numFaces,
 
           case PER_PART_INDEXED:
             if (normalIndex.operator_square_bracketI(0) < 0)
-                normalI = coordIndex.getValuesI(0);
+                normalI = coordIndex.getValues(0);
             else
-                normalI = normalIndex.getValuesI(0);
+                normalI = normalIndex.getValues(0);
 //#ifdef DEBUG
             useCoordIndexOK = false;
             numIndicesNeeded = numParts;
             bindingString = "PER_PART_INDEXED";
-            if (normalI == coordIndex.getValuesI(0)) {
+            if (Objects.equals(normalI, coordIndex.getValues(0))) {
                 numIndices = coordIndex.getNum();
             } else {
                 numIndices = normalIndex.getNum();
@@ -622,14 +625,14 @@ setupIndices(int numParts, int numFaces,
             break;
           case PER_FACE_INDEXED:
             if (normalIndex.operator_square_bracketI(0) < 0)
-                normalI = coordIndex.getValuesI(0);
+                normalI = coordIndex.getValues(0);
             else
-                normalI = normalIndex.getValuesI(0);
+                normalI = normalIndex.getValues(0);
 //#ifdef DEBUG
             useCoordIndexOK = false;
             numIndicesNeeded = numFaces;
             bindingString = "PER_FACE_INDEXED";
-            if (normalI == coordIndex.getValuesI(0)) {
+            if (Objects.equals(normalI, coordIndex.getValues(0))) {
                 numIndices = coordIndex.getNum();
             } else {
                 numIndices = normalIndex.getNum();
@@ -638,14 +641,14 @@ setupIndices(int numParts, int numFaces,
             break;
           case PER_VERTEX_INDEXED:
             if (normalIndex.operator_square_bracketI(0) < 0)
-                normalI = coordIndex.getValuesI(0);
+                normalI = coordIndex.getValues(0);
             else
-                normalI = normalIndex.getValuesI(0);
+                normalI = normalIndex.getValues(0);
 //#ifdef DEBUG
             useCoordIndexOK = true;
             numIndicesNeeded = coordIndex.getNum();
             bindingString = "PER_VERTEX_INDEXED";
-            if (normalI == coordIndex.getValuesI(0)) {
+            if (Objects.equals(normalI, coordIndex.getValues(0))) {
                 numIndices = coordIndex.getNum();
             } else {
                 numIndices = normalIndex.getNum();
@@ -657,7 +660,7 @@ setupIndices(int numParts, int numFaces,
 //#ifdef DEBUG
         // Check for mis-use of default normalIndex field
         if (useCoordIndexOK == false && 
-            normalI == coordIndex.getValuesI(0)) {
+        		Objects.equals(normalI, coordIndex.getValues(0))) {
             SoDebugError.post("SoIndexedShape",
                 "Normal binding is "+bindingString+
                 " but normalIndex[0] < 0; coordIndex"+
@@ -673,8 +676,8 @@ setupIndices(int numParts, int numFaces,
         else if (numIndices > 0) {
             // Find greatest index:
             for (int i = 0; i < numIndices; i++) {
-                if (normalI[i] > numNormalsNeeded)
-                    numNormalsNeeded = normalI[i];
+                if (normalI.get(i) > numNormalsNeeded)
+                    numNormalsNeeded = normalI.get(i);
             }
         }
         if (vpCache.getNumNormals() < numNormalsNeeded) {
@@ -716,13 +719,13 @@ setupIndices(int numParts, int numFaces,
 
           case PER_VERTEX_INDEXED:
             if (textureCoordIndex.operator_square_bracketI(0) < 0)
-                texCoordI = coordIndex.getValuesI(0);
+                texCoordI = coordIndex.getValues(0);
             else
-                texCoordI = textureCoordIndex.getValuesI(0);
+                texCoordI = textureCoordIndex.getValues(0);
 //#ifdef DEBUG
             numIndicesNeeded = numFaces;
             bindingString = "PER_VERTEX_INDEXED";
-            if (texCoordI == coordIndex.getValuesI(0)) {
+            if (Objects.equals(texCoordI, coordIndex.getValues(0))) {
                 numIndices = coordIndex.getNum();
             } else {
                 numIndices = textureCoordIndex.getNum();
@@ -740,8 +743,8 @@ setupIndices(int numParts, int numFaces,
         else if (numIndices > 0) {
             // Find greatest index:
             for (int i = 0; i < numIndices; i++) {
-                if (texCoordI[i] > numTexCoordsNeeded)
-                    numTexCoordsNeeded = texCoordI[i];
+                if (texCoordI.get(i) > numTexCoordsNeeded)
+                    numTexCoordsNeeded = texCoordI.get(i);
             }
         }
         if (vpCache.getNumTexCoords() < numTexCoordsNeeded) {
@@ -770,9 +773,9 @@ allocateSequential(int howMany)
         if (consecutiveIndices != null) {
             consecutiveIndices = null;
         }
-        consecutiveIndices = new int[howMany];
+        consecutiveIndices = new IntArray(howMany);
         for (int i = 0; i < howMany; i++) {
-            consecutiveIndices[i] = i;
+            consecutiveIndices.set(i, i);
         }
     }
 }
@@ -785,21 +788,21 @@ allocateSequential(int howMany)
 //
 // Use: private
 
-private int[]
+private IntArray
 allocateSequentialWithHoles()
 //
 ////////////////////////////////////////////////////////////////////////
 {
     int count = 0;
     int num = coordIndex.getNum();
-    int[] result = new int[num];
+    IntArray result = new IntArray(num);
     for (int i = 0; i < num; i++) {
         if (coordIndex.operator_square_bracketI(i) >= 0) {
-            result[i] = count;
+            result.set(i, count);
             count++;
         }
         else
-            result[i] = coordIndex.operator_square_bracketI(i); // Just copy-over negatives
+            result.set(i, coordIndex.operator_square_bracketI(i)); // Just copy-over negatives
     }
     return result;
 }

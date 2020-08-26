@@ -49,7 +49,6 @@ import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IntArrayPtr;
-import jscenegraph.port.ShortPtr;
 import jscenegraph.port.UShortPtr;
 import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
@@ -264,7 +263,7 @@ public class SoVertexArrayIndexer implements Destroyable {
 	    IntArrayPtr ptr = this.indexarray.getArrayPtr();
 	    for (int i = 0; i < this.countarray.getLength(); i++) {
 	      this.ciarray.append(ptr);
-	      ptr = ptr.plus((int) this.countarray.operator_square_bracket(i));
+	      ptr = IntArrayPtr.plus(ptr,(int) this.countarray.operator_square_bracket(i));
 	    }
 	  }
 	  if (this.target == GL2.GL_TRIANGLES) {

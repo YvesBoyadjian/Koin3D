@@ -1469,36 +1469,83 @@ public void setTransform(final SbVec3f translation,
                  final SbRotation scaleOrientation,
                  final SbVec3f center)
 {
-    final SbMatrix m = new SbMatrix();
+  //  Unoptimized version:
+  //
+  //  this->setTranslate(-center);
+  //  tmp.setRotate(scaleOrientation.inverse());
+  //  this->multRight(tmp);
+  //  tmp.setScale(scaleFactor);
+  //  this->multRight(tmp);
+  //  tmp.setRotate(scaleOrientation);
+  //  this->multRight(tmp);
+  //  tmp.setRotate(rotation);
+  //  this->multRight(tmp);
+  //  tmp.setTranslate(translation);
+  //  this->multRight(tmp);
+  //  tmp.setTranslate(center);
+  //  this->multRight(tmp);
 
-    makeIdentity();
-    
-    if (translation.operator_not_equal(new SbVec3f(0,0,0)))
-        TRANSLATE(translation,m);
+  // Optimized version. Much faster for the common case where only
+  // zero or one of the parameters are set.
+  final SbMatrix tmp = new SbMatrix();
+  final SbRotation identity = new SbRotation(SbRotation.identity());
 
-    if (center.operator_not_equal(new SbVec3f(0,0,0)))
-        TRANSLATE(center,m);
+  this.setTranslate(center.operator_minus());
 
-    if (rotation.operator_not_equal(new SbRotation(0,0,0,1)))
-        ROTATE(rotation,m);
-
-    if (scaleFactor.operator_not_equal(new SbVec3f(1,1,1))) {
-        final SbRotation so = new SbRotation(scaleOrientation);
-        if (so.operator_not_equal(new SbRotation(0,0,0,1)))
-            ROTATE(so,m);
-        
-        m.setScale(scaleFactor);
-        multLeft(m);
-
-        if (so.operator_not_equal(new SbRotation(0,0,0,1))) {
-            so.invert();
-            ROTATE(so,m);
-        }
+  if (scaleFactor.operator_not_equal(new SbVec3f(1.0f, 1.0f, 1.0f))) {
+    if (scaleOrientation.operator_not_equal(identity)) {
+      tmp.setRotate(scaleOrientation.inverse());
+      this.multRight(tmp);
     }
+    tmp.setScale(scaleFactor);
+    this.multRight(tmp);
 
-    if (center.operator_not_equal(new SbVec3f(0,0,0)))
-        TRANSLATE(center.operator_minus(),m);
+    if (scaleOrientation.operator_not_equal(identity)) {
+      tmp.setRotate(scaleOrientation);
+      this.multRight(tmp);
+    }
+  }
 
+  if (rotation.operator_not_equal(identity)) {
+    tmp.setRotate(rotation);
+    this.multRight(tmp);
+  }
+
+  final SbVec3f sum = center.operator_add(translation);
+  if (sum.operator_not_equal(new SbVec3f(0.f, 0.0f, 0.0f))) {
+    tmp.setTranslate(sum);
+    this.multRight(tmp);
+  }
+//    final SbMatrix m = new SbMatrix();
+//
+//    makeIdentity();
+//    
+//    if (translation.operator_not_equal(new SbVec3f(0,0,0)))
+//        TRANSLATE(translation,m);
+//
+//    if (center.operator_not_equal(new SbVec3f(0,0,0)))
+//        TRANSLATE(center,m);
+//
+//    if (rotation.operator_not_equal(new SbRotation(0,0,0,1)))
+//        ROTATE(rotation,m);
+//
+//    if (scaleFactor.operator_not_equal(new SbVec3f(1,1,1))) {
+//        final SbRotation so = new SbRotation(scaleOrientation);
+//        if (so.operator_not_equal(new SbRotation(0,0,0,1)))
+//            ROTATE(so,m);
+//        
+//        m.setScale(scaleFactor);
+//        multLeft(m);
+//
+//        if (so.operator_not_equal(new SbRotation(0,0,0,1))) {
+//            so.invert();
+//            ROTATE(so,m);
+//        }
+//    }
+//
+//    if (center.operator_not_equal(new SbVec3f(0,0,0)))
+//        TRANSLATE(center.operator_minus(),m);
+//
 //#undef TRANSLATE
 //#undef ROTATE
 }

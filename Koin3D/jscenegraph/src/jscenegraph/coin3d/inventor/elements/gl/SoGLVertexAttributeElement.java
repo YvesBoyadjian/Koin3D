@@ -52,6 +52,10 @@ import jscenegraph.database.inventor.fields.SoMFVec2f;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
 import jscenegraph.database.inventor.fields.SoMFVec4f;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.SbVec2fArray;
+import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.SbVec4fArray;
+import jscenegraph.port.ShortArray;
 
 /**
  * @author Yves Boyadjian
@@ -114,26 +118,26 @@ private static void send_attribs( String key,
   } else if (data.type.equals(SoMFVec2f.getClassTypeId(SoMFVec2f.class))) {
 
     SoMFVec2f mfield = (SoMFVec2f)(data.data);
-    SbVec2f[] attribs = mfield.getValues(0);
-    glue.glVertexAttrib2fvARB(data.index, attribs[dataindex].getValueRead());
+    SbVec2fArray attribs = mfield.getValues(0);
+    glue.glVertexAttrib2fvARB(data.index, attribs.get(dataindex).getValueRead());
 
   } else if (data.type.equals(SoMFVec3f.getClassTypeId(SoMFVec3f.class))) {
 
     SoMFVec3f mfield = (SoMFVec3f)(data.data);
-    SbVec3f[] attribs = mfield.getValues(0);
-    glue.glVertexAttrib3fvARB(data.index, attribs[dataindex].getValueRead());
+    SbVec3fArray attribs = mfield.getValues(0);
+    glue.glVertexAttrib3fvARB(data.index, attribs.get(dataindex).getValueRead());
 
   } else if (data.type.equals(SoMFVec4f.getClassTypeId(SoMFVec4f.class))) {
 
     SoMFVec4f mfield = (SoMFVec4f)(data.data);
-    SbVec4f[] attribs = mfield.getValues(0);
-    glue.glVertexAttrib4fvARB(data.index, attribs[dataindex].getValueRead());
+    SbVec4fArray attribs = mfield.getValues(0);
+    glue.glVertexAttrib4fvARB(data.index, attribs.get(dataindex).getValueRead());
 
   } else if (data.type.equals(SoMFShort.getClassTypeId(SoMFShort.class))) {
 
     SoMFShort mfield = (SoMFShort)(data.data);
-    Short[] attribs = mfield.getValues(0);
-    glue.glVertexAttrib1sARB(data.index, attribs[dataindex]);
+    ShortArray attribs = mfield.getValues(0);
+    glue.glVertexAttrib1sARB(data.index, attribs.getO(dataindex));
 
   } else {
     throw new IllegalArgumentException("unknown attribute type");
