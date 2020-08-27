@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Lwjgl-egl
+Bundle-SymbolicName: lwjgl-egl
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: lwjgl.egl
+Bundle-RequiredExecutionEnvironment: JavaSE-11

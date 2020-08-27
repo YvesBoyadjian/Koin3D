@@ -8,13 +8,14 @@ import java.nio.ByteBuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
 
+import jscenegraph.port.ByteBufferAble;
 import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
  *
  */
-public class MemoryBuffer implements Destroyable {
+public class MemoryBuffer implements Destroyable, ByteBufferAble {
 	
 	protected ByteBuffer byteBuffer; 
 	

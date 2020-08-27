@@ -11,6 +11,7 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-glfw-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-glfw-natives-linux-arm64.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-glfw.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

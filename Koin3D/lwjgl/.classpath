@@ -8,6 +8,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-natives-linux-arm64.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengl-natives-linux-arm64.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengl-natives-windows.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengl.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
@@ -17,5 +19,11 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengles.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengles-javadoc.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengles-natives-linux.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengles-natives-linux-arm64.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengles-natives-windows.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/lwjgl-opengles-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

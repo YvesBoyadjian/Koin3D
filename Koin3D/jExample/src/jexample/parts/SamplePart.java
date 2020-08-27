@@ -1153,7 +1153,7 @@ SoSeparator createPlanet2(float radius, float distance,
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/buildings/Barcelona.wrl";
 		//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/buildings/windmill.iv";
 		//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/chess/chessboard.iv";
-		String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/chair.iv";
+		String fileName = "examples_iv/chair.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/vehicles/spacestation.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/sgi/logo.iv";
 	//String fileName = "C:/eclipseWorkspaces/inventor-2.1.5-10.src/inventor/data/models/CyberHeads/josie.iv";

@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Geotools
 Bundle-SymbolicName: geotools;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: geotools.Activator
 Require-Bundle: org.eclipse.ui,
   org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -24,7 +23,6 @@ Export-Package: .,
  com.sun.media.jai.tilecodec,
  com.sun.media.jai.util,
  com.sun.media.jai.widget,
- geotools,
  it.geosolutions.imageio.core,
  it.geosolutions.imageio.imageioimpl,
  it.geosolutions.imageio.maskband,

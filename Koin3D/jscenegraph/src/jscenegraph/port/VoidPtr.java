@@ -10,6 +10,7 @@ import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 
 import com.jogamp.common.nio.Buffers;
@@ -25,6 +26,23 @@ import jscenegraph.port.memorybuffer.MemoryBuffer;
  */
 public class VoidPtr implements Destroyable {
 	
+	@Override
+	public int hashCode() {
+		return Objects.hash(object);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof VoidPtr)) {
+			return false;
+		}
+		VoidPtr other = (VoidPtr) obj;
+		return Objects.equals(object, other.object);
+	}
+
 	private Object object;
 	
 	private Buffer buffer; 
@@ -41,7 +59,7 @@ public class VoidPtr implements Destroyable {
 	 * @param obj
 	 * @return
 	 */
-	public static VoidPtr create(Object obj) {
+	public static VoidPtr create(ByteBufferAble obj) {
 		VoidPtr voide/* = ptrs.get(obj)*/;
 		//if(voide == null) {
 			voide = new VoidPtr(obj);
@@ -49,6 +67,14 @@ public class VoidPtr implements Destroyable {
 			//System.out.println("vp = "+ptrs.size()+" class : "+obj.getClass());
 		//}
 		return voide;
+	}
+	
+	public static VoidPtr create(IntBufferAble obj) {
+		return new VoidPtr(obj);
+	}
+	
+	public static VoidPtr create(ByteBuffer obj) {
+		return new VoidPtr(obj);
 	}
 	
 //	public static boolean has(Object obj) {

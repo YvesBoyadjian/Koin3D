@@ -3,7 +3,6 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Loader
 Bundle-SymbolicName: loader
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: loader.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  geotools;bundle-version="1.0.0"

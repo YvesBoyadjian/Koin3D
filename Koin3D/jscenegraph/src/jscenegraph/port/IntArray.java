@@ -5,15 +5,19 @@ package jscenegraph.port;
 
 import java.nio.IntBuffer;
 
+import org.lwjgl.BufferUtils;
+
 /**
  * @author Yves Boyadjian
  *
  */
-public class IntArray extends Indexable<Integer> {
+public class IntArray extends Indexable<Integer> implements IntBufferAble {
 	
 	int start;
 	int[] values;
 
+	private IntBuffer intBuffer;
+	
 	public IntArray(int start, int[] values) {
 		this.start = start;
 		this.values = values;
@@ -67,4 +71,17 @@ public class IntArray extends Indexable<Integer> {
 		return values;
 	}
 
+	@Override
+		public IntBuffer toIntBuffer() {
+		int offset = start;
+		int length = values.length - offset;
+		if(intBuffer == null || intBuffer.capacity() != length) {
+			intBuffer = BufferUtils.createIntBuffer(length);
+		//}
+		intBuffer.clear();
+		intBuffer.put(values, offset, length);
+		intBuffer.flip();
+		}
+		return intBuffer;		
+	}
 }
