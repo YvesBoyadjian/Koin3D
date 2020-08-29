@@ -58,6 +58,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import jscenegraph.coin3d.inventor.annex.profiler.SbProfilingData;
+import jscenegraph.coin3d.inventor.annex.profiler.SoNodeProfiling;
 import jscenegraph.coin3d.inventor.annex.profiler.SoProfiler;
 import jscenegraph.coin3d.inventor.annex.profiler.SoProfilerP;
 import jscenegraph.coin3d.inventor.annex.profiler.elements.SoProfilerElement;
@@ -100,6 +101,212 @@ determined by a lookup table in the global database.
 SoNode, SoPath, SoPathList, SoCallbackAction, SoGLRenderAction, SoGetBoundingBoxAction, SoGetMatrixAction, SoHandleEventAction, SoPickAction, SoRayPickAction, SoSearchAction, SoWriteAction
 */
 ////////////////////////////////////////////////////////////////////////////////
+
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+\**************************************************************************/
+
+/*!
+  \class SoAction SoAction.h Inventor/actions/SoAction.h
+  \brief The SoAction class is the base class for all traversal actions.
+
+  \ingroup actions
+
+  Applying actions is the basic mechanism in Coin for executing
+  various operations on scene graphs or paths within scene graphs,
+  including search operations, rendering, interaction through picking,
+  etc.
+
+  The basic operation is to instantiate an action, set it up with
+  miscellaneous parameters if necessary, then call its apply() method
+  on the root node of the scene graph (or sub-graph of a scene graph).
+  The action then traverses the scene graph from the root node,
+  depth-first and left-to-right, applying its specific processing at
+  the nodes where it is applicable.
+
+  (The SoAction and its derived classes in Coin is an implementation
+  of the design pattern commonly known as the "Visitor" pattern.)
+
+  Here's a simple example that shows how to use the SoWriteAction to
+  dump a scene graph in the Inventor format to a file:
+
+  \code
+   int write_scenegraph(const char * filename, SoNode * root)
+   {
+     SoOutput output;
+     if (!output.openFile(filename)) return 0;
+
+     // This is where the action is.  ;-)
+     SoWriteAction wa(&output);
+     wa.apply(root);
+
+     return 1;
+   }
+  \endcode
+
+  After traversal, some action types have stored information about the
+  (sub-)scene graph that was traversed, which you can then inquire
+  about through methods like SoGetBoundingBoxAction::getBoundingBox(),
+  SoRayPickAction::getPickedPoint(),
+  SoGetPrimitiveCountAction::getTriangleCount(), etc.
+
+  See the various built-in actions for further information (i.e. the
+  subclasses of this class), or look at the example code applications
+  of the Coin library to see how actions are generally used.
+
+  \TOOLMAKER_REF
+
+  The following example shows the basic outline on how to set up your
+  own extension action class:
+
+  \code
+  // This is sample code on how you can get progress indication on Coin
+  // export operations by extending the library with your own action
+  // class. The new class inherits SoWriteAction. The code is presented
+  // as a standalone example.
+  //
+  // The general technique is to inherit SoWriteAction and override its
+  // "entry point" into each node of the scene graph. The granularity of
+  // the progress callbacks is on a per node basis, which should usually
+  // be good enough.
+
+  #include <Inventor/SoDB.h>
+  #include <Inventor/actions/SoWriteAction.h>
+  #include <Inventor/nodes/SoSeparator.h>
+
+
+  //// Definition of extension class "MyWriteAction" ///////////////
+
+  class MyWriteAction : public SoWriteAction {
+    SO_ACTION_HEADER(SoWriteAction);
+
+  public:
+    MyWriteAction(SoOutput * out);
+    virtual ~MyWriteAction();
+
+    static void initClass(void);
+
+  protected:
+    virtual void beginTraversal(SoNode * node);
+
+  private:
+    static void actionMethod(SoAction *, SoNode *);
+    int nrnodes;
+    int totalnrnodes;
+  };
+
+  //// Implementation of extension class "MyWriteAction" ///////////
+
+  SO_ACTION_SOURCE(MyWriteAction);
+
+  MyWriteAction::MyWriteAction(SoOutput * out)
+    : SoWriteAction(out)
+  {
+    SO_ACTION_CONSTRUCTOR(MyWriteAction);
+  }
+
+  MyWriteAction::~MyWriteAction()
+  {
+  }
+
+  void
+  MyWriteAction::initClass(void)
+  {
+    SO_ACTION_INIT_CLASS(MyWriteAction, SoWriteAction);
+
+    SO_ACTION_ADD_METHOD(SoNode, MyWriteAction::actionMethod);
+  }
+
+  void
+  MyWriteAction::beginTraversal(SoNode * node)
+  {
+    this->nrnodes = 0;
+    this->totalnrnodes = 0;
+    SoWriteAction::beginTraversal(node);
+  }
+
+  void
+  MyWriteAction::actionMethod(SoAction * a, SoNode * n)
+  {
+    // To abort the export process in mid-writing, we could just avoid
+    // calling in to the SoNode::writeS() method.
+    SoNode::writeS(a, n);
+
+    MyWriteAction * mwa = (MyWriteAction *)a;
+    SoOutput * out = mwa->getOutput();
+    if (out->getStage() == SoOutput::COUNT_REFS) {
+      mwa->totalnrnodes++;
+    }
+    else { //  (out->getStage() == SoOutput::WRITE)
+      mwa->nrnodes++;
+      SbString s;
+      s.sprintf(" # wrote node %p (%d/%d) \n", n, mwa->nrnodes, mwa->totalnrnodes);
+      out->write(s.getString());
+    }
+  }
+
+  //// main ////////////////////////////////////////////////////////
+
+  int
+  main(int argc, char ** argv)
+  {
+    if (argc < 2) {
+      (void)fprintf(stderr, "\n\nUsage: %s <filename>\n\n", argv[0]);
+      exit(1);
+    }
+
+    SoDB::init();
+    MyWriteAction::initClass();
+
+    SoInput in;
+    if (!in.openFile(argv[1])) { exit(1); }
+
+    SoSeparator * root = SoDB::readAll(&in);
+    if (!root) { exit(1); }
+
+    root->ref();
+
+    SoOutput out;
+    MyWriteAction mwa(&out);
+    mwa.apply(root);
+
+    root->unref();
+
+    return 0;
+  }
+  \endcode
+
+*/
+
+// *************************************************************************
 
 /**
  * @author Yves Boyadjian
@@ -624,8 +831,12 @@ public abstract class SoAction implements Destroyable {
 	   			SoType typeId = node.getTypeId();
 	   			int actionMethodIndex = SoNode.getActionMethodIndex(typeId);
 	   			SoActionMethod method = traversalMethods.operator_square_bracket(actionMethodIndex);
+	   		  final SoNodeProfiling profiling = new SoNodeProfiling();
+	   		  profiling.preTraversal(this);
   				method.run(this, node);
 	   	      //traversalMethods.operator_square_bracket(SoNode.getActionMethodIndex(node.getTypeId())).run(this, node);
+    			  profiling.postTraversal(this);
+    			  profiling.destructor();
 	   	   
 	   	      //SO_CATCH_ELSE(;)
 	        	   	   
@@ -1551,7 +1762,15 @@ hasTerminated()
 	        // Enable override element for all actions.
 	        enabledElements.enable(SoOverrideElement.getClassTypeId(SoOverrideElement.class),
 	                                SoOverrideElement.getClassStackIndex(SoOverrideElement.class));
-	    }
+
+	        // Profiler element may also be used from within all types of action
+	        // traversals.
+	        if (SoProfiler.isEnabled()) {
+	          /*SoAction::enabledElements*/enabledElements.enable(SoProfilerElement.getClassTypeId(SoProfilerElement.class),
+	                                            SoProfilerElement.getClassStackIndex(SoProfilerElement.class));
+	        }
+
+	     }
 	    
 	     
 ////////////////////////////////////////////////////////////////////////

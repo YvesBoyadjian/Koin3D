@@ -258,6 +258,7 @@ import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.bundles.SoNormalBundle;
@@ -1610,6 +1611,38 @@ generatePrimitives(SoAction action)
   
   tb.destructor(); // java port
 }
+
+
+// doc from parent
+public void getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  if (!this.shouldPrimitiveCount(action)) return;
+
+  int n = this.coordIndex.getNum();
+  if (n < 3) return;
+
+  if (action.canApproximateCount()) {
+    action.addNumTriangles(n/4);
+  }
+  else {
+    IntArray ptr = coordIndex.getValues(0);
+    final IntArray endptr = ptr.plus(n);
+    int cnt = 0;
+    int add = 0;
+    while (IntArray.lessThan(ptr,endptr)) {
+      if (ptr.get(0) >= 0) cnt++;
+      else {
+        add += cnt-2;
+        cnt = 0;
+      }
+      ptr = ptr.plus(1);
+    }
+    // in case index array wasn't terminated with a -1
+    if (cnt >= 3) add += cnt-2;
+    action.addNumTriangles(add);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //

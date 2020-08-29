@@ -52,9 +52,233 @@
  _______________________________________________________________________
  */
 
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ * 
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ * 
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ * 
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+\**************************************************************************/
+
+/*!
+  \class SoSeparator SoSeparator.h Inventor/nodes/SoSeparator.h
+  \brief The SoSeparator class is a state-preserving group node.
+
+  \ingroup nodes
+
+  Subgraphs parented by SoSeparator nodes will not affect the state,
+  as they push and pop the traversal state before and after traversal
+  of its children.
+
+  SoSeparator nodes also provides options for traversal optimization
+  through the use of caching.
+
+  <b>FILE FORMAT/DEFAULTS:</b>
+  \code
+    Separator {
+        renderCaching AUTO
+        boundingBoxCaching AUTO
+        renderCulling AUTO
+        pickCulling AUTO
+    }
+  \endcode
+
+  \sa SoTransformSeparator
+*/
+
+// *************************************************************************
+
+
+// *************************************************************************
+
+/*!
+  \enum SoSeparator::CacheEnabled
+
+  Enumeration of flags for the fields deciding which optimizations
+  to do in SoSeparator nodes. There are two types of settings
+  available: caching policies or culling policies. See documentation of
+  fields.
+*/
+/*!
+  \var SoSeparator::CacheEnabled SoSeparator::OFF
+  No caching.
+*/
+/*!
+  \var SoSeparator::CacheEnabled SoSeparator::ON
+  Always try to cache state.
+*/
+/*!
+  \var SoSeparator::CacheEnabled SoSeparator::AUTO
+  Use heuristics to try to figure out the optimal caching policy.
+*/
+
+
+/*!
+  \var SoSFEnum SoSeparator::renderCaching
+
+  Policy for caching of rendering instructions for faster
+  execution. This will typically use the OpenGL \e displaylist
+  mechanism.
+
+  Default value is SoSeparator::AUTO.
+
+  If you know that some parts of your scene will never change,
+  rendering might happen faster if you explicitly set this field to
+  SoSeparator::ON. If you on the other hand know that parts of the
+  scene will change a lot (like for every redraw), it will be
+  beneficial to set this field to SoSeparator::OFF for the top-level
+  separator node of this (sub)graph.
+
+  Usually the default setting of \c AUTO will handle any scene very
+  well. The advantages that \e can be had from setting
+  SoSeparator::renderCaching to \c ON are:
+
+  <ul>
+   <li> If you positively know that the geometry under the SoSeparator is
+     static, you get the cache set up right away.
+
+     Otherwise, the code in Coin will do a bit of testing and decide
+     by some heuristics whether or not to enable it. That will make
+     the rendering be a tiny bit slower right after startup than with
+     renderCaching set to \c ON.
+
+     (The slow-down should hardly be noticeable, though, so we don't
+     advice application programmers to do this.)
+   </li>
+
+   <li> For many of the shape nodes that can contain many basic
+     primitives, like e.g. SoFaceSet, SoIndexedFaceSet, SoLineSet, etc
+     etc, there is an internal threshold for how many primitives a
+     node can contain before we don't do caching when
+     SoSeparator::renderCaching is set to \c AUTO.
+
+     The reason we do this is because OpenGL render lists can
+     potentially suck up a lot of memory resources on the graphics
+     card.
+
+     But if you know that it will be advantageous on your particular
+     platform, you can override this by setting
+     SoSeparator::renderCaching equal to \c ON.
+
+     (We don't advice application programmers to do this either. A
+     better solution in these cases would simply be to get in touch
+     with SIM and describe the platform and the problem, and we could
+     integrate a proper fix into Coin.)
+   </li>
+  </ul>
+
+  There are good reasons for setting renderCaching to \c OFF, like
+  when you know the geometry will be changing a lot. Still, Coin
+  should work fairly well even without this optimization.  (If
+  renderCaching is \c AUTO over a sub-graph with changing geometry or
+  other cache smashing nodes, the caching heuristics will stop the
+  SoSeparator node from trying to make caches -- at least after a few
+  tries have been made and failed.)
+
+
+  The short story about how auto-caching works is as follows:
+
+  <ul>
+
+    <li>For vertex-based shapes with fewer than 100 triangles and
+        where the geometry is detected to be fairly static, caching is
+        enabled.</li>
+
+    <li>For shapes with more than 1000 triangles, it is disabled, to
+        avoid spending too much of the on-board graphics card's memory
+        resources.</li>
+
+    <li>For shapes with between 100 and 1000 shapes, display list
+        caching will be turned on if our heuristics decides that the
+        geometry can be considered static.</li>
+
+  </ul>
+
+  The maximum threshold (of 1000) is higher when doing remote
+  rendering (as when rendering from one X11-based system to another).
+
+  Disabling the display list caching takes precedence over enabling, so
+  if you have an SoSeparator with a shape with more than 1000
+  triangles and a shape with fewer than 100 triangles, caching will be
+  disabled for the SoSeparator.
+
+  It's possible to tune the limits using some environment variables:
+
+  <ul>
+
+    <li>\c COIN_AUTOCACHE_LOCAL_MIN can be used to change the
+        enable-caching limit, while \c COIN_AUTOCACHE_LOCAL_MAX
+        controls the disable-caching limit.</li>
+
+    <li>The corresponding variables for remote rendering are \c
+        COIN_AUTOCACHE_REMOTE_MIN and \c
+        COIN_AUTOCACHE_REMOTE_MAX.</li>
+
+  </ul>
+*/
+
+/*!
+  \var SoSFEnum SoSeparator::boundingBoxCaching
+
+  Policy for caching bounding box calculations. Default value is
+  SoSeparator::AUTO.
+
+  See also documentation for SoSeparator::renderCaching.
+*/
+/*!
+  \var SoSFEnum SoSeparator::renderCulling
+
+  Policy for doing viewport culling during rendering
+  traversals. Default value is SoSeparator::AUTO.
+
+  When the render culling is turned off for Coin, it will be left to
+  be done for the underlying immediate mode rendering library. This
+  will often be faster than doing culling from within Coin, so be
+  careful to monitor the change in execution speed if setting this
+  field to SoSeparator::ON.
+
+  See also documentation for SoSeparator::renderCaching.
+*/
+/*!
+  \var SoSFEnum SoSeparator::pickCulling
+
+  Policy for doing viewport culling during pick traversals. Default
+  value is SoSeparator::AUTO.
+
+  See documentation for SoSeparator::renderCulling.
+*/
+
+// *************************************************************************
+
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.glue.Gl;
 import jscenegraph.coin3d.inventor.annex.profiler.SoNodeProfiling;
+import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec3f;
@@ -68,6 +292,7 @@ import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
 import jscenegraph.database.inventor.actions.SoGetMatrixAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoHandleEventAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
@@ -300,6 +525,12 @@ public void destructor()
          return false;
      }
          
+
+// Doc from superclass.
+public void getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  SoSeparator_doAction((SoAction)action);
+}
     
 
 ////////////////////////////////////////////////////////////////////////
@@ -309,6 +540,23 @@ public void destructor()
 //    have.
 //
 // Use: public, static
+/*!
+  Set the maximum number of caches that SoSeparator nodes may allocate
+  for render caching.
+
+  This is a global value which will be used for all SoSeparator nodes,
+  but the value indicate the maximum number \e per SoSeparator node.
+
+  More caches might give better performance, but will use more memory.
+  The built-in default value is 2.
+
+  The value can also be changed globally by setting the host system's
+  environment variable IV_SEPARATOR_MAX_CACHES to the wanted
+  number. This is primarily meant as an aid during debugging, to make
+  it easy to turn off render caching completely (by setting
+  "IV_SEPARATOR_MAX_CACHES=0") without having to change any
+  application code.
+*/
 
 public static void
 setNumRenderCaches(int howMany)
@@ -424,6 +672,9 @@ public void notify(SoNotList list)
      //
      // Use: extender
      
+public void doAction(SoAction action) {
+	SoSeparator_doAction(action);
+}
      public void
      SoSeparator_doAction(SoAction action)
      //
@@ -690,7 +941,21 @@ GLRender(SoGLRenderAction action)
 //    Renders all children.  Also does caching and culling.
 //
 // Use: extender
+static boolean chkglerr = SoGL.sogl_glerror_debugging();
 
+/*!
+  SGI Open Inventor v2.1 obsoleted support for
+  SoGLRenderAction::addMethod().  Instead, GLRender() might be called
+  directly, and to optimize traversal, the SoSeparator node calls
+  GLRenderBelowPath whenever the path code is BELOW_PATH or NO_PATH
+  (path code is guaranteed not to change). To be compatible with SGI's
+  Inventor (and thereby also TGS') we have chosen to follow their
+  implementation in this respect.
+
+  SoSeparator::GLRenderBelowPath() do not traverse its children using
+  SoChildList::traverse(), but calls GLRenderBelowPath() directly
+  for all its children.
+*/
 public void
 GLRenderBelowPath(SoGLRenderAction action)
 
@@ -772,6 +1037,24 @@ GLRenderBelowPath(SoGLRenderAction action)
                 ((SoNode )children.get(i)).GLRenderBelowPath(action);
             else
                 SoCacheElement.invalidate(action.getState());
+            
+//#if COIN_DEBUG
+      // The GL error test is default disabled for this optimized
+      // path.  If you get a GL error reporting an error in the
+      // Separator node, enable this code by setting the environment
+      // variable COIN_GLERROR_DEBUGGING to "1" to see exactly which
+      // node caused the error.
+      if (chkglerr) {
+        final String[] str = new String[1];
+        int errs = Gl.coin_catch_gl_errors(str);
+        if (errs > 0) {
+          SoDebugError.post("SoSeparator::GLRenderBelowPath",
+                             "GL error: '"+str[0]+"', nodetype: "+(this.children).operator_square_bracket(i).getTypeId().getName().getString());
+        }
+        //cc_string_clean(&str);
+      }
+//#endif // COIN_DEBUG
+            
         }
         action.popCurPath();
         state.pop();

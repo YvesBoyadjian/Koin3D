@@ -32,7 +32,9 @@
 
 package jscenegraph.coin3d.inventor.annex.profiler;
 
+import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.port.Destroyable;
 
 /**
  * @author Yves Boyadjian
@@ -54,14 +56,20 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
   statistics, and was a mess to figure out.
 */
 
-public class SoNodeProfiling {
+public class SoNodeProfiling implements Destroyable {
 
-	public void preTraversal(SoGLRenderAction action) {
+	public void preTraversal(SoAction action) {
 		// TODO Auto-generated method stub
 		
 	}
 
-	public void postTraversal(SoGLRenderAction action) {
+	public void postTraversal(SoAction action) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void destructor() {
 		// TODO Auto-generated method stub
 		
 	}

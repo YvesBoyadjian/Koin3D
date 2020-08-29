@@ -92,6 +92,7 @@ import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
+import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SbXfBox3f;
 import jscenegraph.database.inventor.SoPickedPoint;
@@ -636,10 +637,15 @@ rayPick(SoRayPickAction action)
         // Compute the picking ray in the space of the shape
         computeObjectSpaceRay(action);
 
-        // Generate primitives to approximate the shape. Each
-        // primitive will be intersected (through callbacks) with the
-        // ray.
-        generatePrimitives(action);
+        if (pimpl.bboxcache == null ||
+                !pimpl.bboxcache.isValid(action.getState()) ||
+                soshape_ray_intersect(action, pimpl.bboxcache.getProjectedBox())) {
+        
+	        // Generate primitives to approximate the shape. Each
+	        // primitive will be intersected (through callbacks) with the
+	        // ray.
+	        generatePrimitives(action);
+        }
     }
 }
 
@@ -662,6 +668,15 @@ callback(SoCallbackAction action)
         // will be sent back to the application through callbacks.
         generatePrimitives(action);
     }
+}
+
+
+// test bbox intersection
+private static boolean
+soshape_ray_intersect(SoRayPickAction action, final SbBox3f box)
+{
+  if (box.isEmpty()) return false;
+  return action.intersect(box, true);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1214,9 +1229,9 @@ getScreenSize(SoState state, final SbBox3f boundingBox,
 {
     final SbMatrix    objToScreen = new SbMatrix();
     final SbVec2s     winSize = new SbVec2s();
-    final SbVec3f     min = new SbVec3f(), max = new SbVec3f();
-    final SbVec3f[] screenPoint = new SbVec3f[8];
-    for(int i=0; i<8; i++) screenPoint[i] = new SbVec3f();
+    final SbVec3fSingle     min = new SbVec3fSingle(), max = new SbVec3fSingle();
+    final SbVec3fSingle[] screenPoint = new SbVec3fSingle[8];
+    for(int i=0; i<8; i++) screenPoint[i] = new SbVec3fSingle();
     final SbBox2f     screenBox = new SbBox2f();
     int         i;
 
@@ -1232,18 +1247,18 @@ getScreenSize(SoState state, final SbBox3f boundingBox,
 
     boundingBox.getBounds(min, max);
 
-    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], min.getValueRead()[1], min.getValueRead()[2]), screenPoint[0]);
-    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], min.getValueRead()[1], max.getValueRead()[2]), screenPoint[1]);
-    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], max.getValueRead()[1], min.getValueRead()[2]), screenPoint[2]);
-    objToScreen.multVecMatrix(new SbVec3f(min.getValueRead()[0], max.getValueRead()[1], max.getValueRead()[2]), screenPoint[3]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], min.getValueRead()[1], min.getValueRead()[2]), screenPoint[4]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], min.getValueRead()[1], max.getValueRead()[2]), screenPoint[5]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], max.getValueRead()[1], min.getValueRead()[2]), screenPoint[6]);
-    objToScreen.multVecMatrix(new SbVec3f(max.getValueRead()[0], max.getValueRead()[1], max.getValueRead()[2]), screenPoint[7]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], min.getValue()[1], min.getValue()[2]), screenPoint[0]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], min.getValue()[1], max.getValue()[2]), screenPoint[1]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], max.getValue()[1], min.getValue()[2]), screenPoint[2]);
+    objToScreen.multVecMatrix(new SbVec3f(min.getValue()[0], max.getValue()[1], max.getValue()[2]), screenPoint[3]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], min.getValue()[1], min.getValue()[2]), screenPoint[4]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], min.getValue()[1], max.getValue()[2]), screenPoint[5]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], max.getValue()[1], min.getValue()[2]), screenPoint[6]);
+    objToScreen.multVecMatrix(new SbVec3f(max.getValue()[0], max.getValue()[1], max.getValue()[2]), screenPoint[7]);
 
     for (i = 0; i < 8; i++)
-        screenBox.extendBy(new SbVec2f((screenPoint[i].getValueRead()[0] * winSize.getValue()[0]),
-                                   (screenPoint[i].getValueRead()[1] * winSize.getValue()[1])));
+        screenBox.extendBy(new SbVec2f((screenPoint[i].getValue()[0] * winSize.getValue()[0]),
+                                   (screenPoint[i].getValue()[1] * winSize.getValue()[1])));
 
     // Get the size of the resulting box
     final SbVec2fSingle boxSize = new SbVec2fSingle();
@@ -1317,7 +1332,7 @@ rayPickTriangle(SoRayPickAction action,
 ////////////////////////////////////////////////////////////////////////
 {
     final SbVec3f             point = new SbVec3f();
-    final SbVec3f             barycentric = new SbVec3f();
+    final SbVec3fSingle             barycentric = new SbVec3fSingle();
     final boolean[]              onFrontSide = new boolean[1];
     SoPickedPoint       pp;
 
@@ -1331,23 +1346,23 @@ rayPickTriangle(SoRayPickAction action,
 
         // Compute normal by interpolating vertex normals using
         // barycentric coordinates
-        norm.copyFrom((v1.getNormal().operator_mul( barycentric.getValueRead()[0]).operator_add(
-                v2.getNormal().operator_mul( barycentric.getValueRead()[1]).operator_add(
-                v3.getNormal().operator_mul( barycentric.getValueRead()[2])))));
+        norm.copyFrom((v1.getNormal().operator_mul( barycentric.getValue()[0]).operator_add(
+                v2.getNormal().operator_mul( barycentric.getValue()[1]).operator_add(
+                v3.getNormal().operator_mul( barycentric.getValue()[2])))));
         norm.normalize();
         pp.setObjectNormal(norm);
 
         // Compute texture coordinates the same way
-        texCoord.copyFrom((v1.getTextureCoords().operator_mul( barycentric.getValueRead()[0]).operator_add(
-                    v2.getTextureCoords().operator_mul( barycentric.getValueRead()[1]).operator_add(
-                    v3.getTextureCoords().operator_mul( barycentric.getValueRead()[2])))));
+        texCoord.copyFrom((v1.getTextureCoords().operator_mul( barycentric.getValue()[0]).operator_add(
+                    v2.getTextureCoords().operator_mul( barycentric.getValue()[1]).operator_add(
+                    v3.getTextureCoords().operator_mul( barycentric.getValue()[2])))));
         pp.setObjectTextureCoords(texCoord);
 
         // Copy material index from closest detail, since it can't
         // be interpolated
-        if (barycentric.getValueRead()[0] < barycentric.getValueRead()[1] && barycentric.getValueRead()[0] < barycentric.getValueRead()[2])
+        if (barycentric.getValue()[0] < barycentric.getValue()[1] && barycentric.getValue()[0] < barycentric.getValue()[2])
             pp.setMaterialIndex(v1.getMaterialIndex());
-        else if (barycentric.getValueRead()[1] < barycentric.getValueRead()[2])
+        else if (barycentric.getValue()[1] < barycentric.getValue()[2])
             pp.setMaterialIndex(v2.getMaterialIndex());
         else
             pp.setMaterialIndex(v3.getMaterialIndex());

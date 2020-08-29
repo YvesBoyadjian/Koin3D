@@ -187,18 +187,35 @@ push(SoState state)
 //
 // Use: public
 
+//public void
+//pop(SoState state, SoElement prevTopElement)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    // The previous element is gone, so get rid of its cache
+//    ((SoCacheElement ) prevTopElement).cache.unref();
+//
+//    // Let the state know whether a cache is still open. NOTE: this
+//    // assumes there can't be an element with a NULL cache deeper than
+//    // an element with a non-NULL cache.
+//    state.setCacheOpen(cache != null);
+//}
+
+// Documented in superclass. Overridden to unref the cache, since the
+// cache is ref'ed in set().
 public void
 pop(SoState state, SoElement prevTopElement)
-//
-////////////////////////////////////////////////////////////////////////
 {
-    // The previous element is gone, so get rid of its cache
-    ((SoCacheElement ) prevTopElement).cache.unref();
-
-    // Let the state know whether a cache is still open. NOTE: this
-    // assumes there can't be an element with a NULL cache deeper than
-    // an element with a non-NULL cache.
-    state.setCacheOpen(cache != null);
+  SoCacheElement prev =
+    (SoCacheElement)
+                                          prevTopElement
+     ;
+  if (prev.cache != null) {
+    prev.cache.unref();
+    prev.cache = null;
+  }
+  super.pop(state, prevTopElement);
+  if (!this.anyOpen(state)) state.setCacheOpen(false);
 }
 
     

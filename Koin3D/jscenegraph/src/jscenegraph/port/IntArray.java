@@ -18,6 +18,16 @@ public class IntArray extends Indexable<Integer> implements IntBufferAble {
 
 	private IntBuffer intBuffer;
 	
+	public static boolean lessThan(IntArray first, IntArray second) {
+		if ( null == first && null != second ) {
+			return true;
+		}
+		if ( first.values != second.values ) {
+			throw new IllegalArgumentException();
+		}		
+		return first.start < second.start;
+	}
+	
 	public IntArray(int start, int[] values) {
 		this.start = start;
 		this.values = values;
