@@ -119,7 +119,7 @@ public class MainGLFW {
 	 */
 	public static void main(String[] args) {
 		
-		//System.loadLibrary("opengl32");
+		//System.loadLibrary("opengl32"); for software rendering using mesa3d for Windows
 		
 		//System.setProperty("IV_DEBUG_CACHES", "1");
 		
@@ -255,7 +255,7 @@ public class MainGLFW {
 	    glf.alphaSize = 0;
 	    glf.depthSize = 32;
 	    glf.doubleBuffer = true;
-	    glf.majorVersion = 3;
+	    glf.majorVersion = 2;//3;
 	    glf.minorVersion = 1;
 	    glf.api = GLData.API.GL;
 	    //glf.profile = GLData.Profile.COMPATIBILITY;
