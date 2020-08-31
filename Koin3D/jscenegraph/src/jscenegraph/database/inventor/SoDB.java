@@ -69,6 +69,7 @@ import jscenegraph.coin3d.inventor.misc.SoGLImage;
 import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.coin3d.inventor.threads.SbRWMutex;
 import jscenegraph.coin3d.shaders.SoShader;
+import jscenegraph.coin3d.threads.Recmutex;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoElement;
@@ -385,10 +386,10 @@ public
 	 */
 	public static void startNotify() {
 		
-		if( Thread.currentThread() != globalDB.soDBThread) {
-			throw new IllegalStateException("Not in SoDB thread");
-		}
-		
+//		if( Thread.currentThread() != globalDB.soDBThread) {
+//			throw new IllegalStateException("Not in SoDB thread");
+//		}
+		Recmutex.cc_recmutex_internal_notify_lock();		
 		
 		 notifyCount++; 
 	}
@@ -397,6 +398,8 @@ public
 		--notifyCount;
 		 if (notifyCount == 0)
 			 globalDB.sensorManager.processImmediateQueue(); 		
+
+		 Recmutex.cc_recmutex_internal_notify_unlock();
 	}
 
 	// Enables/disables realTime sensor processing. 
@@ -624,6 +627,9 @@ init()
     	
         globalDB = new SoDB();
 
+        // initialize thread system first
+        jscenegraph.coin3d.threads.Thread.cc_thread_init();
+        
         SoDBP.globalmutex = new SbRWMutex(SbRWMutex.Precedence.READ_PRECEDENCE);
         
         // Initialize the runtime type system

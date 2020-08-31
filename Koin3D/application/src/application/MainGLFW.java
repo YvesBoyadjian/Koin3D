@@ -26,6 +26,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -217,35 +218,11 @@ public class MainGLFW {
 				if(gunSound != null) {
 					playSound(/*"GUN_FIRE-GoodSoundForYou-820112263_10db.wav"*//*clipf*/gunSound);
 				}
+				
 				SbViewportRegion vr = this.getSceneHandler().getViewportRegion();
-				SoRayPickAction fireAction = new SoRayPickAction(vr);
-				//fireAction.setRay(new SbVec3f(0.0f,0.0f,0.0f), new SbVec3f(0.0f,0.0f,-1.0f),0.1f,1000f);
-				fireAction.setPoint(vr.getViewportSizePixels().operator_div(2));
-				fireAction.setRadius(2.0f);
-				fireAction.apply(this.getSceneHandler().getSceneGraph());
-				SoPickedPoint pp = fireAction.getPickedPoint();
-				if( pp != null) {
-					SoPath p = pp.getPath();
-					if( p != null) {
-						SoNode n = p.getTail();
-						if( n.isOfType(SoCube.getClassTypeId())) {
-							int len = p.getLength();
-							if( len > 1) {
-								SoNode parent = p.getNode(len-2);
-								if(parent.isOfType(SoGroup.getClassTypeId())) {
-									SoGroup g = (SoGroup)parent;
-									SoMaterial c = new SoMaterial();
-									c.diffuseColor.setValue(1, 0, 0);
-									g.enableNotify(false);
-									g.insertChild(c, 0);
-									g.enableNotify(true);
-								}
-							}
-							//System.out.println(pp.getPath().getTail().getClass());							
-						}
-					}
-				}
-				fireAction.destructor();
+				SoNode sg = this.getSceneHandler().getSceneGraph();
+				
+				new Thread(new TargetSearchRunnable(this,vr,sg)).start();								
 			}
 		};
 	    GLData glf = new GLData(/*GLProfile.getDefault()*/);

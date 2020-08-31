@@ -74,6 +74,8 @@ public class GLCanvas extends Composite {
 		System.out.println("Refresh Rate : "+vidMode.refreshRate()+" Hz");
 		
 		glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); //makes flashing the screen in windows, but necessary for linux
+		
+		//glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE); this does not seem to have effect
 			
 		// Create the window
 		window = glfwCreateWindow(width, height, "Hello World!", /*glfwGetPrimaryMonitor()*/NULL, NULL);

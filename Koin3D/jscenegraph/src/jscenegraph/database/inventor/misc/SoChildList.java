@@ -451,7 +451,10 @@ copy(final SoChildList cList)
     //! Traverses all children to apply action. Stops if action's
       //! termination condition is reached
  public     void                traverse(SoAction action)
-          { traverse(action, 0, getLength() - 1); }
+          { 
+	  if (this.getLength() == 0) return;
+	 traverse(action, 0, getLength() - 1); 
+	 }
   
       //! Traverses just one child
 public      void                traverse(SoAction action, int childIndex)

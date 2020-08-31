@@ -694,7 +694,7 @@ getNamedBases(final SbName name, final SoBaseList result, final SoType type)
 //
 // Use: internal
 
-public static boolean read(SoInput in, final SoBase[] base, SoType expectedType)
+public static boolean read(SoInput in, final SoBase[] base, SoType expectedType) // YB FIXME : use COIN3D version for ROUTE
 //
 ////////////////////////////////////////////////////////////////////////
 {

@@ -157,25 +157,41 @@ public class SbListInt implements Destroyable, Mutable {
 	   // Copies a pointer list
 	   //
 	   
-	  public void
-	   copy(final SbListInt pl)
-	   {
-	       int i;
-	   
-	       int size = pl.size();
-	       
-	       grow(size);
-	       truncate(size);
-	   
-	       for (i = 0; i < size; i++)
-	    	   itembuffer[i] = pl.get(i);
-	   }
+//	  public void
+//	   copy(final SbListInt pl)
+//	   {
+//	       int i;
+//	   
+//	       int size = pl.size();
+//	       
+//	       grow(size);
+//	       truncate(size);
+//	   
+//	       for (i = 0; i < size; i++)
+//	    	   itembuffer[i] = pl.get(i);
+//	   }
+
+/*!
+  Make this list a copy of \a l.
+*/
+public void copy(final SbListInt l)
+{
+  if (this == l) return;
+  int n = l.numitems;
+  this.expand(n);
+  for (int i = 0; i < n; i++) this.itembuffer[i] = l.itembuffer[i];
+}
 	  
 		// java port
 		public void operator_square_bracket(int i, int object) {
 			 if (i >= size()) grow(i);
 			 itembuffer[i] = object; 
 		}
+
+protected void expand(int size) {
+  this.grow(size);
+  this.numitems = size;
+}
 		
 		public  void set(int i, int j) { itembuffer[i] = j; }	
 

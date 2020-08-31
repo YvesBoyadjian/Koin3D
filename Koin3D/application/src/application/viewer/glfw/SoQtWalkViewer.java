@@ -95,6 +95,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private List<Consumer<SoQtWalkViewer>> idleListeners = new ArrayList<>();
 	
+	private List<Consumer<SoQtWalkViewer>> oneShotIdleListeners = new ArrayList<>();
+	
 	private SoIdleSensor idleSensor = new SoIdleSensor(SoQtWalkViewer::idleCB,this);
 	
 	private HeightProvider heightProvider = new HeightProvider() {
@@ -433,7 +435,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		sensor.schedule();
 	}
 	
-	public void idle() {
+	public synchronized void idle() {
 		  
 		  moveCamera();
 
@@ -475,6 +477,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  updateLocation( new SbVec3f(SPEED* deltaT, 0.0f, 0.0f));
 
 		  }
+		  
+		  oneShotIdleListeners.forEach((item)->item.accept(this));
+		  
+		  oneShotIdleListeners.clear();
 		  
 		  idleListeners.forEach((item)->item.accept(this));
 		  
@@ -527,6 +533,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     
     public void addIdleListener(Consumer<SoQtWalkViewer> listener) {
     	idleListeners.add(listener);
+    }
+    
+    public synchronized void addOneShotIdleListener(Consumer<SoQtWalkViewer> listener) {
+    	oneShotIdleListeners.add(listener);
     }
 
 	public void start() {
