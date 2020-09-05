@@ -120,7 +120,6 @@ public class SoInput {
 
 	
 	
-    private static SbStringList directories;   //!< Directory search path.
     private final SbPList             files = new SbPList();          //!< Stack of SoInputFiles (depth >=1)
     public SoInputFile  curFile;       //!< Top of stack
     private String            backBuf;        //!< For strings that are put back
@@ -372,7 +371,6 @@ public static void addDirectoryFirst(String dirName)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    directories.insert(dirName, 0);
     addDirectoryIdx(0, dirName);
 }
 
@@ -472,10 +470,6 @@ private void initFile(FILE newFP,          // New file pointer
 
 	// Init function sets up global directory list. 
 	public static void init() {
-	    directories = new SbStringList();
-
-	    // Default directory search path is current directory
-	    directories.append(".");		
 
 	    // This will catch multiple initClass() calls (unless there's a
 	    // removeDirectories() in between them, which is unlikely to happen
@@ -650,6 +644,8 @@ public FILE findFile(String fileName, final String[] fullName)
     // For relative file names, try each of the directories in the search path
     else {
         fp = null;
+
+        SbStringList directories = SoInput.getDirectories();
 
         for (i = 0; i < directories.getLength(); i++) {
             fullName[0] = (String)directories.operator_square_bracket(i);
@@ -1098,6 +1094,8 @@ public static void removeDirectory(String dirName)
 {
     int         i;
     String    dir;
+
+    SbStringList directories = SoInput.dirsearchlist;
 
     for (i = 0; i < directories.getLength(); i++) {
 

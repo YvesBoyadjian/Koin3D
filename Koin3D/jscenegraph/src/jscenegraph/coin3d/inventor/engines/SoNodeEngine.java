@@ -4,6 +4,7 @@
 package jscenegraph.coin3d.inventor.engines;
 
 import jscenegraph.database.inventor.SbName;
+import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.engines.SoEngineOutput;
 import jscenegraph.database.inventor.engines.SoEngineOutputData;
 import jscenegraph.database.inventor.nodes.SoNode;
@@ -44,6 +45,14 @@ public abstract class SoNodeEngine extends SoNode implements SoEngineAble {
 	getOutputDataPtr()
 	{
 	  return null; // base class has no output
+	}
+
+	// Documented in superclass.
+	public boolean readInstance(SoInput in, short flagsarg)
+	{
+	  // FIXME: I believe there's code missing here for reading
+	  // SoUnknownEngine instances. 20000919 mortene.
+	  return super.readInstance(in, flagsarg);
 	}
 
     //! A very annoying double notification occurs with engines

@@ -275,7 +275,7 @@ public class SoVRMLTimeSensor extends SoNodeEngine {
 	*/
 	public static void initClass() // static
 	{
-	  SoSubNodeEngine.SO_NODEENGINE_INTERNAL_INIT_CLASS(SoVRMLTimeSensor.class,"VRMLTimeSensor");
+	  SoSubNodeEngine.SO_NODEENGINE_INTERNAL_INIT_CLASS(SoVRMLTimeSensor.class,"VRMLTimeSensor",SoNodeEngine.class);
 	}
 
 /*!

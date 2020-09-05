@@ -22,7 +22,7 @@ so_vrml_init()
 //
   SoVRMLTexture.initClass();
 //
-//  SoVRMLInterpolator::initClass();
+  SoVRMLInterpolator.initClass();
 //
   SoVRMLLight.initClass();
 //  
@@ -62,7 +62,7 @@ so_vrml_init()
   SoVRMLNavigationInfo.initClass();
   SoVRMLNormal.initClass();
 //  SoVRMLNormalInterpolator::initClass();
-//  SoVRMLOrientationInterpolator::initClass();
+  SoVRMLOrientationInterpolator.initClass();
 //  SoVRMLPixelTexture::initClass();
 //  SoVRMLPlaneSensor::initClass();
   SoVRMLPointLight.initClass();

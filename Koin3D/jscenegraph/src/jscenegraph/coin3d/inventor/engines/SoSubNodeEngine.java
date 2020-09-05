@@ -34,8 +34,12 @@ public class SoSubNodeEngine extends SoSubNode {
 			return new SoSubNodeEngine(class1,parent);
 		  }	
 
-	public static void SO_NODEENGINE_INTERNAL_INIT_CLASS(Class<? extends SoNodeEngine> className, String classPrintName) {
-		SoSubNode.SO__NODE_INIT_CLASS(className, classPrintName, SoNodeEngine.class);
+	  public static SoSubNodeEngine SO_NODEENGINE_ABSTRACT_HEADER(Class<? extends SoNode> class1, SoNode parent) {
+			return new SoSubNodeEngine(class1,parent);
+		  }
+	  
+	public static void SO_NODEENGINE_INTERNAL_INIT_CLASS(Class<? extends SoNodeEngine> className, String classPrintName,Class<? extends SoNodeEngine> superClassName) {
+		SoSubNode.SO__NODE_INIT_CLASS(className, classPrintName, superClassName);
 		
 		  if( !outputData.containsKey(className)) {
 			  final SoEngineOutputData[] fieldData1 = new SoEngineOutputData[1];                                   
@@ -50,6 +54,10 @@ public class SoSubNodeEngine extends SoSubNode {
 		  }
 	}
 
+	public static void SO_NODEENGINE_INTERNAL_INIT_ABSTRACT_CLASS(Class<? extends SoNodeEngine> className, String classPrintName,Class<? extends SoNodeEngine> superClassName) {
+		SO_NODEENGINE_INTERNAL_INIT_CLASS(className,classPrintName,superClassName);
+	}
+	
 	  public                                                                  
 	  SoEngineOutputData   getOutputData() {
 		  return outputData.get(thisClass)[0]; 
@@ -64,7 +72,7 @@ public class SoSubNodeEngine extends SoSubNode {
 		thisParent.isBuiltIn = true;		
 	}
 
-	private void SO_NODEENGINE_CONSTRUCTOR(Class<? extends SoNodeEngine> class1) {
+	public void SO_NODEENGINE_CONSTRUCTOR(Class<? extends SoNodeEngine> class1) {
 		SO_NODE_CONSTRUCTOR(class1);
 		
 	    if (outputData.get(thisClass)[0] == null)                                                    

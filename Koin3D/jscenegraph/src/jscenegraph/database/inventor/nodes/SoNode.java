@@ -1151,6 +1151,14 @@ public void setNodeType(final NodeType type)
 	    return NodeType.fromValue(type);
 	  }
 
+
+	// Doc in super.
+	public boolean
+	readInstance(SoInput in, short flags)
+	{
+		return SoNode_readInstance(in,flags);
+	}
+	
 	  public boolean SoNode_readInstance(SoInput in,
               short flags)
 {

@@ -948,7 +948,7 @@ private static boolean readBaseInstance(SoInput in, final SbName className,
     }
 
     // The common case:
-
+    
     // Create an instance of named type
     base[0] = createInstance(in, className, ioFlags[0]);
     if (base[0] == null)
