@@ -13,8 +13,11 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbXfBox3f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
+import jscenegraph.database.inventor.actions.SoGetMatrixAction;
+import jscenegraph.database.inventor.actions.SoGetPrimitiveCountAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
 import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
@@ -265,6 +268,36 @@ public void getBoundingBox(SoGetBoundingBoxAction action)
 }
 
 // Doc in parent
+public void getMatrix(SoGetMatrixAction action)
+{
+  final int[] numindices = new int[1];
+  final int[][] indices = new int[1][];
+  if (action.getPathCode(numindices, indices) == SoAction.PathCode.IN_PATH) {
+    this.getChildren().traverseInPath(action, numindices[0], indices[0]);
+  }
+}
+
+// compute object space ray and test for intersection
+private boolean
+ray_intersect(SoRayPickAction action, final SbBox3f box)
+{
+  if (box.isEmpty()) return false;
+  action.setObjectSpace();
+  return action.intersect(box, true);
+}
+
+// Doc in parent
+public void rayPick(SoRayPickAction action)
+{
+  if (this.pickCulling.getValue() == SoVRMLGroup.CacheEnabled.OFF.getValue() ||
+      pimpl.bboxcache == null || !pimpl.bboxcache.isValid(action.getState()) ||
+      !action.hasWorldSpaceRay() ||
+      ray_intersect(action, pimpl.bboxcache.getProjectedBox())) {
+    SoVRMLGroup_doAction(action);
+  }
+}
+
+// Doc in parent
 public void notify(SoNotList list)
 {
   super.notify(list);
@@ -328,6 +361,35 @@ SoVRMLGroup_doAction(SoAction action)
   state.pop();
 }
 
+// Doc in parent
+public void callback(SoCallbackAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  // culling planes should normally not be set, but can be set
+  // manually by the application programmer to optimize callback
+  // action traversal.
+  if (!this.cullTest(state)) { super.callback(action); }
+  state.pop();
+}
+
+// Doc in parent
+public void GLRender(SoGLRenderAction action )
+{
+  switch (action.getCurPathCode()) {
+  case NO_PATH:
+  case BELOW_PATH:
+    this.GLRenderBelowPath(action);
+    break;
+  case OFF_PATH:
+    // do nothing. Separator will reset state.
+    break;
+  case IN_PATH:
+    this.GLRenderInPath(action);
+    break;
+  }
+}
+
 
 // Doc in parent
 public void search(SoSearchAction action)
@@ -339,6 +401,16 @@ public void search(SoSearchAction action)
 }
 
 static boolean chkglerr = SoGL.sogl_glerror_debugging();
+
+
+// Doc in parent
+public void getPrimitiveCount(SoGetPrimitiveCountAction action)
+{
+  SoState state = action.getState();
+  state.push();
+  super.getPrimitiveCount(action);
+  state.pop();
+}
 
 // Doc in parent
 public void GLRenderBelowPath(SoGLRenderAction action)
@@ -426,6 +498,67 @@ public void GLRenderBelowPath(SoGLRenderAction action)
   }
 }
 
+
+// Doc in parent
+public void GLRenderInPath(SoGLRenderAction action)
+{
+  final int[] numindices = new int[1];
+  final int[][] indices = new int[1][];
+  
+  SoAction.PathCode pathcode = action.getPathCode(numindices, indices);
+  
+  if (pathcode == SoAction.PathCode.IN_PATH) {
+    SoState state = action.getState();
+    Object[] childarray = this.getChildren().getArrayPtr();
+    state.push();
+    int childidx = 0;
+    for (int i = 0; i < numindices[0]; i++) {
+      for (; childidx < indices[0][i] && !action.hasTerminated(); childidx++) {
+        SoNode offpath = (SoNode)childarray[childidx];
+        if (offpath.affectsState()) {
+          action.pushCurPath(childidx, offpath);
+          if (!action.abortNow()) {
+            final SoNodeProfiling profiling = new SoNodeProfiling();
+            profiling.preTraversal(action);
+            offpath.GLRenderOffPath(action);
+            profiling.postTraversal(action);
+            profiling.destructor(); // java port
+          }
+          else {
+            SoCacheElement.invalidate(state);
+          }
+          action.popCurPath(pathcode);
+        }
+      }
+      SoNode inpath = (SoNode)childarray[childidx]; // ptr
+      action.pushCurPath(childidx, inpath);
+      if (!action.abortNow()) {
+        final SoNodeProfiling profiling = new SoNodeProfiling();
+        profiling.preTraversal(action);
+        inpath.GLRenderInPath(action);
+        profiling.postTraversal(action);
+        profiling.destructor();
+      }
+      else {
+        SoCacheElement.invalidate(state);
+      }
+      action.popCurPath(pathcode);
+      childidx++;
+    }
+    state.pop();
+  }
+  else {
+    // we got to the end of the path
+    assert(action.getCurPathCode() == SoAction.PathCode.BELOW_PATH);
+    this.GLRenderBelowPath(action);
+  }
+}
+
+// Doc in parent
+public void GLRenderOffPath(SoGLRenderAction action)
+{
+  // do nothing
+}
 
 
 /*!

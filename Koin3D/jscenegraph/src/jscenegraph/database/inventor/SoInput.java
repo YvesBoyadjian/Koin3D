@@ -72,6 +72,7 @@ import java.util.function.DoubleConsumer;
 import java.util.function.IntConsumer;
 
 import jscenegraph.coin3d.inventor.misc.SoProto;
+import jscenegraph.coin3d.inventor.threads.SbStorage;
 import jscenegraph.coin3d.misc.Tidbits;
 import jscenegraph.database.inventor.SoDB.SoDBHeaderCB;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -80,6 +81,7 @@ import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.CString;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.FILE;
 import jscenegraph.port.Util;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
@@ -133,6 +135,36 @@ public class SoInput {
     private boolean                backupBufUsed;  //!< True if backupBuf contains data
     
   final Map<String, SoBase> copied_references = new HashMap<>();		   
+
+  static SbStringList dirsearchlist;
+
+  static SbStorage soinput_tls = null; //ptr
+
+public static class soinput_tls_data {
+	
+  SbStringList searchlist; //ptr
+  int instancecount;
+}
+
+private static void
+soinput_construct_tls_data(Object closure)
+{
+  soinput_tls_data data = (soinput_tls_data) closure;
+  data.searchlist = new SbStringList();
+  data.instancecount = 0;
+}
+
+private static void
+soinput_destruct_tls_data(Object closure)
+{
+  soinput_tls_data data = (soinput_tls_data) closure;
+
+  int n = data.searchlist.getLength();
+  for (int i = 0; i < n; i++) {
+    //Destroyable.delete(data.searchlist.operator_square_bracket(i)); //java port
+  }
+  Destroyable.delete(data.searchlist);
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -241,6 +273,8 @@ public SoInput()
     tmpBufSize = 0;
 
     backupBufUsed = false;
+    
+    constructorsCommon();
 }
 
 
@@ -267,9 +301,22 @@ public SoInput(SoInput dictIn)
 
     tmpBuffer = null;
     tmpBufSize = 0;
+    
+    constructorsCommon();
 }
 
+private void constructorsCommon() {
 
+  soinput_tls_data data = (soinput_tls_data) soinput_tls.get();
+  if (data.instancecount == 0) {
+    final SbStringList dir = SoInput.dirsearchlist;
+    for (int i = 0; i < dir.getLength(); i++) {
+      data.searchlist.append((String)(dir.operator_square_bracket(i)));
+    }
+  }
+  data.instancecount++;
+	
+}
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -326,8 +373,38 @@ public static void addDirectoryFirst(String dirName)
 ////////////////////////////////////////////////////////////////////////
 {
     directories.insert(dirName, 0);
+    addDirectoryIdx(0, dirName);
 }
 
+
+/*!
+  \COININTERNAL
+
+  Add a directory to the search list at the specified index value. An index
+  of -1 means append.
+ */
+public static void addDirectoryIdx( int idx, String dirName)
+{
+  assert(idx > -2);
+  if ( dirName.length() == 0) return; // Don't add empty dirs
+  SbStringList dirs = SoInput.dirsearchlist; //ptr
+
+  if (soinput_tls != null) {
+    soinput_tls_data data = (soinput_tls_data )soinput_tls.get();
+    if (data.instancecount != 0) { dirs = data.searchlist; }
+  }
+
+  assert(idx <= dirs.getLength());
+  // NB: note that it _should_ be possible to append/insert the same
+  // directory name multiple times, as this is an easy way of
+  // "stacking" names when doing recursive SoDB::readAll() calls or
+  // using SoInput::pushFile(). So don't try to "fix" or change this
+  // aspect of adding entries to the directory search list. --mortene
+
+  String ns = dirName;
+  if (idx == -1) dirs.append(ns);
+  else dirs.insert(ns, idx);
+}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -399,7 +476,19 @@ private void initFile(FILE newFP,          // New file pointer
 
 	    // Default directory search path is current directory
 	    directories.append(".");		
-	      	}
+
+	    // This will catch multiple initClass() calls (unless there's a
+	    // removeDirectories() in between them, which is unlikely to happen
+	    // inadvertently).
+	    assert(SoInput.dirsearchlist == null);
+
+	    SoInput.dirsearchlist = new SbStringList();
+	    SoInput.addDirectoryFirst(".");
+
+	    soinput_tls = new SbStorage(soinput_tls_data.class,
+	                                SoInput::soinput_construct_tls_data,
+	                                SoInput::soinput_destruct_tls_data);
+	}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -445,9 +534,21 @@ private void initFile(FILE newFP,          // New file pointer
         curTmpBuf = 0;//(char *)tmpBuffer; java port
     }
 
+
+    SoInput.addDirectoryFirst(SoInput.getPathname(fullName[0]));
     return true;
 	}
 
+
+/*!
+  Finds and returns the part of the given filename which is the
+  directory path name.
+ */
+public static String getPathname(String filename)
+{
+	Path path = Path.of(filename);
+	return path.getParent().toString();
+}
 	
 ////////////////////////////////////////////////////////////////////////
 //
@@ -485,6 +586,7 @@ pushFile( String fileName) // Name of file
         curTmpBuf = 0;//(char *)tmpBuffer; java port
     }
 
+    SoInput.addDirectoryFirst(SoInput.getPathname(fullName[0]));
     return true;
 }
 
@@ -3102,13 +3204,13 @@ makeRoomInBuf(int nBytes)
 public static SbStringList 
 getDirectories()
 {
-//  if (soinput_tls) { TODO COIN 3D
-//    soinput_tls_data  data = (soinput_tls_data )soinput_tls->get();
-//    if (data->instancecount) { return *data->searchlist; }
-//  }
-//
-//  return SoInput.dirsearchlist;
-    return directories;
+  if (soinput_tls != null) {
+    soinput_tls_data  data = (soinput_tls_data )soinput_tls.get();
+    if (data.instancecount != 0) { return new SbStringList(data.searchlist); }
+  }
+
+  return SoInput.dirsearchlist;
+//    return directories;
 }
 
 // internal method used for testing if a file exists

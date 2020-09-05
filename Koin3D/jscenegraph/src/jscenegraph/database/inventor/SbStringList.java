@@ -72,6 +72,15 @@ package jscenegraph.database.inventor;
  *
  */
 public class SbStringList extends SbPList {
+	
+	public SbStringList() {
+		super();
+	}
+
+	public SbStringList(SbStringList other) {
+		super();
+		copyFrom(other);
+	}
 
 	// Adds given pointer to end of list. 
 	public void append(String string) {
