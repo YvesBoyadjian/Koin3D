@@ -15,7 +15,7 @@ public class DouglasFir {
 	
 	final static float max_height_meters = 57;//60;
 	
-	final float trunk_diameter_angle_degree = 5.0f;
+	public final static float trunk_diameter_angle_degree = 1.5f;
 
 	public static float getHeight(Random random) {
 		

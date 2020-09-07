@@ -5,9 +5,12 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import application.objects.DouglasFir;
 import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
+import jscenegraph.database.inventor.SbRotation;
+import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 public class DouglasChunk {
@@ -77,6 +80,14 @@ public class DouglasChunk {
 	
 	public int getRandomColorMultiplierTree(int i) {
 		return df.randomColorMultiplierTree[insideTrees.get(i)];
+	}
+	
+	public float getRandomLeanAngleTree(int i) {
+		return df.randomLeanAngleTree[insideTrees.get(i)];		
+	}
+	
+	public float getRandomLeanDirectionAngleTree(int i) {
+		return df.randomLeanDirectionAngleTree[insideTrees.get(i)];		
 	}
 
 	int[] douglasIndicesF;
@@ -155,13 +166,23 @@ public class DouglasChunk {
 			float angleRadian1 = angleDegree1 * (float)Math.PI / 180.0f;
 			float angleRadian2 = angleDegree2 * (float)Math.PI / 180.0f;
 			float angleRadian3 = angleDegree3 * (float)Math.PI / 180.0f;
+			
+			SbVec3f rotAxis = new SbVec3f((float)Math.sin(getRandomLeanDirectionAngleTree(tree)),(float)Math.cos(getRandomLeanDirectionAngleTree(tree)),0.0f);
+			
+			SbRotation rot = new SbRotation(rotAxis,getRandomLeanAngleTree(tree));
 						
+			SbVec3f xyzTree = new SbVec3f(getX(tree), getY(tree),getZ(tree));
+			
+			SbVec3f xyzTop = new SbVec3f(0,0,height);
+			
+			SbVec3f xyzTopLean = rot.multVec(xyzTop);
+			
 			float widthTop = getRandomTopTree(tree);//width *2.5f * forest.randomTopTrees.nextFloat();
 			
 			// top of tree foliage
-			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree)+ widthTop * (float)Math.cos(angleRadian1));
-			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree)+ widthTop * (float)Math.sin(angleRadian1));
-			douglasVerticesF.setFloat(vertexCoordIndice+2, getZ(tree) + height);
+			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree)+ widthTop * (float)Math.cos(angleRadian1) + xyzTopLean.getX() );
+			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree)+ widthTop * (float)Math.sin(angleRadian1) + xyzTopLean.getY() );
+			douglasVerticesF.setFloat(vertexCoordIndice+2, getZ(tree) /*+ height*/ + xyzTopLean.getZ());
 			
 			douglasNormalsF.setFloat(vertexCoordIndice, (float)Math.cos(angleRadian1));
 			douglasNormalsF.setFloat(vertexCoordIndice+1, (float)Math.sin(angleRadian1));
@@ -173,9 +194,9 @@ public class DouglasChunk {
 			vertexCoordIndice += 3;
 			texCoordIndice += 2;
 			
-			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree)+ widthTop * (float)Math.cos(angleRadian2));
-			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree)+ widthTop * (float)Math.sin(angleRadian2));
-			douglasVerticesF.setFloat(vertexCoordIndice+2, getZ(tree) + height);
+			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree)+ widthTop * (float)Math.cos(angleRadian2) + xyzTopLean.getX() );
+			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree)+ widthTop * (float)Math.sin(angleRadian2) + xyzTopLean.getY() );
+			douglasVerticesF.setFloat(vertexCoordIndice+2, getZ(tree) +  + xyzTopLean.getZ() );
 			
 			douglasNormalsF.setFloat(vertexCoordIndice, (float)Math.cos(angleRadian2));
 			douglasNormalsF.setFloat(vertexCoordIndice+1, (float)Math.sin(angleRadian2));
@@ -187,9 +208,9 @@ public class DouglasChunk {
 			vertexCoordIndice += 3;
 			texCoordIndice += 2;
 			
-			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree)+ widthTop * (float)Math.cos(angleRadian3));
-			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree)+ widthTop * (float)Math.sin(angleRadian3));
-			douglasVerticesF.setFloat(vertexCoordIndice+2, getZ(tree) + height);
+			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree)+ widthTop * (float)Math.cos(angleRadian3) + xyzTopLean.getX() );
+			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree)+ widthTop * (float)Math.sin(angleRadian3) + xyzTopLean.getY() );
+			douglasVerticesF.setFloat(vertexCoordIndice+2, getZ(tree) +  + xyzTopLean.getZ() );
 			
 			douglasNormalsF.setFloat(vertexCoordIndice, (float)Math.cos(angleRadian3));
 			douglasNormalsF.setFloat(vertexCoordIndice+1, (float)Math.sin(angleRadian3));
@@ -333,6 +354,8 @@ public class DouglasChunk {
 		
 		douglasColorsT = new int[nbVertices];
 		
+		float trunk_width_coef = DouglasFir.trunk_diameter_angle_degree*(float)Math.PI/180.0f;
+		
 		for( int tree = 0; tree< nbDouglas; tree++) {
 			
 			float height = getHeight(tree);
@@ -346,10 +369,20 @@ public class DouglasChunk {
 			
 			int vertexCoordIndice = vertex * 3;
 			
+			SbVec3f rotAxis = new SbVec3f((float)Math.sin(getRandomLeanDirectionAngleTree(tree)),(float)Math.cos(getRandomLeanDirectionAngleTree(tree)),0.0f);
+			
+			SbRotation rot = new SbRotation(rotAxis,getRandomLeanAngleTree(tree));
+						
+			SbVec3f xyzTree = new SbVec3f(getX(tree), getY(tree),getZ(tree));
+			
+			SbVec3f xyzTop = new SbVec3f(0,0,height);
+			
+			SbVec3f xyzTopLean = rot.multVec(xyzTop);
+			
 			// top of tree
-			douglasVerticesT.setFloat(vertexCoordIndice, getX(tree));
-			douglasVerticesT.setFloat(vertexCoordIndice+1, getY(tree));
-			douglasVerticesT.setFloat(vertexCoordIndice+2, getZ(tree) + height);
+			douglasVerticesT.setFloat(vertexCoordIndice, getX(tree) + xyzTopLean.getX() );
+			douglasVerticesT.setFloat(vertexCoordIndice+1, getY(tree) + xyzTopLean.getY() );
+			douglasVerticesT.setFloat(vertexCoordIndice+2, getZ(tree) + xyzTopLean.getZ() );
 			
 			xMin = Math.min(xMin,getX(tree));
 			yMin = Math.min(yMin,getY(tree));
@@ -363,7 +396,7 @@ public class DouglasChunk {
 			douglasNormalsT.setFloat(vertexCoordIndice+1, 0);
 			douglasNormalsT.setFloat(vertexCoordIndice+2, 1);
 			
-			float width = height * 0.707f / 50.0f;
+			float width = height * trunk_width_coef;// 0.707f / 50.0f;
 			
 			float angleDegree1 = getAngleDegree1(tree);
 			float angleDegree2 = angleDegree1 + 120.0f;

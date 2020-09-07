@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Random;
 
 import com.jogamp.opengl.GL2;
 
@@ -110,6 +111,10 @@ public class SoShadowGroupP implements Destroyable {
 	  SoShaderParameter1i texunit1; //ptr
 	  SoShaderParameter1i lightmodel; //ptr
 	  SoShaderParameter1i twosided; //ptr
+	  
+	  //SoShaderParameter1i frame; //ptr YB
+	  
+	  Random random = new Random(42);
 
 	  int numtexunitsinscene;
 	  boolean hasclipplanes;
@@ -147,6 +152,9 @@ public class SoShadowGroupP implements Destroyable {
 		    if (twosided != null) twosided.unref();
 		    if (texunit0 != null) texunit0.unref();
 		    if (texunit1 != null) texunit1.unref();
+		    
+		    //if (frame != null) frame.unref(); //YB
+		    
 		    if (vertexshadercache != null) vertexshadercache.unref();
 		    if (fragmentshadercache != null) fragmentshadercache.unref();
 		    if (cameratransform != null) cameratransform.unref();
@@ -267,6 +275,10 @@ public class SoShadowGroupP implements Destroyable {
 	    if (camtransform.operator_not_equal(this.cameratransform.value.getValue())) {
 	      this.cameratransform.value.setValue(camtransform);
 	    }
+	    
+//	    if(this.frame != null) {
+//	    	this.frame.value.setValue(/*random.nextFloat()*/(this.frame.value.getValue()+1)%1024); //YB
+//	    }
 
 	    SoShadowStyleElement.set(state, /*master,*/ SoShadowStyleElement.StyleFlags.CASTS_SHADOW_AND_SHADOWED.getValue());
 	    SoShapeStyleElement.setShadowMapRendering(state, true);
@@ -477,6 +489,7 @@ setVertexShader(SoState state)
   int i;
   SoShaderGenerator gen = this.vertexgenerator;
   gen.reset(false);
+  gen.setVersion("#version 120"); // YB : necessary for Intel Graphics HD 630
 
   boolean storedinvalid = SoCacheElement.setInvalid(false);
 
@@ -926,6 +939,20 @@ setFragmentShader(SoState state)
   if (fogType != SoEnvironmentElement.FogType.NONE) {
     gen.addMainStatement("color = mix(gl_Fog.color.rgb, color, clamp(fog, 0.0, 1.0));\n");
   }
+  
+  gen.addMainStatement("float PHI = 1.61803398874989484820459;\n");   // Φ = Golden Ratio
+  
+  //gen.addMainStatement("float seed = 1.5f+frame_random/1000.0f;\n");
+  
+  //gen.addMainStatement("vec2 co = gl_FragCoord.xy/*/vec2(1000.0f,1000.0f)*/;\n");
+  
+  //gen.addMainStatement("float noise = fract(tan(distance(co*PHI, co)*seed)*co.x)/256.0f;\n");
+  //gen.addMainStatement("float noise = fract((sin(dot(co.xy ,vec2(12.9898,78.233))+frame_random*10.0f)) * 43758.5453)/256.0f;\n");
+  gen.addMainStatement("float noise1 = fract((gl_FragCoord.x*2+gl_FragCoord.y)*0.125f)/256.0f;\n");
+  gen.addMainStatement("float noise2 = fract((3+gl_FragCoord.x*2+gl_FragCoord.y)*0.125f)/256.0f;\n");
+  gen.addMainStatement("float noise3 = fract((5+gl_FragCoord.x*2+gl_FragCoord.y)*0.125f)/256.0f;\n");
+  
+  gen.addMainStatement("color = pow(color,vec3(0.47f))+vec3(noise1,noise2,noise3);\n"); // YB CHANGE GAMMA CORRECTION
 
   gen.addMainStatement("gl_FragColor = vec4(color, mydiffuse.a);");
   gen.addDeclaration("uniform sampler2D textureMap0;\n", false);
@@ -935,6 +962,10 @@ setFragmentShader(SoState state)
     gen.addDeclaration("uniform sampler2D textureMap1;\n", false);
   }
   gen.addDeclaration("uniform int coin_light_model;\n", false);
+  
+  //gen.addDeclaration("uniform float frame_random;\n", false); // YB
+  //gen.addDeclaration("uniform int frame_counter;\n", false); // YB
+  
   if (twosidetest) {
     gen.addDeclaration("uniform int coin_two_sided_lighting;\n", false);
   }
@@ -1011,12 +1042,21 @@ setFragmentShader(SoState state)
     this.lightmodel.name.setValue( "coin_light_model");
     this.lightmodel.value.setValue(1);
   }
+  
+//  if (this.frame == null) { //YB
+//	  this.frame = new SoShaderParameter1i();
+//	  this.frame.ref();
+//	  this.frame.name.setValue( "frame_counter" );
+//  }
+  
   this.fragmentshader.parameter.set1Value(this.fragmentshader.parameter.getNum(), texmap);
   if (texmap1 != null) this.fragmentshader.parameter.set1Value(this.fragmentshader.parameter.getNum(), texmap1);
   this.fragmentshader.parameter.set1Value(this.fragmentshader.parameter.getNum(), this.texunit0);
   if (this.numtexunitsinscene > 1) this.fragmentshader.parameter.set1Value(this.fragmentshader.parameter.getNum(), this.texunit1);
   this.fragmentshader.parameter.set1Value(this.fragmentshader.parameter.getNum(), this.lightmodel);
 
+//  this.fragmentshader.parameter.set1Value(this.fragmentshader.parameter.getNum(), this.frame); //YB
+  
   if (twosidetest) {
     if (this.twosided == null) {
       this.twosided = new SoShaderParameter1i();

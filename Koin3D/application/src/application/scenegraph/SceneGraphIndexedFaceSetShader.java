@@ -146,6 +146,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private SoSphere sunView;
 	
+	private SoSphere skyView;
+	
 	private SbRotation r1 = new SbRotation();
 	private SbRotation r2 = new SbRotation();
 	private SbRotation r3 = new SbRotation();
@@ -382,7 +384,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    	if(action instanceof SoGLRenderAction) {
 	    		SoGLRenderAction glRenderAction = (SoGLRenderAction)action;
 	    		GL2 gl2 = Ctx.get(glRenderAction.getCacheContext());
-	    		gl2.glEnable(GL2.GL_FRAMEBUFFER_SRGB);
+	    		//gl2.glEnable(GL2.GL_FRAMEBUFFER_SRGB);
 	    		gl2.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
 	    	}
 	    });
@@ -408,11 +410,28 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    sunView = new SoSphere();
 	    sunView.radius.setValue(SUN_RADIUS/SUN_REAL_DISTANCE*SUN_FAKE_DISTANCE);
 	    
+	    SoSeparator skySep = new SoSeparator();
+	    
+	    SoMaterial skyColor = new SoMaterial();
+	    skyColor.diffuseColor.setValue(SceneGraphIndexedFaceSetShader.SKY_COLOR.darker());
+	    
+	    skySep.addChild(skyColor);
+	    
+	    skyView = new SoSphere();
+	    skyView.radius.setValue(WATER_HORIZON/1.1f);
+	    
+	    
+	    
+	    skySep.addChild(skyView);
+	    
 	    SoMaterial sunMat = new SoMaterial();
 	    sunMat.emissiveColor.setValue(SUN_COLOR);
 	    sunMat.ambientColor.setValue(0, 0, 0);
 	    
 	    sunSep.addChild(sunMat);
+	    
+	    sunSep.addChild(transl);
+	    
 	    sunSep.addChild(sunTransl);
 	    
 	    SoDepthBuffer depthBuffer = new SoDepthBuffer();
@@ -433,7 +452,6 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    sunSep.addChild(programSun);
 	    
 	    sunSep.addChild(sunView);
-	    sep.addChild(sunSep);
 	    
 	    sky = new SoDirectionalLight[4];
 	    sky[0] = new SoNoSpecularDirectionalLight();
@@ -495,7 +513,13 @@ for(int is=0;is<4;is++) {
 	    shadowGroup.addChild(sun[is]);
 	    sun[is].enableNotify(false); // In order not to recompute shaders
 }
+
+	skySep.addChild(transl);
+
+	shadowGroup.addChild(skySep);
 	    
+	shadowGroup.addChild(sunSep); // Sun must be drawn after sky
+    
 	    SoSeparator landSep = new SoSeparator();
 	    //landSep.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 	    
@@ -803,7 +827,7 @@ for(int is=0;is<4;is++) {
 		water.width.setValue(small ? WATER_HORIZON : WATER_HORIZON*2);
 		
 	    SoMaterial waterMat = new SoMaterial();
-	    waterMat.diffuseColor.setValue(0.1f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.6f*WATER_BRIGHTNESS);
+	    waterMat.diffuseColor.setValue(0.1f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS);
 	    waterMat.ambientColor.setValue(0, 0, 0);
 	    waterMat.transparency.setValue(transparency);
 	    if(shining) {

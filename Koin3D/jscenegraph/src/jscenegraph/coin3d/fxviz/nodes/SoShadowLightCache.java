@@ -271,6 +271,7 @@ createVSMProgram()
   SoShaderGenerator fgen = this.vsm_fragment_generator;
 
   vgen.reset(false);
+  vgen.setVersion("#version 120"); // YB : necessary for Intel Graphics HD 630
 
   boolean dirlight = this.light.isOfType(SoDirectionalLight.getClassTypeId());
 
@@ -282,6 +283,8 @@ createVSMProgram()
   vshader.sourceType.setValue( SoShaderObject.SourceType.GLSL_PROGRAM);
 
   fgen.reset(false);
+  fgen.setVersion("#version 120"); // YB : necessary for Intel Graphics HD 630
+  
 //#ifdef DISTRIBUTE_FACTOR
   String str;
   str = "const float DISTRIBUTE_FACTOR = "+SoShadowGroupP.DISTRIBUTE_FACTOR+";\n";

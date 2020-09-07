@@ -41,6 +41,8 @@ public class DouglasForest {
 	final static int SEED_WIDTH_TOP_TREES = 45;
 	final static int SEED_WIDTH_BOTTOM_TREES = 46;
 	final static int SEED_COLOR_MULTIPLIER = 47;
+	final static int SEED_LEAN_ANGLE_TREES = 48;
+	final static int SEED_LEAN_DIRECTION_ANGLE_TREES = 49;
 	
 	float[] xArray = new float[NB_DOUGLAS_SEEDS]; 
 	float[] yArray = new float[NB_DOUGLAS_SEEDS]; 
@@ -50,6 +52,8 @@ public class DouglasForest {
 	float[] randomTopTree = new float[NB_DOUGLAS_SEEDS];
 	float[] randomBottomTree = new float[NB_DOUGLAS_SEEDS];
 	int[] randomColorMultiplierTree = new int[NB_DOUGLAS_SEEDS];
+	float[] randomLeanAngleTree = new float[NB_DOUGLAS_SEEDS];
+	float[] randomLeanDirectionAngleTree = new float[NB_DOUGLAS_SEEDS];
 	
 	SceneGraphIndexedFaceSetShader sg;
 	
@@ -72,6 +76,8 @@ public class DouglasForest {
 			Random randomTopTrees  = new Random(SEED_WIDTH_TOP_TREES);
 			Random randomBottomTrees  = new Random(SEED_WIDTH_BOTTOM_TREES);
 			Random randomColorMultiplier  = new Random(SEED_COLOR_MULTIPLIER);
+			Random randomLeanAngle = new Random(SEED_LEAN_ANGLE_TREES);
+			Random randomLeanDirectionAngle = new Random(SEED_LEAN_DIRECTION_ANGLE_TREES);
 			
 			int[] indices = new int[4];
 			
@@ -106,6 +112,12 @@ public class DouglasForest {
 					randomTopTree[i] = widthTop;
 					float foliageWidth = (height+ randomBottomTrees.nextFloat()*12.0f) * 0.1f;
 					randomBottomTree[i] = foliageWidth;
+					
+					float leanAngleTree = randomLeanAngle.nextFloat();
+					randomLeanAngleTree[i] = (float)(Math.pow(leanAngleTree, 5)*Math.PI/2/10);
+					
+					float leanAngleDirectionTree = randomLeanDirectionAngle.nextFloat();
+					randomLeanDirectionAngleTree[i] = (float)(leanAngleDirectionTree * Math.PI * 2);					
 					
 					float deltaR = randomColorMultiplier.nextFloat() - 0.5f;
 					float deltaG = randomColorMultiplier.nextFloat() - 0.5f;
@@ -185,6 +197,12 @@ public class DouglasForest {
 			bb.asFloatBuffer().put(randomBottomTree);
 			fos.write(ba);
 			
+			bb.asFloatBuffer().put(randomLeanAngleTree);
+			fos.write(ba);
+			
+			bb.asFloatBuffer().put(randomLeanDirectionAngleTree);
+			fos.write(ba);
+			
 			bb.asIntBuffer().put(randomColorMultiplierTree);
 			fos.write(ba);			
 			
@@ -229,8 +247,10 @@ public class DouglasForest {
 			fb.get(angleDegree1);
 			fb.get(randomTopTree);
 			fb.get(randomBottomTree);
+			fb.get(randomLeanAngleTree);
+			fb.get(randomLeanDirectionAngleTree);
 			
-			bb.position(Integer.BYTES * xArray.length * 7);
+			bb.position(Integer.BYTES * xArray.length * 9);
 			IntBuffer ib = bb.asIntBuffer();			
 			ib.get(randomColorMultiplierTree);
 			
