@@ -3,6 +3,7 @@
  */
 package jscenegraph.coin3d.threads;
 
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -15,5 +16,5 @@ public class Cc_recmutex {
 	  int level;
 	  int waiters;
 	  /*cc_mutex*/Lock mutex;
-	  /*cc_condvar*/Object condvar;
+	  /*cc_condvar*/Condition condvar;
 }

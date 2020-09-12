@@ -133,18 +133,18 @@ public class Display {
 			
 			double currentTimeMicro = System.nanoTime()/1000.0;//Instant.now().toEpochMilli();
 			
-			FutureEvent fe = timersQueue.peek();
-			
-			if(fe != null) {
-				if( fe.startTimeMicroseconds <= currentTimeMicro) {
-					timersQueue.remove();
-					fe.doit.run();
+			boolean treated;
+			do {
+				treated = false;
+				
+				FutureEvent fe = timersQueue.peek();			
+				if(fe != null) {
+					if( fe.startTimeMicroseconds <= currentTimeMicro) {
+						treated = true;
+						timersQueue.remove();
+						fe.doit.run();
+					}
 				}
-			}
-			
-//			boolean treated;
-//			//do {
-//				treated = false;
 //				for(Long timerStartTime : timers.keySet()) {
 //					if(timerStartTime <= currentTimeMicro) {
 //						List<Runnable> runnables = timers.get(timerStartTime);
@@ -154,7 +154,7 @@ public class Display {
 //						break;
 //					}
 //				}
-//			//} while(treated);
+			} while(treated);
 			
 			composites.forEach(Composite::loop);
 			

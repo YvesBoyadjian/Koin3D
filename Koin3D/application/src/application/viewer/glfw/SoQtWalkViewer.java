@@ -174,6 +174,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  
 		  diff.setValue((short)0, (short)0);
 
+		  boolean wasNotif = camera.enableNotify(false);
+		  
 		  /* Rotace v X ose. */
 		  camera.orientation.setValue( new SbRotation(new SbVec3f(1.0f, 0.0f, 0.0f), rotation_x).operator_mul(
 		    camera.orientation.getValue()));
@@ -181,6 +183,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  /* Rotace v Z ose. */
 		  camera.orientation.setValue( camera.orientation.getValue().operator_mul(
 		    new SbRotation(new SbVec3f(0.0f, 0.0f, 1.0f), rotation_z)));
+		  
+		  camera.enableNotify(wasNotif);
 	}
 	
 	private SbVec2f getCenter()
@@ -368,8 +372,13 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  orientation.multVec(diff_position, diff_position);
 		  SbVec3f new_position = old_position.operator_add( diff_position);
 		  new_position.setZ(EYES_HEIGHT + heightProvider.getZ(new_position.getX(), new_position.getY(), new_position.getZ() - EYES_HEIGHT));
+		  
+		  boolean wasNotif = camera.enableNotify(false);
+		  
 		  camera.position.setValue( new_position );
 		  getCameraController().changeCameraValues(camera);
+		  
+		  camera.enableNotify(wasNotif);
 
 		  lastTimeSec = currentTimeSec;
 
@@ -487,6 +496,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  if(keysDown.isEmpty()) {
 			  //System.gc();
 		  }
+		  getSceneHandler().getSceneGraph().touch();
 	}
 	
 	boolean focus;

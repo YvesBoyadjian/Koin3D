@@ -22,7 +22,7 @@ static void
 cc_recmutex_struct_init(Cc_recmutex recmutex)
 {
 	recmutex.mutex = new  ReentrantLock(true); //cc_mutex_struct_init(&recmutex->mutex);
-  recmutex.condvar = new Object();//cc_condvar_struct_init(&recmutex->condvar);
+  recmutex.condvar = recmutex.mutex.newCondition();//new Object();//cc_condvar_struct_init(&recmutex->condvar);
   
   recmutex.threadid = null;
   recmutex.level = 0;
