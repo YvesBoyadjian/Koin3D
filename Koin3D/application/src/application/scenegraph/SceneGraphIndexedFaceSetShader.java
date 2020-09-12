@@ -921,7 +921,10 @@ for(int is=0;is<4;is++) {
 		sun[2].direction.setValue(r2.multVec(dir));
 		sun[0].direction.setValue(r3.multVec(dir));
 		sun[3].direction.setValue(r4.multVec(dir));
+		
+		boolean wasEnabled = sunTransl.translation.enableNotify(false); // In order not to invalidate shaders
 		sunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE));
+		sunTransl.translation.enableNotify(wasEnabled);
 		//inverseSunTransl.translation.setValue(sunPosition.operator_mul(SUN_FAKE_DISTANCE).operator_minus());
 		
 		float sunElevationAngle = (float)Math.atan2(sunPosition.getZ(), Math.sqrt(Math.pow(sunPosition.getX(),2.0f)+Math.pow(sunPosition.getY(),2.0f)));

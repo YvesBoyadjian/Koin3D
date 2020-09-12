@@ -44,6 +44,7 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 		this.chunk = chunk;
 		this.type = type;
 		this.counting = counting;
+		enableNotify(false); // In order not to invalidate shaders
 	}
 	
 	public void GLRender(SoGLRenderAction action)
@@ -91,7 +92,9 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 			loaded = true;
 		SoLODIndexedFaceSet indexedFaceSetT = this;
 		
+		//boolean wasNotify = indexedFaceSetT.coordIndex.enableNotify(false); // In order not to recompute shaders
 		indexedFaceSetT.coordIndex.setValuesPointer(chunk.douglasIndicesT);
+		//indexedFaceSetT.coordIndex.enableNotify(wasNotify);
 		
 		SoVertexProperty vertexProperty = new SoVertexProperty();
 		
@@ -105,7 +108,9 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 		
 		vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsT);
 		
+		//wasNotify = indexedFaceSetT.vertexProperty.enableNotify(false);
 		indexedFaceSetT.vertexProperty.setValue(vertexProperty);
+		//indexedFaceSetT.vertexProperty.enableNotify(wasNotify); // In order not to recompute shaders
 		}
 	}
 	
@@ -116,7 +121,9 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 			loaded = true;
 		SoLODIndexedFaceSet indexedFaceSetF = this;
 		
+		//boolean wasNotify = indexedFaceSetF.coordIndex.enableNotify(false); // In order not to recompute shaders
 		indexedFaceSetF.coordIndex.setValuesPointer(chunk.douglasIndicesF);
+		//indexedFaceSetF.coordIndex.enableNotify(wasNotify);
 		
 		SoVertexProperty vertexProperty = new SoVertexProperty();
 		
@@ -136,7 +143,9 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 			vertexProperty.orderedRGBA.setValue(DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER/*SbColor(1,0.0f,0.0f)*/.getPackedValue());
 		}
 		
+		//wasNotify = indexedFaceSetF.vertexProperty.enableNotify(false);
 		indexedFaceSetF.vertexProperty.setValue(vertexProperty);
+		//indexedFaceSetF.vertexProperty.enableNotify(wasNotify); // In order not to recompute shaders
 		}		
 	}
 	public void clear() {
@@ -148,8 +157,8 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 			this.vertexProperty.enableNotify(wasEnabled);
 			
 			//coordIndex.setValuesPointer(recursiveChunk.getDecimatedCoordIndices());
-			//boolean wasEnabled = coordIndex.enableNotify(false);
-			coordIndex.setNum(0);
+			//wasEnabled = coordIndex.enableNotify(false); // In order not to recompute shaders
+			coordIndex.setNum(0); // Notification MUST be enabled for this, or else there is a memory leak
 		    //coordIndex.enableNotify(wasEnabled);
 		}
 	}

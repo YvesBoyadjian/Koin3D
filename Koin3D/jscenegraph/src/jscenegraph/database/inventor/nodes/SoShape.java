@@ -171,6 +171,7 @@ import jscenegraph.database.inventor.elements.SoViewingMatrixElement;
 import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.shapenodes.soshape_bigtexture;
 import jscenegraph.database.inventor.shapenodes.soshape_primdata;
@@ -1668,7 +1669,21 @@ rayPickBoundingBox(SoRayPickAction action)
     bboxCube.rayPickBoundingBox(action, box);
 }
 
-
+// Doc from superclass.
+public void notify(SoNotList nl)
+{
+  super.notify(nl);
+  pimpl.lock();
+  if (pimpl.bboxcache != null) {
+    pimpl.bboxcache.invalidate();
+  }
+//  if (pimpl.pvcache != null) { TODO
+//    pimpl.pvcache.invalidate();
+//  }
+  pimpl.flags &= ~SoShapeP.Flags.SHOULD_BBOX_CACHE.getValue();
+  pimpl.rendercnt = 0;
+  pimpl.unlock();
+}
 
 /*!
   Return the bounding box cache for this shape. It might return

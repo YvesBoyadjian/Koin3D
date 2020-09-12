@@ -115,7 +115,10 @@ public class SoShapeP implements Destroyable {
 		  
 		  public static double bboxcachetimelimit;
 	  public SoBoundingBoxCache bboxcache; //TODO
+	  //public SoPrimitiveVertexCache pvcache; //TODO
 	  public int flags;
+	  // stores the number of frames rendered with no node changes
+	  public int rendercnt/* : RENDERCNT_BITS*/;
 
 	  public void lock() { }
 	  public void unlock() { }

@@ -24,6 +24,7 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 
 	public SoRecursiveIndexedFaceSet(RecursiveChunk recursiveChunk) {
 		this.recursiveChunk = recursiveChunk;
+		enableNotify(false); // In order not to invalidate shaders
 	}
 	
 	private void doLoad() {
@@ -55,8 +56,8 @@ public class SoRecursiveIndexedFaceSet extends SoIndexedFaceSet {
 			this.vertexProperty.enableNotify(wasEnabled);
 			
 			//coordIndex.setValuesPointer(recursiveChunk.getDecimatedCoordIndices());
-			//boolean wasEnabled = coordIndex.enableNotify(false);
-			coordIndex.setNum(0);
+			//wasEnabled = coordIndex.enableNotify(false); // Don't want to invalidate shaders
+			coordIndex.setNum(0); // Notification MUST be enabled for this, or else there is a memory leak
 		    //coordIndex.enableNotify(wasEnabled);
 		    
 			recursiveChunk.clear();		
