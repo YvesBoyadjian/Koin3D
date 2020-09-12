@@ -14,9 +14,11 @@ import java.nio.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.function.BinaryOperator;
@@ -32,11 +34,30 @@ import static org.lwjgl.system.MemoryUtil.*;
  */
 public class Display {
 	
+	private static class FutureEvent {
+		double startTimeMicroseconds;
+		Runnable doit;
+	}
+	
 	static Display current;
 	
 	Set<Composite> composites = Collections.newSetFromMap(new WeakHashMap<Composite,Boolean>());
 	
-	final Map<Long, List<Runnable>> timers = new HashMap<>();
+	final Comparator<FutureEvent> comparator = new Comparator<FutureEvent>() {
+
+		@Override
+		public int compare(FutureEvent o1, FutureEvent o2) {
+			double t1 = o1.startTimeMicroseconds;
+			double t2 = o2.startTimeMicroseconds;
+			if( t1 == t2 ) {
+				return 0;
+			}
+			return t1 < t2 ? -1 : 1;
+		}
+		
+	};
+	
+	final PriorityQueue<FutureEvent> timersQueue = new PriorityQueue<>(comparator);
 	
 	public Display() {
 		current = this;
@@ -63,15 +84,14 @@ public class Display {
 	}
 
 	public void timerExec(long microsec, Runnable object) {
-		long currentTimeMicro = System.nanoTime()/1000;//Instant.now().toEpochMilli();
-		long startTimeMicro = currentTimeMicro + microsec;
+		double currentTimeMicro = System.nanoTime()/1000.0;//Instant.now().toEpochMilli();
+		double startTimeMicro = currentTimeMicro + microsec;
 		
-		List<Runnable> runnablesForTime = timers.get(startTimeMicro);
-		if( runnablesForTime == null) {
-			runnablesForTime = new ArrayList<>();
-			timers.put(startTimeMicro, runnablesForTime);
-		}
-		runnablesForTime.add(object);
+		FutureEvent fe = new FutureEvent();
+		fe.startTimeMicroseconds = startTimeMicro;
+		fe.doit = object;
+		
+		timersQueue.add(fe);
 	}
 
 	public Point getCursorLocation() {
@@ -111,21 +131,30 @@ public class Display {
 		})) {
 			glfwPollEvents();
 			
-			long currentTimeMicro = System.nanoTime()/1000;//Instant.now().toEpochMilli();
+			double currentTimeMicro = System.nanoTime()/1000.0;//Instant.now().toEpochMilli();
 			
-			boolean treated;
-			//do {
-				treated = false;
-				for(Long timerStartTime : timers.keySet()) {
-					if(timerStartTime <= currentTimeMicro) {
-						List<Runnable> runnables = timers.get(timerStartTime);
-						timers.remove(timerStartTime);
-						runnables.forEach(Runnable::run);
-						treated = true;
-						break;
-					}
+			FutureEvent fe = timersQueue.peek();
+			
+			if(fe != null) {
+				if( fe.startTimeMicroseconds <= currentTimeMicro) {
+					timersQueue.remove();
+					fe.doit.run();
 				}
-			//} while(treated);
+			}
+			
+//			boolean treated;
+//			//do {
+//				treated = false;
+//				for(Long timerStartTime : timers.keySet()) {
+//					if(timerStartTime <= currentTimeMicro) {
+//						List<Runnable> runnables = timers.get(timerStartTime);
+//						timers.remove(timerStartTime);
+//						runnables.forEach(Runnable::run);
+//						treated = true;
+//						break;
+//					}
+//				}
+//			//} while(treated);
 			
 			composites.forEach(Composite::loop);
 			
