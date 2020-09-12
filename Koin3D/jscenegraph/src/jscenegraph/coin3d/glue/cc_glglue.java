@@ -53,8 +53,8 @@ public class cc_glglue {
 	public String extensionsstr = "";
 	public int maxtextureunits;
 	public boolean vendor_is_nvidia = false;
-	public boolean has_fbo = true;
-	  public float max_anisotropy = 16.0f; //TODO
+	public boolean has_fbo;
+	  public float max_anisotropy;
 	public boolean vendor_is_ati = true;
 
 	public boolean can_do_anisotropic_filtering = true;
@@ -184,6 +184,9 @@ public class cc_glglue {
 	    	      (SoGL.cc_glglue_glversion_matches_at_least(this, 2, 1, 0) ||
 	    	       SoGL.cc_glglue_glext_supported(this, "GL_ARB_texture_non_power_of_two"));
 
+	      /* Resolve our function pointers. */
+	      Gl.glglue_resolve_symbols(this);
+	      
 	      GLCapabilities c = GL.getCapabilities();
 	      glGenerateMipmap = c.glGenerateMipmap;	      
 	}

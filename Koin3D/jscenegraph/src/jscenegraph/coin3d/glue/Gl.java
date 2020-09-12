@@ -38,6 +38,10 @@ import static org.lwjgl.opengl.GL12.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.*;
 
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GLCapabilities;
+
 /**
  * @author Yves Boyadjian
  *
@@ -315,6 +319,18 @@ glglue_resolve_envvar(String txt)
   return val != null ? Util.atoi(val) : 0;
 }
 
+
+public static void
+glglue_resolve_symbols(cc_glglue w)
+{
+    GLCapabilities c = GL.getCapabilities();
+	if( c.glGenFramebuffers == 0) {
+		w.has_fbo = false;
+	}
+	else {
+		w.has_fbo = true;
+	}
+}
 /* Simple utility function for dumping the current set of error codes
    returned from glGetError(). Returns number of errors reported by
    OpenGL. */
