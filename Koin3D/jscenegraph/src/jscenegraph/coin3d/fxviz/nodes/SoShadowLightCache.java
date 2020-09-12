@@ -116,8 +116,22 @@ public class SoShadowLightCache implements Destroyable {
     int format = GL2.GL_RGBA;
     int type = GL2.GL_FLOAT;
 
-    while (!SoGL.coin_glglue_is_texture_size_legal(glue, maxsize, maxsize, 0, internalformat, format, type, true)) {
+    while (!SoGL.coin_glglue_is_texture_size_legal(glue, maxsize, maxsize, 0, internalformat, format, type, true) && maxsize != 0 ) {
       maxsize >>= 1;
+    }
+    
+    if(maxsize == 0) { // Can happen on CentOS 7 in VirtualBox    	
+    	GL2 gl2 = state.getGL2();
+    	
+    	final int[] maxsizep = new int[1];
+        gl2.glGetIntegerv(GL2.GL_MAX_RENDERBUFFER_SIZE, maxsizep);
+    	final int[] maxtexsizep = new int[1];
+        gl2.glGetIntegerv(GL2.GL_MAX_TEXTURE_SIZE, maxtexsizep);
+        
+        maxsize = maxsizep[0];
+        maxtexsize = maxtexsizep[0];
+        
+        if (maxtexsize < maxsize) maxsize = maxtexsize;    	
     }
     
     // YB : no more need to have a power of two size in modern opengl

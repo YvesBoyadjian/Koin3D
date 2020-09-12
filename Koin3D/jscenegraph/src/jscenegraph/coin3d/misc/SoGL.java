@@ -33,6 +33,7 @@ import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoBasic;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.CString;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.FloatBufferAble;
@@ -214,6 +215,14 @@ else { /*  3D textures */
 /* ********************************************************************** */
 
 public static boolean
+coin_glglue_vbo_in_displaylist_supported(final cc_glglue glw)
+{
+  return glw.vbo_in_displaylist_ok;
+}
+
+/* ********************************************************************** */
+
+public static boolean
 coin_glglue_non_power_of_two_textures(final cc_glglue glue)
 {
   if (!glglue_allow_newer_opengl(glue)) return false;
@@ -338,6 +347,70 @@ cc_glglue_glversion_matches_at_least( cc_glglue w,
   else if (glminor[0] > minor) return true;
   if (glminor[0] < revision) return false;
   return true;
+}
+
+/*
+  Set the OpenGL version variables in the given cc_glglue struct
+  instance.
+
+  Note: this code has been copied from GLUWrapper.c, so if any changes
+  are made, make sure they are propagated over if necessary.
+*/
+public static void
+glglue_set_glVersion(cc_glglue w)
+{
+  CString buffer;
+  CString dotptr;
+
+  /* NB: if you are getting a crash here, it's because an attempt at
+   * setting up a cc_glglue instance was made when there is no current
+   * OpenGL context. */
+  if (Gl.coin_glglue_debug() != 0) {
+	  Gl_wgl.cc_debugerror_postinfo("glglue_set_glVersion",
+                           "glGetString(GL_VERSION)=='"+w.versionstr+"'");
+  }
+
+  w.version.major = 0;
+  w.version.minor = 0;
+  w.version.release = 0;
+
+  buffer = CString.create(w.versionstr);//(void)strncpy(buffer, (String)w.versionstr, 255); // java port
+  //buffer[255] = '\0'; /* strncpy() will not null-terminate if strlen > 255 */
+  dotptr = Util.strchr(buffer, '.');
+  if (dotptr != null) {
+    CString start = CString.create(buffer,0);
+    dotptr.star('\0');
+    w.version.major = Util.atoi(start.toString());
+    dotptr.plusPlus();
+    start = CString.create(dotptr,0);
+
+    dotptr = Util.strchr(start, '.');
+    
+    CString spaceptr;
+    spaceptr = Util.strchr(start, ' ');
+    if (dotptr == null && spaceptr != null) dotptr = CString.create(spaceptr,0);
+    if (dotptr != null && spaceptr != null && spaceptr.lessThan(dotptr)) dotptr = CString.create(spaceptr,0);
+    if (dotptr != null) {
+      boolean terminate = (dotptr.star() == ' ');
+      dotptr.star( '\0');
+      w.version.minor = Util.atoi(start.toString());
+      if (!terminate) {
+    	  dotptr.plusPlus();
+        start = CString.create(dotptr,0);
+        dotptr = Util.strchr(start, ' ');
+        if (dotptr != null) dotptr.star('\0');
+        w.version.release = Util.atoi(start.toString());
+      }
+    }
+    else {
+      w.version.minor = Util.atoi(start.toString());
+    }
+  }
+
+  if (Gl.coin_glglue_debug() != 0) {
+    Gl_wgl.cc_debugerror_postinfo("glglue_set_glVersion",
+                           "parsed to major=='"+w.version.major+"', minor=='"+w.version.minor+"', micro=='"+w.version.release+"'");
+  }
 }
 
 public static void

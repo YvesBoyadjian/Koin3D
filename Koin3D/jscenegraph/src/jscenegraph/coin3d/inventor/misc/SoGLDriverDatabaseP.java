@@ -38,6 +38,9 @@ public class SoGLDriverDatabaseP {
 		  featuremap.put(new SbName(SoGLDriverDatabase.SO_GL_ANISOTROPIC_FILTERING).getString(),
                   Gl::cc_glglue_can_do_anisotropic_filtering);
 		  
+		  featuremap.put(new SbName(SoGLDriverDatabase.SO_GL_VBO_IN_DISPLAYLIST).getString(),
+                  SoGL::coin_glglue_vbo_in_displaylist_supported);
+		  
 		  featuremap.put(new SbName(SoGLDriverDatabase.SO_GL_NON_POWER_OF_TWO_TEXTURES).getString(),
                   SoGL::coin_glglue_non_power_of_two_textures);
 

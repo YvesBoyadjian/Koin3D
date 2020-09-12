@@ -49,6 +49,7 @@ public class cc_glglue {
 	public Version version = new Version();
 	public String versionstr = "";
 	public String vendorstr = "";
+	public String rendererstr = "";
 	public String extensionsstr = "";
 	public int maxtextureunits;
 	public boolean vendor_is_nvidia = false;
@@ -60,8 +61,10 @@ public class cc_glglue {
 
 	public boolean has_arb_fragment_program = true;
 	
+	public boolean vbo_in_displaylist_ok = true;
+	  
 	public boolean non_power_of_two_textures = true;
-	
+	  public int max_lights;
 	public int max_texture_size;
 	
 	public long glGenerateMipmap;
@@ -70,6 +73,35 @@ public class cc_glglue {
 		this.gl2 = Ctx.get(ctx);
 		this.contextid = ctx;
 		
+	    /*
+	       Make sure all GL errors are cleared before we do our assert
+	       test below. The OpenGL context might be set up by the user, and
+	       it's better to print a warning than asserting here if the user
+	       did something wrong while creating it.
+	    */
+	    int glerr = GL11.glGetError();
+	    while (glerr != GL2.GL_NO_ERROR) {
+	      Gl_wgl.cc_debugerror_postwarning("cc_glglue_instance",
+	                                "Error when setting up the GL context. This can happen if "+
+	                                "there is no current context, or if the context has been set "+
+	                                "up incorrectly.");
+	      glerr = GL11.glGetError();
+
+	      /* We might get this error if there is no current context.
+	         Break out and assert later in that case */
+	      if (glerr == GL2.GL_INVALID_OPERATION) break;
+	    }
+
+	    /* NB: if you are getting a crash here, it's because an attempt at
+	     * setting up a cc_glglue instance was made when there is no
+	     * current OpenGL context. */
+	    versionstr = (String)GL11.glGetString(GL2.GL_VERSION);	    
+	    
+    SoGL.glglue_set_glVersion(this);
+    
+	vendorstr = (String)GL11.glGetString(GL2.GL_VENDOR);
+	
+    rendererstr = (String)GL11.glGetString(GL2.GL_RENDERER);
     extensionsstr = (String)GL11.glGetString(GL2.GL_EXTENSIONS);
 
     /* Randall O'Reilly reports that the above call is deprecated from OpenGL 3.0
@@ -124,6 +156,9 @@ public class cc_glglue {
 	    gl2.glGetIntegerv(GL2.GL_MAX_TEXTURE_SIZE, gltmp,0);
 	    max_texture_size = gltmp[0];
 
+	    gl2.glGetIntegerv(GL2.GL_MAX_LIGHTS, gltmp);
+	    max_lights = (int) gltmp[0];
+	    
 	    maxtextureunits = 1; /* when multitexturing is not available */
 	    //if (w->glActiveTexture) {
 	      final int[] tmp = new int[1];

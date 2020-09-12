@@ -120,7 +120,7 @@ public class MainGLFW {
 	 */
 	public static void main(String[] args) {
 		
-		//System.loadLibrary("opengl32"); for software rendering using mesa3d for Windows
+		//System.loadLibrary("opengl32"); //for software rendering using mesa3d for Windows
 		
 		//System.setProperty("IV_DEBUG_CACHES", "1");
 		

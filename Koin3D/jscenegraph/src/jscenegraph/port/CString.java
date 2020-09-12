@@ -73,4 +73,15 @@ public class CString {
 		str[offset] = value;
 	}
 
+	public char star() {
+		return str[offset];
+	}
+
+	public boolean lessThan(CString other) {
+		if(str != other.str) {
+			throw new IllegalArgumentException();
+		}
+		return offset < other.offset;
+	}
+
 }

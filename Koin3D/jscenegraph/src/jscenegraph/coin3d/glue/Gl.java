@@ -324,6 +324,9 @@ coin_catch_gl_errors(String[] str)
 {
   int errs = 0;
   int glerr = glGetError();
+  if ( glerr != GL_NO_ERROR && str[0] == null) {
+	  str[0] = "";
+  }
   while (glerr != GL_NO_ERROR) {
     if (errs < 10) {
       if (errs > 0) {
