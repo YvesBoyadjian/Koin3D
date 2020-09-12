@@ -418,9 +418,14 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    skySep.addChild(skyColor);
 	    
 	    skyView = new SoSphere();
-	    skyView.radius.setValue(WATER_HORIZON/1.1f);
+	    skyView.radius.setValue(WATER_HORIZON);
 	    
+	    SoDepthBuffer skyDepthBuffer = new SoDepthBuffer();
+	    skyDepthBuffer.test.setValue(false);
+	    //skyDepthBuffer.write.setValue(false);
+	    skyDepthBuffer.clamp.setValue(true);
 	    
+	    skySep.addChild(skyDepthBuffer);
 	    
 	    skySep.addChild(skyView);
 	    
