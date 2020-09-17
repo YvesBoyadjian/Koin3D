@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Gdx
+Bundle-SymbolicName: gdx
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: gdx
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Export-Package: com.badlogic.gdx.math,
+ com.badlogic.gdx.physics.bullet,
+ com.badlogic.gdx.physics.bullet.collision,
+ com.badlogic.gdx.physics.bullet.dynamics,
+ com.badlogic.gdx.physics.bullet.extras,
+ com.badlogic.gdx.physics.bullet.inversedynamics,
+ com.badlogic.gdx.physics.bullet.linearmath,
+ com.badlogic.gdx.physics.bullet.softbody,
+ com.badlogic.gdx.utils

@@ -692,6 +692,7 @@ for(int is=0;is<4;is++) {
 			SoTranslation sealTranslation = new SoTranslation();
 			
 			sealPosition.setValue(seals.getSeal(seal,vector));
+			sealPosition.setZ(sealPosition.getZ()+0.3f);
 			
 			sealTranslation.translation.setValue(/*seals.getSeal(seal,vector)*/sealPosition);
 			
@@ -701,8 +702,9 @@ for(int is=0;is<4;is++) {
 			//billboard.axisOfRotation.setValue(0, 1, 0);
 						
 			SoCube sealCube = new SoCube();
+			sealCube.width.setValue(1920.0f/1280.0f*sealCube.width.getValue());
 			//sealCube.height.setValue(4);
-			//sealCube.depth.setValue(4);
+			sealCube.depth.setValue(0.1f);
 			
 			billboard.addChild(sealCube);
 			

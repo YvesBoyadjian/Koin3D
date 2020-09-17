@@ -40,7 +40,25 @@ import javax.swing.JLabel;
 import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
+import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
+import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
+import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
+import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.badlogic.gdx.physics.bullet.linearmath.btTransform;
+import com.badlogic.gdx.physics.bullet.linearmath.btVector3;
+import com.badlogic.gdx.utils.GdxNativesLoader;
+import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.jogamp.opengl.GL2;
+
+import application.physics.OpenGLMotionState;
 
 //import org.eclipse.swt.SWT;
 //import org.eclipse.swt.graphics.Color;
@@ -379,6 +397,49 @@ public class MainGLFW {
 	    System.out.println("Depth Buffer : "+depthBits[0]);
 	    
 	    window.setVisible(false);
+	    
+	    GdxNativesLoader.load();
+	    new SharedLibraryLoader().load("gdx-bullet");
+	    
+	    btBroadphaseInterface m_pBroadphase;
+	    btCollisionConfiguration m_pCollisionConfiguration;
+	    btCollisionDispatcher m_pDispatcher;
+	    btConstraintSolver m_pSolver;
+	    btDynamicsWorld m_pWorld;
+	    
+	    //Meanwhile, the code to initialize Bullet can be found in BasicDemo and looks as shown in the following code snippet:
+	    
+	    m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
+	    m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
+	    m_pBroadphase = new btDbvtBroadphase();
+	    m_pSolver = new btSequentialImpulseConstraintSolver();
+	    m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
+	    
+	    // create a box shape of size (1,1,1)
+	    btBoxShape pBoxShape = new btBoxShape(new Vector3(1.0f, 1.0f, 1.0f));
+	    
+	    // give our box an initial position of (0,0,0)
+	    btTransform transform = new btTransform();
+	    transform.setIdentity();
+	    transform.setOrigin(new Vector3(0.0f, 0.0f, 0.0f));
+	    
+	    // create a motion state
+	    OpenGLMotionState m_pMotionState = new OpenGLMotionState(transform);
+	    
+	    // create the rigid body construction info object, giving it a 
+	    // mass of 1, the motion state, and the shape
+	    btRigidBody.btRigidBodyConstructionInfo rbInfo = new btRigidBody.btRigidBodyConstructionInfo(1.0f, m_pMotionState, pBoxShape);
+	    btRigidBody pRigidBody = new btRigidBody(rbInfo);
+	    
+	    // inform our world that we just created a new rigid body for 
+	    // it to manage
+	    m_pWorld.addRigidBody(pRigidBody);
+	    
+		viewer.addIdleListener((viewer1)->{
+			m_pWorld.stepSimulation((float)viewer1.dt());
+		});			    
+
+	    //Dickinson, Chris. Learning Game Physics with Bullet Physics and OpenGL (Kindle Locations 801-807). Packt Publishing. Kindle Edition. 
 	    
 	    boolean success = viewer.setFocus();
 	    

@@ -89,6 +89,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	private double lastTimeSec = System.nanoTime()/1.0e9;
 	
+	private double dt;
+	
 	double startDate;
 	
 	private Set<SoKeyboardEvent.Key> keysDown = new HashSet<>();
@@ -191,7 +193,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	{
 	  /* Ziskani stredu okna relativne. */
 	  Composite widget = getGLWidget();
-	  return new SbVec2f((float)(widget.getSize().getX() / 2), (float)(widget.getSize().getY() / 2));
+	  return new SbVec2f((float)(widget.getSize().getX() / 2.0), (float)(widget.getSize().getY() / 2.0));
 	}
 
 //	private SbVec2f getPosition()
@@ -450,10 +452,11 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
 		double currentTimeSec = System.nanoTime()/1.0e9;
 		
-		float deltaT = (float)(currentTimeSec - lastTimeSec);
+		double deltaT = currentTimeSec - lastTimeSec;
 		if(deltaT > 1.0f) {
 			deltaT = 1.0f;
 		}
+		dt = deltaT;
 		
 		  if (
 			  keysDown.contains(SoKeyboardEvent.Key.W)) {
@@ -461,7 +464,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  //lastTimeSec = System.nanoTime()/1.0e9;
 			  
 			  
-			  updateLocation(new SbVec3f(0.0f, 0.0f, -SPEED* deltaT));
+			  updateLocation(new SbVec3f(0.0f, 0.0f, -SPEED* (float)deltaT));
 		  }
 		  if (
 		  
@@ -469,21 +472,21 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  
 				//  lastTimeSec = System.nanoTime()/1.0e9;
 			  
-			  updateLocation(new SbVec3f(0.0f, 0.0f, SPEED* deltaT));
+			  updateLocation(new SbVec3f(0.0f, 0.0f, SPEED* (float)deltaT));
 
 		  }
 		  if (  keysDown.contains(SoKeyboardEvent.Key.A)) {
 			  
 				  //lastTimeSec = System.nanoTime()/1.0e9;
 			  
-			  updateLocation(new SbVec3f(- SPEED* deltaT, 0.0f, 0.0f));
+			  updateLocation(new SbVec3f(- SPEED* (float)deltaT, 0.0f, 0.0f));
 			  
 		  }
 		  if (  keysDown.contains(SoKeyboardEvent.Key.D)) {
 			  
 				  //lastTimeSec = System.nanoTime()/1.0e9;
 
-			  updateLocation( new SbVec3f(SPEED* deltaT, 0.0f, 0.0f));
+			  updateLocation( new SbVec3f(SPEED* (float)deltaT, 0.0f, 0.0f));
 
 		  }
 		  
@@ -607,5 +610,9 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			SPEED = USAIN_BOLT_RUN;			
 		}
 		SceneGraphIndexedFaceSetShader.FLY = fly;
+	}
+	
+	public double dt() {
+		return dt;
 	}
 }
