@@ -442,9 +442,4 @@ public void replaceNode(SoNode oldnode, SoNode newnode)
   if (idx >= 0) this.replaceNode(idx, newnode);
 }
 
-@Override
-public SoNodePtrArray doGetValues(int start) {
-	return values.plus(start);
-}
-
 }

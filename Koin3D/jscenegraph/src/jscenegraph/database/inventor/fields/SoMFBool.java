@@ -147,13 +147,4 @@ public class SoMFBool extends SoMField<Boolean,BoolArray> {
 	protected BoolArray arrayConstructor(int length) {
 		return new BoolArray(length);
 	}
-
-	@Override
-	public BoolArray doGetValues(int start) {
-		if ( start == 0) {
-			return values;
-		}
-		return new BoolArray(start,values);
-	}
-
 }

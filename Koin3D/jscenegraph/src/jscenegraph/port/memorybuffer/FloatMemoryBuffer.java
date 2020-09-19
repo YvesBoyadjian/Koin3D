@@ -68,6 +68,7 @@ public class FloatMemoryBuffer extends MemoryBuffer {
 			int numBytes = numFloats*Float.BYTES;
 		
 			memoryBuffer.byteBuffer = MemoryUtil.memAlloc(numBytes);
+			memoryBuffer.malloc = true;
 		}
 		else {
 			memoryBuffer.floatArray = new float[numFloats];

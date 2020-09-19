@@ -38,9 +38,4 @@ public class SoMFExpression extends SoMField<Expression,ObjectArray<Expression>>
 		return new ObjectArray<Expression>(0,values);
 	}
 
-	@Override
-	public ObjectArray<Expression> doGetValues(int start) {
-		return new ObjectArray<Expression>(start,values);
-	}
-
 }

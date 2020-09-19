@@ -105,6 +105,7 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFEnum;
 import jscenegraph.database.inventor.fields.SoMField;
 import jscenegraph.database.inventor.fields.SoSField;
+import jscenegraph.port.SbNameArray;
 
 /**
  * @author Yves Boyadjian
@@ -465,7 +466,7 @@ public void SO__MF_ENUM_SET_TYPE(SoMFEnum field, String fieldName, String enumTy
     do {                                                                      
         final int[] _so_mf_enum_num = new int[1];                                                  
         final int[][] _so_mf_enum_vals = new int[1][];                                                
-        final SbName[][] _so_mf_enum_names = new SbName[1][];                                            
+        final SbNameArray[] _so_mf_enum_names = new SbNameArray[1];                                            
         contData.getEnumData(enumType,                            
                                 _so_mf_enum_num,                              
                                 _so_mf_enum_vals,                             

@@ -155,9 +155,4 @@ public boolean read1Value(SoInput in, int index)
     return false;
 }
 
-@Override
-public FloatArray doGetValues(int start) {
-	return new FloatArray(start,values);
-}
-
 }

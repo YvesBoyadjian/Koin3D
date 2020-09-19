@@ -332,6 +332,10 @@ public void setValues(int start, SbVec2f[] xy) {
  * @param buffer
  */
 public void setValuesPointer(FloatMemoryBuffer userdata) {
+	setValuesPointer(userdata,true);
+}
+
+public void setValuesPointer(FloatMemoryBuffer userdata, boolean keepOwnership) {
 	makeRoom(0);
 	  if (userdata != null) { 
 		    values = new SbVec2fArray(userdata);
@@ -344,7 +348,9 @@ public void setValuesPointer(FloatMemoryBuffer userdata) {
 //			    valuesBuffer[0].put(valuesArray, 0, userdata.length);
 //			    valuesBuffer[0].flip();
 //		    }
-		    // userDataIsUsed = true; COIN3D 
+		    if(keepOwnership) {
+		    	userDataIsUsed = true;
+		    }
 		    num = maxNum = userdata.numFloats()/2; 
 		    valueChanged(); 
 	} 
@@ -378,10 +384,6 @@ public void setValues(int start, // Starting index
 //		valuesArray.setFloat((start + i)*2+1, xy[i][1]);
 	}
 	valueChanged();
-}
-
-private FloatMemoryBuffer arrayConstructorInternal(int length) {
-	return FloatMemoryBuffer.allocateFloats(length*2);
 }
 
 //protected void allocValues(int newNum) {
@@ -445,12 +447,6 @@ public SbVec2f operator_square_bracket(int i) {
 	evaluate();
 	return values.getO(i);//new SbVec2f(valuesArray,i*2);
 }
-
-public SbVec2fArray startEditingFast()                                
-{ 
-	evaluate(); 
-	return values;//new SbVec2fArray(valuesArray); 
-}                                        
                                                                       
 public SbVec2fArray getValuesSbVec2fArray() {
 	evaluate();
@@ -459,11 +455,6 @@ public SbVec2fArray getValuesSbVec2fArray() {
 //		vec2fArray = new SbVec2fArray(valuesArray);
 //	}
 	return values;
-}
-
-@Override
-public SbVec2fArray doGetValues(int start) {
-	return values.plus(start);
 }
 
 }

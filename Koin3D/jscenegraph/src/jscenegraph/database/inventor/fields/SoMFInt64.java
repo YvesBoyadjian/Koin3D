@@ -41,9 +41,4 @@ public class SoMFInt64 extends SoMField<Long,LongArray> {
 		return new LongArray(length);
 	}
 
-	@Override
-	public LongArray doGetValues(int start) {
-		return values.plus(start);
-	}
-
 }

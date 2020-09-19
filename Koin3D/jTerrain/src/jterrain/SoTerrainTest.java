@@ -567,9 +567,9 @@ public class SoTerrainTest {
 	  normal_binding.value.setValue(SoNormalBinding.Binding.PER_VERTEX_INDEXED);
 
 	  /* Create heightmap. */
-	  SbVec3fArray points = coords.point.startEditingFast();
-	  SbVec2fArray texture_points = texture_coords.point.startEditingFast();
-	  SbVec3fArray normal_points = normals.vector.startEditingFast();
+	  SbVec3fArray points = coords.point.startEditing();
+	  SbVec2fArray texture_points = texture_coords.point.startEditing();
+	  SbVec3fArray normal_points = normals.vector.startEditing();
 	  for (int I = 0; I < width[0] * height[0]; ++I)
 	  {
 	    float x = (float)(I % width[0]) / (float)(width[0]);

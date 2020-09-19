@@ -57,6 +57,7 @@ import java.util.Objects;
 
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.Indexable;
 import jscenegraph.port.Mutable;
 
@@ -131,6 +132,7 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 
 	protected int num;
 	protected int maxNum;
+	protected boolean userDataIsUsed;
 
 	protected /*T[]*/U values;
 
@@ -323,21 +325,28 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 				for (int i = 0; i < newNum; i++) {
 					values.setO(i, constructor());
 				}
+			    this.userDataIsUsed = false;
 			}
 		} else {
 			/*T[]*/U oldValues = values;
 			int i;
 
-			if (newNum > 0) {
+			if (newNum > 0) {				
 				values = arrayConstructor(newNum);
 				for (i = 0; i < newNum; i++) {
 					values.setO(i, constructor());
 				}
+			    this.userDataIsUsed = false;
 				for (i = 0; i < num && i < newNum; i++)
 					values.setO(i, oldValues.getO(i));
 			} else
 				values = null;
-			// delete [] oldValues; java port
+			if(!this.userDataIsUsed) {
+				if( oldValues instanceof Destroyable ) {
+					Destroyable d = (Destroyable) oldValues;
+					Destroyable.delete(d);
+				}
+			}
 		}
 
 		num = maxNum = newNum;
@@ -418,7 +427,9 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 //		return retVal;
 	}
 	
-	public abstract U doGetValues(int start);
+	private final U doGetValues(int start) {
+		return (U) values.plus(start);
+	}
 
 	public T operator_square_bracket(int i) {
 		evaluate();
@@ -484,6 +495,40 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 		valueChanged();
 	}
 	
+
+/*!
+  Can be used to make Coin delete the array pointer set through
+  a setValuesPointer() call. See SoMField documentation for
+  information about the setValuesPointer() function.
+
+  This method is a TGS extension (introduced in TGS OIV v3.0) and is
+  supported only for compatibility. We suggest that you don't use it
+  since it can lead to hard-to-find bugs.
+
+  \since Coin 2.0
+  \since TGS Inventor 3.0
+*/
+public void enableDeleteValues()
+{
+  this.userDataIsUsed = false;
+}
+
+/*!
+  Returns whether SoMField::enableDeleteValues() has been
+  called on a field. The result is only valid if setValuesPointer()
+  has been called on the field first.
+
+  This method is a TGS extension (introduced in TGS OIV v3.0) and is
+  supported only for compatibility. We suggest that you don't use it
+  since it can lead to hard-to-find bugs.
+
+  \since Coin 2.0
+  \since TGS Inventor 3.0
+*/
+public boolean isDeleteValuesEnabled()
+{
+  return !this.userDataIsUsed;
+}
 
 ////////////////////////////////////////////////////////////////////////
 //

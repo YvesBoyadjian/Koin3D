@@ -66,6 +66,7 @@ import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.port.SbNameArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +103,7 @@ public class SoSFEnum extends SoSField<Integer> {
 		        boolean              legalValuesSet; //!< TRUE if setEnums called
 	   protected int                 numEnums;       //!< Number of enumeration values
 	   protected int[]                 enumValues;    //!< Enumeration values
-	   protected SbName[]              enumNames;     //!< Mnemonic names of values
+	   protected SbNameArray           enumNames;     //!< Mnemonic names of values
 		   		   	
 	   // java port
 	public void setValue(Enum val) {
@@ -167,7 +168,7 @@ setValue( SbName name)
 	   // Use: extender public
 	   
 	  public void
-	   setEnums(int num, int[] vals, SbName[] names)
+	   setEnums(int num, int[] vals, SbNameArray names)
 	   
 	   //
 	   ////////////////////////////////////////////////////////////////////////
@@ -201,7 +202,7 @@ findEnumValue(final SbName name, final int[] val)
 
     // Look through names table for one that matches
     for (i = 0; i < numEnums; i++) {
-        if (name.operator_equal_equal(enumNames[i])) {
+        if (name.operator_equal_equal(enumNames.getO(i))) {
             val[0] = enumValues[i];
             return true;
         }
@@ -210,20 +211,20 @@ findEnumValue(final SbName name, final int[] val)
     if (!legalValuesSet) {
         // Must be part of an unknown node, add name, value:
         int[] oldValues = enumValues;
-        SbName[] oldNames = enumNames;
+        SbNameArray oldNames = enumNames;
         enumValues = new int[numEnums+1];
-        enumNames = new SbName[numEnums+1];
+        enumNames = new SbNameArray(numEnums+1);
         if (numEnums != 0) {
             for (i = 0; i < numEnums; i++) {
                 enumValues[i] = oldValues[i];
-                enumNames[i] = oldNames[i];
+                enumNames.setO(i, oldNames.getO(i));
             }
             //delete[] oldValues;
             //delete[] oldNames;
         }
         val[0] = numEnums;
         enumValues[numEnums] = numEnums;
-        enumNames[numEnums] = name;
+        enumNames.setO(numEnums, name);
         ++numEnums;
         return true;
     }
@@ -250,7 +251,7 @@ findEnumName(int val, final SbName[] name)
     // Find string corresponding to given value
     for (i = 0; i < numEnums; i++) {
         if (val == enumValues[i]) {
-            name[0] = enumNames[i];
+            name[0] = enumNames.getO(i);
             return true;
         }
     }

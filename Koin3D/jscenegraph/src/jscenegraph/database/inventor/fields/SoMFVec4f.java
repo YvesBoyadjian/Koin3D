@@ -163,10 +163,6 @@ public class SoMFVec4f extends SoMField<SbVec4f,SbVec4fArray> {
 //		return Util.toByteBuffer(values);
 //	}
 
-	private FloatMemoryBuffer arrayConstructorInternal(int length) {
-		return FloatMemoryBuffer.allocateFloats(length*3);
-	}
-
 	public void setValuesPointer(FloatMemoryBuffer userdata) {
 		makeRoom(0);
 		  if (userdata != null) { 
@@ -258,26 +254,9 @@ public class SoMFVec4f extends SoMField<SbVec4f,SbVec4fArray> {
 		valueChanged();
 	}
 
-	public SbVec4f operator_square_bracket(int i) {
-		evaluate();
-		return values.getO(i);
-	}
-	
-    public SbVec4fArray startEditingFast()                                
-    { 
-    	evaluate(); 
-    	return values;//new SbVec4fArray(valuesArray); 
-	}                                        
-
-
     public SbVec4fArray getValuesSbVec4fArray() {
 		evaluate();
 
 		return values;//new SbVec4fArray(valuesArray); 		
     }
-
-	@Override
-	public SbVec4fArray doGetValues(int start) {
-		return values.plus(start);
-	}
 }

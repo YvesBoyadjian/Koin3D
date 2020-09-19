@@ -16,7 +16,7 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  * @author Yves Boyadjian
  *
  */
-public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, FloatBufferAble {
+public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, FloatBufferAble, Destroyable {
 	
 	FloatMemoryBuffer valuesArray;
 
@@ -184,5 +184,14 @@ public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, 
 	@Override
 	public Object values() {
 		return valuesArray;
+	}
+
+	@Override
+	public void destructor() {
+		if (delta != 0) {
+			throw new IllegalArgumentException();
+		}
+		Destroyable.delete(valuesArray);
+		valuesArray = null;
 	}
 }

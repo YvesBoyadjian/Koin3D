@@ -103,9 +103,4 @@ public class SoMFShort extends SoMField<Short,ShortArray> {
 	{
 	  return 8;
 	}
-
-	@Override
-	public ShortArray doGetValues(int start) {
-		return values.plus(start);
-	}
 }

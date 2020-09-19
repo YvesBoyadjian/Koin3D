@@ -112,11 +112,6 @@ public boolean read1Value(SoInput in, int index)
     return false;
 }
 
-@Override
-public StringArray doGetValues(int start) {
-	return values.plus(start);
-}
-
 	public void setValues(int start, String[] values) {
 		int length = values.length;
 		for( int i=0; i<length;i++) {

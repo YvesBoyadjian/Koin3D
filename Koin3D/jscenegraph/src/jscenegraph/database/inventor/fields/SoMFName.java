@@ -124,9 +124,4 @@ public boolean read1Value(SoInput in, int index)
     return in.read(values.getO(index));
 }
 
-@Override
-public SbNameArray doGetValues(int start) {
-	return values.plus(start);
-}
-
 }

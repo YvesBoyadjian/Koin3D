@@ -229,7 +229,7 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 	}
 
 	public void setValuesPointer(float[] userdata) {
-		setValuesPointer(FloatMemoryBuffer.allocateFromFloatArray(userdata));
+		setValuesPointer(FloatMemoryBuffer.allocateFromFloatArray(userdata),false);
 	}
 	
 	/**
@@ -238,6 +238,15 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 	 * @param buffer
 	 */
 	public void setValuesPointer(FloatMemoryBuffer userdata) {
+		setValuesPointer(userdata,true);
+	}
+	
+	/**
+	 * 
+	 * @param userdata
+	 * @param keepOwnership : specify false, if you want Koin3D to delete himself the userdata
+	 */
+	public void setValuesPointer(FloatMemoryBuffer userdata, boolean keepOwnership) {
 		makeRoom(0);
 		  if (userdata != null) { 
 			    valuesArray = userdata;
@@ -251,7 +260,9 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 //				    valuesBuffer[0].put(valuesArray, 0, userdata.length);
 //				    valuesBuffer[0].flip();
 //			    }
-			    // userDataIsUsed = true; COIN3D 
+			    if(keepOwnership) {
+			    	userDataIsUsed = true;
+			    }
 			    num = maxNum = userdata.numFloats()/3; 
 			    valueChanged(); 
 		} 
@@ -327,10 +338,6 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 		return new SbVec3fArray(FloatMemoryBuffer.allocateFloats(length*3));
 	}
 	
-	private FloatMemoryBuffer arrayConstructorInternal(int length) {
-		return FloatMemoryBuffer.allocateFloats(length*3);
-	}
-
 	////////////////////////////////////////////////////////////////////////
 	//
 	// Description:
@@ -427,12 +434,6 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 		evaluate();
 		return new SbVec3f(valuesArray,i*3);
 	}
-	
-    public SbVec3fArray startEditingFast()                                
-    { 
-    	evaluate(); 
-    	return new SbVec3fArray(valuesArray); 
-	}                                        
 
     public SbVec3fArray getValuesSbVec3fArray() {
 		evaluate();
@@ -453,10 +454,5 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 		}
 		return floatArray;
     }
-
-	@Override
-	public SbVec3fArray doGetValues(int start) {		
-		return values.plus(start);
-	}
 }
 

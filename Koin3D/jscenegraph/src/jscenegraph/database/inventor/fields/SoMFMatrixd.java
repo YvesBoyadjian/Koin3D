@@ -49,9 +49,4 @@ public boolean read1Value(SoInput in, int index)
          && in.read(ref[3][2]) && in.read(ref[3][3]);
 }
 
-@Override
-public SbMatrixdArray doGetValues(int start) {
-	return values.plus(start);
-}
-
 }

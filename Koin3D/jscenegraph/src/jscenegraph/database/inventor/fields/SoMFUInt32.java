@@ -193,14 +193,18 @@ public void setValues(int start, int[] newValues) {
 
 }
 
+public void setValuesPointer(int[] newValues) {
+	makeRoom(0);
+	if(newValues != null) {
+		values = new IntArray(0,newValues);
+		num = maxNum = newValues.length;
+		valueChanged();
+	}
+}
+
 public int operator_square_bracketI(int i) {
 	evaluate();
 	return (int) values.get(i);
-}
-
-@Override
-public IntArray doGetValues(int start) {
-	return values.plus(start);
 }
 
 }

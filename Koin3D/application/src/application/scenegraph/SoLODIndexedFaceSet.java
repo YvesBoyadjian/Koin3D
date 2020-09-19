@@ -137,7 +137,7 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 		if(withColors) {
 			vertexProperty.texCoord.setValuesPointer(chunk.douglasTexCoordsF);
 			vertexProperty.materialBinding.setValue(SoVertexProperty.Binding.PER_VERTEX_INDEXED);
-			vertexProperty.orderedRGBA.setValues(0, chunk.douglasColorsF);
+			vertexProperty.orderedRGBA.setValuesPointer(chunk.douglasColorsF);
 		}
 		else {
 			vertexProperty.orderedRGBA.setValue(DouglasChunk.TREE_FOLIAGE_AVERAGE_MULTIPLIER/*SbColor(1,0.0f,0.0f)*/.getPackedValue());

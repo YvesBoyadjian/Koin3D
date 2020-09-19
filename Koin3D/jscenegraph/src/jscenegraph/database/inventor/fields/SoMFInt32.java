@@ -307,11 +307,6 @@ protected void copyValue(int to, int from) {
 }
 
 
-@Override
-public IntArray doGetValues(int start) {	
-	return values.plus(start);
-}
-
 ///* Get non-const pointer into array of values for batch edits */          
 //public int[] startEditingI()                                
 //    { evaluate(); return values; }                                        

@@ -68,6 +68,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IdentityOffset;
 import jscenegraph.port.Offset;
+import jscenegraph.port.SbNameArray;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -137,14 +138,14 @@ public static final int NOT_BUILTIN_BIT = (1<<14);
 	        int                 num;            // number of values
 	        int                 arraySize;      // size of arrays
 	        int[]                 vals;          // array of values
-	        SbName[]              names;         // array of names
+	        SbNameArray              names;         // array of names
 	   
 	       SoEnumEntry(final SbName name) {
 		       typeName.copyFrom(name);
 		       num         = 0;
 		       arraySize   = growSize;
 		       vals        = new int[arraySize];
-		       names       = new SbName[arraySize];
+		       names       = new SbNameArray(arraySize);
 	    	   
 	       }
 	       SoEnumEntry(final SoEnumEntry o) {
@@ -152,10 +153,10 @@ public static final int NOT_BUILTIN_BIT = (1<<14);
 		    	       num         = o.num;
 		    	       arraySize   = num;
 		    	       vals                = new int[arraySize];
-		    	       names               = new SbName[arraySize];
+		    	       names               = new SbNameArray(arraySize);
 		    	       for (int i=0; i<num; i++) {
 		    	           vals[i] = o.vals[i];
-		    	           names[i] = new SbName(o.names[i]);
+		    	           names.setO(i, o.names.getO(i));
 		    	       }
 	    	   
 	       }
@@ -306,18 +307,18 @@ public static final int NOT_BUILTIN_BIT = (1<<14);
 	        if (e.num == e.arraySize) {
 	            e.arraySize += SoEnumEntry.growSize;
 	            int[] ovals = e.vals;
-	            SbName[] onames = e.names;
+	            SbNameArray onames = e.names;
 	            e.vals = new int[e.arraySize];
-	            e.names = new SbName[e.arraySize];
+	            e.names = new SbNameArray(e.arraySize);
 	            for (int i=0; i<e.num; i++) {
 	                e.vals[i] = ovals[i];
-	                e.names[i] = onames[i];
+	                e.names.setO(i, onames.getO(i));
 	            }
 	            //delete [] ovals;
 	            //delete [] onames;
 	        }
 	        e.vals[e.num] = val;
-	        e.names[e.num] = valName;
+	        e.names.setO(e.num, valName);
 	        e.num++;
 	    }
 	    	  	
@@ -330,7 +331,7 @@ public static final int NOT_BUILTIN_BIT = (1<<14);
 	    
 	   public void
 	    getEnumData(String typeNameArg, final int[] num,
-	                             final int[][] vals, final SbName[][] names)
+	                             final int[][] vals, final SbNameArray[] names)
 	    //
 	    ////////////////////////////////////////////////////////////////////////
 	    {

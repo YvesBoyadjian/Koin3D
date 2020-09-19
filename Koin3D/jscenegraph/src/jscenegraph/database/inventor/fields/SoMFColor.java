@@ -287,9 +287,4 @@ public SbColorArray getValuesSbColorArray() {
 
 	return values; 		
 }
-
-@Override
-public SbColorArray doGetValues(int start) {
-	return values.plus(start);
-}
 }

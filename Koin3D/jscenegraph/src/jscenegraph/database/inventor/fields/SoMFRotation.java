@@ -144,9 +144,4 @@ public void set1Value(int index, final SbVec3f axis, float angle)
     set1Value(index, new SbRotation(axis, angle));
 }
 
-@Override
-public SbRotationArray doGetValues(int start) {
-	return values.plus(start);
-}
-
 }

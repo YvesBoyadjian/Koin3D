@@ -45,9 +45,4 @@ public boolean read1Value(SoInput in, int index)
     return true;
 }
 
-@Override
-public SbTimeArray doGetValues(int start) {
-	return values.plus(start);
-}
-
 }

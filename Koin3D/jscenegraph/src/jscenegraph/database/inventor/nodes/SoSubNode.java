@@ -116,6 +116,7 @@ import jscenegraph.database.inventor.fields.SoMField;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSField;
 import jscenegraph.database.inventor.misc.SoBase;
+import jscenegraph.port.SbNameArray;
 import jscenegraph.port.SoNodePtr;
 
 /**
@@ -475,7 +476,7 @@ public static void SO_NODE_INIT_CLASS(Class className, String classPrintName, Cl
   {  
         final int[] _so_sf_enum_num = new int[1];                                                  
         final int[][] _so_sf_enum_vals = new int[1][];                                                
-        final SbName[][] _so_sf_enum_names = new SbName[1][];                                            
+        final SbNameArray[] _so_sf_enum_names = new SbNameArray[1];                                            
         contData.getEnumData(enumType,                            
                                 _so_sf_enum_num,                              
                                 _so_sf_enum_vals,                             
@@ -500,7 +501,7 @@ public static void SO_NODE_INIT_CLASS(Class className, String classPrintName, Cl
   {  
         final int[] _so_sf_enum_num = new int[1];                                                  
         final int[][] _so_sf_enum_vals = new int[1][];                                                
-        final SbName[][] _so_sf_enum_names = new SbName[1][];                                            
+        final SbNameArray[] _so_sf_enum_names = new SbNameArray[1];                                            
         contData.getEnumData(enumType,                            
                                 _so_sf_enum_num,                              
                                 _so_sf_enum_vals,                             

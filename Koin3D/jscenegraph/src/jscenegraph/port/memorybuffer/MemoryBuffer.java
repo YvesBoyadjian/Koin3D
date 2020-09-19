@@ -18,6 +18,7 @@ import jscenegraph.port.Destroyable;
 public class MemoryBuffer implements Destroyable, ByteBufferAble {
 	
 	protected ByteBuffer byteBuffer; 
+	protected boolean malloc;
 	
 	protected MemoryBuffer() {
 		
@@ -42,6 +43,7 @@ public class MemoryBuffer implements Destroyable, ByteBufferAble {
 		
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
 		memoryBuffer.byteBuffer = MemoryUtil.memAlloc(numBytes);
+		memoryBuffer.malloc = true;
 
 		return memoryBuffer;
 	}
@@ -120,9 +122,10 @@ public class MemoryBuffer implements Destroyable, ByteBufferAble {
 	}
 
 	public void free() {
-		if(byteBuffer != null) {
+		if(byteBuffer != null && malloc) {
 			MemoryUtil.memFree(byteBuffer);
 			byteBuffer = null;
+			malloc = false;
 		}
 	}
 	

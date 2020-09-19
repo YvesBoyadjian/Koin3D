@@ -48,9 +48,4 @@ public boolean read1Value(SoInput in, int index)
 	return false;
 }
 
-@Override
-public DoubleArray doGetValues(int start) {
-	return new DoubleArray(start,values);
-}
-
 }

@@ -57,6 +57,7 @@ package jscenegraph.database.inventor.fields;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.port.SbNameArray;
 
 ////////////////////////////////////////////////////////////////////////////////
 //! Single-value field containing a set of bit flags.
@@ -219,7 +220,7 @@ findEnumValue(final SbName name, final int[] val)
 
     // Look through names table for one that matches
     for (i = 0; i < numEnums; i++) {
-        if (name.operator_equal_equal(enumNames[i])) {
+        if (name.operator_equal_equal(enumNames.getO(i))) {
             val[0] = enumValues[i];
             return true;
         }
@@ -228,20 +229,20 @@ findEnumValue(final SbName name, final int[] val)
     if (!legalValuesSet) {
         // Must be part of an unknown node, add name, value:
         int[] oldValues = enumValues;
-        SbName[] oldNames = enumNames;
+        SbNameArray oldNames = enumNames;
         enumValues = new int[numEnums+1];
-        enumNames = new SbName[numEnums+1];
+        enumNames = new SbNameArray(numEnums+1);
         if (numEnums != 0) {
             for (i = 0; i < numEnums; i++) {
                 enumValues[i] = oldValues[i];
-                enumNames[i] = oldNames[i];
+                enumNames.setO(i, oldNames.getO(i));
             }
             //delete[] oldValues;
             //delete[] oldNames;
         }
         val[0] = 1<<numEnums;
         enumValues[numEnums] = 1<<numEnums;
-        enumNames[numEnums] = name;
+        enumNames.setO(numEnums, name);
         ++numEnums;
         return true;
     }

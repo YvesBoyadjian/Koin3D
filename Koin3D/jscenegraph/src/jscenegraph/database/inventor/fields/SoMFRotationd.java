@@ -65,9 +65,4 @@ public void set1Value(int index, final SbVec3d axis, double angle)
     set1Value(index, new SbRotationd(axis, angle));
 }
 
-@Override
-public SbRotationdArray doGetValues(int start) {
-	return values.plus(start);
-}
-
 }
