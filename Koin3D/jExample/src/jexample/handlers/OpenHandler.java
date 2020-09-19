@@ -20,7 +20,7 @@ public class OpenHandler {
 	public void execute(Shell shell){
 		FileDialog dialog = new FileDialog(shell);
 		String fileName = dialog.open();
-		if ( fileName != null && !fileName.isBlank() ) {
+		if ( fileName != null && !fileName.trim().isEmpty() ) {
 			MPart mpart = partService.getActivePart();
 			if( null != mpart ) {
 				Object obj = mpart.getObject();

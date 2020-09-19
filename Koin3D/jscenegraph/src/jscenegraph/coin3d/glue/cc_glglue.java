@@ -111,7 +111,7 @@ public class cc_glglue {
        The following code, supplied by Randall, implements this to end up with the
        same result as the old method.
     */
-    if (extensionsstr == null || extensionsstr.isEmpty() || extensionsstr.isBlank()) {
+    if (extensionsstr == null || extensionsstr.trim().isEmpty()) {
       // COIN_PFNGLGETSTRINGIPROC glGetStringi = NULL;
       // glGetStringi = (COIN_PFNGLGETSTRINGIPROC)cc_glglue_getprocaddress(gi, "glGetStringi");
     	GLCapabilities c = GL.getCapabilities();

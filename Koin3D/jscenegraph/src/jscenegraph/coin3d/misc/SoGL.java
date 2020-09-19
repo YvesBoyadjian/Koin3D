@@ -434,7 +434,7 @@ cc_glglue_glversion( cc_glglue  w,
 public static int
 coin_glglue_extension_available(String extensions, String ext)
 {
-	if( null == ext || ext.isBlank() ) {
+	if( null == ext || ext.trim().isEmpty() ) {
 		throw new IllegalArgumentException("empty extension");
 	}
 	boolean found = extensions.indexOf(ext) != -1;

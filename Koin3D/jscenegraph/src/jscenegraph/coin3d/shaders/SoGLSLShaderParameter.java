@@ -306,15 +306,21 @@ isValid( SoGLShaderObject  shader,
 	ByteBuffer cacheNameBB = ByteBuffer.wrap(this.cacheName.getBytes(StandardCharsets.UTF_8));//BufferUtils.createByteBuffer(256);
   
 	int cacheNameBBLength = cacheNameBB.capacity();
-  
+	
+	myName.limit(cacheNameBBLength);
+	ByteBuffer myNameWithGoodLength = myName.slice();
+	myName.limit(myName.capacity());
+	
   // this will only happen once after the variable has been added so
   // it's not a performance issue that we have to search for it here.
   for (i = 0; i < activeUniforms[0]; i++) {
     g.glGetActiveUniformARB(pHandle, i, /*128,*/ length, tmpSize, 
                              tmpType, myName);
 
-    int mismatch = cacheNameBB.mismatch(myName);
-    if (mismatch == -1 || ( mismatch == cacheNameBBLength && (mismatch == 256 || myName.get(mismatch) == 0) ) ) {
+    //int mismatch = cacheNameBB.mismatch(myName);
+    //if (mismatch == -1 || ( mismatch == cacheNameBBLength && (mismatch == 256 || myName.get(mismatch) == 0) ) ) {
+    boolean match = cacheNameBB.equals(myNameWithGoodLength);
+    if (match) {
       this.cacheSize = tmpSize[0];
       this.cacheType = tmpType[0];
       this.isActive = true;
