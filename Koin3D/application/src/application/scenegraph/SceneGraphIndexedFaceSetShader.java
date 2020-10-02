@@ -306,7 +306,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 						
 						red_ = (int)(255.99f * (float)random.nextDouble()*GRASS_LUMINOSITY);
 						green_ = (int)(255.99f *  1.0f*GRASS_LUMINOSITY);
-						blue_ = (int)(255.99f * (float)random.nextDouble()*0.75f*GRASS_LUMINOSITY);
+						blue_ = (int)(255.99f * (float)random.nextDouble()*/*0.75f*/0.7f*GRASS_LUMINOSITY); // Adapted to 6500 K display
 					}
 					else {					
 						red_ = snow.getRed();
@@ -451,7 +451,16 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    SoVertexShader vertexShaderSun = new SoVertexShader();
 	    
 	    //vertexShader.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/phongShading.vert");
-	    vertexShaderSun.sourceProgram.setValue("../../MountRainierIsland/application/src/shaders/behind_vertex.glsl");
+
+		String behindVertexPath = "../../MountRainierIsland/application/src/shaders/behind_vertex.glsl";
+
+		File behindVertexFile = new File(behindVertexPath);
+
+		if(!behindVertexFile.exists()) {
+			behindVertexPath = "../MountRainierIsland/application/src/shaders/behind_vertex.glsl";
+		}
+
+	    vertexShaderSun.sourceProgram.setValue(behindVertexPath);
 	    
 	    programSun.shaderObject.set1Value(0, vertexShaderSun);
 	    sunSep.addChild(programSun);
@@ -594,8 +603,12 @@ for(int is=0;is<4;is++) {
 	    
 	    //douglasTexture.filename.setValue("ressource/texture-2058269_Steve_Wittmann_thethreedguy.jpg");
 	    //douglasTexture.filename.setValue("ressource/texture-2058270_Steve_Wittmann_thethreedguy.jpg");
-	    
-	    File f = new File("ressource/texture-2058270_Steve_Wittmann_thethreedguy.jpg");
+
+		String douglasPath = "ressource/texture-2058270_Steve_Wittmann_thethreedguy.jpg";
+	    File f = new File(douglasPath);
+	    if(!f.exists()) {
+	    	f = new File("application/"+douglasPath);
+		}
 	    
 	    try {
 		    InputStream is = new FileInputStream(f);
@@ -616,9 +629,9 @@ for(int is=0;is<4;is++) {
 		    	int y = hi - i/wi -1;
 		    	int rgb = image.getRGB(x, y);
 		    	
-		    	float r = (float)Math.pow(((rgb & 0x00FF0000) >>> 16)/255.0f,2.2f)*4f;
+		    	float r = (float)Math.pow(((rgb & 0x00FF0000) >>> 16)/255.0f,2.2f)*/*4f*/5f; // Adapted to 6500 K display
 		    	float g = (float)Math.pow(((rgb & 0x0000FF00) >>> 8)/255.0f,2.2f);
-		    	float b = (float)Math.pow(((rgb & 0x000000FF) >>> 0)/255.0f,2.2f)*1.5f;
+		    	float b = (float)Math.pow(((rgb & 0x000000FF) >>> 0)/255.0f,2.2f)*/*1.5f*/1.47f; // Adapted to 6500 K display
 		    	r = Math.min(r,1);
 		    	g = Math.min(g,1);
 		    	b = Math.min(b,1);
@@ -674,8 +687,16 @@ for(int is=0;is<4;is++) {
 		//sealsSeparator.addChild(sealsTranslation);
 		
 		SoTexture2 sealTexture = new SoTexture2();
-		
-		sealTexture.filename.setValue("ressource/robbe-3080459.jpg");
+
+		String sealPath = "ressource/robbe-3080459.jpg";
+
+		File sealFile = new File(sealPath);
+
+		if(!sealFile.exists()) {
+			sealPath = "application/"+sealPath;
+		}
+
+		sealTexture.filename.setValue(sealPath);
 		
 		sealsSeparator.addChild(sealTexture);
 		
@@ -801,7 +822,7 @@ for(int is=0;is<4;is++) {
 		water.width.setValue(small ? WATER_HORIZON : WATER_HORIZON*2);
 		
 	    SoMaterial waterMat = new SoMaterial();
-	    waterMat.diffuseColor.setValue(0.1f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.6f*WATER_BRIGHTNESS);
+	    waterMat.diffuseColor.setValue(/*0.1f*/0.12f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,/*0.6f*/0.55f*WATER_BRIGHTNESS); // For 6500 K display
 	    waterMat.ambientColor.setValue(0, 0, 0);
 	    waterMat.transparency.setValue(transparency);
 	    if(shining) {

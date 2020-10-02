@@ -177,8 +177,8 @@ private        int                 stackIndex;
 
 
 
-private        SoElement           nextInStack;
-private        SoElement           nextFree;
+private        SoElement nextdown;
+private        SoElement nextup;
 
 private        SoElement           next;
 private        int                 depth;
@@ -230,11 +230,11 @@ private        int                 depth;
 	}
 
 	public void setNextInStack(SoElement nxt) {
-		nextInStack = nxt;
+		nextdown = nxt;
 	}
 
 	public void setNextFree(SoElement nxt) {
-		 nextFree = nxt;
+		 nextup = nxt;
 	}
 
 	// Returns stuff from element instance.
@@ -263,12 +263,12 @@ private        int                 depth;
 
 	// Returns next instance in specific element stack.
 	public SoElement getNextInStack() {
-		 return nextInStack;
+		 return nextdown;
 	}
 
 	// Returns next free element in a specific element stack.
 	public SoElement getNextFree() {
-		 return nextFree;
+		 return nextup;
 	}
 
 	 /////////////////////////////////////////////////////////////////////////

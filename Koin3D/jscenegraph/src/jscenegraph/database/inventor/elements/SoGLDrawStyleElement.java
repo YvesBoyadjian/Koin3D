@@ -111,8 +111,7 @@ init(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	gl2 = state.getGL2(); //java port
-	
+
     // Initialize base class stuff
     super.init(state);
 

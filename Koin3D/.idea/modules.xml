@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/VRMLViewer/VRMLViewer.iml" filepath="$PROJECT_DIR$/VRMLViewer/VRMLViewer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/application/application.iml" filepath="$PROJECT_DIR$/application/application.iml" />
+      <module fileurl="file://$PROJECT_DIR$/application-swt/application-swt.iml" filepath="$PROJECT_DIR$/application-swt/application-swt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/awt/awt.iml" filepath="$PROJECT_DIR$/awt/awt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gdx/gdx.iml" filepath="$PROJECT_DIR$/gdx/gdx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/geotools/geotools.iml" filepath="$PROJECT_DIR$/geotools/geotools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/glfw/glfw.iml" filepath="$PROJECT_DIR$/glfw/glfw.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jExample/jExample.iml" filepath="$PROJECT_DIR$/jExample/jExample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jTerrain/jTerrain.iml" filepath="$PROJECT_DIR$/jTerrain/jTerrain.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jscenegraph/jscenegraph.iml" filepath="$PROJECT_DIR$/jscenegraph/jscenegraph.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jsceneviewer/jsceneviewer.iml" filepath="$PROJECT_DIR$/jsceneviewer/jsceneviewer.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jsceneviewer-glfw/jsceneviewer-glfw.iml" filepath="$PROJECT_DIR$/jsceneviewer-glfw/jsceneviewer-glfw.iml" />
+      <module fileurl="file://$PROJECT_DIR$/loader/loader.iml" filepath="$PROJECT_DIR$/loader/loader.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lwjgl/lwjgl.iml" filepath="$PROJECT_DIR$/lwjgl/lwjgl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lwjgl-egl/lwjgl-egl.iml" filepath="$PROJECT_DIR$/lwjgl-egl/lwjgl-egl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lwjgl-glfw/lwjgl-glfw.iml" filepath="$PROJECT_DIR$/lwjgl-glfw/lwjgl-glfw.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lwjgl-utils/lwjgl-utils.iml" filepath="$PROJECT_DIR$/lwjgl-utils/lwjgl-utils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lwjgl3-awt/lwjgl3-awt.iml" filepath="$PROJECT_DIR$/lwjgl3-awt/lwjgl3-awt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/lwjgl3-swt/lwjgl3-swt.iml" filepath="$PROJECT_DIR$/lwjgl3-swt/lwjgl3-swt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/org.lwjglx/org.lwjglx.iml" filepath="$PROJECT_DIR$/org.lwjglx/org.lwjglx.iml" />
+    </modules>
+  </component>
+</project>

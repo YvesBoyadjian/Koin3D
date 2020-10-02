@@ -207,8 +207,8 @@ public void init(SoState stateptr)
     super.init(state);
     this.state = stateptr; // needed to send GL texture
     
-    gl2 = state.getGL2(); //java port
-    
+    gl2 = new GL2(){}; //java port
+
     // We begin with GL invalid
     // so it gets reset at first send.
 

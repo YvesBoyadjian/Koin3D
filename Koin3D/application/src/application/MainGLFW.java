@@ -460,6 +460,9 @@ public class MainGLFW {
 	public static byte[] loadSound(final String url) {
 		String args = "ressource/"+url;
 		File file = new File(args);
+		if(!file.exists()) {
+			file = new File("application/" + args);
+		}
 		byte[] fileContent = null;
 		try {
 			fileContent = Files.readAllBytes(file.toPath());

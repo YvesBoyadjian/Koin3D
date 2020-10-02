@@ -253,27 +253,27 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 							if (in.read(c)) {
 								if (c[0] == CLOSE_BRACE_CHAR)
 									break;
-//								else
-//									in.putBack(c[0]);
+								//								else
+								//									in.putBack(c[0]);
 							}
 						}
 
 						else if (c[0] == CLOSE_BRACE_CHAR)
 							break;
 
-          if (c[0] == '}') { //COIN3D
-            SoReadError.post(in, "Premature end of array, got '"+c[0]+"'");
-            return false;
-          }
+						if (c[0] == '}') { //COIN3D
+							SoReadError.post(in, "Premature end of array, got '"+c[0]+"'");
+							return false;
+						}
 
-          in.putBack(c[0]);
-						
-          // COIN3D : This is no more an error
-//						else {
-//							SoReadError.post(in, "Expected '" + VALUE_SEPARATOR_CHAR + "' or '" + CLOSE_BRACE_CHAR
-//									+ "' but got " + "'" + c[0] + "' while reading value " + curIndex);
-//							return false;
-//						}
+						in.putBack(c[0]);
+
+						// COIN3D : This is no more an error
+						// else {
+						//     SoReadError.post(in, "Expected '" + VALUE_SEPARATOR_CHAR + "' or '" + CLOSE_BRACE_CHAR
+						//     + "' but got " + "'" + c[0] + "' while reading value " + curIndex);
+						//     return false;
+						// }
 					}
 				}
 

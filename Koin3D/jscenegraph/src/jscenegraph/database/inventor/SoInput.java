@@ -405,6 +405,62 @@ public static void addDirectoryIdx( int idx, String dirName)
   else dirs.insert(ns, idx);
 }
 
+/*!
+  Remove the given directory from the directory search list.
+
+  The search list is scanned from last to first for the directory name,
+  so directories can easily be "stacked" by pushing with addDirectoryLast()
+  and then removed with this method.
+
+  \sa addDirectoryFirst(), addDirectoryLast()
+  \sa addEnvDirectoriesFirst(), addEnvDirectoriesLast()
+  \sa clearDirectories()
+ */
+public static void removeDirectory(String dirName)
+{
+  SbStringList dirs = SoInput.dirsearchlist; //ptr
+
+  if (soinput_tls != null) {
+    soinput_tls_data data = (soinput_tls_data )soinput_tls.get();
+    if (data.instancecount != 0) { dirs = data.searchlist; }
+  }
+
+  // dirsearchlist might be null if user called SoDB::cleanup()
+  if (dirs != null) {
+    int idx = dirs.getLength() - 1;
+    for (; idx >= 0; idx--) {
+      if (((dirs).operator_square_bracket(idx)).equals(dirName)) break;
+    }
+
+    if (idx >=0) {
+      //delete (dirs)[idx]; // Dealloc SbString object java port
+      dirs.remove(idx);
+    }
+//#if COIN_DEBUG
+    else {
+      SoDebugError.postWarning("SoInput::removeDirectory",
+                                "Tried to remove nonexistent directory '"+dirName+"'"+
+                                " in directory search list." );
+    }
+//#endif // COIN_DEBUG
+  }
+}
+
+/*!
+  Remove all entries from the directory search list.
+
+  \sa addDirectoryFirst(), addDirectoryLast()
+  \sa addEnvDirectoriesFirst(), addEnvDirectoriesLast()
+  \sa removeDirectory()
+ */
+public void clearDirectories()
+{
+  while (SoInput.dirsearchlist.getLength() > 0) {
+    //delete (SoInput.dirsearchlist)[0]; java port
+    SoInput.dirsearchlist.remove(0);
+  }
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -1082,33 +1138,33 @@ private boolean checkHeader()
 
 
  
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+////
+//// Description:
+////    Removes given directory from list.
+////
+//// Use: public, static
 //
-// Description:
-//    Removes given directory from list.
+//public static void removeDirectory(String dirName)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    int         i;
+//    String    dir;
 //
-// Use: public, static
-
-public static void removeDirectory(String dirName)
+//    SbStringList directories = SoInput.dirsearchlist;
 //
-////////////////////////////////////////////////////////////////////////
-{
-    int         i;
-    String    dir;
-
-    SbStringList directories = SoInput.dirsearchlist;
-
-    for (i = 0; i < directories.getLength(); i++) {
-
-        dir = (String)directories.operator_square_bracket(i);
-
-        if (dir.equals(dirName)) {
-            directories.remove(i);
-            //delete dir; java port
-            break;
-        }
-    }
-}
+//    for (i = 0; i < directories.getLength(); i++) {
+//
+//        dir = (String)directories.operator_square_bracket(i);
+//
+//        if (dir.equals(dirName)) {
+//            directories.remove(i);
+//            //delete dir; java port
+//            break;
+//        }
+//    }
+//}
 
     
 ////////////////////////////////////////////////////////////////////////

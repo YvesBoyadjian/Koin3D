@@ -18,7 +18,6 @@ public class SoGLProjectionMatrixElement extends SoProjectionMatrixElement {
 	// java port
 	public void
 	init(SoState state) {
-		gl2 = state.getGL2();
 		super.init(state);
 	}
 	
@@ -34,6 +33,8 @@ pop(SoState state, SoElement prevElt)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	gl2 = state.getGL2();
+
     //
     // If the previous element is at depth zero, don't bother
     // restoring the matrices-- they will just be setup again the next

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-glfw-javadoc.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-glfw-natives-linux.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-glfw-sources.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-glfw-natives-windows.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-glfw-natives-linux-arm64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-glfw.jar!/" />
+    <src_description expected_position="5">
+      <src_folder value="file://$MODULE_DIR$/src" expected_position="5" />
+    </src_description>
+  </component>
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/bin" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+    </content>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-glfw-javadoc.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-glfw-javadoc.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-glfw-natives-linux.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-glfw-natives-linux.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-glfw-sources.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-glfw-sources.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="module" module-name="lwjgl" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="lwjgl" />
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-glfw-natives-windows.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-glfw-natives-windows.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-glfw-natives-linux-arm64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-glfw-natives-linux-arm64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-glfw.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-glfw.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>

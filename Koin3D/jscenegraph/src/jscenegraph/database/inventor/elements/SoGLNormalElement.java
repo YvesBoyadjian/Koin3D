@@ -98,7 +98,7 @@ init(SoState state)
     super.init(state);
     this.state = state;
     
-    GL2 gl2 = state.getGL2();
+    GL2 gl2 = new GL2(){};
 
     // Make sure OpenGL normalizes normal vectors. (This is disabled
     // by default.) Since our normals are likely to be scaled at some

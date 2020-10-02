@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="EclipseModuleManager">
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-javadoc.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-natives-linux.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengl-javadoc.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengl-natives-linux.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengl-sources.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-sources.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-natives-windows.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-natives-linux-arm64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengl-natives-linux-arm64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengl-natives-windows.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengl.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengles.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengles-javadoc.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengles-natives-linux.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengles-natives-linux-arm64.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengles-natives-windows.jar!/" />
+    <libelement value="jar://$MODULE_DIR$/lib/lwjgl-opengles-sources.jar!/" />
+    <src_description expected_position="14">
+      <src_folder value="file://$MODULE_DIR$/src" expected_position="14" />
+    </src_description>
+  </component>
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/bin" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+    </content>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-javadoc.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-javadoc.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-natives-linux.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-natives-linux.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengl-javadoc.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengl-javadoc.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengl-natives-linux.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengl-natives-linux.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengl-sources.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengl-sources.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-sources.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-sources.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-natives-windows.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-natives-windows.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-natives-linux-arm64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-natives-linux-arm64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengl-natives-linux-arm64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengl-natives-linux-arm64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengl-natives-windows.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengl-natives-windows.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengl.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengl.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengles.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengles.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengles-javadoc.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengles-javadoc.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengles-natives-linux.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengles-natives-linux.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengles-natives-linux-arm64.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengles-natives-linux-arm64.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengles-natives-windows.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengles-natives-windows.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library name="lwjgl-opengles-sources.jar">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/lwjgl-opengles-sources.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>

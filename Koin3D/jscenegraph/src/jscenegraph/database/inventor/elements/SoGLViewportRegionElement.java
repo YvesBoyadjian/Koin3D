@@ -111,7 +111,6 @@ init(SoState state)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-	gl2 = state.getGL2(); // java port
     // Do regular stuff
     super.init(state);
 
@@ -137,7 +136,7 @@ push(SoState state)
     viewportRegion.copyFrom(nextElt.viewportRegion);
     isDefault      = nextElt.isDefault;
     
-    gl2 = nextElt.gl2; // java port
+    gl2 = state.getGL2(); // java port
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -152,6 +151,8 @@ pop(SoState state, final SoElement prevTopElement)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+    gl2 = state.getGL2();
+
     // If the new top element had a default value, set it to the
     // current value, which will remain in effect in GL
     if (isDefault) {
