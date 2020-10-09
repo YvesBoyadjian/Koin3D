@@ -57,6 +57,7 @@
 
 package jscenegraph.database.inventor;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -3341,13 +3342,16 @@ searchForFile( final String basename,
   }
 //
 //  const ptrdiff_t offset = lastdelim - strptr;
-//  String base = lastdelim ?
-//    basename.getSubString((int)(offset + 1), -1) :
-//    basename;
+  String base = lastdelim != null ?
+    lastdelim.substring(1)/*basename.getSubString((int)(offset + 1), -1)*/ :
+    basename;
 //
-//  for (i = 0; i < directories.getLength(); i++) {
-//    String dirname = (directories.operator_square_bracket(i).getString());
-//    int dirlen = dirname.length();
+  for (i = 0; i < directories.getLength(); i++) {
+    String dirname = (String) directories.operator_square_bracket(i);
+    int dirlen = dirname.length();
+
+    File file = new File(dirname,base);
+    fullname = file.toString();
 //
 //    if (dirlen > 0 &&
 //        dirname[dirlen-1] != '/' &&
@@ -3357,14 +3361,17 @@ searchForFile( final String basename,
 //    }
 //    fullname.sprintf("%s%s", dirname.getString(),
 //                     base.getString());
-//    if (test_filename(fullname)) return fullname;
-//    for (int j = 0; j < subdirectories.getLength(); j++) {
+    if (test_filename(fullname)) return fullname;
+    for (int j = 0; j < subdirectories.getLength(); j++) {
+        File subFile = new File(dirname,(String)subdirectories.operator_square_bracket(j));
+        file = new File(subFile,base);
+        fullname = file.toString();
 //      fullname.sprintf("%s%s/%s", dirname.getString(),
 //                       subdirectories[j]->getString(),
 //                       base.getString());
-//      if (test_filename(fullname)) return fullname;
-//    }
-//  }
+      if (test_filename(fullname)) return fullname;
+    }
+  }
   // none found
   return "";
 }

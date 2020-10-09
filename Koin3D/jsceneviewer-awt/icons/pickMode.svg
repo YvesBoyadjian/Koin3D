@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48px"
+   height="48px"
+   id="svg2815"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docbase="C:\usiems\mevis-cvs\Libraries\misc\SoQtMeVis\images"
+   sodipodi:docname="pickMode.svg"
+   inkscape:export-filename="C:\usiems\mevis-cvs\Libraries\misc\SoQtMeVis\images\pickMode.png"
+   inkscape:export-xdpi="45"
+   inkscape:export-ydpi="45">
+  <defs
+     id="defs2817">
+    <linearGradient
+       id="linearGradient2850">
+      <stop
+         style="stop-color:#f1f1f1;stop-opacity:1;"
+         offset="0"
+         id="stop2852" />
+      <stop
+         style="stop-color:#9e9e9e;stop-opacity:0.99354839;"
+         offset="1"
+         id="stop2854" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2850"
+       id="radialGradient2856"
+       cx="15.021077"
+       cy="13.087463"
+       fx="15.021077"
+       fy="13.087463"
+       r="10"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.497951,0,0,1.497907,-7.479762,-6.516339)" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="16.852712"
+     inkscape:cx="24"
+     inkscape:cy="21.624295"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:grid-bbox="true"
+     inkscape:document-units="px"
+     inkscape:grid-points="true"
+     gridtolerance="10000"
+     inkscape:window-width="1229"
+     inkscape:window-height="1029"
+     inkscape:window-x="1532"
+     inkscape:window-y="53" />
+  <metadata
+     id="metadata2820">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer">
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;color:black;fill:black;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       id="path2858"
+       sodipodi:cx="20"
+       sodipodi:cy="18"
+       sodipodi:rx="15.049524"
+       sodipodi:ry="15.049524"
+       d="M 35.049524 18 A 15.049524 15.049524 0 1 1  4.9504757,18 A 15.049524 15.049524 0 1 1  35.049524 18 z"
+       transform="translate(0,-1)" />
+    <path
+       sodipodi:type="arc"
+       style="opacity:1;color:black;fill:url(#radialGradient2856);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       id="path2848"
+       sodipodi:cx="20"
+       sodipodi:cy="18"
+       sodipodi:rx="14.049524"
+       sodipodi:ry="13.983139"
+       d="M 34.049524 18 A 14.049524 13.983139 0 1 1  5.9504757,18 A 14.049524 13.983139 0 1 1  34.049524 18 z"
+       transform="translate(0,-1)" />
+    <path
+       style="opacity:1;color:black;fill:black;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 13,15.331928 L 26,10 L 39.070601,15.464699 L 39.070601,32.531085 L 26,44.464699 L 13,32.730242"
+       id="path2866"
+       sodipodi:nodetypes="cccccc" />
+    <path
+       style="opacity:1;color:black;fill:#d9d9d9;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 14,16 L 26,11 L 38,16 L 26,23"
+       id="path2860"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="opacity:1;color:black;fill:#c7c7c7;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 14,16 L 26,23 L 26,43 L 14,32"
+       id="path2862"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="opacity:1;color:black;fill:#9d9d9d;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 38,16 L 26,23 L 26,43 L 38,32"
+       id="path2864"
+       sodipodi:nodetypes="cccc" />
+    <path
+       style="opacity:1;color:black;fill:black;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:butt;stroke-linejoin:round;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible"
+       d="M 24,14 L 24,41 L 32,37 L 37,47 L 41,45 L 36,35 L 44,31"
+       id="path2868"
+       sodipodi:nodetypes="ccccccc" />
+  </g>
+</svg>

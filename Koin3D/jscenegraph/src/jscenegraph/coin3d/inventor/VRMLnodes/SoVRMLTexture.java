@@ -4,6 +4,7 @@
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.nodes.SoCamera;
@@ -45,6 +46,12 @@ public SoVRMLTexture()
   nodeHeader.SO_VRMLNODE_ADD_FIELD(repeatS,"repeatS", (true));
   nodeHeader.SO_VRMLNODE_ADD_FIELD(repeatT,"repeatT", (true));
 }
+
+// Doc in parent
+	public void
+	GLRender(SoGLRenderAction action)
+	{
+	}
 
 	  
 	

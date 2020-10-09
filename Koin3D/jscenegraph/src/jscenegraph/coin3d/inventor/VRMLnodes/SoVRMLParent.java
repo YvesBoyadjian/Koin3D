@@ -286,7 +286,7 @@ public static void updateChildList(final SoNodePtrArray nodes,
   boolean needcopy = true;
   int numChildren = cl.getLength();
   if (numChildren != 0 && (numnodes == numChildren)) {
-    SoNode[][] clarr = (SoNode[][]) cl.getArrayPtr();
+    Object[] clarr = cl.getArrayPtr();
     for (i = 0; i < numnodes; i++) {
       // if the MFNode contains NULL values, we insert a dummy node
       // (of type SoInfo). This is to simplify the traversal code, and
@@ -295,7 +295,7 @@ public static void updateChildList(final SoNodePtrArray nodes,
         if (nodes.getO(i).get() != SoVRMLParentP.getNullNode()) break;
       }
       else {
-        if (clarr[i][0] != nodes.getO(i).get()) break;
+        if (clarr[i] != nodes.getO(i).get()) break;
       }
     }
     if (i == numnodes) needcopy = false;

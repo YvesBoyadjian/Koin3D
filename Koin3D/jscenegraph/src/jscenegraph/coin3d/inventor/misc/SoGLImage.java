@@ -284,7 +284,8 @@ private static class soglimage_buffer {
   private boolean isregistered;
   private int imageage;
   private Consumer endframecb;
-  
+  private Object endframeclosure;
+
   private SoGLImage owner;
   private int glimageid;
   
@@ -492,6 +493,27 @@ private void setPBuffer(SoState state, Object context) {
   /*!
   Convenience 2D wrapper function around the 3D setData().
 */
+  public void
+  setData( SbImage image,
+           Wrap wraps,
+           Wrap wrapt) {
+    setData(image,wraps,wrapt,0.5f);
+  }
+  public void
+  setData( SbImage image,
+           Wrap wraps,
+           Wrap wrapt,
+           float quality) {
+    setData(image,wraps,wrapt,quality,0);
+  }
+  public void
+  setData( SbImage image,
+           Wrap wraps,
+           Wrap wrapt,
+           float quality,
+           int border) {
+    setData(image,wraps,wrapt,quality,border,null);
+  }
 public void
 setData( SbImage image,
                    Wrap wraps,
@@ -1759,6 +1781,17 @@ setGLDisplayList(SoGLDisplayList dl,
   // don't register this image. There's no way we can reload it if we
   // delete it because of old age.
 }
+
+  public void setEndFrameCallback(Consumer cb, Object closure)
+  {
+    /*pimpl.*/endframecb = cb;
+    /*pimpl.*/endframeclosure = closure;
+  }
+
+  public int getNumFramesSinceUsed()
+  {
+    return /*pimpl.*/imageage;
+  }
 
 
 }

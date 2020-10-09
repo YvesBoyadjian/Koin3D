@@ -76,21 +76,21 @@ public SoVRMLText()
   nodeHeader.SO_VRMLNODE_ADD_EMPTY_EXPOSED_MFIELD(length,"length");
 
   // Default text setup
-//  PRIVATE(this)->textsize = 1.0f;
-//  PRIVATE(this)->textspacing = 1.0f;
-//  PRIVATE(this)->maxglyphheight = 1.0f;
-//  PRIVATE(this)->maxglyphwidth = 1.0f;
-//  PRIVATE(this)->lefttorighttext = TRUE;
-//  PRIVATE(this)->toptobottomtext = TRUE;
-//  PRIVATE(this)->horizontaltext = TRUE;
-//  PRIVATE(this)->justificationmajor = SoAsciiText::LEFT;
-//  PRIVATE(this)->justificationminor = SoAsciiText::LEFT;
+//  pimpl.textsize = 1.0f;
+//  pimpl.textspacing = 1.0f;
+//  pimpl.maxglyphheight = 1.0f;
+//  pimpl.maxglyphwidth = 1.0f;
+//  pimpl.lefttorighttext = TRUE;
+//  pimpl.toptobottomtext = TRUE;
+//  pimpl.horizontaltext = TRUE;
+//  pimpl.justificationmajor = SoAsciiText::LEFT;
+//  pimpl.justificationminor = SoAsciiText::LEFT;
 //  
-//  PRIVATE(this)->fontstylesensor = new SoFieldSensor(fontstylechangeCB, PRIVATE(this));
-//  PRIVATE(this)->fontstylesensor->attach(&fontStyle);
-//  PRIVATE(this)->fontstylesensor->setPriority(0);
+//  pimpl.fontstylesensor = new SoFieldSensor(fontstylechangeCB, PRIVATE(this));
+//  pimpl.fontstylesensor->attach(&fontStyle);
+//  pimpl.fontstylesensor->setPriority(0);
 //  
-//  PRIVATE(this)->cache = NULL;
+//  pimpl.cache = NULL;
 }
 
 	/*!

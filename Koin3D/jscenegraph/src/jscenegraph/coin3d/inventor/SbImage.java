@@ -83,7 +83,18 @@ public SbImage(MemoryBuffer bytes,
   this.setValue(size, bytesperpixel, bytes);
 }
 
-	
+
+/*!
+  Convenience 2D version of setValue.
+*/
+    public void
+    setValue(final SbVec2s size, final int bytesperpixel,
+                  final MemoryBuffer bytes)
+    {
+        SbVec3s tmpsize = new SbVec3s(size.getValue()[0], size.getValue()[1], (short)0);
+        this.setValue(tmpsize, bytesperpixel, bytes);
+    }
+
 
 /*!
   Sets the image to \a size and \a bytesperpixel. If \a bytes !=
@@ -166,19 +177,19 @@ getValue(SbVec2s size, final int[] bytesperpixel)
 public MemoryBuffer
 getValue(final SbVec3s  size, final int[] bytesperpixel)
 {
-  //this.readLock();
-//  if (this.schedulecb) {
-//    // start a thread to read the image.
-//    SbBool scheduled = this.schedulecb(this.schedulename, const_cast<SbImage *>(this),
-//                                        this.scheduleclosure);
-//    if (scheduled) {
-//      this.schedulecb = NULL;
-//    }
-//  }
+  this.readLock();
+  if (this.schedulecb != null) {
+    // start a thread to read the image.
+    boolean scheduled = this.schedulecb.invoke(this.schedulename, (SbImage)(this),
+                                        this.scheduleclosure);
+    if (scheduled) {
+      this.schedulecb = null;
+    }
+  }
   size.copyFrom(this.size);
   bytesperpixel[0] = bpp;
   MemoryBuffer bytes = this.bytes;
-  //this.readUnlock();
+  this.readUnlock();
   return bytes;
 
 }
@@ -332,7 +343,7 @@ readFile(final String  filename,
 public void
 readLock() 
 {
-  //PRIVATE(this)->readLock(); TODO
+  //pimpl.readLock(); TODO
 }
 
 /*!
@@ -346,7 +357,7 @@ readLock()
 public void
 readUnlock() 
 {
-  //PRIVATE(this)->readUnlock(); TODO
+  //pimpl.readUnlock(); TODO
 }
 
 

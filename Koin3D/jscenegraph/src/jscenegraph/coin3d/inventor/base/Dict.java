@@ -4,6 +4,7 @@
 package jscenegraph.coin3d.inventor.base;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author BOYADJIAN
@@ -54,16 +55,16 @@ public class Dict {
   Call \a func for for each element in the hash table.
 */
 public static void
-cc_dict_apply(/*cc_dict*/Map ht, cc_dict_apply_func func, Object closure)
+cc_dict_apply(/*cc_dict*/Map<?,?> ht, cc_dict_apply_func func, Object closure)
 {
   int i;
-  Dict.cc_dict_entry elem;
-  for (Object obj : ht.entrySet()) {
-    elem = (Dict.cc_dict_entry)obj;//ht.buckets[i];
-    while (elem != null) {
-      func.invoke(elem.key, elem.val, closure);
-      elem = elem.next;
-    }
+  /*Dict.cc_dict_entry*/Entry elem;
+  for (Entry obj : ht.entrySet()) {
+    elem = /*(Dict.cc_dict_entry)*/obj;//ht.buckets[i];
+    //while (elem != null) {
+      func.invoke(elem.getKey(), elem.getValue(), closure);
+    //  elem = elem.next;
+    //}
   }
 }
 

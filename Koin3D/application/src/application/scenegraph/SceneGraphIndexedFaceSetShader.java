@@ -855,7 +855,7 @@ for(int is=0;is<4;is++) {
 		water.width.setValue(small ? WATER_HORIZON : WATER_HORIZON*2);
 		
 	    SoMaterial waterMat = new SoMaterial();
-	    waterMat.diffuseColor.setValue(0.1f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS);
+	    waterMat.diffuseColor.setValue(0.12f*WATER_BRIGHTNESS,0.5f*WATER_BRIGHTNESS,0.55f*WATER_BRIGHTNESS); // For 6500 K display
 	    waterMat.ambientColor.setValue(0, 0, 0);
 	    waterMat.transparency.setValue(transparency);
 	    if(shining) {

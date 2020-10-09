@@ -3,11 +3,9 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Jscenegraph
 Bundle-SymbolicName: jscenegraph
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: jscenegraph.Activator
 Require-Bundle: lwjgl;bundle-version="1.0.0";visibility:=reexport,
  org.lwjglx;bundle-version="1.0.0",
  lwjgl-glfw;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: com.jogamp.common.nio,
  com.jogamp.opengl,
  com.jogamp.opengl.fixedfunc,
@@ -54,3 +52,4 @@ Export-Package: com.jogamp.common.nio,
  jscenegraph.port,
  jscenegraph.port.memorybuffer,
  net.sourceforge.jpcap.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

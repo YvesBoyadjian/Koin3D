@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Application
 Bundle-SymbolicName: application
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: application.Activator
+Bundle-Activator:
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  loader;bundle-version="1.0.0",

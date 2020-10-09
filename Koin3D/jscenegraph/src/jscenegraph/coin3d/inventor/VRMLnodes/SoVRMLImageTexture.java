@@ -4,15 +4,23 @@
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.coin3d.inventor.SbImage;
-import jscenegraph.database.inventor.SbStringList;
-import jscenegraph.database.inventor.SbTime;
-import jscenegraph.database.inventor.SbVec2s;
-import jscenegraph.database.inventor.SoInput;
-import jscenegraph.database.inventor.SoType;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureScalePolicyElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
+import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
+import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
+import jscenegraph.coin3d.inventor.misc.SoGLImage;
+import jscenegraph.database.inventor.*;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
+import jscenegraph.database.inventor.elements.SoCacheElement;
+import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
+import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFString;
+import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
@@ -93,6 +101,91 @@ public SoVRMLImageTexture()
   pimpl.urlsensor.attach(this.url);
   pimpl.isdestructing = false;
 }
+
+
+  static SoGLImage.Wrap
+  imagetexture_translate_wrap( boolean repeat)
+  {
+    if (repeat) return SoGLImage.Wrap.REPEAT;
+    return SoGLImage.Wrap.CLAMP_TO_EDGE;
+  }
+
+// Doc in parent
+  public void
+  GLRender(SoGLRenderAction action)
+  {
+    SoState state = action.getState();
+
+    int unit = SoTextureUnitElement.get(state);
+    if ((unit == 0) && SoTextureOverrideElement.getImageOverride(state))
+    return;
+
+    float quality = SoTextureQualityElement.get(state);
+
+    pimpl.lock_glimage();
+
+    SoTextureScalePolicyElement.Policy scalepolicy =
+          SoTextureScalePolicyElement.get(state);
+    boolean needbig = (scalepolicy == SoTextureScalePolicyElement.Policy.FRACTURE);
+    boolean isbig =
+            pimpl.glimage != null &&
+          pimpl.glimage.getTypeId().operator_equal_equal(SoGLBigImage.getClassTypeId());
+
+    if (!pimpl.glimagevalid ||
+          (pimpl.glimage == null || (needbig != isbig))) {
+    if (pimpl.glimage != null) {
+      pimpl.glimage.unref(state);
+    }
+    if (needbig) {
+      pimpl.glimage = new SoGLBigImage();
+    }
+    else {
+      pimpl.glimage = new SoGLImage();
+    }
+    pimpl.glimagevalid = true;
+    if (scalepolicy == SoTextureScalePolicyElement.Policy.SCALE_DOWN) {
+      pimpl.glimage.setFlags(pimpl.glimage.getFlags()|SoGLImage.Flags.SCALE_DOWN.getValue());
+    }
+
+    pimpl.glimage.setData(pimpl.image,
+            imagetexture_translate_wrap(this.repeatS.getValue()),
+    imagetexture_translate_wrap(this.repeatT.getValue()),
+    quality);
+    pimpl.glimage.setEndFrameCallback(SoVRMLImageTexture::glimage_callback, this);
+
+    // don't cache while creating a texture object
+    SoCacheElement.setInvalid(true);
+    if (state.isCacheOpen()) {
+      SoCacheElement.invalidate(state);
+    }
+  }
+
+    if (pimpl.glimage != null && pimpl.glimage.getTypeId().operator_equal_equal(SoGLBigImage.getClassTypeId())) {
+    SoCacheElement.invalidate(state);
+  }
+
+    pimpl.unlock_glimage();
+
+    SoGLMultiTextureImageElement.set(state, this, unit,
+                                      pimpl.glimage,
+          SoMultiTextureImageElement.Model.MODULATE,
+          new SbColor(1.0f, 1.0f, 1.0f));
+
+    boolean enable = pimpl.glimage != null &&
+          quality > 0.0f &&
+          pimpl.glimage.getImage() != null &&
+          pimpl.glimage.getImage().hasData();
+
+    SoMultiTextureEnabledElement.set(state,
+          this,
+          unit,
+          enable);
+
+    if (this.isOverride() && (unit == 0)) {
+    SoTextureOverrideElement.setImageOverride(state, true);
+  }
+  }
+
 
 //
 // called when filename changes
@@ -203,6 +296,50 @@ public boolean loadUrl()
   }
   return retval;
 }
+
+  // sensor callback used for deleting old GLImage instances
+  static void
+  imagetexture_glimage_delete(Object closure, SoSensor s)
+  {
+    SoGLImage img = (SoGLImage) closure;
+    img.unref(null);
+    Destroyable.delete(s);
+  }
+
+//
+// used for checking if this texture should be purged from memory
+//
+  public static void
+  glimage_callback(Object closure)
+  {
+    SoVRMLImageTexture thisp = (SoVRMLImageTexture) closure;
+    thisp.pimpl.lock_glimage();
+    if (thisp.pimpl.glimage != null) {
+    int age = thisp.pimpl.glimage.getNumFramesSinceUsed();
+    if (age > imagedata_maxage) {
+      // we can't delete the glimage here, since it's locked by
+      // SoGLImage. Use a sensor to delete it the next time the
+      // delayqueue sensors are processed.
+      if (thisp.pimpl.glimage != null) {
+        thisp.pimpl.glimage.setEndFrameCallback(null, null);
+        // allocate new sensor. It will be deleted in the sensor
+        // callback. We do this here since this node might be outside
+        // the view frustum, and GLRender() may not be called anytime
+        // soon.
+        SoOneShotSensor s = new SoOneShotSensor(SoVRMLImageTexture::imagetexture_glimage_delete, thisp.pimpl.glimage);
+        s.schedule();
+        // clear the GLImage in this node. The sensor has a pointer to it and will delete it
+        thisp.pimpl.glimage = null;
+        thisp.pimpl.glimagevalid = false;
+      }
+      thisp.pimpl.unlock_glimage();
+      thisp.pimpl.image.setValue(new SbVec2s((short)0,(short)0), 0, null);
+      thisp.loadUrl();
+      return;
+    }
+  }
+    thisp.pimpl.unlock_glimage();
+  }
 
 
 //

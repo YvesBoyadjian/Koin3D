@@ -23,3 +23,6 @@ Require-Bundle: javax.inject;bundle-version="0.0.0",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.lwjgl.glfw
 Bundle-ActivationPolicy: lazy
+Export-Package: jexample,
+ jexample.handlers,
+ jexample.parts

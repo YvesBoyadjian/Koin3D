@@ -1,4 +1,4 @@
-#version 110
+#version 120
 const float EPSILON = 3.0E-6;
 const float THRESHOLD = 0.9;
 uniform sampler2D shadowMap0;
@@ -260,7 +260,7 @@ color = vec3(clamp(color.r, 0.0, 1.0), clamp(color.g, 0.0, 1.0), clamp(color.b, 
 if (coin_light_model != 0) { color *= texcolor.rgb; color += scolor; }
 else color = mydiffuse.rgb * texcolor.rgb;
 
-float fog = exp(-gl_Fog.density * gl_FogFragCoord);
+float fog = exp(-gl_Fog.density * abs(ecPosition3.z));
 
 color = mix(gl_Fog.color.rgb, color, clamp(fog, 0.0, 1.0));
 
