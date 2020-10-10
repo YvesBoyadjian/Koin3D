@@ -251,10 +251,10 @@ public GLData format()
     
     //! These methods are called to create border widgets around the GL area.
     //! Override this to create decorations in your derived class.
-    protected Component createUpperBorder (Component parent) { return null; }
-    protected Component createLowerBorder (Component parent) { return null; }
-    protected Component createLeftBorder  (Component parent) { return null; }
-    protected Component createRightBorder (Component parent) { return null; }
+    protected Container createUpperBorder (Container parent) { return null; }
+    protected Container createLowerBorder (Container parent) { return null; }
+    protected Container createLeftBorder  (Container parent) { return null; }
+    protected Container createRightBorder (Container parent) { return null; }
     
     //! Added for compatibility with soXtLib.
     protected boolean       isDoubleBuffer()           { return doubleBuffer(); }
