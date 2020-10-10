@@ -62,6 +62,8 @@ import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 
+import javax.swing.*;
+
 /**
  * @author Yves Boyadjian
  *
@@ -95,11 +97,14 @@ public class SoQtGLWidget extends Container implements Destroyable {
 	    
 	private static final SoContextShareManager contextShareManager = new SoContextShareManager();
 
-	private boolean firstVisibility; // java port
+	//private boolean firstVisibility; // java port
 	
 	//private boolean initialized; // java port
-	
-    private interface eventCBType {
+
+	int lastRenderHeight = -1;
+	int lastRenderWidth = -1;
+
+	private interface eventCBType {
     	boolean run(Object userData, ComponentEvent anyevent);
     }
     
@@ -286,7 +291,7 @@ public GLData format()
     	add(newWidget,BorderLayout.CENTER);
         mainWidget = newWidget;    	
         
-        firstVisibility = true;
+        //firstVisibility = true;
 
 			//mainWidget.setPreferredSize(new Dimension(200, 200));
 			//mainWidget.setAutoSwapBufferMode(_autoBufferSwapOn);
@@ -317,11 +322,20 @@ public GLData format()
         mainWidget.addComponentListener(new ComponentListener() {
 			@Override
 			public void componentResized(ComponentEvent e) {
+				SwingUtilities.invokeLater(() -> {
 						Rectangle bounds = mainWidget.getBounds();
 						float fAspect = (float) bounds.width / (float) bounds.height;
 						//mainWidget.setCurrent();
 						int width = bounds.width;
 						int height = bounds.height;
+
+						if(lastRenderHeight == height && lastRenderWidth == width) {
+							return;
+						}
+
+						lastRenderWidth = width;
+						lastRenderHeight = height;
+
 						resizeGL(new GL2() {}, width, height);
 
 //						mainWidget.setCurrent();
@@ -339,7 +353,10 @@ public GLData format()
 //						if(_autoBufferSwapOn) {
 //							swapBuffers();
 //						}
-				mainWidget.repaint();
+					mainWidget.repaint(); // Calling render() impeach closing the window
+						});
+				//updateGL();
+				//mainWidget.paintGL();
 			}
 
 			@Override
@@ -403,7 +420,7 @@ public GLData format()
 		mainWidget.addMouseMotionListener(new MouseMotionListener() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-
+				event(e, EventType.MOUSE_EVENT_MOUSE_MOVE);
 			}
 
 			@Override
@@ -689,12 +706,12 @@ public int getColorBitDepth()
 		  // TODO
 	  }
 	  
-	  /**
-	   * Java port
-	   */
-	  public void show() {
-		  // TODO
-	  }
+//	  /**
+//	   * Java port
+//	   */
+//	  public void show() {
+//		  // TODO
+//	  }
 
 //	public void paint(Graphics g) {
 //	}

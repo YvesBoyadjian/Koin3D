@@ -27,6 +27,8 @@ import jscenegraph.port.Destroyable;
 import jscenegraph.port.Indexable;
 import jscenegraph.port.Mutable;
 
+import java.util.Objects;
+
 /**
  * @author Yves Boyadjian
  *
@@ -87,6 +89,14 @@ public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
 
 	public T operator_square_bracket(int index) {
 		return (T)this.itembuffer[index];
+	}
+
+	public boolean operator_equal_equal(final SbList<T> l) {
+		if (this == l) return true;
+		if (this.numitems != l.numitems) return false;
+		for (int i = 0; i < this.numitems; i++)
+		if (!Objects.equals(this.itembuffer[i] , l.itembuffer[i])) return false;
+		return true;
 	}
 
 	/**

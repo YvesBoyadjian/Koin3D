@@ -794,9 +794,9 @@ protected void processEvent (ComponentEvent anyEvent, EventType type, final bool
                 ;
         }
     } else if (type == EventType.MOUSE_EVENT_MOUSE_SCROLLED) {
-    	MouseEvent me = (MouseEvent)anyEvent;
-    	int count = me.getClickCount();
-    	getCameraController().zoomCamera( - count / 20.0f );
+    	MouseWheelEvent me = (MouseWheelEvent)anyEvent;
+    	int count = me.getUnitsToScroll();
+    	getCameraController().zoomCamera( count / 20.0f );
     } else if (type == EventType.MOUSE_EVENT_MOUSE_ENTER/*QEvent.Enter*/) {
     	MouseEvent me = (MouseEvent)anyEvent;
         updateViewerMode(me.getModifiersEx(), me.getModifiersEx() & (MouseEvent.BUTTON1_DOWN_MASK | MouseEvent.BUTTON1_DOWN_MASK | MouseEvent.BUTTON1_DOWN_MASK));

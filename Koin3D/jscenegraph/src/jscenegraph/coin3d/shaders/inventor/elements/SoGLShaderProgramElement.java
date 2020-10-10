@@ -142,7 +142,7 @@ public boolean
 matches(final SoElement element)
 {
   SoGLShaderProgramElement elem = (SoGLShaderProgramElement) element;
-  return (this.enabled == elem.enabled) && (this.objectids == elem.objectids);
+  return (this.enabled == elem.enabled) && (this.objectids.operator_equal_equal(elem.objectids));
 }
 
 public SoElement 
