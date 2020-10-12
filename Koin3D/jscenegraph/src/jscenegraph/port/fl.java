@@ -268,8 +268,7 @@ public static final int FT_FACE_FLAG_TRICKY            =( 1 << 13 );
 public static final int FT_FACE_FLAG_COLOR             =( 1 << 14 );
 
 
-
-/* Data type */
+    /* Data type */
 	static abstract class FLfontImpl {
   String             name;                /* vendor name */
   String             version;             /* version string */
@@ -812,7 +811,7 @@ public static void flSetHint(
 			  return true;
 	}
 
-	public static void flDestroyFont(long operator_square_bracket) {
+	public static void flDestroyFont(int operator_square_bracket) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -2448,6 +2447,9 @@ _flFTNewGlyphFont(String fontName, FT_Face newFace)
 
   return fs;
 }
+
+	public static void flFreeBitmap(FLbitmap value) {
+	}
 
 
 }

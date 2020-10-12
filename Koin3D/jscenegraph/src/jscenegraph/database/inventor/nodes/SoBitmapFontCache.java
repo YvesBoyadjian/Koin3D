@@ -63,6 +63,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.ShortBuffer;
 
+import jscenegraph.port.Destroyable;
 import org.lwjglx.BufferUtils;
 
 import com.jogamp.common.nio.Buffers;
@@ -265,6 +266,88 @@ private String createUniFontList(String fontNameList, float size)
    
 }
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Destructor.  Clean up-- GL stuff, font library stuff, and
+//    internally generated stuff.
+//
+// Use: internal, private
+
+    public void destructor()
+//
+////////////////////////////////////////////////////////////////////////
+    {
+        if (fontNumList != null) {
+            if (fl.flGetCurrentContext() != flContext) {
+                fl.flMakeCurrentContext(flContext);
+            }
+
+            //Must free every bitmap in dictionary:
+            //this will just apply flFreeBitmap(entry->value)
+
+            bitmapDict.applyToAll(SoBitmapFontCache::freeBitmap);
+
+            // Only destroy the font library font if no other font caches
+            // are using the same font identifier:
+            // Must go through fontlist and destroy every font that isn't used
+            // by any other cache.
+
+            boolean otherFonts = (fonts.getLength() > 1);
+            SbDict otherFontDict = null; //ptr
+            if (otherFonts){
+                otherFontDict = new SbDict();
+                //Enter all the other fontnums into the dictionary:
+                for (int i = 0; i< fonts.getLength(); i++) {
+                    SoBitmapFontCache t = (SoBitmapFontCache )(fonts).operator_square_bracket(i);
+                    if ( t == this) continue;
+                    for (int j = 0; j< (t.fontNums.getLength()); j++){
+                        Object key = (Object)((t.fontNums)).operator_square_bracket(j);
+                        otherFontDict.enter(key, null);
+                    }
+                }
+            }
+            // Now destroy any fonts that don't appear in otherFontDict
+            for (int i = 0; i < fontNums.getLength(); i++){
+                final Object[] value = new Object[1];
+                if ( !otherFonts ||
+                        !otherFontDict.find((Object)(fontNums).operator_square_bracket(i), value)){
+                    fl.flDestroyFont(/*(FLfontNumber)*/(int)(fontNums).operator_square_bracket(i));
+                }
+            }
+            if (otherFonts) Destroyable.delete(otherFontDict);
+            Destroyable.delete(displayListDict);
+            Destroyable.delete(bitmapDict);
+
+            if (fontNumList != null) ;//       delete [] fontNumList;
+            if (fontNums != null)           Destroyable.delete(fontNums);
+
+            fonts.remove(fonts.find(this));
+        }
+        super.destructor();
+    }
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Destroy this cache.  Called by unref(); frees up OpenGL display
+//    lists.
+//
+// Use: protected, virtual
+
+    public void destroy(SoState state)
+//
+////////////////////////////////////////////////////////////////////////
+    {
+        // Pass in NULL to unref because this cache may be destroyed
+        // from an action _other_ than GLRender:
+        if (list != null) {
+            list.unref(null);
+            list = null;
+        }
+        super.destroy(null);
+    }
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -669,6 +752,18 @@ callLists(ByteBuffer string, int len, GL2 gl2)
     glCallLists(GL2.GL_2_BYTES, string);
 }
 
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    free up a bitmap.
+//
+// Use: static, private
+    public static void freeBitmap(Object obj, Object value)
+////////////////////////////////////////////////////////////////////////
+    {
+        fl.flFreeBitmap((FLbitmap)value);
+    }
 
 
 }

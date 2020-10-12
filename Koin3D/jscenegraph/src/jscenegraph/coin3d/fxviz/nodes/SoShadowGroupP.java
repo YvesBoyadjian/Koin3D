@@ -295,14 +295,14 @@ public class SoShadowGroupP implements Destroyable {
 	    
 	    this.shaderprogram.GLRender(action);
 
-//	    String vs = vertexshader.getSourceProgram();	    
-//	    
+//	    String vs = vertexshader.getSourceProgram();
+//
 //	    String fs = fragmentshader.getSourceProgram();
-//	    
+//
 //	    File vsf = new File("shadows_vertex_fog.glsl");
-//	    
+//
 //	    File fsf = new File("shadows_fragment_fog.glsl");
-//	    
+//
 //	    if( ! vsf.exists()) {
 //	    try {
 //			FileWriter vos = new FileWriter(vsf);
@@ -311,13 +311,13 @@ public class SoShadowGroupP implements Destroyable {
 //			FileWriter fos = new FileWriter(fsf);
 //			fos.write(fs);
 //			fos.close();
-//			
+//
 //		} catch (IOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 //	    }
-	    
+
 	    SoShapeStyleElement.setShadowsRendering(state, true);
 	    if (inpath) master.super_GLRenderInPath(action);
 	    else master.super_GLRenderBelowPath(action);
@@ -625,7 +625,7 @@ setVertexShader(SoState state)
     gen.addMainStatement("gl_FogFragCoord = abs(ecPosition3.z);\n");
     break;
   }
-  gen.addMainStatement("perVertexColor = vec3(clamp(color.r, 0.0, 1.0), clamp(color.g, 0.0, 1.0), clamp(color.b, 0.0, 1.0));"+
+  gen.addMainStatement("perVertexColor = vec3(clamp(color.r, 0.0, 1.0), clamp(color.g, 0.0, 1.0), clamp(color.b, 0.0, 1.0));\n"+
                        "gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"+
                        "gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;\n"+
                        "gl_Position = ftransform();\n"+
