@@ -48,9 +48,10 @@ public class SbListOfMutableRefs<T extends Mutable> extends SbList<T> {
 		  }
 
 	public T operator_square_bracket(int index) {
-		T retVal = supplier.get();
-		retVal.copyFrom((T)this.itembuffer[index]);
-		return retVal;
+//		T retVal = supplier.get();
+//		retVal.copyFrom((T)this.itembuffer[index]);
+//		return retVal;
+		return (T)this.itembuffer[index]; // It is the job of the caller to enventually copy the value
 	}
 
 	public void insert(T item, int insertbefore) {

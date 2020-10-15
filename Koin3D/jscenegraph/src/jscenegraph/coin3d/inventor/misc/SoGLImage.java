@@ -314,6 +314,8 @@ private static class soglimage_buffer {
 	@Override
 	public void copyFrom(Object other) {
 		dldata od = (dldata)other;
+		dlist = od.dlist;
+		age = od.age;
 	}
   };
 
