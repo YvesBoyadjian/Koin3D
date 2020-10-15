@@ -220,7 +220,7 @@ public static final int NOT_BUILTIN_BIT = (1<<14);
 	       newField.name.copyFrom(new SbName(fieldName));
 	       
 	       if ( Offset.containerContains(class1,defobj, fieldName)) {
-	    	   newField.offset = new Offset(class1,fieldName);
+			   newField.offset = new Offset(class1,fieldName);
 	       }
 	       else {
 	    	   newField.offset = new IdentityOffset(class1,fieldName, field);

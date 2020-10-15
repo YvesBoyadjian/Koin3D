@@ -808,7 +808,7 @@ public static final int VALUE_CHUNK_SIZE        =32;
 	 * false and does not modify engineOutput if it is not connected to an
 	 * engine.
 	 * 
-	 * @param engineOutput
+	 * @param engineOut
 	 * @return
 	 */
 	public boolean getConnectedEngine(final SoEngineOutput[] engineOut) {

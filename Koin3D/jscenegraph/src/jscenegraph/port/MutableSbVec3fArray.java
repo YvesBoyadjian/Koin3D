@@ -32,9 +32,16 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 		valuesArray = singleSbVec3f.getValueBuffer();
 	}
 
-	public MutableSbVec3fArray(SbVec3fArray other) {
+	private MutableSbVec3fArray(SbVec3fArray other) {
 		valuesArray = other.getValuesArray();
 		this.delta = other.getDelta();
+	}
+
+	public static MutableSbVec3fArray from(SbVec3fArray other) {
+		if ( null == other ) {
+			return null;
+		}
+		return new MutableSbVec3fArray(other);
 	}
 
 	public MutableSbVec3fArray(MutableSbVec3fArray other) {

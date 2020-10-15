@@ -2019,7 +2019,7 @@ else gl2.glVertex4fv(coords4d.get(_idx_).getValueRead(),0);
                        boolean needNormals)
   {
 	  ptr = new IntArrayPtr(ptr); // java port
-	  MutableSbVec3fArray normals = new MutableSbVec3fArray(normals_);
+	  MutableSbVec3fArray normals = MutableSbVec3fArray.from(normals_);
 	  
     // Make sure specified coordinate startindex is valid
     assert(idx >= 0);

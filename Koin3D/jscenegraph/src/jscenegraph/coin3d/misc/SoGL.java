@@ -1343,7 +1343,7 @@ private static int current_errors = 0;
 	    if (normalindices_ == null) normalindices_ = vertexindices_;
 
 	  IntArrayPtr vertexindices = IntArrayPtr.copyOf(vertexindices_);
-	  MutableSbVec3fArray normals = normals_ != null ? new MutableSbVec3fArray(normals_) : null;
+	  MutableSbVec3fArray normals = normals_ != null ? MutableSbVec3fArray.from(normals_) : null;
 	  IntArrayPtr normalindices = IntArrayPtr.copyOf(normalindices_);
 	  IntArrayPtr matindices = IntArrayPtr.copyOf(matindices_);
 	  IntArrayPtr texindices = texindices_ != null ? new IntArrayPtr(texindices_) : null;

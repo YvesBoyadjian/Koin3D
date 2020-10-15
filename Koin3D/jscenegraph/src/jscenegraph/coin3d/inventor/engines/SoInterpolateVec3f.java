@@ -59,10 +59,10 @@ public class SoInterpolateVec3f extends SoInterpolate {
 			engineHeader = SoSubEngine.SO_ENGINE_HEADER(SoInterpolateVec3f.class,this);
 			
 		  engineHeader.SO_ENGINE_CONSTRUCTOR(SoInterpolateVec3f.class,inputData, outputData, parentInputData[0], parentOutputData[0]); 
-		  engineHeader.SO_ENGINE_ADD_INPUT(alpha,"alpha", (0.0f)); 
+		  //engineHeader.SO_ENGINE_ADD_INPUT(alpha,"alpha", (0.0f)); done in base class
 		  engineHeader.SO_ENGINE_ADD_MINPUT(input0,"input0", new SbVec3f(0,0,0)); 
 		  engineHeader.SO_ENGINE_ADD_MINPUT(input1,"input1", new SbVec3f(0,0,0)); 
-		  engineHeader.SO_ENGINE_ADD_MOUTPUT(output,"output", SoMFVec3f.class);
+		  //engineHeader.SO_ENGINE_ADD_MOUTPUT(output,"output", SoMFVec3f.class); done in base class
 		  
 		  this.isBuiltIn = false;
 	  }

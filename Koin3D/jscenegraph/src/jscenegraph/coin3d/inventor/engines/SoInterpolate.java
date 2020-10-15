@@ -71,6 +71,7 @@ import jscenegraph.database.inventor.engines.SoEngineOutputData;
 import jscenegraph.database.inventor.engines.SoSubEngine;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
+import jscenegraph.database.inventor.fields.SoMFVec3f;
 import jscenegraph.database.inventor.fields.SoSFFloat;
 import jscenegraph.port.Destroyable;
 
@@ -139,6 +140,7 @@ public abstract class SoInterpolate extends SoEngine {
 	  }
 
 	  engineHeader.SO_ENGINE_ADD_INPUT(alpha,"alpha", (0.0f));
+      engineHeader.SO_ENGINE_ADD_MOUTPUT(output,"output", SoMFVec3f.class);
 	}
 		
 	/*!

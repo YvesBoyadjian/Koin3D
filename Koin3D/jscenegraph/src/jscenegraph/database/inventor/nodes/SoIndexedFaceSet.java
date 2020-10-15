@@ -1464,7 +1464,7 @@ generatePrimitives(SoAction action)
 
   final SbVec3fSingle dummynormal = new SbVec3fSingle(0,0,1);
   MutableSbVec3fArray currnormal = new MutableSbVec3fArray(dummynormal);
-  if (normals[0] != null) currnormal = new MutableSbVec3fArray( normals[0]);
+  if (normals[0] != null) currnormal = MutableSbVec3fArray.from( normals[0]);
   vertex.setNormal(currnormal.get(0));
 
   final int[] matnr = new int[0];

@@ -80,4 +80,40 @@ public class Offset {
 	        throws NoSuchFieldException {
 	      return clazz.getDeclaredField(fieldName);
 	  }
+
+	public static Class<? extends SoFieldContainer> getOwnerClass(
+			final SoFieldContainer owner,
+			final String publicFieldName,
+			final Object publicField) {
+
+		Class<? extends SoFieldContainer> containerClass = owner.getClass();
+
+		do {
+			Field[] fields = containerClass.getFields();
+
+			for (Field f : fields) {
+				if (!f.getDeclaringClass().equals(containerClass)) {
+					continue;
+				}
+
+				// Found field with good name
+				if (f.getName().equals(publicFieldName)) {
+					Object member = null;
+					try {
+						member = f.get(owner);
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					}
+					if (member == publicField) {
+						// bingo
+						return containerClass;
+					}
+				}
+			}
+			containerClass = (Class<? extends SoFieldContainer>) containerClass.getSuperclass();
+		}
+		while ( !containerClass.equals(SoFieldContainer.class));
+
+		throw new IllegalArgumentException();
+	}
 }

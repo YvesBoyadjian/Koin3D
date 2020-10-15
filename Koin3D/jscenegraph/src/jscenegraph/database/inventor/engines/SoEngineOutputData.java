@@ -56,6 +56,7 @@
 
 package jscenegraph.database.inventor.engines;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 import jscenegraph.coin3d.inventor.engines.SoNodeEngine;
@@ -145,7 +146,10 @@ public void                addOutput(final SoEngine defEngine,
     SoOutputEntry newOutput = new SoOutputEntry();
 
     newOutput.name.copyFrom( new SbName(outputName));
-    newOutput.offset = new Offset(defEngine.getClass(),outputName);
+
+	Class<? extends SoFieldContainer> containerClass = Offset.getOwnerClass(defEngine,outputName,output);
+
+	newOutput.offset = new Offset(/*defEngine.getClass()*/containerClass,outputName);
     newOutput.type.copyFrom(type);
 
     outputs.append( newOutput);
@@ -182,7 +186,10 @@ public void                addOutput(final SoEngine defEngine,
 	    SoOutputEntry newOutput = new SoOutputEntry();
 
 	    newOutput.name.copyFrom( new SbName(name));
-	    newOutput.offset = new Offset(base.getClass(),name);
+
+		Class<? extends SoFieldContainer> containerClass = Offset.getOwnerClass(base,name,output);
+
+		newOutput.offset = new Offset(/*base.getClass()*/containerClass,name);
 	    newOutput.type.copyFrom(type);
 
 		
@@ -256,7 +263,10 @@ public SoEngineOutput getOutputInternal(final SoFieldContainer base, int index)
 	// Returns index of output, given the output and the engine it is in. 
 	public int getIndex(SoFieldContainer func, SoEngineOutput output) {
 	     String offset_str = func.fieldName(output); // java port
-	     Offset offset = new Offset(func.getClass(),offset_str);
+
+		Class<? extends SoFieldContainer> containerClass = Offset.getOwnerClass(func,offset_str,output);
+
+		Offset offset = new Offset(/*func.getClass()*/containerClass,offset_str);
 	      
 	          // Loop through the list looking for the correct offset:
 	          // (we'll assume this won't be very slow, since the list will
