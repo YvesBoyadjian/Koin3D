@@ -35,7 +35,7 @@ so_vrml_init()
   SoVRMLBackground.initClass();
   SoVRMLBillboard.initClass();
   SoVRMLBox.initClass();
-//  SoVRMLCollision::initClass();
+  SoVRMLCollision.initClass();
   SoVRMLColor.initClass();
 //  SoVRMLColorInterpolator::initClass();
   SoVRMLCone.initClass();
@@ -67,13 +67,13 @@ so_vrml_init()
 //  SoVRMLPlaneSensor::initClass();
   SoVRMLPointLight.initClass();
   SoVRMLPointSet.initClass();
-//  SoVRMLPositionInterpolator::initClass();
-//  SoVRMLProximitySensor::initClass();
+  SoVRMLPositionInterpolator.initClass();
+  SoVRMLProximitySensor.initClass();
 //  SoVRMLScalarInterpolator::initClass();
 //  SoVRMLScript::initClass();
 //  SoVRMLSound::initClass();
   SoVRMLSphere.initClass();
-//  SoVRMLSphereSensor::initClass();
+  SoVRMLSphereSensor.initClass();
   SoVRMLSpotLight.initClass();
   SoVRMLSwitch.initClass();
   SoVRMLText.initClass();

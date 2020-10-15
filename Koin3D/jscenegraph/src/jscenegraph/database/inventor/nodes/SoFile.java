@@ -326,10 +326,10 @@ public void SoFile_doAction(SoAction action)
     final int[][]   indices = new int[1][];
 
     if (action.getPathCode(numIndices, indices) == SoAction.PathCode.IN_PATH)
-        children.traverse(action, 0, indices[0][numIndices[0] - 1]);
+        getChildren().traverse(action, 0, indices[0][numIndices[0] - 1]);
 
     else
-        children.traverse(action);
+        getChildren().traverse(action);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -381,10 +381,10 @@ public void getBoundingBox(SoGetBoundingBoxAction action)
     if (action.getPathCode(numIndices, indices) == SoAction.PathCode.IN_PATH)
         lastChild = indices[0][numIndices[0] - 1];
     else
-        lastChild = children.getLength() - 1;
+        lastChild = getChildren().getLength() - 1;
 
     for (int i = 0; i <= lastChild; i++) {
-        children.traverse(action, i, i);
+        getChildren().traverse(action, i, i);
         if (action.isCenterSet()) {
             totalCenter.operator_add_equal(action.getCenter());
             numCenters++;
@@ -449,14 +449,14 @@ public void getMatrix(SoGetMatrixAction action)
         break;
 
       case IN_PATH:
-        children.traverse(action, 0, indices[0][numIndices[0] - 1]);
+          getChildren().traverse(action, 0, indices[0][numIndices[0] - 1]);
         break;
 
       case BELOW_PATH:
         break;
 
       case OFF_PATH:
-        children.traverse(action);
+          getChildren().traverse(action);
         break;
     }
 }

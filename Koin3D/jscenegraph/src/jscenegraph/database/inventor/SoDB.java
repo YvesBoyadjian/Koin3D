@@ -63,10 +63,7 @@ import jscenegraph.coin3d.inventor.VRMLnodes.Init;
 import jscenegraph.coin3d.inventor.annex.profiler.elements.SoProfilerElement;
 import jscenegraph.coin3d.inventor.base.SbString;
 import jscenegraph.coin3d.inventor.engines.SoNodeEngine;
-import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
-import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
-import jscenegraph.coin3d.inventor.misc.SoGLImage;
-import jscenegraph.coin3d.inventor.misc.SoProto;
+import jscenegraph.coin3d.inventor.misc.*;
 import jscenegraph.coin3d.inventor.threads.SbRWMutex;
 import jscenegraph.coin3d.shaders.SoShader;
 import jscenegraph.coin3d.threads.Recmutex;
@@ -670,7 +667,8 @@ init()
         SoEvent.initClasses();
         SoDetail.initClasses();
         
-        SoProto.initClass();        
+        SoProto.initClass();
+        SoProtoInstance.initClass();
         
         SoGLDriverDatabase.init();
         SoGLImage.initClass();

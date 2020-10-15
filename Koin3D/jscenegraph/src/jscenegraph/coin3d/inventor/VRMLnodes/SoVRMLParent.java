@@ -7,10 +7,7 @@ import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoType;
-import jscenegraph.database.inventor.fields.SoField;
-import jscenegraph.database.inventor.fields.SoFieldData;
-import jscenegraph.database.inventor.fields.SoMFNode;
-import jscenegraph.database.inventor.fields.SoSFNode;
+import jscenegraph.database.inventor.fields.*;
 import jscenegraph.database.inventor.misc.SoChildList;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.SoGroup;
@@ -239,6 +236,19 @@ public boolean readInstance(SoInput in,
   pimpl.childlistvalid = false;
   return ret;
 }
+
+// Doc in parent
+  public void copyContents(final SoFieldContainer from,
+                             boolean copyConn)
+  {
+    SoGroup_children().truncate(0);
+    pimpl.addsensor.detach();
+    pimpl.removesensor.detach();
+    SoNode_copyContents(from, copyConn);
+    pimpl.addsensor.attach(this.addChildren);
+    pimpl.removesensor.attach(this.removeChildren);
+    pimpl.childlistvalid = false;
+  }
 
 
 // Doc in parent

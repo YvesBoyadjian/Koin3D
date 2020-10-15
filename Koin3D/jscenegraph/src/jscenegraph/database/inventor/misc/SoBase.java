@@ -58,6 +58,7 @@
 package jscenegraph.database.inventor.misc;
 
 import jscenegraph.coin3d.inventor.misc.SoProto;
+import jscenegraph.coin3d.inventor.misc.SoProtoInstance;
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
@@ -68,6 +69,7 @@ import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.engines.SoUnknownEngine;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
+import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldContainer;
 import jscenegraph.database.inventor.fields.SoGlobalField;
 import jscenegraph.database.inventor.misc.upgraders.SoUpgrader;
@@ -105,6 +107,7 @@ public abstract class SoBase implements Destroyable {
 	private static final String DEFINITION_KEYWORD      ="DEF";
 	private static final String REFERENCE_KEYWORD       ="USE";
 	private static final String NULL_KEYWORD            ="NULL";
+	private static final String ROUTE_KEYWORD           = "ROUTE";
 	private static final String PROTO_KEYWORD	 		="PROTO";
 	private static final String EXTERNPROTO_KEYWORD 	="EXTERNPROTO";
 
@@ -257,7 +260,7 @@ protected SoBase()
 	 * error message if the application is using the Inventor 
 	 * debugging library. 
 	 * 
-	 * @param name
+	 * @param newName
 	 */
 	// java port
 	public void setName(String newName) {
@@ -699,7 +702,7 @@ public static boolean read(SoInput in, final SoBase[] base, SoType expectedType)
 ////////////////////////////////////////////////////////////////////////
 {
     final SbName      name = new SbName();
-    boolean        ret;
+    boolean        ret = true;
 
     // Read header: name and opening brace. If not found, not an error -
     // just nothing to return.
@@ -725,8 +728,24 @@ public static boolean read(SoInput in, final SoBase[] base, SoType expectedType)
     // Check for reference to existing node/path/function
     else if (name.operator_equal_equal(new SbName(REFERENCE_KEYWORD)))
         ret = readReference(in, base);
-    else
-        ret = readBase(in, name, base);
+    else {
+
+		// read all (vrml97) routes. Do this also for non-vrml97 files,
+		// since in Coin we can have a mix of Inventor and VRML97 nodes in
+		// the same file.
+		while (ret && name.operator_equal_equal(/*PImpl::*/ROUTE_KEYWORD)) {
+			ret = SoBase.readRoute(in);
+			// read next ROUTE keyword
+			if (ret) ret = in.read(name, true);
+			else return false; // error while reading ROUTE
+		}
+
+		// The SoInput stream does not start with a valid base name. Return
+		// TRUE with base==NULL.
+		if (!ret) return true;
+
+		ret = readBase(in, name, base);
+	}
 
     // Check for type match
     if (base[0] != null) {
@@ -965,6 +984,92 @@ private static boolean readBaseInstance(SoInput in, final SbName className,
     base[0].ref();
     boolean result = base[0].readInstance(in, ioFlags[0]);
     base[0].unrefNoDelete();
+
+	// Make sure global fields are unique
+	if (base[0].isOfType(SoGlobalField.getClassTypeId())) {
+	SoGlobalField globalfield = (SoGlobalField)base[0];
+
+	// The global field is removed from the global field list
+	// because we have to check if there is already a global field
+	// in the list with the same name.  This is because
+	// SoGlobalField's constructor automatically adds itself to the
+	// list of global fields without checking if the field already
+	// exists.
+	globalfield.ref(); // increase refcount to 1, so the next call will not destruct the node
+	SoGlobalField.removeGlobalFieldContainer(globalfield);
+	globalfield.unrefNoDelete(); // corrects ref count back to zero
+
+	// A read-error sanity check should have been done in
+	// SoGlobalField::readInstance().
+	assert(globalfield.getFieldData().getNumFields() == 1);
+
+	// Now, see if the global field is in the database already.
+	SoField f = SoDB.getGlobalField(globalfield.getName());
+	if (f != null) {
+		SoField basefield = globalfield.getFieldData().getField(globalfield, 0);
+		assert(basefield != null && "base (SoGlobalField) does not appear to have a field" != null);
+
+		if (!f.isOfType(basefield./*getClassTypeId*/getTypeId())) {
+			SoReadError.post(in, "Types of equally named global fields do not match: existing: "+f.getTypeId().getName().getString()+", new: "+
+							  basefield.getTypeId().getName().getString());
+//        goto failed;
+//			failed:
+			if (base[0] != null) {
+				if (!(refName.operator_not())) { in.removeReference(refName); }
+
+				base[0].ref();
+				base[0].unref();
+				base[0] = null;
+			}
+
+			return false;
+		}
+
+		SoGlobalField container = (SoGlobalField )f.getContainer();
+
+		// Copy new field values into the existing field. Open Inventor
+		// apparently does not copy the new values into the old field,
+		// but it seems logical to do so.
+		SoFieldContainer.initCopyDict();
+		container.copyFieldValues(globalfield, true); // Assign new global field values to old global field
+		SoFieldContainer.copyDone();
+
+		// Make sure to update the mapping in SoInput if necessary
+		if (!(refName.operator_not())) {
+			// Set up new entry in reference hash -- with full name.
+			in.removeReference(refName);
+			in.addReference(refName, container);
+		}
+
+		// Remove newly made SoGlobalField, use the existing one instead.
+		// Add it to the global field list before deleting it (we
+		// manually removed it earlier to test it the field was already
+		// in the database)
+		SoGlobalField.addGlobalFieldContainer((SoGlobalField) base[0]);
+		base[0].ref(); base[0].unref(); // this will delete the global field, and remove it from the database
+		base[0] = container;
+		container.getFieldData().getField(container, 0).touch();
+	}
+	else {
+		// The global field was first removed to check the existence
+		// of an equal named item. If no such global field exists, the
+		// removed global field has to be added again, which is done
+		// by this code:
+		SoGlobalField.addGlobalFieldContainer(globalfield);
+	}
+}
+
+//	if (needupgrade) { COIN3D TODO
+//		SoBase oldbase = base[0];
+//		oldbase.ref();
+//		base = SoUpgrader.createUpgrade(oldbase);
+//		assert(base[0] != null && "should never happen (since needupgrade == TRUE)" != null);
+//		oldbase.unref();
+//	}
+
+	if (base[0].isOfType(SoProtoInstance.getClassTypeId())) {
+	base[0] = ((SoProtoInstance) base[0]).getRootNode();
+}
 
     return result;
 }

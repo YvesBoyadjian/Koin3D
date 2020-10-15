@@ -3,6 +3,7 @@
  */
 package jscenegraph.coin3d.inventor.lists;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import jscenegraph.port.Mutable;
@@ -45,4 +46,45 @@ public class SbListOfMutableRefs<T extends Mutable> extends SbList<T> {
 		    //if (this.itembuffer != this.builtinbuffer) delete[] this->itembuffer; java port
 		    this.itembuffer = newbuffer;
 		  }
+
+	public T operator_square_bracket(int index) {
+		T retVal = supplier.get();
+		retVal.copyFrom((T)this.itembuffer[index]);
+		return retVal;
+	}
+
+	public void insert(T item, int insertbefore) {
+//#ifdef COIN_EXTRA_DEBUG
+//    assert(insertbefore >= 0 && insertbefore <= this->numitems);
+//#endif // COIN_EXTRA_DEBUG
+		if (this.numitems == this.itembuffersize) this.grow();
+
+		for (int i = this.numitems; i > insertbefore; i--)
+			((Mutable)this.itembuffer[i]).copyFrom(this.itembuffer[i-1]);
+		((Mutable)this.itembuffer[insertbefore]).copyFrom(item);
+		this.numitems++;
+	}
+
+	public void append(T item) {
+		if (this.numitems == this.itembuffersize) this.grow();
+		((Mutable)this.itembuffer[this.numitems++]).copyFrom(item);
+	}
+
+	public void remove(int index) {
+		this.numitems--;
+		for (int i = index; i < this.numitems; i++)
+			((Mutable)this.itembuffer[i]).copyFrom(this.itembuffer[i + 1]);
+		((Mutable)this.itembuffer[numitems]).copyFrom(supplier.get()); // java port
+	}
+
+	public int find(T item) {
+		for (int i = 0; i < this.numitems; i++)
+			if (Objects.equals(this.itembuffer[i], item)) return i;
+		return -1;
+	}
+
+	public void removeFast(int index) {
+		this.itembuffer[index] = this.itembuffer[--this.numitems];
+		((Mutable)this.itembuffer[numitems]).copyFrom(supplier.get()); // java port
+	}
 }

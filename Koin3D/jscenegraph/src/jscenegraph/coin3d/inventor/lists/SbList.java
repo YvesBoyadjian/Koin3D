@@ -188,7 +188,7 @@ public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
     this.numitems = size;
   }
 
-    private void grow() {
+    void grow() {
     	grow(-1); // java port
     }
 protected void grow(final int size) {

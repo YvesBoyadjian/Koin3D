@@ -60,6 +60,7 @@ import java.lang.reflect.Field;
 import jscenegraph.coin3d.inventor.engines.SoEngineAble;
 import jscenegraph.coin3d.inventor.engines.SoInterpolate;
 import jscenegraph.coin3d.inventor.engines.SoInterpolateVec3f;
+import jscenegraph.coin3d.inventor.engines.SoNodeEngine;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoEngineList;
@@ -564,6 +565,8 @@ shouldCopy()
 		        // base class
 		        //
 		        SoEngine.initClass();
+
+        SoNodeEngine.initClass();
 		    
 		        //
 		        // collections of engines init'd by their own base class method

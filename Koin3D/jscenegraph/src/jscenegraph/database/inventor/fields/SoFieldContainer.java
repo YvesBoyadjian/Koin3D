@@ -264,26 +264,101 @@ public abstract class SoFieldContainer extends SoBase {
 		return null;
 	}
 	
-	/**
-	 * Copies the contents of the given node into this instance. 
-	 * The default implementation copies just field values and the name. 
-	 * 
-	 * @param fromFC
-	 * @param copyConnections
-	 */
-	public void copyContents(SoFieldContainer fromFC, boolean copyConnections) {
-		
-	     // Access the field data and overlay it
-		       final SoFieldData fieldData = getFieldData();
-		       if (fieldData != null)
-		           fieldData.overlay(this, fromFC, copyConnections);
-		   
-		       // Copy the name, if it has one
-		       final SbName name = fromFC.getName();
-		       if (!name.operator_not())
-		           setName(name);
-		  	}
-	
+//	/**
+//	 * Copies the contents of the given node into this instance.
+//	 * The default implementation copies just field values and the name.
+//	 *
+//	 * @param fromFC
+//	 * @param copyConnections
+//	 */
+//	public void copyContents(SoFieldContainer fromFC, boolean copyConnections) {
+//
+//	     // Access the field data and overlay it
+//		       final SoFieldData fieldData = getFieldData();
+//		       if (fieldData != null)
+//		           fieldData.overlay(this, fromFC, copyConnections);
+//
+//		       // Copy the name, if it has one
+//		       final SbName name = fromFC.getName();
+//		       if (!name.operator_not())
+//		           setName(name);
+//		  	}
+
+// Note: the following documentation is used for all subclasses of
+// SoFieldContainer (all the way down to nodekits, draggers and
+// manipulators, for instance), so keep it general.
+/*!
+  Makes a deep copy of all data of \a from into this instance, \e
+  except external scene graph references if \a copyconnections is \c
+  FALSE.
+
+  This is the method that should be overridden by extension node /
+  engine / dragger / whatever subclasses which need to account for
+  internal data that are not handled automatically.
+
+  For copying nodes from application code, you should not invoke this
+  function directly, but rather call the SoNode::copy() function:
+
+  \code
+  SoNode * mynewnode = templatenode->copy();
+  \endcode
+
+  The same also goes for engines.
+
+
+  Make sure that when you override the copyContents() method in your
+  extension class that you also make it call upwards to its parent
+  superclass in the inheritance hierarchy, as copyContents() in for
+  instance SoNode and SoFieldContainer does important work. It should
+  go something like this:
+
+  \code
+  void
+  MyCoinExtensionNode::copyContents(const SoFieldContainer * from,
+                                    SbBool copyconnections)
+  {
+    // let parent superclasses do their thing (copy fields, copy
+    // instance name, etc.)
+    SoNode::copyContents(from, copyconnections);
+
+    // [..then copy internal data..]
+  }
+  \endcode
+*/
+	public void copyContents( SoFieldContainer from,
+								   boolean copyconnections)
+	{
+		this.setName(from.getName());
+		//this.donotify = from.donotify; COIN3D TODO
+		this.notifyEnabled = from.notifyEnabled; // YB
+		this.copyFieldValues(from, copyconnections);
+		//if (from.getUserData()) this.setUserData(from.getUserData()); COIN3D TODO
+	}
+
+/*!
+  \COININTERNAL
+
+  This method copies the field values from container into this. The
+  fields are assumed to be of the same type. The \a copyconnections
+  flag decides whether the field connections are to be copied as well.
+*/
+	public void copyFieldValues(final SoFieldContainer container,
+									  boolean copyconnections)
+	{
+  final SoFieldData fd0 = this.getFieldData();
+
+		if (fd0 == null) {
+			if (container.getFieldData() == null) return;
+//#if COIN_DEBUG
+			SoDebugError.postInfo("SoFieldContainer::copyFieldValues",
+					"tried to copy from fieldcontainer of wrong type");
+			return;
+//#endif // COIN_DEBUG
+		}
+
+		fd0.overlay(this, container, copyconnections);
+	}
+
 	/**
 	 * During a copy operation, this copies an instance that is encountered 
 	 * through a field connection. 

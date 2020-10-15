@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.lists.SbListOfMutableRefs;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFString;
@@ -24,10 +25,10 @@ public class SoProtoP {
 	  SoGroup defroot; //ptr
 		final SbName name = new SbName();
 	  final SbList <SoNode[]> isnodelist = new SbList<>(); // FIXME: consider using SoNodeList
-	  final SbList <SbName> isfieldlist = new SbList<>();
-	  final SbList <SbName> isnamelist = new SbList<>();
+	  final SbListOfMutableRefs<SbName> isfieldlist = new SbListOfMutableRefs<>(()->new SbName());
+	  final SbListOfMutableRefs <SbName> isnamelist = new SbListOfMutableRefs<>(()->new SbName());
 	  final Map<String,SoBase> refdict = new HashMap<>();
-	  final SbList <SbName> routelist = new SbList<>();
+	  final SbListOfMutableRefs <SbName> routelist = new SbListOfMutableRefs<>(()->new SbName());
 	  SoMFString externurl; //ptr
 	  SoProto extprotonode; //ptr
 }

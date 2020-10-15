@@ -163,7 +163,36 @@ find(SoNode[] targetValue, boolean addIfNotFound)
 
     return -1;
 }
-	
+
+    public void setValues(int start, final SoNodePtrArray newvals)
+    {
+        int numarg = newvals != null ? newvals.length(): 0;
+
+        // Disable temporarily, so we under any circumstances will not send
+        // more than one notification about the changes.
+        boolean notificstate = this.enableNotify(false);
+        // Important note: the notification state is reset at the end, so
+        // this function should *not* have multiple return-points.
+
+        // ref() new nodes before unref()-ing old ones, in case there are
+        // common nodes (we don't want any premature destruction to happen).
+        { for (int i=0; i < numarg; i++) if (newvals.getO(i).get()!=null) newvals.getO(i).get().ref(); }
+
+        // We favor simplicity of code over performance here.
+        { for (int i=0; i < numarg; i++)
+            this.set1Value(start+i, (SoNode)(newvals.getO(i).get())); }
+
+        // unref() to match the initial ref().
+        { for (int i=0; i < numarg; i++) if (newvals.getO(i).get()!=null) newvals.getO(i).get().unref(); }
+
+        // Finally, send notification.
+        this.enableNotify(notificstate);
+        this.setChangedIndices(start, numarg);
+        if (notificstate) this.valueChanged();
+        this.setChangedIndices();
+    }
+
+
 	public void
 	setValues(int start,/* int num,*/ final SoNode[][] newValues)
 	{

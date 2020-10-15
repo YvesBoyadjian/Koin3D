@@ -217,7 +217,26 @@ remove(int which)           // index of pointer to remove
     super.remove(which);
 }
 
-	
+
+/*!
+  Removes \a item from the list, dereferencing the object (unless
+  addReferences() has been set to \c FALSE).
+
+  Overloaded from parent to support reference counting on the SoBase object.
+
+  \sa SbPList::removeItem()
+*/
+	public void removeItem(SoBase item)
+	{
+		// We need to override the removeItem() function from our SbPList
+		// superclass, or invocations of it will not cause a decrease of the
+		// reference count.
+
+		// Just forward call to remove(), which takes care of the
+		// dereferencing.
+		this.remove(this.find(item));
+	}
+
 	
 	// Removes all pointers after one with given index, inclusive. 
 	public void truncate(int start) {

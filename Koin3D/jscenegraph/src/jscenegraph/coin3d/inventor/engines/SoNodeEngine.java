@@ -5,6 +5,7 @@ package jscenegraph.coin3d.inventor.engines;
 
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.engines.SoEngineOutput;
 import jscenegraph.database.inventor.engines.SoEngineOutputData;
 import jscenegraph.database.inventor.nodes.SoNode;
@@ -15,8 +16,29 @@ import jscenegraph.database.inventor.nodes.SoNode;
  */
 public abstract class SoNodeEngine extends SoNode implements SoEngineAble {
 
+	private static SoType classTypeId = SoType.badType();
+
     private boolean notifying;
     
+
+/*!
+  \copybrief SoBase::initClass(void)
+*/
+	public static void initClass()
+	{
+		SoNodeEngine.classTypeId =
+				SoType.createType(SoNode.getClassTypeId(), new SbName("NodeEngine"));
+	}
+
+/*!
+  \copydetails SoEngine::getClassTypeId(void)
+*/
+	public static SoType
+	getClassTypeId()
+	{
+		return SoNodeEngine.classTypeId;
+	}
+
 	/*!
 	  Returns the output with name \a outputname, or \c NULL if no such
 	  output exists.

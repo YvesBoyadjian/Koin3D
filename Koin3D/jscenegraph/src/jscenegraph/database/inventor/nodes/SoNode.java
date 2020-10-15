@@ -59,6 +59,7 @@ import java.lang.reflect.Method;
 
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowSpotLight;
+import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.coin3d.inventor.nodes.SoBlinker;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate3;
 import jscenegraph.coin3d.inventor.nodes.SoCoordinate4;
@@ -266,56 +267,109 @@ private int stateflags;
 	public SoNode copy() {
 		return copy(false);
 	}
-	public SoNode copy(boolean copyConnections) {
+//	public SoNode copy(boolean copyConnections) {
+//
+//	     //
+//		       // The copy operation is done in two passes:
+//		       //
+//		       // (1) Determine which nodes are "inside" the copy. That is, which
+//		       //     nodes are under the original node being copied.
+//		       //
+//		       // (2) Copy the graph. Inside nodes and engines re-use the same
+//		       //     instance each time encountered. References to "outside"
+//		       //     nodes and engines are copied as just pointers.
+//		       //     (An engine is inside only if there is at least one
+//		       //     inside node connected somewhere at both ends.)
+//		       //
+//		       // To make these steps more efficient, a dictionary of inside
+//		       // nodes is created in step (1) and used in step (2). Engines
+//		       // determined to be inside in step (2) are also added to the
+//		       // dictionary. This dictionary is maintained in the
+//		       // SoFieldContainer class so both nodes and engines can access it.
+//		       //
+//
+//		       // Ref ourselves, just in case our ref count is 0
+//		       ref();
+//
+//		       // Step (1):
+//
+//		       // Set up a new dictionary. Recursive copy operations use new
+//		       // dictionaries to avoid confusion.
+//		       initCopyDict();
+//
+//		       // Recursively figure out which nodes are inside and add them to
+//		       // the copy dictionary, each with NO ref().
+//		       SoNode newNode = addToCopyDict();
+//		       newNode.ref();
+//
+//		       // Step (2):
+//
+//		       // Copy the contents of this node into the new copy. This will
+//		       // recurse (for groups) and will also handle connections and
+//		       // fields that point to nodes, paths, or engines.
+//		       newNode.copyContents(this, copyConnections);
+//
+//		       // Get rid of the dictionary
+//		       copyDone();
+//
+//		       // Return the copy
+//		       newNode.unrefNoDelete();
+//		       unref();
+//		       return newNode;
+//
+//	}
 
-	     //
-		       // The copy operation is done in two passes:
-		       //
-		       // (1) Determine which nodes are "inside" the copy. That is, which
-		       //     nodes are under the original node being copied.
-		       //
-		       // (2) Copy the graph. Inside nodes and engines re-use the same
-		       //     instance each time encountered. References to "outside"
-		       //     nodes and engines are copied as just pointers.
-		       //     (An engine is inside only if there is at least one
-		       //     inside node connected somewhere at both ends.)
-		       //
-		       // To make these steps more efficient, a dictionary of inside
-		       // nodes is created in step (1) and used in step (2). Engines
-		       // determined to be inside in step (2) are also added to the
-		       // dictionary. This dictionary is maintained in the
-		       // SoFieldContainer class so both nodes and engines can access it.
-		       //
+// *************************************************************************
 
-		       // Ref ourselves, just in case our ref count is 0
-		       ref();
+/*!
+  Make a duplicate of this node and return a pointer to the duplicate.
 
-		       // Step (1):
+  If this node is a group node, children are also copied and we return
+  a pointer to the root of a full copy of the subgraph rooted here.
 
-		       // Set up a new dictionary. Recursive copy operations use new
-		       // dictionaries to avoid confusion.
-		       initCopyDict();
+  If \a copyconnections is \c TRUE, we also copy the connections to
+  fields within this node (and ditto for any children and children's
+  children etc.).
 
-		       // Recursively figure out which nodes are inside and add them to
-		       // the copy dictionary, each with NO ref().
-		       SoNode newNode = addToCopyDict();
-		       newNode.ref();
 
-		       // Step (2):
+  Note that this function has been made virtual in Coin, which is not
+  the case in the original Open Inventor API. We may change this
+  method back into being non-virtual again for major Coin versions
+  after this, as it was made virtual more or less by mistake. So
+  please don't write application code that depends on SoNode::copy()
+  being virtual.
 
-		       // Copy the contents of this node into the new copy. This will
-		       // recurse (for groups) and will also handle connections and
-		       // fields that point to nodes, paths, or engines.
-		       newNode.copyContents(this, copyConnections);
+  The reason this method should not be virtual is because this is \e
+  not the function the application programmer should override in
+  extension nodes if she needs some special behavior during a copy
+  operation (like copying the value of internal data not exposed as
+  fields).
 
-		       // Get rid of the dictionary
-		       copyDone();
+  For that purpose, override the copyContents() method. Your
+  overridden copyContents() method should then \e both copy internal
+  data as well as calling the parent superclass' copyContents() method
+  for automatically handling of fields and other common data.
+*/
+	public SoNode copy(boolean copyconnections)
+	{
+		// FIXME: "de-virtualize" this method for next major Coin release?
+		// See method documentation above. 20011220 mortene.
 
-		       // Return the copy
-		       newNode.unrefNoDelete();
-		       unref();
-		       return newNode;
-
+		SoFieldContainer.initCopyDict();
+		SoNode cp = this.addToCopyDict();
+		// ref() to make sure the copy is not destructed while copying
+		cp.ref();
+		// Call findCopy() to have copyContents() run only once.
+//#if COIN_DEBUG
+		SoNode cp2 = (SoNode )SoFieldContainer.findCopy(this, copyconnections);
+		assert(cp == cp2);
+//#else // COIN_DEBUG
+//		(void) SoFieldContainer::findCopy(this, copyconnections);
+//#endif
+		SoFieldContainer.copyDone();
+		// unrefNoDelete() so that we return a copy with reference count 0
+		cp.unrefNoDelete();
+		return cp;
 	}
 
 	// Initiates notification from an instance.
@@ -413,12 +467,19 @@ notify(SoNotList list)
 	 */
 	@Override
 	public void copyContents(SoFieldContainer fromFC, boolean copyConnections) {
-	     // Copy the regular stuff
-		 super.copyContents(fromFC, copyConnections);
+		SoNode_copyContents(fromFC, copyConnections);
+	}
+	public void SoNode_copyContents(SoFieldContainer fromFC, boolean copyConnections) {
+		// workaround when copying PROTO definitions. A PROTO definition is
+		// read-only, and we just copy the pointer (in
+		// SoNode::addToCopyDict(), not the contents.
+		if (!this.isOfType(SoProto.getClassTypeId())){
+			// Copy the regular stuff
+			super.copyContents(fromFC, copyConnections);
 
-		       // Copy the override flag
-		       override = ((SoNode ) fromFC).override;
-
+			// Copy the override flag
+			override = ((SoNode) fromFC).override;
+		}
 	}
 
 ////////////////////////////////////////////////////////////////////////

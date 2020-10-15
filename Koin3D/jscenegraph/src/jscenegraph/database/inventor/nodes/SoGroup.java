@@ -191,7 +191,7 @@ public class SoGroup extends SoNode implements Destroyable {
 		   return;
 		   }
 		 //#endif /* DEBUG */
-		  
+
 		   getChildren().append(child);
 		 	}
 	
@@ -763,6 +763,8 @@ copyContents(final SoFieldContainer fromFC, boolean copyConnections)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+	this.removeAllChildren();
+
     // Copy the usual stuff
     super.copyContents(fromFC, copyConnections);
 
@@ -798,9 +800,12 @@ SoGroup_getPrimitiveCount(SoGetPrimitiveCountAction action)
 {
   SoGroup_doAction((SoAction )action);
 }
-	   
-	    	   
-	   ////////////////////////////////////////////////////////////////////////
+
+	protected SoChildList SoGroup_children() {
+		return children;
+	}
+
+	////////////////////////////////////////////////////////////////////////
 	    //
 	    // Description:
 	    //    This initializes the SoGroup class.

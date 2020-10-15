@@ -772,86 +772,236 @@ public     boolean                read(final SbName         n) {
 	return read(n, false);
 }
 
-public boolean read(SbName n,                // Name to read into
-              boolean validIdent)        // true => name must be
-                                        // identifier (default is false)
+//public boolean read(SbName n,                // Name to read into
+//              boolean validIdent)        // true => name must be
+//                                        // identifier (default is false)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    boolean        gotChar;
 //
-////////////////////////////////////////////////////////////////////////
-{
-    boolean        gotChar;
+//    if (! skipWhiteSpace())
+//        return false;
+//
+//    // If binary input or not an identifer, read as just a regular string
+//    if (curFile.binary || ! validIdent) {
+//        final String[]        s = new String[1];
+//
+//        if (! read(s)) {
+//
+//            // We may have just discovered EOF when trying to read the
+//            // string. If so, and there's another file open on the
+//            // stack, call this method again to try reading from the
+//            // next file.
+//
+//            if (curFile.binary && eof() && files.getLength() > 1)
+//                return read(n, validIdent);
+//
+//            return false;
+//        }
+//
+//        n.copyFrom(new SbName(s[0]));
+//    }
+//
+//    else {
+//        // Read identifier, watching for validity
+//        final char[]    buf = new char[256];
+//        int b = 0; // java port
+//        final char[]    c = new char[1];
+//
+//        if (fromBuffer()) {
+//            if ((gotChar = getASCIIBuffer(c)) && SbName.isIdentStartChar(c[0])) {
+//                buf[b] = c[0]; b++;
+//
+//                while ((gotChar= getASCIIBuffer(c)) && SbName.isIdentChar(c[0])) {
+//                    // If the identifier is too long, it will be silently
+//                    // truncated.
+//                    if (b < 255) {
+//                        buf[b] = c[0]; b++;
+//                    }
+//                }
+//            }
+//        }
+//        else {
+//            if ((gotChar = getASCIIFile(c)) && SbName.isIdentStartChar(c[0])) {
+//                buf[b] = c[0]; b++;
+//
+//                while ((gotChar = getASCIIFile(c)) && SbName.isIdentChar(c[0])) {
+//                    // If the identifier is too long, it will be silently
+//                    // truncated.
+//                    if (b < 255) {
+//                        buf[b] = c[0]; b++;
+//                    }
+//                }
+//            }
+//        }
+//        buf[b] = '\0';
+//        String bufStr = new String(buf,0,b); //java port
+//
+//        // Put the terminating character (if any) back in the stream.
+//        if (gotChar)
+//            putBack(c[0]);
+//
+//        n.copyFrom(new SbName(bufStr));
+//
+//        if ( bufStr.isEmpty() ) {
+//        	return false;
+//        }
+//    }
+//
+//    return true;
+//}
 
-    if (! skipWhiteSpace())
-        return false;
+/*!
+  Read a name from the current stream and place it in \a n.
 
-    // If binary input or not an identifer, read as just a regular string
-    if (curFile.binary || ! validIdent) {
-        final String[]        s = new String[1];
+  This method should not be used specifically to read all instances of
+  SbName. The semantics of the interface is such that it is designed
+  to handle identifier tokens from the Inventor / VRML file
+  formats. I.e. cases where node names, node types and field names are
+  to be read. If your goal is to read the value of a SbName field that
+  is not any of the above, and at least when the string might be
+  quoted, then you should most likely use SoInput::read(SbString &)
+  instead.
 
-        if (! read(s)) {
+  If \a validIdent is \c TRUE the name needs to be a valid identifier
+  (no reserved characters etc), while \a validIdent equal to \c FALSE
+  means we'll just read characters for the next word until we hit
+  whitespace or one of the "{"/"}" delimiters.
 
-            // We may have just discovered EOF when trying to read the
-            // string. If so, and there's another file open on the
-            // stack, call this method again to try reading from the
-            // next file.
+  Returns \c FALSE on encountering end of file before a full name has
+  been read -- if \a validIdent is also \c FALSE. If \a validIdent is
+  passed as \c TRUE, the return value will be \c FALSE if no valid name
+  was found, but \e not necessarily on end of file.
+*/
+enum CodePath { INVENTOR, VRML1, VRML2 }
 
-            if (curFile.binary && eof() && files.getLength() > 1)
-                return read(n, validIdent);
+    public boolean read(final SbName n, boolean validIdent)
+    {
+        //SoInput_FileInfo fi = pimpl.getTopOfStackPopOnEOF();
+        if (!/*this.checkHeader()*/skipWhiteSpace()) return false;
 
-            return false;
-        }
+   CodePath  codepath =
+            /*fi.*/isFileVRML2() ? CodePath.VRML2 : (/*fi.*/isFileVRML1() ? CodePath.VRML1 : CodePath.INVENTOR);
 
-        n.copyFrom(new SbName(s[0]));
-    }
+        // Binary format.
+        if (/*fi.*/isBinary()) { // Checkheader has already been called
+            final String[] s = new String[1];
+            if (!this.read(s)) return false;
 
-    else {
-        // Read identifier, watching for validity
-        final char[]    buf = new char[256];
-        int b = 0; // java port
-        final char[]    c = new char[1];
+            n.copyFrom(new SbName(s[0]));
+    int strlength = s[0].length();
 
-        if (fromBuffer()) {
-            if ((gotChar = getASCIIBuffer(c)) && SbName.isIdentStartChar(c[0])) {
-                buf[b] = c[0]; b++;
-    
-                while ((gotChar= getASCIIBuffer(c)) && SbName.isIdentChar(c[0])) {
-                    // If the identifier is too long, it will be silently
-                    // truncated.
-                    if (b < 255) {
-                        buf[b] = c[0]; b++;
+            switch (codepath) {
+                case INVENTOR:
+                    if (validIdent && strlength > 0) {
+                        if (!SoInputP.isNameStartChar(s[0].charAt(0), validIdent)) return false;
+                        for (int i = 1; i < strlength; i++)
+                            if (!SoInputP.isNameChar(s[0].charAt(i), validIdent)) return false;
                     }
-                }
+                    break;
+                case VRML1:
+                    if (validIdent && strlength > 0) {
+                        if (!SoInputP.isNameStartCharVRML1(s[0].charAt(0), validIdent)) return false;
+                        for (int i = 1; i < strlength; i++)
+                            if (!SoInputP.isNameCharVRML1(s[0].charAt(i), validIdent)) return false;
+                    }
+                    break;
+                case VRML2:
+                    if (validIdent && strlength > 0) {
+                        if (!SoInputP.isNameStartCharVRML2(s[0].charAt(0), validIdent)) return false;
+                        for (int i = 1; i < strlength; i++)
+                            if (!SoInputP.isNameCharVRML2(s[0].charAt(i), validIdent)) return false;
+                    }
+                    break;
+                default:
+                    assert("invalid code path" == null);
+                    break;
             }
+
+            return true;
         }
+        // ASCII format.
         else {
-            if ((gotChar = getASCIIFile(c)) && SbName.isIdentStartChar(c[0])) {
-                buf[b] = c[0]; b++;
-    
-                while ((gotChar = getASCIIFile(c)) && SbName.isIdentChar(c[0])) {
-                    // If the identifier is too long, it will be silently
-                    // truncated.
-                    if (b < 255) {
-                        buf[b] = c[0]; b++;
+            if (!/*fi.*/skipWhiteSpace()) return false;
+
+            String s = "";
+            final char[] buf = new char[256];
+            int b = 0;//buf;
+            final char[] c = new char[1];
+            boolean gotchar = false;
+
+            switch (codepath) {
+                case INVENTOR:
+                    if ((gotchar = /*fi.*/fi_get(c)) && SoInputP.isNameStartChar(c[0], validIdent)) {
+        buf[b] = c[0]; b++;
+                    while ((gotchar = /*fi.*/fi_get(c)) && SoInputP.isNameChar(c[0], validIdent)) {
+          buf[b] = c[0]; b++;
+                        if (b /*- buf*/ == 255) {
+            buf[b] = '\0';
+                            s += Util.toString(buf);
+                            b = 0;//buf;
+                        }
                     }
                 }
+                break;
+                case VRML1:
+                    if ((gotchar = /*fi.*/fi_get(c)) && SoInputP.isNameStartCharVRML1(c[0], validIdent)) {
+        buf[b] = c[0]; b++;
+                    while ((gotchar = /*fi.*/fi_get(c)) && SoInputP.isNameCharVRML1(c[0], validIdent)) {
+          buf[b] = c[0]; b++;
+                        if (b /*- buf*/ == 255) {
+            buf[b] = '\0';
+                            s += Util.toString(buf);
+                            b = 0;//buf;
+                        }
+                    }
+                }
+                break;
+                case VRML2:
+                    if ((gotchar = /*fi.*/fi_get(c)) && SoInputP.isNameStartCharVRML2(c[0], validIdent)) {
+        buf[b] = c[0]; b++;
+                    while ((gotchar = /*fi.*/fi_get(c)) && SoInputP.isNameCharVRML2(c[0], validIdent)) {
+          buf[b] = c[0]; b++;
+                        if (b /*- buf*/ == 255) {
+            buf[b] = '\0';
+                            s += Util.toString(buf);
+                            b = 0;//buf;
+                        }
+                    }
+                }
+                break;
+                default:
+                    assert("invalid code path" == null);
+                    break;
             }
-        }
-        buf[b] = '\0';
-        String bufStr = new String(buf,0,b); //java port
+            // This behavior is pretty silly, but this is how it is supposed
+            // to work, apparently -- _not_ returning FALSE upon end-of-file.
+            if (gotchar) /*fi.*/putBack(c[0]);
 
-        // Put the terminating character (if any) back in the stream.
-        if (gotChar)
-            putBack(c[0]);
+    buf[b] = '\0';
+            s += Util.toString(buf);
+            n.copyFrom( new SbName(s));
 
-        n.copyFrom(new SbName(bufStr));
-        
-        if ( bufStr.isEmpty() ) {
-        	return false;
+//#if 0 // debug
+//            SoDebugError::postInfo("SoInput::read",
+//                    "string read: ``%s''", s.getString());
+//#endif // debug
+
+            if (s.length() == 0) return false;
         }
+
+        return true;
     }
 
-    return true;
-}
-
+    public boolean fi_get(char[] c) {
+    if( fromBuffer()) {
+        return getASCIIBuffer(c);
+    }
+    else {
+        return getASCIIFile(c);
+    }
+    }
     
 ////////////////////////////////////////////////////////////////////////
 //
@@ -2707,6 +2857,11 @@ public void addReference(final SbName name,       // Reference name
 //
 ////////////////////////////////////////////////////////////////////////
 {
+    SoProto proto = this.getCurrentProto();
+    if (proto != null) { // COIN3D
+        proto.addReference(name, base);
+        return;
+    }
     // Enter in dictionary : generates a CC warning...
     curFile.refDict.enter(name.getString(), (Object) base);
 
@@ -2738,6 +2893,23 @@ public void addReference(final SbName name,       // Reference name
         }
     }
 }
+
+/*!
+  Removes a name<->SoBase mapping from our dictionary.
+
+  \sa findReference(), addReference()
+ */
+    public void removeReference(final SbName name)
+    {
+        SoProto proto = this.getCurrentProto();
+        if (proto != null) {
+            proto.removeReference(name);
+        }
+        else {
+            //this.getTopOfStack().removeReference(name);
+            curFile.refDict.remove(name.getString());
+        }
+    }
 
     public boolean readReal_old(final double[] d) {
         int         n;

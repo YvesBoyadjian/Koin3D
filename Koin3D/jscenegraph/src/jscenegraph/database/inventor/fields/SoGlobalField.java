@@ -60,10 +60,7 @@
 
 package jscenegraph.database.inventor.fields;
 
-import jscenegraph.database.inventor.SbDict;
-import jscenegraph.database.inventor.SbName;
-import jscenegraph.database.inventor.SoInput;
-import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Destroyable;
@@ -82,7 +79,9 @@ public class SoGlobalField extends SoFieldContainer {
 	
     private SoField value;     /* The field all this is for! */
     private SoFieldData         fieldData;     /* FieldData containing value */
-     
+
+    static SoBaseList allcontainers;
+
  	//
 	// Description:
 	// Setup type information. Called by SoDB::init()
@@ -92,6 +91,13 @@ public class SoGlobalField extends SoFieldContainer {
 		
 		classTypeId = SoType.createType(SoFieldContainer.getClassTypeId(),
 				    new SbName("GlobalField"));
+
+        SoGlobalField.allcontainers = new SoBaseList();
+        // don't reference count items in this list. We need the refcount to
+        // go down to 0 to detect when a global field is no longer
+        // referenced
+        SoGlobalField.allcontainers.addReferences(false);
+
 		nameDict = new SbDict(20); // Assume small number of global fields
 	}
 
@@ -428,6 +434,22 @@ public static SoGlobalField read(SoInput in)
     return result;
 }
 
+
+// Add the given global field to the global fieldcontainer list
+    public static void addGlobalFieldContainer(SoGlobalField fieldcontainer)
+    {
+        SoGlobalField.allcontainers.append(fieldcontainer);
+    }
+
+// Remove the given global field from the internal list.
+//
+// Note that this will decrease the reference count of the
+// SoGlobalField node, causing it to be destructed unless it has been
+// ref()'ed outside of this class.
+    public static void removeGlobalFieldContainer(SoGlobalField fieldcontainer)
+    {
+        SoGlobalField.allcontainers.removeItem(fieldcontainer);
+    }
 
 
 }

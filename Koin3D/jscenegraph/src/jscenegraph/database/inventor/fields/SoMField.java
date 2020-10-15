@@ -136,6 +136,7 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 
 	protected /*T[]*/U values;
 
+	private int changedIndex, numChangedIndices;
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -369,7 +370,7 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 	}
 
 	public void setValues(int start, /*T[]*/U newValues) {
-		int localNum = newValues.length();
+		int localNum = newValues != null ? newValues.length() : 0;
 		int newNum = start + localNum, i;
 
 		if (newNum > getNum())
@@ -650,5 +651,14 @@ insertSpace(int start,        // Starting index
 		  enableNotify(false); /* Avoid notifying destructed containers. */ 
 		  deleteAllValues(); 
 		super.destructor();
+	}
+
+	public void setChangedIndices() {
+    	setChangedIndices(-1,0);
+	}
+	public void setChangedIndices(final int chgidx, final int numchgind)
+	{
+		this.changedIndex = chgidx;
+		this.numChangedIndices = numchgind;
 	}
 }
