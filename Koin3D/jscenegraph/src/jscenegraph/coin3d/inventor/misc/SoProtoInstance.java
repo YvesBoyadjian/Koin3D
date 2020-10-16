@@ -121,9 +121,9 @@ public void setRootNode(SoNode root) {
   public static void initClass()
   {
     /* Make sure we only initialize once. */
-    assert(SoProtoInstance.classTypeId == SoType.badType());
+    assert(SoProtoInstance.classTypeId.operator_equal_equal(SoType.badType()));
     /* Make sure superclass gets initialized before subclass. */
-    assert(SoNode.getClassTypeId() != SoType.badType());
+    assert(SoNode.getClassTypeId().operator_not_equal(SoType.badType()));
 
     /* Set up entry in the type system. */
     SoProtoInstance.classTypeId =
