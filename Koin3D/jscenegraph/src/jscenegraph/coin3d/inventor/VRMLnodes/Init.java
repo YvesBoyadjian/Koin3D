@@ -63,7 +63,7 @@ so_vrml_init()
   SoVRMLNormal.initClass();
 //  SoVRMLNormalInterpolator::initClass();
   SoVRMLOrientationInterpolator.initClass();
-//  SoVRMLPixelTexture::initClass();
+  SoVRMLPixelTexture.initClass();
 //  SoVRMLPlaneSensor::initClass();
   SoVRMLPointLight.initClass();
   SoVRMLPointSet.initClass();

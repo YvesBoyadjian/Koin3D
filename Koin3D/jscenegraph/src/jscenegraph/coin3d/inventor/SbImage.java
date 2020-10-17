@@ -67,7 +67,18 @@ public class SbImage implements Destroyable {
 	 */
 	public SbImage() {
 	}
-	
+
+/*!
+  Constructor which sets 2D data using setValue().
+  \sa setValue()
+*/
+    public SbImage(MemoryBuffer bytes,
+                 final SbVec2s size, int bytesperpixel)
+    {
+        //PRIVATE(this) = new SbImageP;
+        this.setValue(size, bytesperpixel, bytes);
+    }
+
 /*!
   Constructor which sets 3D data using setValue().
 
