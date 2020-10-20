@@ -18,36 +18,36 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="module-library" exported="">
-      <library name="gdx.jar">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gdx.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/gdx-1.9.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="gdx-bullet.jar">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gdx-bullet.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/gdx-bullet-1.9.11.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="gdx-bullet-natives.jar">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gdx-bullet-natives.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/gdx-bullet-platform-1.9.11-natives-desktop.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
-      <library name="gdx-natives.jar">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/gdx-natives.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/gdx-platform-1.9.11-natives-desktop.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
