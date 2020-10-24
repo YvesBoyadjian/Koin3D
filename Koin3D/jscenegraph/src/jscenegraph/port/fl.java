@@ -936,6 +936,10 @@ public static void flSetHint(
 		  File fontFile = new File(fontDefault);
 		  if(!fontFile.exists()) {
 		  	fontDefault = fontPath + "/liberation/LiberationSerif-Regular.ttf";
+		  	fontFile = new File(fontDefault);
+		  	if(!fontFile.exists()) {
+				fontDefault = fontPath + "/truetype/liberation/LiberationSerif-Regular.ttf";
+			}
 		  }
 
 		  ev = System.getenv("FL_DEBUG");
