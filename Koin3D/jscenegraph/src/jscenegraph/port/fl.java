@@ -19,6 +19,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
@@ -926,11 +927,16 @@ public static void flSetHint(
 
 		  /* obtain Windows font path */
 		  String szPath = "";
-		  szPath = System.getenv().get("SystemRoot")+"/fonts";//SHGetSpecialFolderPathA(NULL, szPath, CSIDL_FONTS, 0); //TODO
+		  String systemRoot = System.getenv().get("SystemRoot");
+		  szPath = (systemRoot != null ? systemRoot : "/usr/share")+"/fonts";//SHGetSpecialFolderPathA(NULL, szPath, CSIDL_FONTS, 0); //TODO
 		  fontPath = szPath;
 
 		  /* setup fallback font */
 		  fontDefault = fontPath + "/times.ttf";
+		  File fontFile = new File(fontDefault);
+		  if(!fontFile.exists()) {
+		  	fontDefault = fontPath + "/liberation/LiberationSerif-Regular.ttf";
+		  }
 
 		  ev = System.getenv("FL_DEBUG");
 		  fl_debug = (ev!=null && !ev.isEmpty());
