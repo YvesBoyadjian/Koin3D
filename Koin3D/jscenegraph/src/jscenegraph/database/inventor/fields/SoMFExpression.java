@@ -35,6 +35,14 @@ public class SoMFExpression extends SoMField<Expression,ObjectArray<Expression>>
 	@Override
 	protected ObjectArray<Expression> arrayConstructor(int length) {
 		Expression[] values = new Expression[length];
+		for (int i=0;i<length;i++) {
+			values[i] = new Expression() {
+				@Override
+				public void run(float[] abcdefgh, SbVec3f[] ABCDEFGH, float[][] oaobocod, SbVec3f[] oAoBoCoD) {
+					// does nothing by default
+				}
+			};
+		}
 		return new ObjectArray<Expression>(0,values);
 	}
 

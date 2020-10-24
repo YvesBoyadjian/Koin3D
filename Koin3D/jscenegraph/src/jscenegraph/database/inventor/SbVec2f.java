@@ -142,6 +142,10 @@ public class SbVec2f implements Mutable {
 		indice = vpCoords.getStart()+2*i;
 	}
 
+	public void setIndice(int indice) {
+		this.indice = indice;
+	}
+
 	// Sets the vector components.
 	public SbVec2f setValue(float[] v) {
 	     s(0, v[0]);

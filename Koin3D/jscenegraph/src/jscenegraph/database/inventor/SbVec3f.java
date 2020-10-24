@@ -180,6 +180,10 @@ public class SbVec3f implements Cloneable, Mutable {
 		s(2,0);
 	}
 
+	public void setIndice(int indice) {
+		this.indice = indice;
+	}
+
 	public static int sizeof() {
 		return 4*3;
 	}

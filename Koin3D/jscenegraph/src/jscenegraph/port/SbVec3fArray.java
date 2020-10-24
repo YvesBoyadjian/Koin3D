@@ -21,6 +21,8 @@ public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, 
 	FloatMemoryBuffer valuesArray;
 
 	int delta;
+
+	SbVec3f dummy;
 	
 	//private FloatBuffer[] floatBuffer = new FloatBuffer[1];
 	
@@ -65,7 +67,13 @@ public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, 
 	}
 
 	public SbVec3f get(int index) {
-		return new SbVec3f(valuesArray, (index+delta)*3);
+		if( null == dummy ) {
+			dummy = new SbVec3f(valuesArray, (index+delta)*3);
+		}
+		else {
+			dummy.setIndice((index+delta)*3);
+		}
+		return dummy;
 	}
 	
 	public float[] get3Floats(int index, float[] values) {
@@ -193,5 +201,17 @@ public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, 
 		}
 		Destroyable.delete(valuesArray);
 		valuesArray = null;
+		dummy = null;
+	}
+
+	/**
+	 * @param num
+	 * @param source
+	 */
+	public void copy(int num, SbVec3fArray source) {
+//		for (int i = 0; i < num; i++) {
+//			setO(i, source.getO(i));
+//		}
+		FloatMemoryBuffer.arraycopy(source.valuesArray,source.delta*3,valuesArray,delta*3,num*3);
 	}
 }

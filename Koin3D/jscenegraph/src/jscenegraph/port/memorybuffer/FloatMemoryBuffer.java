@@ -93,6 +93,18 @@ public class FloatMemoryBuffer extends MemoryBuffer {
 		return memoryBuffer;
 	}
 
+	public static final void arraycopy(
+			FloatMemoryBuffer src,
+			int srcPos,
+			FloatMemoryBuffer dest,
+			int destPos,
+			int length
+	) {
+		for(int i=0; i<length; i++) {
+			dest.setFloat(i+destPos,src.getFloat(i+srcPos));
+		}
+	}
+
 	public void setFloats(float[] srcFloats, int numFloats) {
 
 		if( byteBuffer != null ) {

@@ -35,9 +35,9 @@ public class IntArray extends Indexable<Integer> implements IntBufferAble {
 
 	public IntArray(int length) {
 		values = new int[length];
-		for(int i=0;i<length;i++) {
-			values[i] = 0;
-		}
+//		for(int i=0;i<length;i++) {
+//			values[i] = 0;
+//		}
 	}
 
 	public IntArray(int start2, IntArray values2) {
@@ -93,5 +93,12 @@ public class IntArray extends Indexable<Integer> implements IntBufferAble {
 		intBuffer.flip();
 		}
 		return intBuffer;		
+	}
+
+	public void copy(int num, IntArray source) {
+//		for (int i = 0; i < num; i++) {
+//			set(i, source.get(i));
+//		}
+		System.arraycopy(source.values,source.start,values,start,num);
 	}
 }

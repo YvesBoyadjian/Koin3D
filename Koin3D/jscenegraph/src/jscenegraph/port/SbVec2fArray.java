@@ -20,6 +20,8 @@ public class SbVec2fArray extends Indexable<SbVec2f> implements FloatBufferAble,
 	private FloatMemoryBuffer valuesArray;
 	
 	private int delta;
+
+	SbVec2f dummy;
 	
 	//private FloatBuffer[] floatBuffer = new FloatBuffer[1];
 	
@@ -34,7 +36,13 @@ public class SbVec2fArray extends Indexable<SbVec2f> implements FloatBufferAble,
 	}
 
 	public SbVec2f get(int index) {
-		return new SbVec2f(valuesArray, (index + delta)*2);
+		if(null == dummy) {
+			dummy = new SbVec2f(valuesArray, (index + delta) * 2);
+		}
+		else {
+			dummy.setIndice((index + delta) * 2);
+		}
+		return dummy;
 	}
 
 	public SbVec2fArray plus(int delta) {

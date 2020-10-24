@@ -323,9 +323,9 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 		if (values == null) {
 			if (newNum > 0) {
 				values = arrayConstructor(newNum);
-				for (int i = 0; i < newNum; i++) {
-					values.setO(i, constructor());
-				}
+//				for (int i = 0; i < newNum; i++) { done in arrayConstructor
+//					values.setO(i, constructor());
+//				}
 			    this.userDataIsUsed = false;
 			}
 		} else {
@@ -334,12 +334,11 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 
 			if (newNum > 0) {				
 				values = arrayConstructor(newNum);
-				for (i = 0; i < newNum; i++) {
-					values.setO(i, constructor());
-				}
+//				for (i = 0; i < newNum; i++) { done in arrayConstructor
+//					values.setO(i, constructor());
+//				}
 			    this.userDataIsUsed = false;
-				for (i = 0; i < num && i < newNum; i++)
-					values.setO(i, oldValues.getO(i));
+			    values.copy(Math.min(num,newNum),oldValues);
 			} else
 				values = null;
 			if(!this.userDataIsUsed) {

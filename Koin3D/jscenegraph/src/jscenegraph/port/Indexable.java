@@ -35,6 +35,17 @@ public abstract class Indexable<T extends Object> {
 	public abstract void setO(int i, T object);
 	
 	public abstract Indexable<T> plus( int delta );
+
+	/**
+	 * Default implementation
+	 * @param num
+	 * @param source
+	 */
+	public void copy(int num, Indexable<T> source) {
+		for (int i = 0; i < num; i++) {
+			setO(i, source.getO(i));
+		}
+	}
 	
 	protected abstract int delta();
 	
