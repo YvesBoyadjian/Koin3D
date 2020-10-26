@@ -50,8 +50,9 @@ public class QGLWidget extends AWTGLCanvas {
         return false;
     }
 
-//    public void paint(Graphics g) {
-//    }
+    public void paint(Graphics g) {
+        render();
+    }
 
     public GLData format() {
         return effective;
