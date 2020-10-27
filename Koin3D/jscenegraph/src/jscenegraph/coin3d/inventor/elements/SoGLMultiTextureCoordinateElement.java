@@ -246,10 +246,10 @@ send( int unit, int index)
     break;
   case TEXCOORD2:
     assert(index < ud.numCoords);
-    SoGL.cc_glglue_glMultiTexCoord2fv(glue, glunit, ud.coords2.get(index).getValueRead());
+    SoGL.cc_glglue_glMultiTexCoord2fv(glue, glunit, ud.coords2.getFast(index).getValueRead());
     break;
   case TEXCOORD3:
-    SoGL.cc_glglue_glMultiTexCoord3fv(glue, glunit, ud.coords3.get(index).getValueRead());
+    SoGL.cc_glglue_glMultiTexCoord3fv(glue, glunit, ud.coords3.getFast(index).getValueRead());
     break;
   case TEXCOORD4:
     SoGL.cc_glglue_glMultiTexCoord4fv(glue, glunit, ud.coords4.get(index).getValueRead());
@@ -283,10 +283,10 @@ send( int unit,
 
     break;
   case TEXCOORD2:
-    SoGL.cc_glglue_glMultiTexCoord2fv(glue, glunit, ud.coords2.get(index).getValueRead());
+    SoGL.cc_glglue_glMultiTexCoord2fv(glue, glunit, ud.coords2.getFast(index).getValueRead());
     break;
   case TEXCOORD3:
-    SoGL.cc_glglue_glMultiTexCoord3fv(glue, glunit, ud.coords3.get(index).getValueRead());
+    SoGL.cc_glglue_glMultiTexCoord3fv(glue, glunit, ud.coords3.getFast(index).getValueRead());
     break;
   case TEXCOORD4:
     SoGL.cc_glglue_glMultiTexCoord4fv(glue, glunit, ud.coords4.get(index).getValueRead());

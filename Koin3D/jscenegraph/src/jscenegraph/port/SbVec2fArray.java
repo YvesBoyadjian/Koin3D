@@ -36,6 +36,10 @@ public class SbVec2fArray extends Indexable<SbVec2f> implements FloatBufferAble,
 	}
 
 	public SbVec2f get(int index) {
+		return new SbVec2f(valuesArray, (index + delta) * 2);
+	}
+
+	public SbVec2f getFast(int index) {
 		if(null == dummy) {
 			dummy = new SbVec2f(valuesArray, (index + delta) * 2);
 		}

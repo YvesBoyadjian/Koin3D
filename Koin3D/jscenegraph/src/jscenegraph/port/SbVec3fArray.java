@@ -67,6 +67,10 @@ public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, 
 	}
 
 	public SbVec3f get(int index) {
+		return new SbVec3f(valuesArray, (index+delta)*3);
+	}
+
+	public SbVec3f getFast(int index) {
 		if( null == dummy ) {
 			dummy = new SbVec3f(valuesArray, (index+delta)*3);
 		}
@@ -75,7 +79,7 @@ public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, 
 		}
 		return dummy;
 	}
-	
+
 	public float[] get3Floats(int index, float[] values) {
 		values[0] = valuesArray.getFloat((index+delta)*3);
 		values[1] = valuesArray.getFloat((index+delta)*3+1);

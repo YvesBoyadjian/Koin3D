@@ -433,15 +433,15 @@ public class SoMultiTextureCoordinateElement extends SoElement {
 	    SoMultiTextureCoordinateElement elem =
 	      (SoMultiTextureCoordinateElement)(this);
 	    if (ud.coordsDimension == 2) {
-	      elem.convert4.setValue(ud.coords2.get(index).getValueRead()[0],
-	                              ud.coords2.get(index).getValueRead()[1],
+	      elem.convert4.setValue(ud.coords2.getFast(index).getValueRead()[0],
+	                              ud.coords2.getFast(index).getValueRead()[1],
 	                              0.0f,
 	                              1.0f);
 	    }
 	    else { // this->coordsDimension==3
-	      elem.convert4.setValue(ud.coords3.get(index).getValueRead()[0],
-	                              ud.coords3.get(index).getValueRead()[1],
-	                              ud.coords3.get(index).getValueRead()[2],
+	      elem.convert4.setValue(ud.coords3.getFast(index).getValueRead()[0],
+	                              ud.coords3.getFast(index).getValueRead()[1],
+	                              ud.coords3.getFast(index).getValueRead()[2],
 	                              1.0f);
 	    }
 	    return this.convert4;

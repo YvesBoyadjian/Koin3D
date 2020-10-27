@@ -604,7 +604,7 @@ public void GLRender(SoGLRenderAction action)
 
 	  if (!sendNormals) nbind = Binding.OVERALL;
 	  else if (nbind == Binding.OVERALL) {
-	    if (normals[0]!=null) gl2.glNormal3fv(normals[0].get(0).getValueRead());
+	    if (normals[0]!=null) gl2.glNormal3fv(normals[0].getFast(0).getValueRead());
 	    else gl2.glNormal3f(0.0f, 0.0f, 1.0f);
 	  }
 	  else if (normalCacheUsed[0] && nbind == Binding.PER_VERTEX) {

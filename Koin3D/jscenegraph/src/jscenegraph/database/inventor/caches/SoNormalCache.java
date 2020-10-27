@@ -147,11 +147,11 @@ public float[] getNormalsFloat() {
 	float[] normalArray = new float[numNormals*3];
 	int index=0;
 	for(int i=0;i<numNormals;i++) {
-		normalArray[index] = normals.get(i).getValueRead()[0];
+		normalArray[index] = normals.getFast(i).getValueRead()[0];
 		index++;
-		normalArray[index] = normals.get(i).getValueRead()[1];
+		normalArray[index] = normals.getFast(i).getValueRead()[1];
 		index++;
-		normalArray[index] = normals.get(i).getValueRead()[2];
+		normalArray[index] = normals.getFast(i).getValueRead()[2];
 		index++;
 	}
 	return normalArray;
@@ -479,9 +479,9 @@ generatePerVertex( SbVec3fArray coords,
     pimpl.numNormals = pimpl.normalArray.getLength();
   }
 //#if NORMALCACHE_DEBUG && COIN_DEBUG
-  SoDebugError.postInfo("SoNormalCache::generatePerVertex",
-                         "generated normals per vertex: "+pimpl.normalData_normals+" "+pimpl.numNormals+" "+pimpl.indices.getLength()+"\n"
-                         );
+//  SoDebugError.postInfo("SoNormalCache::generatePerVertex",
+//                         "generated normals per vertex: "+pimpl.normalData_normals+" "+pimpl.numNormals+" "+pimpl.indices.getLength()+"\n"
+//                         );
 //#endif
   //delete [] vertexFaceArray; java port
   //delete [] vertexNormalArray; java port
@@ -635,8 +635,8 @@ generatePerFace(SbVec3fArray coords,
   }
 
 //#if NORMALCACHE_DEBUG && COIN_DEBUG // debug
-  SoDebugError.postInfo("SoNormalCache::generatePerFace",
-                         "generated normals per face: "+pimpl.normalData_normals+" "+pimpl.numNormals);
+//  SoDebugError.postInfo("SoNormalCache::generatePerFace",
+//                         "generated normals per face: "+pimpl.normalData_normals+" "+pimpl.numNormals);
 //#endif // debug
 }
 

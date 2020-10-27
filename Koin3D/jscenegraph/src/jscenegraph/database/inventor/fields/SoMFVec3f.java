@@ -349,7 +349,7 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
-		DoubleConsumer[] ref = getValuesSbVec3fArray().get(index).getRef();
+		DoubleConsumer[] ref = getValuesSbVec3fArray().getFast(index).getRef();
 		return (in.read(ref[0]) && in.read(ref[1]) && in.read(ref[2]));
 	}
 

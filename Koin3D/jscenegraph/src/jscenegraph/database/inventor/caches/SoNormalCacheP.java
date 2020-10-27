@@ -5,6 +5,7 @@ package jscenegraph.database.inventor.caches;
 
 import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.coin3d.inventor.lists.SbListInt;
+import jscenegraph.coin3d.inventor.lists.SbListOfMutableRefs;
 import jscenegraph.database.inventor.SbIntList;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.misc.SoNormalGenerator;
@@ -23,5 +24,5 @@ public class SoNormalCacheP {
 		    public SoNormalGenerator normalData_generator; // ptr
 		  //} normalData;
 		  public final SbListInt indices = new SbListInt();
-		  public final SbList <SbVec3f> normalArray = new SbList<>();
+		  public final SbListOfMutableRefs<SbVec3f> normalArray = new SbListOfMutableRefs<>(()->new SbVec3f());
 }

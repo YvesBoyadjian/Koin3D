@@ -200,7 +200,7 @@ public void notify(SoNotList list)
       continue;
     }
 
-    if (idx >= 0) box.extendBy(coords.get(idx));
+    if (idx >= 0) box.extendBy(coords.getFast(idx));
   }
   if (!box.isEmpty()) center.copyFrom(box.getCenter());
 	}

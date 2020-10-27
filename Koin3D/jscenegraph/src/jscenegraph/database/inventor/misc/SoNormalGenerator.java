@@ -322,7 +322,7 @@ generate(float creaseAngle)
 
     // Compute the bounding box of all vertices
     for (i = 0; i < numPoints; i++)
-        box.extendBy(points.get(i));
+        box.extendBy(points.getFast(i));
 
     // We will use a hash function to determine which vertices are
     // coincident within some tolerance. The tolerance is a function
@@ -536,7 +536,7 @@ setNormal(int index, final SbVec3f newNormal)
 
         final SbVec3fArray newVertNormals = SbVec3fArray.allocate(newNumVertNormals);//new SbVec3f [newNumVertNormals]; for(int i=0; i<newNumVertNormals;i++) {newVertNormals[i] = new SbVec3f();}
         //memcpy(newVertNormals, vertNormals, (int) (numVertNormals * sizeof(SbVec3f)));
-        for(int i=0; i<numVertNormals;i++) {newVertNormals.get(i).copyFrom(vertNormals.get(i));}
+        for(int i=0; i<numVertNormals;i++) {newVertNormals.getFast(i).copyFrom(vertNormals.getFast(i));}
         if (!Objects.equals(vertNormals, faceNormals)) {
             Destroyable.delete( vertNormals.getValuesArray() );
         }
@@ -545,7 +545,7 @@ setNormal(int index, final SbVec3f newNormal)
     }
 
     // Store new normal
-    vertNormals.get(index).copyFrom(newNormal);
+    vertNormals.getFast(index).copyFrom(newNormal);
 }
 
 
