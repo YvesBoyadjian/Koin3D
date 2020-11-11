@@ -16,6 +16,7 @@ public class OpenGLMotionState extends btDefaultMotionState {
 	public OpenGLMotionState(btTransform transform) {
 		super();
 		setStartWorldTrans(transform);
+		setGraphicsWorldTrans(transform);
 	}
 
 	void GetWorldTransform(/*btScalar*/float[] transform) {

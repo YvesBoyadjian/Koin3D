@@ -24,7 +24,9 @@
       <module fileurl="file://$PROJECT_DIR$/lwjgl-vulkan/lwjgl-vulkan.iml" filepath="$PROJECT_DIR$/lwjgl-vulkan/lwjgl-vulkan.iml" />
       <module fileurl="file://$PROJECT_DIR$/lwjgl3-awt/lwjgl3-awt.iml" filepath="$PROJECT_DIR$/lwjgl3-awt/lwjgl3-awt.iml" />
       <module fileurl="file://$PROJECT_DIR$/lwjgl3-swt/lwjgl3-swt.iml" filepath="$PROJECT_DIR$/lwjgl3-swt/lwjgl3-swt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ode4j/ode4j.iml" filepath="$PROJECT_DIR$/ode4j/ode4j.iml" />
       <module fileurl="file://$PROJECT_DIR$/org.lwjglx/org.lwjglx.iml" filepath="$PROJECT_DIR$/org.lwjglx/org.lwjglx.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sl4j/sl4j.iml" filepath="$PROJECT_DIR$/sl4j/sl4j.iml" />
     </modules>
   </component>
 </project>

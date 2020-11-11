@@ -14,9 +14,7 @@
     <orderEntry type="module" module-name="lwjgl-utils" />
     <orderEntry type="module" module-name="lwjgl-glfw" />
     <orderEntry type="module" module-name="geotools" />
-    <orderEntry type="module" module-name="gdx" />
     <orderEntry type="module" module-name="loader" />
-    <orderEntry type="module" module-name="jsceneviewer" />
     <orderEntry type="module" module-name="jscenegraph" />
     <orderEntry type="module" module-name="jsceneviewer-glfw" />
     <orderEntry type="module" module-name="lwjgl-utils" />
@@ -24,5 +22,6 @@
     <orderEntry type="module" module-name="geotools" />
     <orderEntry type="module" module-name="gdx" />
     <orderEntry type="module" module-name="lwjgl" />
+    <orderEntry type="module" module-name="ode4j" />
   </component>
 </module>

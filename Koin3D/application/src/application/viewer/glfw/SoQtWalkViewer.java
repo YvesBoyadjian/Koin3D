@@ -109,6 +109,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		}
 		
 	};
+
+	private PositionProvider positionProvider;
+
+	private ForceProvider forceProvider;
 	
 	private boolean fly = false;
 	
@@ -376,11 +380,21 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  new_position.setZ(EYES_HEIGHT + heightProvider.getZ(new_position.getX(), new_position.getY(), new_position.getZ() - EYES_HEIGHT));
 		  
 		  boolean wasNotif = camera.enableNotify(false);
-		  
-		  camera.position.setValue( new_position );
+
+		  if( null == positionProvider ) {
+			  camera.position.setValue(new_position);
+		  }
+		  else {
+		  	camera.position.setValue(positionProvider.getPosition());
+		  }
+
 		  getCameraController().changeCameraValues(camera);
 		  
 		  camera.enableNotify(wasNotif);
+
+		  if ( null != forceProvider ) {
+		  	forceProvider.apply(diff_position.operator_div((float)dt()));
+		  }
 
 		  lastTimeSec = currentTimeSec;
 
@@ -489,6 +503,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  updateLocation( new SbVec3f(SPEED* (float)deltaT, 0.0f, 0.0f));
 
 		  }
+		  updateLocation(new SbVec3f(0,0,0));
 		  
 		  oneShotIdleListeners.forEach((item)->item.accept(this));
 		  
@@ -587,8 +602,16 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     public void setHeightProvider(HeightProvider hp) {
     	this.heightProvider = hp;
     }
-    
-    // to be redefined
+
+    public void setPositionProvider(PositionProvider pp) {
+    	this.positionProvider = pp;
+	}
+
+	public void setForceProvider(ForceProvider pp) {
+		this.forceProvider = pp;
+	}
+
+	// to be redefined
     public void onClose() {
     	
     }

@@ -40,18 +40,18 @@ import javax.swing.JLabel;
 import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 
+import application.viewer.glfw.ForceProvider;
+import application.viewer.glfw.PositionProvider;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
-import com.badlogic.gdx.physics.bullet.collision.btBroadphaseInterface;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionConfiguration;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionDispatcher;
-import com.badlogic.gdx.physics.bullet.collision.btDbvtBroadphase;
-import com.badlogic.gdx.physics.bullet.collision.btDefaultCollisionConfiguration;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.badlogic.gdx.physics.bullet.linearmath.btTransform;
 import com.badlogic.gdx.physics.bullet.linearmath.btVector3;
 import com.badlogic.gdx.utils.GdxNativesLoader;
@@ -100,6 +100,13 @@ import jsceneviewerglfw.Display;
 import jsceneviewerglfw.GLData;
 import jsceneviewerglfw.SWT;
 import loader.TerrainLoader;
+import org.ode4j.math.DQuaternion;
+import org.ode4j.math.DVector3;
+import org.ode4j.math.DVector3C;
+import org.ode4j.ode.*;
+import org.ode4j.ode.internal.Rotation;
+
+import static com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION;
 
 /**
  * @author Yves Boyadjian
@@ -193,7 +200,7 @@ public class MainGLFW {
 		
 		int overlap = 13;		
 		//SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap,Z_TRANSLATION);
-		SceneGraph sg = new SceneGraphIndexedFaceSetShader(rw,re,overlap,Z_TRANSLATION);
+		SceneGraphIndexedFaceSetShader sg = new SceneGraphIndexedFaceSetShader(rw,re,overlap,Z_TRANSLATION);
 		//SceneGraph sg = new ShadowTestSceneGraph();
 		rw = null; // for garbage collection
 		re = null; // for garbage collection
@@ -397,51 +404,295 @@ public class MainGLFW {
 	    System.out.println("Depth Buffer : "+depthBits[0]);
 	    
 	    window.setVisible(false);
+
+	    // _____________________________________________________ Physics with bullet physics
 	    
-	    GdxNativesLoader.load();
-	    new SharedLibraryLoader().load("gdx-bullet");
-	    
-	    btBroadphaseInterface m_pBroadphase;
-	    btCollisionConfiguration m_pCollisionConfiguration;
-	    btCollisionDispatcher m_pDispatcher;
-	    btConstraintSolver m_pSolver;
-	    btDynamicsWorld m_pWorld;
-	    
-	    //Meanwhile, the code to initialize Bullet can be found in BasicDemo and looks as shown in the following code snippet:
-	    
-	    m_pCollisionConfiguration = new btDefaultCollisionConfiguration();
-	    m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
-	    m_pBroadphase = new btDbvtBroadphase();
-	    m_pSolver = new btSequentialImpulseConstraintSolver();
-	    m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
-	    
-	    // create a box shape of size (1,1,1)
-	    btBoxShape pBoxShape = new btBoxShape(new Vector3(1.0f, 1.0f, 1.0f));
-	    
-	    // give our box an initial position of (0,0,0)
-	    btTransform transform = new btTransform();
-	    transform.setIdentity();
-	    transform.setOrigin(new Vector3(0.0f, 0.0f, 0.0f));
-	    
-	    // create a motion state
-	    OpenGLMotionState m_pMotionState = new OpenGLMotionState(transform);
-	    
-	    // create the rigid body construction info object, giving it a 
-	    // mass of 1, the motion state, and the shape
-	    btRigidBody.btRigidBodyConstructionInfo rbInfo = new btRigidBody.btRigidBodyConstructionInfo(1.0f, m_pMotionState, pBoxShape);
-	    btRigidBody pRigidBody = new btRigidBody(rbInfo);
-	    
-	    // inform our world that we just created a new rigid body for 
-	    // it to manage
-	    m_pWorld.addRigidBody(pRigidBody);
-	    
-		viewer.addIdleListener((viewer1)->{
-			m_pWorld.stepSimulation((float)viewer1.dt());
-		});			    
+//	    GdxNativesLoader.load();
+//	    new SharedLibraryLoader().load("gdx-bullet");
+//
+//		Bullet.init();
+//
+//	    btBroadphaseInterface m_pBroadphase;
+//	    btCollisionConfiguration m_pCollisionConfiguration;
+//	    btCollisionDispatcher m_pDispatcher;
+//	    btConstraintSolver m_pSolver;
+//	    btDynamicsWorld m_pWorld;
+//
+//	    //Meanwhile, the code to initialize Bullet can be found in BasicDemo and looks as shown in the following code snippet:
+//
+//		btDefaultCollisionConstructionInfo info = new btDefaultCollisionConstructionInfo();
+//		//info.setUseEpaPenetrationAlgorithm(99);
+//
+//	    m_pCollisionConfiguration = new btDefaultCollisionConfiguration(info);
+//	    m_pDispatcher = new btCollisionDispatcher(m_pCollisionConfiguration);
+//
+//	    m_pBroadphase = new btDbvtBroadphase();
+//	    m_pSolver = new btSequentialImpulseConstraintSolver();
+//	    m_pWorld = new btDiscreteDynamicsWorld(m_pDispatcher, m_pBroadphase, m_pSolver, m_pCollisionConfiguration);
+//
+//		m_pWorld.setGravity(new Vector3(0,0,-9.81f));
+//
+//	    // create a box shape of size (1,1,1)
+//		btSphereShape /*btBoxShape*/ pBoxShape = new btSphereShape/*btBoxShape*/(0.4f);//,1.75f-2*0.4f/*new Vector3(0.5f/2.0f, 0.5f/2.0f, 1.75f/2.0f)*/);
+//
+//		SbVec3f cameraPositionValue = camera.position.getValue();
+//
+//	    // give our box an initial position of (0,0,0)
+//	    btTransform transform = new btTransform();
+//	    transform.setIdentity();
+//	    transform.setOrigin(new Vector3(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() + 0.4f - 1.75f + 0.13f));
+//
+//	    // create a motion state
+//	    OpenGLMotionState m_pMotionState = new OpenGLMotionState(transform);
+//
+//	    // create the rigid body construction info object, giving it a
+//	    // mass of 1, the motion state, and the shape
+//	    btRigidBody.btRigidBodyConstructionInfo rbInfo = new btRigidBody.btRigidBodyConstructionInfo(82.0f, m_pMotionState, pBoxShape);
+//	    btRigidBody pRigidBody = new btRigidBody(rbInfo);
+//
+//		pRigidBody.setActivationState(DISABLE_DEACTIVATION);
+//
+//		//pRigidBody.setCollisionFlags(pRigidBody.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_CHARACTER_OBJECT);
+//
+//	    // inform our world that we just created a new rigid body for
+//	    // it to manage
+//	    m_pWorld.addRigidBody(pRigidBody);
+//
+//	btBoxShape groundShape = new btBoxShape(new Vector3(99999,99999,1));
+//
+//		// give our box an initial position of (0,0,0)
+//		btTransform groundTransform = new btTransform();
+//		groundTransform.setIdentity();
+//		groundTransform.setOrigin(new Vector3(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ()-1 - 1.75f + 0.13f/*-0.4f*/-0.01f));
+//
+//	    btRigidBody.btRigidBodyConstructionInfo groundInfo = new btRigidBody.btRigidBodyConstructionInfo(0, new OpenGLMotionState(groundTransform), groundShape);
+//	    btRigidBody groundBody = new btRigidBody(groundInfo);
+//
+//		//groundBody.setCollisionFlags(pRigidBody.getCollisionFlags() | btCollisionObject.CollisionFlags.CF_STATIC_OBJECT);
+//
+//	    m_pWorld.addRigidBody(groundBody);
+//
+//	    //m_pWorld.getSolverInfo().setSplitImpulse(1);
+//		//m_pWorld.getSolverInfo().setSplitImpulsePenetrationThreshold(0);
+//
+//		//btHeightfieldTerrainShape terrainShape = new btHeightfieldTerrainShape();
+//
+//		viewer.addIdleListener((viewer1)->{
+//			m_pWorld.stepSimulation((float)viewer1.dt());//,10,(float)viewer1.dt()/10.0f);
+//		});
+//
+//		viewer.setPositionProvider(new PositionProvider() {
+//			@Override
+//			public SbVec3f getPosition() {
+//				Matrix4 worldTrans = new Matrix4();
+//				m_pMotionState.getWorldTransform(worldTrans);
+//				Vector3 position = new Vector3();
+//				worldTrans.getTranslation(position);
+//				return new SbVec3f(position.x,position.y,position.z - 0.4f + 1.75f - 0.13f );
+//			}
+//		});
+//
+//		viewer.setForceProvider(new ForceProvider() {
+//
+//			@Override
+//			public void apply(SbVec3f force) {
+//				//pRigidBody.clearForces();
+//				//pRigidBody.clearForces();
+//				pRigidBody.applyCentralImpulse(new Vector3(force.getX(),force.getY(),force.getZ()));
+//			}
+//		});
 
 	    //Dickinson, Chris. Learning Game Physics with Bullet Physics and OpenGL (Kindle Locations 801-807). Packt Publishing. Kindle Edition. 
-	    
-	    boolean success = viewer.setFocus();
+
+		// _____________________________________________________ Physics with bullet physics (End)
+
+		// _____________________________________________________ Physics with ODE4j
+
+		OdeHelper.initODE2(0);
+		DWorld world = OdeHelper.createWorld();
+		world.setAutoDisableFlag(false);
+		world.setERP(0.2);
+		world.setCFM(1e-5);
+		world.setContactMaxCorrectingVel(0.5);
+		world.setContactSurfaceLayer(0.01);
+		DSpace space = OdeHelper.createHashSpace();
+		DJointGroup contactGroup = OdeHelper.createJointGroup();
+		SbVec3f cameraPositionValue = camera.position.getValue();
+		DGeom water = OdeHelper.createPlane (space,0,0,1,- Z_TRANSLATION + 1000 - 150);
+
+		DHeightfieldData heightFieldData = OdeHelper.createHeightfieldData();
+
+		int nbi = sg.getNbI();
+		int nbj = sg.getNbJ();
+		float[] pHeightData = new float[nbi*nbj];
+		int index = 0;
+		for( int i=0; i<nbi; i++) {
+			for( int j=0; j<nbj; j++) {
+				index = i+nbi*j;
+				pHeightData[index] = sg.getZ(i/*106*/,/*4927*/j) - Z_TRANSLATION;
+				//pHeightData[index] = (float) (cameraPositionValue.getZ() - 1.75f + 0.13f - 0.01f);
+			}
+		}
+		double heightFieldWidth = sg.getWidth();
+		double heightFieldDepth = sg.getHeight();
+		int widthSamples = nbi;
+		int depthSamples = nbj;
+		double scale = 1;
+		double offset = 0;
+		double thickness = 10;
+		heightFieldData.build(pHeightData,false,heightFieldWidth,heightFieldDepth,widthSamples,depthSamples,scale,offset,thickness,false);
+		DHeightfield heightField = OdeHelper.createHeightfield(space,heightFieldData,true);
+		DQuaternion q = new DQuaternion();
+		Rotation.dQFromAxisAndAngle(q,1,0,0,Math.PI/2);
+		heightField.setQuaternion(q);
+		heightField.setPosition(- SCENE_POSITION.getX() + heightFieldWidth/2,- SCENE_POSITION.getY() + sg.getExtraDY() + heightFieldDepth/2,0);
+
+		world.setGravity(0,0,-9.81);
+		DBody body = OdeHelper.createBody(world);
+		body.setPosition(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - 1.75f/2 + 0.13f);
+		DMass m = OdeHelper.createMass();
+		m.setBox(1000.0f,0.25,0.25,1.312);
+		body.setMass(m);
+		body.setMaxAngularSpeed(0);
+
+		DGeom box = OdeHelper.createCapsule(space,0.4,1.75 - 2*0.4);
+		box.setBody(body);
+
+		DRay ray = OdeHelper.createRay(space,10000);
+		DVector3C direction = ray.getDirection();
+		//DBody rayBody = OdeHelper.createBody(world);
+		ray.setBody(body);
+		//ray.set(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - 1.75f/2 + 0.13f,0,0,-1);
+
+		DGeom.DNearCallback callback = new DGeom.DNearCallback() {
+			@Override
+			public void call(Object data, DGeom geom1, DGeom geom2) {
+				// Get the rigid bodies associated with the geometries
+				DBody body1 = geom1.getBody();// dGeomGetBody(geom1);
+				DBody body2 = geom2.getBody();// dGeomGetBody(geom2);
+
+				// Maximum number of contacts to create between bodies (see ODE documentation)
+  int MAX_NUM_CONTACTS = 8;
+				//dContact contacts[MAX_NUM_CONTACTS];
+				DContactBuffer contacts = new DContactBuffer(MAX_NUM_CONTACTS);
+
+				// Add collision joints
+				int numc = OdeHelper.collide(geom1, geom2, MAX_NUM_CONTACTS, contacts.getGeomBuffer());
+
+				if ((geom1 instanceof DRay || geom2 instanceof DRay)) {
+
+					double force = 0;
+					if( numc != 0) {
+						DContact contact = contacts.get(0);
+						DContactGeom contactGeom = contact.getContactGeom();
+						double depth = contactGeom.depth;
+
+						force = 50*depth;
+						if(geom1 instanceof DRay) {
+							double mass = body1.getMass().getMass();
+							body1.addForce(0,0,force*mass - 10*body1.getLinearVel().get2()*mass);
+							//if (depth < 0.2) {
+								DVector3 lvDir = body1.getLinearVel().clone();
+								lvDir.normalize();
+								lvDir.scale(-mass*3);
+								body1.addForce(lvDir);
+								DVector3 lv = body1.getLinearVel().clone();
+								lv.scale(-mass*0.5);
+								body1.addForce(lv);
+							//}
+						}
+						else {
+							double mass = body2.getMass().getMass();
+							body2.addForce(0,0,force*mass - 10*body2.getLinearVel().get2()*mass);
+							//if (depth < 0.2) {
+								DVector3 lvDir = body2.getLinearVel().clone();
+								lvDir.normalize();
+								lvDir.scale(-mass*3);
+								body2.addForce(lvDir);
+								DVector3 lv = body2.getLinearVel().clone();
+								lv.scale(-mass*0.5);
+								body2.addForce(lv);
+							//}
+						}
+					}
+					return;
+				}
+
+				for (int i = 0; i < numc; ++i) {
+					DContact contact = contacts.get(i);
+					contact.surface.mode = OdeConstants.dContactSoftERP | OdeConstants.dContactSoftCFM | OdeConstants.dContactApprox1 |
+							OdeConstants.dContactSlip1 | OdeConstants.dContactSlip2;
+
+					//contact.surface.bounce = 0.1;
+					contact.surface.mu = ((double[])data)[0];//0.8;//50.0;
+					contact.surface.soft_erp = 0.96;
+					contact.surface.soft_cfm = 1e-5;
+					contact.surface.rho = 0;
+					contact.surface.rho2 = 0;
+
+					// struct dSurfaceParameters {
+					//      int mode;
+					//      dReal mu;
+					//      dReal mu2;
+					//      dReal rho;
+					//      dReal rho2;
+					//      dReal rhoN;
+					//      dReal bounce;
+					//      dReal bounce_vel;
+					//      dReal soft_erp;
+					//      dReal soft_cfm;
+					//      dReal motion1, motion2, motionN;
+					//      dReal slip1, slip2;
+					// };
+
+//					DContactJoint contactJoint = OdeHelper.createContactJoint(/*collision_data->world*/world,
+//							/*collision_data->contact_group*/contactGroup, contacts.get(i));
+//
+//					contactJoint.attach(body1, body2);
+				}
+			}
+		};
+
+		final double[] data = new double[1]; data[0] = 0.8;
+
+		int nb_step = 20;
+
+		viewer.addIdleListener((viewer1)->{
+			double dt = Math.min(1,viewer1.dt());
+			for( int i=0;i<nb_step;i++) {
+				space.collide(data, callback);
+				world.step(dt/nb_step);
+				contactGroup.empty();
+			}
+		});
+
+		viewer.setPositionProvider(new PositionProvider() {
+			@Override
+			public SbVec3f getPosition() {
+				DVector3C position = body.getPosition();
+
+				return new SbVec3f((float)position.get0(),(float)position.get1(),(float)position.get2() - 0.4f + 1.75f - 0.13f );
+			}
+		});
+
+		viewer.setForceProvider(new ForceProvider() {
+
+			@Override
+			public void apply(SbVec3f force) {
+				if( force.length() == 0) {
+					data[0] = 1.0;
+				}
+				else {
+					//force.setZ(82*200/2000);
+					data[0] = 0;
+				}
+				body.addForce(force.getX()*2000,force.getY()*2000,force.getZ()*2000);
+			}
+		});
+
+		// _____________________________________________________ Physics with ODE4j (End)
+
+		boolean success = viewer.setFocus();
 	    
 	    display.loop();
 	    

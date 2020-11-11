@@ -190,9 +190,20 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	final SbBSPTree sealsBSPTree = new SbBSPTree();
 	
 	final SbVec3f sealsRefPoint = new SbVec3f();
-	
+
+	Raster rw;
+	Raster re;
+	int overlap;
+
+	final float[] fArray = new float[1];
+
+	float delta = 0;
+
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
+		this.rw = rw;
+		this.re = re;
+		this.overlap = overlap;
 		this.zTranslation = zTranslation;
 		
 		int hImageW = rw.getHeight();
@@ -233,8 +244,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		//float[] vertices = new float[nbVertices*3];
 		//float[] normals = new float[nbVertices*3];
 		//int[] colors = new int[nbVertices];
-		float[] fArray = new float[1];
-		
+
 		//int nbCoordIndices = (w-1)*(h-1)*5;
 		//int[] coordIndices = new int[nbCoordIndices];
 		
@@ -249,7 +259,6 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		final int rgbaStone = (colorStone.getAlpha() << 0) | (redStone << 24)| (greenStone << 16)|(blueStone<<8); 
 		
 		
-		float delta = 0;
 		int nb = 0;
 		for(int j=hImageW/4;j<hImageW*3/4;j++) {
 			float zw = rw.getPixel(wImageW-1, j, fArray)[0];
@@ -810,7 +819,40 @@ for(int is=0;is<4;is++) {
 		//sep.ref();
 		forest = null; // for garbage collection
 	}
-	
+
+	public float getZ(int i, int j) {
+		int wImageW = rw.getWidth();
+
+		int index = i*h+j;
+		//chunks.verticesPut(index*3+0, i * delta_x);
+		//chunks.verticesPut(index*3+1, (h - j -1) * delta_y);
+		float z = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i+I_START, j, fArray)[0]);
+		if( Math.abs(z)> 1e30 || i == 0 || j == 0 || i == w-1 || j == h-1 ) {
+			z= ZMIN;
+		}
+		return z;
+	}
+
+	public int getNbI() {
+		return w;
+	}
+
+	public int getNbJ() {
+		return h;
+	}
+
+	public double getWidth() {
+		return  delta_x * (w - 1);
+	}
+
+	public double getHeight() {
+		return  delta_y * (h - 1);
+	}
+
+	public double getExtraDY() {
+		return jstart * delta_y;
+	}
+
 	public void addWater(SoGroup group, float z, float transparency, boolean shining, boolean small) {
 		
 	    SoSeparator waterSeparator = new SoSeparator();
