@@ -115,7 +115,7 @@ public class SoType implements Mutable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + storage.index;
+		result = prime * result + storage_index;
 		return result;
 	}
 
@@ -134,18 +134,18 @@ public class SoType implements Mutable {
 			return false;
 		}
 		SoType other = (SoType) obj;
-		if (storage.index != other.storage.index) {
+		if (storage_index != other.storage_index) {
 			return false;
 		}
 		return true;
 	}
-	private class Storage {		
-		private int data;
-		private int index;
-		private boolean isPublic;		
-	}
+	//private class Storage {
+		private int storage_data;
+		private int storage_index;
+		private boolean storage_isPublic;
+	//}
 	
-	private final Storage storage = new Storage();
+	//private final Storage storage = new Storage();
 	
 	private boolean immutable;
 	
@@ -186,36 +186,42 @@ public class SoType implements Mutable {
 	// java port
 	public SoType(final SoType other) {
 		if(other != null) {
-		storage.data = other.storage.data;
-		storage.index = other.storage.index;
-		storage.isPublic = other.storage.isPublic;
+		storage_data = other.storage_data;
+		storage_index = other.storage_index;
+		storage_isPublic = other.storage_isPublic;
 		}
 	}
 	
 	// Returns the name associated with a type. 
 	public SbName getName() {
-		return new SbName(typeData[storage.index].name);
+		return new SbName(typeData[storage_index].name);
 	}
 	
 	// Returns the type of the parent class. 
 	public SoType getParent() {
-		return new SoType(typeData[storage.index].parent);
+		return new SoType(typeData[storage_index].parent);
 	}
-	
+
+	// Returns the type of the parent class.
+	// Don't modify the returned object !
+	public SoType getParentFast() {
+		return typeData[storage_index].parent;
+	}
+
 	// Returns TRUE if the type is a bad type. 
 	public boolean isBad() {
-		return storage.index == 0;
+		return storage_index == 0;
 	}
 	
 	// Returns TRUE if the type is derived from type t. 
 	public boolean isDerivedFrom(SoType t) {
-		  final SoType thisType = new SoType(this);
+		  /*final */SoType thisType = /*new SoType(*/this/*)*/;
 		   
 		    while (! thisType.isBad())
 		    if (thisType.operator_equal_equal(t))
 		    return true;
 		    else
-		    thisType.copyFrom(thisType.getParent());
+		    thisType/*.copyFrom(*/=thisType.getParentFast()/*)*/;
 		   
 		    return false;
 		  
@@ -235,7 +241,7 @@ public class SoType implements Mutable {
 	   //
 	   // Use: public
 	  public boolean canCreateInstance() {
-		     SoTypeData  data = typeData[storage.index];
+		     SoTypeData  data = typeData[storage_index];
 		      
 		          return (data.createMethod != null);
 		      		
@@ -256,7 +262,7 @@ public class SoType implements Mutable {
 	 */
 	public Object createInstance() {
 		
-	     SoTypeData  data = typeData[storage.index];
+	     SoTypeData  data = typeData[storage_index];
 	      
 	          if (data.createMethod != null)
 	         return data.createMethod.run();
@@ -266,12 +272,12 @@ public class SoType implements Mutable {
 	
 	// Get data. 
 	public int getData() {
-		 return storage.data; 
+		 return storage_data;
 	}
 	
 	// Returns the type key as a short. 
 	public int getKey() {
-		 return storage.index; 
+		 return storage_index;
 	}
 	 
 	 //
@@ -308,9 +314,9 @@ public class SoType implements Mutable {
 	public static SoType badType() {
 	     SoType t = new SoType();
 	      
-	          t.storage.index = 0;
-	          t.storage.isPublic = true;
-	          t.storage.data = 0;
+	          t.storage_index = 0;
+	          t.storage_isPublic = true;
+	          t.storage_data = 0;
 	      
 	          return t;
 	     
@@ -330,7 +336,7 @@ public class SoType implements Mutable {
 	      
 	        // See if the type corresponds to a non-abstract node class 
 	        if (! curType.isBad() && curType.isDerivedFrom(type) &&
-	            curType.storage.isPublic) {
+	            curType.storage_isPublic) {
 	            typeList.append(curType);
 	            ++numAdded;
 	        }
@@ -358,18 +364,18 @@ public class SoType implements Mutable {
 		    if (nextIndex >= arraySize)
 		    expandTypeData();
 		   
-		    t.storage.index = nextIndex++;
-		    t.storage.isPublic = true;
-		    t.storage.data = data;
+		    t.storage_index = nextIndex++;
+		    t.storage_isPublic = true;
+		    t.storage_data = data;
 		   
-		    td = typeData[t.storage.index];
+		    td = typeData[t.storage_index];
 		   
 		    td.type.copyFrom(t);
 		    td.parent.copyFrom(parent);
 		    td.name.copyFrom(name);
 		    td.createMethod = createMethod;
 		   
-		    nameDict.enter( name.getString(), t.storage.index);
+		    nameDict.enter( name.getString(), t.storage_index);
 		   
 		    return t;
 		  
@@ -403,7 +409,7 @@ overrideType(SoType oldType, CreateMethod createMethod)
     }
 //#endif
 
-    SoTypeData td = typeData[oldType.storage.index];
+    SoTypeData td = typeData[oldType.storage_index];
 
     td.createMethod  = createMethod;
 
@@ -429,8 +435,8 @@ makeInternal()
     // This is gross, but necessary.  After creation, copies of the
     // type exist in two places:  the classes' classTypeId member, and
     // in the typeData array.  So, we need to change them both:
-    storage.isPublic = false;
-    typeData[storage.index].type.storage.isPublic = false;
+    storage_isPublic = false;
+    typeData[storage_index].type.storage_isPublic = false;
 }
 
 	
@@ -467,7 +473,7 @@ makeInternal()
 	          }
 	          SoType result = typeData[(Integer)b[0]].type;
 	          
-	          if (result.storage.isPublic == false) {
+	          if (result.storage_isPublic == false) {
 	        	  //#ifdef DEBUG
 	        	        SoDebugError.post("SoType::fromName", nameChars+" is internal");
 	        	  //#endif
@@ -483,9 +489,9 @@ makeInternal()
 			throw new IllegalStateException("SoType is immutable");
 		}
 		SoType otherType = (SoType)other;
-		storage.data = otherType.storage.data;
-		storage.index = otherType.storage.index;
-		storage.isPublic = otherType.storage.isPublic;		
+		storage_data = otherType.storage_data;
+		storage_index = otherType.storage_index;
+		storage_isPublic = otherType.storage_isPublic;
 	}
 	
 	// Initialize the type system. 
@@ -511,9 +517,9 @@ makeInternal()
 	        
 	            // Initialize bad type at index 0. Make room first.
 	            expandTypeData();
-	            typeData[0].type.storage.index = 0;
-	            typeData[0].type.storage.isPublic = true;
-	            typeData[0].type.storage.data  = 0;
+	            typeData[0].type.storage_index = 0;
+	            typeData[0].type.storage_isPublic = true;
+	            typeData[0].type.storage_data  = 0;
 	        
 	            // The first real type will have index 1
 	            nextIndex = 1;
@@ -522,10 +528,10 @@ makeInternal()
 	   	
     //! Returns TRUE if this type is the same as or not the same as the given type.
 	   	public boolean                 operator_equal_equal(final SoType t)
-        { return (storage.index == t.storage.index);}
+        { return (storage_index == t.storage_index);}
     //! Returns TRUE if this type is the same as or not the same as the given type.
     public boolean                 operator_not_equal(final SoType t)
-        { return (storage.index != t.storage.index);}
+        { return (storage_index != t.storage_index);}
 
     // java port
 	   	public Object toVoidPtr() {
@@ -551,12 +557,12 @@ makeInternal()
 	   	 * Java port
 	   	 */
 	   	public String toString() {
-	   		return typeData[storage.index].name.getString();
+	   		return typeData[storage_index].name.getString();
 	   	}
 
 	   	/**
 	   	 * Java port
-	   	 * @param so__CONCAT
+	   	 * @param klass
 	   	 * @return
 	   	 */
 		public static SoType getClassTypeId(Class<?> klass) {
