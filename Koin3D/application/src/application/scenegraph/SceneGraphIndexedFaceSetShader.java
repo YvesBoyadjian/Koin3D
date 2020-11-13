@@ -25,7 +25,9 @@ import application.nodes.SoSeals;
 import application.objects.DouglasFir;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
+import jscenegraph.coin3d.fxviz.nodes.SoVolumetricShadowGroup;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
+import jscenegraph.coin3d.fxviz.nodes.SoVolumetricShadowGroup;
 import jscenegraph.coin3d.inventor.SbBSPTree;
 import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLBillboard;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
@@ -500,7 +502,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    sep.addChild(sky[3]);
 	    
 	    //shadowGroup = new SoSeparator();
-	    shadowGroup = new SoShadowGroup() {
+//	    shadowGroup = new SoShadowGroup() {
+		shadowGroup = new SoVolumetricShadowGroup() {
 			public void ref() {
 				super.ref();
 			}

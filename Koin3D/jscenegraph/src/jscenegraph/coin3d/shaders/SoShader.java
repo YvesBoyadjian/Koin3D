@@ -47,6 +47,7 @@ import jscenegraph.coin3d.shaders.lights.DirSpotLight;
 import jscenegraph.coin3d.shaders.lights.DirectionalLight;
 import jscenegraph.coin3d.shaders.lights.PointLight;
 import jscenegraph.coin3d.shaders.lights.SpotLight;
+import jscenegraph.coin3d.shaders.scattering.ComputeScattering;
 import jscenegraph.coin3d.shaders.vsm.VsmLookup;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoType;
@@ -240,5 +241,6 @@ setupBuiltinShaders()
   shader_builtin_dict.put("lights/DirectionalLight", DirectionalLight.DIRECTIONALLIGHT_shadersource);
   shader_builtin_dict.put("lights/DirSpotLight", DirSpotLight.DIRSPOTLIGHT_shadersource);
   shader_builtin_dict.put("vsm/VsmLookup", VsmLookup.VSMLOOKUP_shadersource);
+  shader_builtin_dict.put("scattering/ComputeScattering", ComputeScattering.COMPUTESCATTERING_shadersource);
 }
 }

@@ -706,8 +706,12 @@ setFragmentShader(SoState state)
     eps = "const float THRESHOLD = "+master.threshold.getValue()+";"
                 ;
     gen.addDeclaration(eps, false);
+    eps = "const int NB_STEPS = 32;"
+			;
+	  gen.addDeclaration(eps, false);
   }
   for (i = 0; i < numshadowlights; i++) {
+  	gen.addDeclaration("// ____________________ Begin ShadowLight "+i,false);
     String str;
     str = "uniform sampler2D shadowMap"+i+";";
     gen.addDeclaration(str, false);
@@ -729,6 +733,7 @@ setFragmentShader(SoState state)
       str = "uniform vec4 lightplane"+i+";";
       gen.addDeclaration(str, false);
     }
+    gen.addDeclaration("// ____________________ End ShadowLight",false);
   }
 
   String str;
@@ -746,6 +751,7 @@ setFragmentShader(SoState state)
 
   if (numshadowlights != 0) {
     gen.addNamedFunction("vsm/VsmLookup", false);
+    gen.addNamedFunction("scattering/ComputeScattering",false);
   }
   gen.addMainStatement("vec3 normal = normalize(fragmentNormal);\n");
   if (twosidetest) {
@@ -769,10 +775,13 @@ setFragmentShader(SoState state)
                        "vec4 map;\n"+
                        "mydiffuse.a *= texcolor.a;\n");
 
+  startFragmentShader(gen);
+
   if (perpixelspot[0]) {
     boolean spotlight = false;
     boolean dirlight = false;
     for (i = 0; i < numshadowlights; i++) {
+    	gen.addMainStatement("// _______________________ Begin ShadowLight "+i+"\n");
       SoShadowLightCache cache = this.shadowlights.operator_square_bracket(i);
       boolean dirshadow = false;
       //String str; java port
@@ -844,11 +853,16 @@ setFragmentShader(SoState state)
       gen.addMainStatement("color += shadeFactor * diffuse.rgb * mydiffuse.rgb;");
       gen.addMainStatement("scolor += shadeFactor * gl_FrontMaterial.specular.rgb * specular.rgb;\n");
       gen.addMainStatement("color += ambient.rgb * gl_FrontMaterial.ambient.rgb;\n");
+
+      endShadowLight(gen,cache.lightid);
+
+      gen.addMainStatement("// ____________________ End ShadowLight\n");
     }
 
     if (perpixelother[0]) {
       boolean pointlight = false;
       for (i = 0; i < lights.getLength(); i++) {
+		  gen.addMainStatement("// _______________________ Begin Light "+i+"\n");
         SoLight l = (SoLight) lights.operator_square_bracket(i);
         if (l.isOfType(SoDirectionalLight.getClassTypeId())) {
           addDirectionalLight(gen, i);
@@ -870,6 +884,7 @@ setFragmentShader(SoState state)
         gen.addMainStatement("color += ambient.rgb * gl_FrontMaterial.ambient.rgb + "+
                              "diffuse.rgb * mydiffuse.rgb;\n");
         gen.addMainStatement("scolor += specular.rgb * gl_FrontMaterial.specular.rgb;\n");
+		  gen.addMainStatement("// _______________________ End Light\n");
       }
 
       if (dirlight) gen.addNamedFunction(new SbName("lights/DirectionalLight"), false);
@@ -909,38 +924,11 @@ setFragmentShader(SoState state)
   gen.addMainStatement("if (coin_light_model != 0) { color *= texcolor.rgb; color += scolor; }\n"+
                        "else color = mydiffuse.rgb * texcolor.rgb;\n");
 
-  SoEnvironmentElement.FogType fogType = SoEnvironmentElement.FogType.fromValue(this.getFog(state));
+	SoEnvironmentElement.FogType fogType = SoEnvironmentElement.FogType.fromValue(this.getFog(state));
 
-  switch (fogType) {
-  default:
-    assert(false);// && "unknown fog type");
-    break;
-  case NONE:
-    // do nothing
-    break;
-  case HAZE:
-    //gen.addMainStatement("float fog = (gl_Fog.end - gl_FogFragCoord) * gl_Fog.scale;\n");
-    gen.addMainStatement("float fog = (gl_Fog.end - abs(ecPosition3.z)) * gl_Fog.scale;\n");
-    
-    break;
-  case FOG:
-    //gen.addMainStatement("float fog = exp(-gl_Fog.density * gl_FogFragCoord);\n");
-    gen.addMainStatement("float fog = exp(-gl_Fog.density * abs(ecPosition3.z));\n");
-    gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
-    break;
-  case SMOKE:
-    //gen.addMainStatement("float fogfrag =  gl_FogFragCoord;");
-    gen.addMainStatement("float fogfrag =  abs(ecPosition3.z);");
-    gen.addMainStatement("float fogdens =  gl_Fog.density;");
-    gen.addMainStatement("float fog = exp(-fogdens * fogdens * fogfrag * fogfrag);\n");
-    gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
-    break;
-  }
-  if (fogType != SoEnvironmentElement.FogType.NONE) {
-    gen.addMainStatement("color = mix(gl_Fog.color.rgb, color, clamp(fog, 0.0, 1.0));\n");
-  }
+	endFragmentShader(gen,fogType);
   
-  gen.addMainStatement("float PHI = 1.61803398874989484820459;\n");   // Φ = Golden Ratio
+  //gen.addMainStatement("float PHI = 1.61803398874989484820459;\n");   // Φ = Golden Ratio
   
   //gen.addMainStatement("float seed = 1.5f+frame_random/1000.0f;\n");
   
@@ -1116,8 +1104,47 @@ setFragmentShader(SoState state)
   SoCacheElement.setInvalid(storedinvalid);
 }
 
+	protected void startFragmentShader(SoShaderGenerator gen) {
+		// does nothing in this class
+	}
 
-public void
+protected void endShadowLight(SoShaderGenerator gen, int index) {
+	  	// does nothing in this class
+}
+
+protected void endFragmentShader(SoShaderGenerator gen,SoEnvironmentElement.FogType fogType) {
+
+	switch (fogType) {
+		default:
+			assert(false);// && "unknown fog type");
+			break;
+		case NONE:
+			// do nothing
+			break;
+		case HAZE:
+			//gen.addMainStatement("float fog = (gl_Fog.end - gl_FogFragCoord) * gl_Fog.scale;\n");
+			gen.addMainStatement("float fog = (gl_Fog.end - abs(ecPosition3.z)) * gl_Fog.scale;\n");
+
+			break;
+		case FOG:
+			//gen.addMainStatement("float fog = exp(-gl_Fog.density * gl_FogFragCoord);\n");
+			gen.addMainStatement("float fog = exp(-gl_Fog.density * abs(ecPosition3.z));\n");
+			gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
+			break;
+		case SMOKE:
+			//gen.addMainStatement("float fogfrag =  gl_FogFragCoord;");
+			gen.addMainStatement("float fogfrag =  abs(ecPosition3.z);");
+			gen.addMainStatement("float fogdens =  gl_Fog.density;");
+			gen.addMainStatement("float fog = exp(-fogdens * fogdens * fogfrag * fogfrag);\n");
+			gen.setVersion("#version 120"); // YB : Nvidia cards need at least version 120
+			break;
+	}
+	if (fogType != SoEnvironmentElement.FogType.NONE) {
+		gen.addMainStatement("color = mix(gl_Fog.color.rgb, color, clamp(fog, 0.0, 1.0));\n");
+	}
+}
+
+	public void
 updateSpotCamera(SoState state, SoShadowLightCache cache, final SbMatrix transform)
 {
   SoCamera cam = cache.camera;

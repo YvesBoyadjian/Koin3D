@@ -128,7 +128,8 @@ public class SoShaderGenerator {
 		addMainStatement( String str)
 		{
 		  this.dirty = true;
-		  this.main.append( str);
+		  this.main.append( "  ");
+		  this.main.append(str);
 		  this.main.append( "\n");
 		}
 

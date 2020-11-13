@@ -1,22 +1,22 @@
 /**************************************************************************\
  * Copyright (c) Kongsberg Oil & Gas Technologies AS
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice,
  * this list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright
  * notice, this list of conditions and the following disclaimer in the
  * documentation and/or other materials provided with the distribution.
- * 
+ *
  * Neither the name of the copyright holder nor the names of its
  * contributors may be used to endorse or promote products derived from
  * this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -28,7 +28,7 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-\**************************************************************************/
+ \**************************************************************************/
 
 /*!
   \class SoShadowGroup SoShadowGroup.h FXViz/nodes/SoShadowGroup.h
@@ -290,194 +290,195 @@ import jscenegraph.port.Destroyable;
 public class SoShadowGroup extends SoSeparator {
 
 	private final SoSubNode nodeHeader = SoSubNode.SO_NODE_HEADER(SoShadowGroup.class,this);
-   	
-	   public                                                                     
-	    static SoType       getClassTypeId()        /* Returns class type id */   
-	                                    { return SoSubNode.getClassTypeId(SoShadowGroup.class);  }                   
-	  public  SoType      getTypeId()      /* Returns type id      */
-	  {
-		  return nodeHeader.getClassTypeId();
-	  }
-	  public                                                                  
-	    SoFieldData   getFieldData()  {
-		  return nodeHeader.getFieldData();
-	  }
-	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoShadowGroup.class); }    
-	  
-	  public enum VisibilityFlag {
-		    ABSOLUTE_RADIUS(0),
-		    LONGEST_BBOX_EDGE_FACTOR(1),
-		    PROJECTED_BBOX_DEPTH_FACTOR(2);
-		  
-		  private int value;
-		  
-		  VisibilityFlag(int value) {
-			  this.value = value;
-		  }
-		  public int getValue() {
-			  return value;
-		  }
+
+	public static SoType       getClassTypeId()        /* Returns class type id */
+	{ return SoSubNode.getClassTypeId(SoShadowGroup.class);  }
+
+	public SoType getTypeId()      /* Returns type id      */
+	{
+		return nodeHeader.getClassTypeId();
+	}
+
+	public SoFieldData getFieldData()  {
+		return nodeHeader.getFieldData();
+	}
+
+	public  static SoFieldData[] getFieldDataPtr()
+	{ return SoSubNode.getFieldDataPtr(SoShadowGroup.class); }
+
+	public enum VisibilityFlag {
+		ABSOLUTE_RADIUS(0),
+		LONGEST_BBOX_EDGE_FACTOR(1),
+		PROJECTED_BBOX_DEPTH_FACTOR(2);
+
+		private int value;
+
+		VisibilityFlag(int value) {
+			this.value = value;
+		}
+		public int getValue() {
+			return value;
+		}
 		public static VisibilityFlag fromValue(Integer value2) {
 			switch(value2) {
-			case 0: return ABSOLUTE_RADIUS;
-			case 1: return LONGEST_BBOX_EDGE_FACTOR;
-			case 2: return PROJECTED_BBOX_DEPTH_FACTOR;
+				case 0: return ABSOLUTE_RADIUS;
+				case 1: return LONGEST_BBOX_EDGE_FACTOR;
+				case 2: return PROJECTED_BBOX_DEPTH_FACTOR;
 			}
 			return null;
 		}
-		  };	  
-	  
-	  public final SoSFBool isActive = new SoSFBool();
-	  public final SoSFFloat intensity = new SoSFFloat();
-	  public final SoSFFloat precision = new SoSFFloat();
-	  public final SoSFFloat quality = new SoSFFloat();
-	  public final SoSFFloat smoothBorder = new SoSFFloat();
-	  public final SoSFBool shadowCachingEnabled = new SoSFBool();
-	  public final SoSFFloat visibilityNearRadius = new SoSFFloat();
-	  public final SoSFFloat visibilityRadius = new SoSFFloat();
-	  public final SoSFEnum visibilityFlag = new SoSFEnum();
-	  
-	  public final SoSFFloat epsilon = new SoSFFloat();
-	  public final SoSFFloat threshold = new SoSFFloat();
+	};
 
-	  
-	  
-	  private SoShadowGroupP pimpl;
-	  
-	  private SoShadowGroupP PRIVATE(SoShadowGroup obj) {return (obj).pimpl;}
-	  
-	  public static void init()
-	  {
-	    SoShadowGroup.initClass();
-	    SoShadowStyleElement.initClass(SoShadowStyleElement.class);
-	    SoGLShadowCullingElement.initClass(SoGLShadowCullingElement.class);
-	    SoShadowStyle.initClass();
-	    SoShadowSpotLight.initClass();
-	    SoShadowDirectionalLight.initClass();
-	    SoShadowCulling.initClass();
-	  }
+	public final SoSFBool isActive = new SoSFBool();
+	public final SoSFFloat intensity = new SoSFFloat();
+	public final SoSFFloat precision = new SoSFFloat();
+	public final SoSFFloat quality = new SoSFFloat();
+	public final SoSFFloat smoothBorder = new SoSFFloat();
+	public final SoSFBool shadowCachingEnabled = new SoSFBool();
+	public final SoSFFloat visibilityNearRadius = new SoSFFloat();
+	public final SoSFFloat visibilityRadius = new SoSFFloat();
+	public final SoSFEnum visibilityFlag = new SoSFEnum();
 
-	  /*!
-	  Default constructor.
-	*/
+	public final SoSFFloat epsilon = new SoSFFloat();
+	public final SoSFFloat threshold = new SoSFFloat();
+
+
+
+	private SoShadowGroupP pimpl;
+
+	private SoShadowGroupP PRIVATE(SoShadowGroup obj) {return (obj).pimpl;}
+
+	public static void init()
+	{
+		SoShadowGroup.initClass();
+		SoShadowStyleElement.initClass(SoShadowStyleElement.class);
+		SoGLShadowCullingElement.initClass(SoGLShadowCullingElement.class);
+		SoShadowStyle.initClass();
+		SoShadowSpotLight.initClass();
+		SoShadowDirectionalLight.initClass();
+		SoShadowCulling.initClass();
+	}
+
+	/*!
+    Default constructor.
+  */
 	public SoShadowGroup()
 	{
-	  pimpl = new SoShadowGroupP(this);
+		pimpl = createPimpl();
 
-	  nodeHeader.SO_NODE_INTERNAL_CONSTRUCTOR(SoShadowGroup.class);
+		nodeHeader.SO_NODE_INTERNAL_CONSTRUCTOR(SoShadowGroup.class);
 
-	  nodeHeader.SO_NODE_ADD_FIELD(isActive,"isActive", (true));
-	  nodeHeader.SO_NODE_ADD_FIELD(intensity,"intensity", (0.5f));
-	  nodeHeader.SO_NODE_ADD_FIELD(precision,"precision", (0.5f));
-	  nodeHeader.SO_NODE_ADD_FIELD(quality,"quality", (0.5f));
-	  nodeHeader.SO_NODE_ADD_FIELD(shadowCachingEnabled,"shadowCachingEnabled", (true));
-	  nodeHeader.SO_NODE_ADD_FIELD(visibilityNearRadius,"visibilityNearRadius", (-1.0f));
-	  nodeHeader.SO_NODE_ADD_FIELD(visibilityRadius,"visibilityRadius", (-1.0f));
-	  nodeHeader.SO_NODE_ADD_FIELD(epsilon,"epsilon", (0.00001f));
-	  nodeHeader.SO_NODE_ADD_FIELD(threshold,"threshold", (0.1f));
-	  nodeHeader.SO_NODE_ADD_FIELD(smoothBorder,"smoothBorder", (0.0f));
+		nodeHeader.SO_NODE_ADD_FIELD(isActive,"isActive", (true));
+		nodeHeader.SO_NODE_ADD_FIELD(intensity,"intensity", (0.5f));
+		nodeHeader.SO_NODE_ADD_FIELD(precision,"precision", (0.5f));
+		nodeHeader.SO_NODE_ADD_FIELD(quality,"quality", (0.5f));
+		nodeHeader.SO_NODE_ADD_FIELD(shadowCachingEnabled,"shadowCachingEnabled", (true));
+		nodeHeader.SO_NODE_ADD_FIELD(visibilityNearRadius,"visibilityNearRadius", (-1.0f));
+		nodeHeader.SO_NODE_ADD_FIELD(visibilityRadius,"visibilityRadius", (-1.0f));
+		nodeHeader.SO_NODE_ADD_FIELD(epsilon,"epsilon", (0.00001f));
+		nodeHeader.SO_NODE_ADD_FIELD(threshold,"threshold", (0.1f));
+		nodeHeader.SO_NODE_ADD_FIELD(smoothBorder,"smoothBorder", (0.0f));
 
-	  nodeHeader.SO_NODE_ADD_FIELD(visibilityFlag,"visibilityFlag",VisibilityFlag.LONGEST_BBOX_EDGE_FACTOR.getValue());
+		nodeHeader.SO_NODE_ADD_FIELD(visibilityFlag,"visibilityFlag",VisibilityFlag.LONGEST_BBOX_EDGE_FACTOR.getValue());
 
-	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(VisibilityFlag.LONGEST_BBOX_EDGE_FACTOR);
-	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(VisibilityFlag.ABSOLUTE_RADIUS);
-	  nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(VisibilityFlag.PROJECTED_BBOX_DEPTH_FACTOR);
-	  nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(visibilityFlag,"visibilityFlag", "VisibilityFlag");
+		nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(VisibilityFlag.LONGEST_BBOX_EDGE_FACTOR);
+		nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(VisibilityFlag.ABSOLUTE_RADIUS);
+		nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(VisibilityFlag.PROJECTED_BBOX_DEPTH_FACTOR);
+		nodeHeader.SO_NODE_SET_SF_ENUM_TYPE(visibilityFlag,"visibilityFlag", "VisibilityFlag");
 
 	}
-	
+
 	public void destructor() {
 		Destroyable.delete(pimpl);
 		super.destructor();
 	}
 
+	SoShadowGroupP createPimpl() {
+		return new SoShadowGroupP(this);
+	}
 
 // *************************************************************************
 
-public void
-GLRenderBelowPath(SoGLRenderAction action)
-{
-  pimpl.GLRender(action, false);
-}
+	public void
+	GLRenderBelowPath(SoGLRenderAction action)
+	{
+		pimpl.GLRender(action, false);
+	}
 
-public void
-GLRenderInPath(SoGLRenderAction action)
-{
-  pimpl.GLRender(action, true);
-}
+	public void
+	GLRenderInPath(SoGLRenderAction action)
+	{
+		pimpl.GLRender(action, true);
+	}
 
-public void
-notify(SoNotList nl)
-{
-  // FIXME: examine notification chain, and detect when an
-  // SoSpotLight/SoShadowDirectionalLight is changed. When this
-  // happens we can just invalidate the depth map for that spot light,
-  // and not the others.
+	public void
+	notify(SoNotList nl)
+	{
+		// FIXME: examine notification chain, and detect when an
+		// SoSpotLight/SoShadowDirectionalLight is changed. When this
+		// happens we can just invalidate the depth map for that spot light,
+		// and not the others.
 
-  SoNotRec rec = nl.getLastRec();
-  if (rec.getBase() != this) {
-    // was not notified through a field, subgraph was changed
+		SoNotRec rec = nl.getLastRec();
+		if (rec.getBase() != this) {
+			// was not notified through a field, subgraph was changed
 
-    rec = nl.getFirstRecAtNode();
-    if (rec != null) {
-      SoNode node = (SoNode) rec.getBase();
-      if (node.isOfType(SoGroup.getClassTypeId())) {
-        // first rec was from a group node, we need to search the scene graph again
-        pimpl.shadowlightsvalid = false;
+			rec = nl.getFirstRecAtNode();
+			if (rec != null) {
+				SoNode node = (SoNode) rec.getBase();
+				if (node.isOfType(SoGroup.getClassTypeId())) {
+					// first rec was from a group node, we need to search the scene graph again
+					pimpl.shadowlightsvalid = false;
 
-        if (pimpl.subgraphsearchenabled) {
-          pimpl.needscenesearch = true;
-        }
-      }
-      else {
-        pimpl.shadowlightsvalid = false;
-      }
-    }
-  }
+					if (pimpl.subgraphsearchenabled) {
+						pimpl.needscenesearch = true;
+					}
+				}
+				else {
+					pimpl.shadowlightsvalid = false;
+				}
+			}
+		}
 
-  if (pimpl.vertexshadercache != null) {
-    pimpl.vertexshadercache.invalidate();
-  }
-  if (pimpl.fragmentshadercache != null) {
-    pimpl.fragmentshadercache.invalidate();
-  }
-  super.notify(nl);
-}
+		if (pimpl.vertexshadercache != null) {
+			pimpl.vertexshadercache.invalidate();
+		}
+		if (pimpl.fragmentshadercache != null) {
+			pimpl.fragmentshadercache.invalidate();
+		}
+		super.notify(nl);
+	}
 
-/*!
+	/*!
 
-  By default, the SoShadowGroup node will search its subgraph for new
-  spot lights whenever a group node under it is touched. However, this
-  might lead to bad performance in some cases so it's possible to
-  disable this feature using this method. If you do disable this
-  feature, make sure you enable it again before inserting a new spot
-  light, or insert all spot lights in the scene graph before you
-  render the scene once, and just set "on" to FALSE if you want to toggle
-  spot lights on/off on the fly.
+      By default, the SoShadowGroup node will search its subgraph for new
+      spot lights whenever a group node under it is touched. However, this
+      might lead to bad performance in some cases so it's possible to
+      disable this feature using this method. If you do disable this
+      feature, make sure you enable it again before inserting a new spot
+      light, or insert all spot lights in the scene graph before you
+      render the scene once, and just set "on" to FALSE if you want to toggle
+      spot lights on/off on the fly.
 
-  \since Coin 2.6
- */
-public void
-enableSubgraphSearchOnNotify(final boolean onoff)
-{
-  pimpl.subgraphsearchenabled = onoff;
-}
+      \since Coin 2.6
+     */
+	public void
+	enableSubgraphSearchOnNotify(final boolean onoff)
+	{
+		pimpl.subgraphsearchenabled = onoff;
+	}
 
-	
-	
-	   public static void
-	     initClass()
-	     //
-	     ////////////////////////////////////////////////////////////////////////
-	     {
-	        SoSubNode.SO__NODE_INIT_CLASS(SoShadowGroup.class, "ShadowGroup", SoSeparator.class);
-	     
-	     }
+	public static void
+	initClass()
+	//
+	////////////////////////////////////////////////////////////////////////
+	{
+		SoSubNode.SO__NODE_INIT_CLASS(SoShadowGroup.class, "ShadowGroup", SoSeparator.class);
+	}
 	public void super_GLRenderInPath(SoGLRenderAction action) {
 		super.GLRenderInPath(action);
 	}
 	public void super_GLRenderBelowPath(SoGLRenderAction action) {
 		super.GLRenderBelowPath(action);
-	}	
+	}
 }
