@@ -47,7 +47,7 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
         gen.addMainStatement("  currentPosition += step;");
         gen.addMainStatement("}");
         gen.addMainStatement("accumFog /= NB_STEPS;");
-        gen.addMainStatement("colorFog += accumFog * stepLength/5.0;\n");
+        gen.addMainStatement("colorFog += accumFog * rayLength * gl_Fog.density *5;\n");
     }
 
     protected void endFragmentShader(SoShaderGenerator gen, SoEnvironmentElement.FogType fogType) {
@@ -58,7 +58,9 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
                 break;
             case FOG:
                 gen.addMainStatement("float fog = exp(-gl_Fog.density * abs(ecPosition3.z));");
-                gen.addMainStatement("color = mix(gl_Fog.color.rgb, color, clamp(fog, 0.0, 1.0));");
+                //gen.addMainStatement("color = mix(gl_Fog.color.rgb, color, clamp(fog, 0.0, 1.0));");
+                gen.addMainStatement("color = color * clamp(fog, 0.0, 1.0);");
+                gen.addMainStatement("color += colorFog;");
                 break;
             case SMOKE:
                 break;
