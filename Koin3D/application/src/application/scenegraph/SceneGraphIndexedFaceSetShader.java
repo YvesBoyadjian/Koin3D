@@ -471,6 +471,12 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 			behindVertexPath = "../MountRainierIsland/application/src/shaders/behind_vertex.glsl";
 		}
 
+		behindVertexFile = new File(behindVertexPath);
+
+		if(!behindVertexFile.exists()) {
+			behindVertexPath = "application/src/shaders/behind_vertex.glsl";
+		}
+
 	    vertexShaderSun.sourceProgram.setValue(behindVertexPath);
 	    
 	    programSun.shaderObject.set1Value(0, vertexShaderSun);
