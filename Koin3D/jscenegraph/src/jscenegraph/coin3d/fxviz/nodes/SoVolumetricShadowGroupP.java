@@ -20,7 +20,7 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
             gen.addMainStatement("vec3 g_SunColor;");
 
             gen.addMainStatement("vec3 startPosition = g_CameraPosition;");
-            gen.addMainStatement("vec3 rayVector = endRayPosition.xyz- startPosition;");
+            gen.addMainStatement("vec3 rayVector = endRayPosition.xyz - startPosition;");
             gen.addMainStatement("float rayLength = length(rayVector);");
             gen.addMainStatement("vec3 rayDirection = rayVector / rayLength;");
             gen.addMainStatement("float stepLength = rayLength / NB_STEPS;");
@@ -40,9 +40,10 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
         gen.addMainStatement("accumFog = vec3(0.0f,0.0f,0.0f);");
         gen.addMainStatement("for (int i = 0; i < NB_STEPS; i++)");
         gen.addMainStatement("{");
-        gen.addMainStatement("  vec4 worldInShadowCameraSpace = mul(vec4(currentPosition, 1.0f), g_ShadowViewProjectionMatrix);");
+        gen.addMainStatement("  vec4 worldInShadowCameraSpace = vec4(currentPosition, 1.0f) * g_ShadowViewProjectionMatrix;");
         gen.addMainStatement("  {");
-        gen.addMainStatement("    accumFog += ComputeScattering(dot(rayDirection, sunDirection)).xxx * g_SunColor;");
+        gen.addMainStatement("    float scatter = ComputeScattering(dot(rayDirection, sunDirection));");
+        gen.addMainStatement("    accumFog += vec3(scatter,scatter,scatter) * g_SunColor;");
         gen.addMainStatement("  }");
         gen.addMainStatement("  currentPosition += step;");
         gen.addMainStatement("}");
