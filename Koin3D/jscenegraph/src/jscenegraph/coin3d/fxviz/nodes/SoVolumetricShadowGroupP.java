@@ -27,7 +27,7 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
             gen.addMainStatement("vec3 step = rayDirection * stepLength;");
             gen.addMainStatement("vec3 currentPosition;");
             gen.addMainStatement("vec3 accumFog;");
-            gen.addMainStatement("vec3 colorFog = 0.0f.xxx;");
+            gen.addMainStatement("vec3 colorFog = vec3(0.0f,0.0f,0.0f);");
         }
     }
 
@@ -37,7 +37,7 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
         //gen.addMainStatement("g_ShadowViewProjectionMatrix = ;");
 
         gen.addMainStatement("currentPosition = startPosition;");
-        gen.addMainStatement("accumFog = 0.0f.xxx;");
+        gen.addMainStatement("accumFog = vec3(0.0f,0.0f,0.0f);");
         gen.addMainStatement("for (int i = 0; i < NB_STEPS; i++)");
         gen.addMainStatement("{");
         gen.addMainStatement("  vec4 worldInShadowCameraSpace = mul(vec4(currentPosition, 1.0f), g_ShadowViewProjectionMatrix);");
