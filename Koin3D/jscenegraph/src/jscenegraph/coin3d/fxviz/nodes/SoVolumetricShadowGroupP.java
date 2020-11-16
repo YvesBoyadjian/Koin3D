@@ -13,7 +13,7 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
         int numshadowlights = this.shadowlights.getLength();
 
         if (numshadowlights != 0) {
-            gen.addMainStatement("vec3 g_CameraPosition = 0.0f.xxx;");
+            gen.addMainStatement("vec3 g_CameraPosition = vec3(0.0f,0.0f,0.0f);");
             gen.addMainStatement("vec3 endRayPosition = ecPosition3;");
             gen.addMainStatement("mat4 g_ShadowViewProjectionMatrix;");
             gen.addMainStatement("vec3 sunDirection;");
