@@ -235,7 +235,6 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 	/**
 	 * Values in buffer must be already initialized
 	 * @param userdata
-	 * @param buffer
 	 */
 	public void setValuesPointer(FloatMemoryBuffer userdata) {
 		setValuesPointer(userdata,true);
@@ -303,7 +302,7 @@ public class SoMFVec3f extends SoMField<SbVec3f,SbVec3fArray> {
 	 * 
 	 * @param start
 	 * @param num
-	 * @param skyBoxVertices
+	 * @param xyz3d
 	 */
 	public void setValues(int start, int num, float[][][] xyz3d) {
 		int xyzLength = 0;

@@ -124,11 +124,10 @@ public void setValue(float[] vector) { // java port
  * @param vector
  */
 public void setValue(SbVec3d vector) {
-	double[] value = vector.getValue();
 	float[] valuef = new float[3];
-	valuef[0] = (float)value[0];
-	valuef[1] = (float)value[1];
-	valuef[2] = (float)value[2];
+	valuef[0] = (float)vector.getX();
+	valuef[1] = (float)vector.getY();
+	valuef[2] = (float)vector.getZ();
 	setValue(valuef);	
 }
 

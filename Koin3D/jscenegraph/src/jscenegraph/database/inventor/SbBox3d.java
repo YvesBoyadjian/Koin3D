@@ -42,7 +42,7 @@ public class SbBox3d  implements Mutable {
 		maxpt.copyFrom(otherBox.maxpt);
 	}
 
-	  public boolean isEmpty() { return (maxpt.getValue()[0] < minpt.getValue()[0]); }
+	  public boolean isEmpty() { return (maxpt.getX() < minpt.getX()); }
 
 	  /*!
 	  Extend the boundaries of the box by the given point, i.e. make the
@@ -58,12 +58,12 @@ public class SbBox3d  implements Mutable {
 	    // The explicit casts are done to humour the HPUX aCC compiler,
 	    // which will otherwise say ``Template deduction failed to find a
 	    // match for the call to 'SbMin'''. mortene.
-	  minpt.setValue(Math.min((point.getValue()[0]), (minpt.getValue()[0])),
-			  Math.min((point.getValue()[1]), (minpt.getValue()[1])),
-			  Math.min((point.getValue()[2]), (minpt.getValue()[2])));
-	  maxpt.setValue(Math.max((point.getValue()[0]), (maxpt.getValue()[0])),
-			  Math.max((point.getValue()[1]), (maxpt.getValue()[1])),
-			  Math.max((point.getValue()[2]), (maxpt.getValue()[2])));
+	  minpt.setValue(Math.min((point.getX()), (minpt.getX())),
+			  Math.min((point.getY()), (minpt.getY())),
+			  Math.min((point.getZ()), (minpt.getZ())));
+	  maxpt.setValue(Math.max((point.getX()), (maxpt.getX())),
+			  Math.max((point.getY()), (maxpt.getY())),
+			  Math.max((point.getZ()), (maxpt.getZ())));
 	  }
 	}
 
@@ -76,12 +76,12 @@ public class SbBox3d  implements Mutable {
 	   */
 	public double[] getBounds() {
 		double[] bounds = new double[6];
-		bounds[0] = minpt.getValue()[0];
-		bounds[1] = minpt.getValue()[1];
-		bounds[2] = minpt.getValue()[2];
-		bounds[3] = maxpt.getValue()[0];
-		bounds[4] = maxpt.getValue()[1];
-		bounds[5] = maxpt.getValue()[2];
+		bounds[0] = minpt.getX();
+		bounds[1] = minpt.getY();
+		bounds[2] = minpt.getZ();
+		bounds[3] = maxpt.getX();
+		bounds[4] = maxpt.getY();
+		bounds[5] = maxpt.getZ();
 		return bounds;
 	}
 }

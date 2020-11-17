@@ -209,7 +209,7 @@ public class SbDPViewVolume {
 	public static SbVec3f 
 	dp_to_sbvec3f(final SbVec3d v)
 	{
-	  return new SbVec3f((float)(v.vec[0]), (float)(v.vec[1]), (float)(v.vec[2]));
+	  return new SbVec3f((float)(v.getX()), (float)(v.getY()), (float)(v.getZ()));
 	}
 
 	// FIXME: bitmap-illustration for function doc which shows how the

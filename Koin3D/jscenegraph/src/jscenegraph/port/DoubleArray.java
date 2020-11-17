@@ -3,6 +3,9 @@
  */
 package jscenegraph.port;
 
+import jscenegraph.port.memorybuffer.DoubleMemoryBuffer;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
+
 /**
  * @author Yves Boyadjian
  *
@@ -10,18 +13,15 @@ package jscenegraph.port;
 public class DoubleArray extends Indexable<Double> {
 	
 	int start;
-	Double[] values;
+	DoubleMemoryBuffer values;
 
-	public DoubleArray(int start, Double[] values) {
+	public DoubleArray(int start, DoubleMemoryBuffer values) {
 		this.start = start;
 		this.values = values;
 	}
 
 	public DoubleArray(int length) {
-		values = new Double[length];
-		for(int i=0; i<length;i++) {
-			values[i] = 0.;
-		}
+		values = DoubleMemoryBuffer.allocateDoubles(length);
 	}
 
 	public DoubleArray(int start2, DoubleArray values2) {
@@ -29,19 +29,35 @@ public class DoubleArray extends Indexable<Double> {
 		this.values = values2.values;
 	}
 
+	public DoubleMemoryBuffer getValuesArray() {
+		return values;
+	}
+
+	public DoubleMemoryBuffer getValues() {
+		return values;
+	}
+
+	public int getStart() {
+		return start;
+	}
+
 	@Override
 	public Double getO(int index) {
-		return values[index+start];
+		return values.getDouble(index+start);
 	}
 
 	@Override
 	public int length() {
-		return values.length - start;
+		return values.numDoubles() - start;
 	}
 
 	@Override
 	public void setO(int i, Double object) {
-		values[i+start] = object;
+		set(i,(double) object);
+	}
+
+	public void set(int index, double value) {
+		values.setDouble(index+start, value);
 	}
 
 	@Override
