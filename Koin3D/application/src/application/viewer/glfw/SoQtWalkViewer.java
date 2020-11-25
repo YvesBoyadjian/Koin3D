@@ -92,6 +92,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	private double dt;
 	
 	double startDate;
+
+	double now;
 	
 	private Set<SoKeyboardEvent.Key> keysDown = new HashSet<>();
 	
@@ -115,6 +117,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	private ForceProvider forceProvider;
 	
 	private boolean fly = false;
+
+	private boolean timeStop = false;
 	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
@@ -623,6 +627,16 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	public double getStartDate() {
 		return startDate;
 	}
+
+	public double getNow() {
+    	if(timeStop) {
+    		return now;
+		}
+    	else {
+			double nanoTime = System.nanoTime();
+			return nanoTime / 1e9 + getStartDate();
+		}
+	}
 	
 	private void toggleFly() {
 		fly = !fly;
@@ -633,6 +647,20 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			SPEED = USAIN_BOLT_RUN;			
 		}
 		SceneGraphIndexedFaceSetShader.FLY = fly;
+	}
+
+	public void toggleTimeStop() {
+    	timeStop = !timeStop;
+    	if(timeStop) {
+    		now = System.nanoTime()/1e9 + getStartDate();
+		}
+    	else {
+    		setStartDate( now - System.nanoTime()/1e9 );
+		}
+	}
+
+	public boolean isTimeStop() {
+    	return timeStop;
 	}
 	
 	public double dt() {

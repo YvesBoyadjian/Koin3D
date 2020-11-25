@@ -131,6 +131,8 @@ public class MainGLFW {
 	public static final String HERO_Z = "hero_z";
 	
 	public static final String TIME = "time_sec";
+
+	public static final String TIME_STOP = "time_stop";
 	
 	public static SbVec3f SCENE_POSITION;
 	
@@ -224,7 +226,9 @@ public class MainGLFW {
 					
 					saveGameProperties.setProperty(HERO_Z, String.valueOf(camera.position.getValue().getZ() + Z_TRANSLATION));
 					
-					saveGameProperties.setProperty(TIME, String.valueOf(System.nanoTime()/1e9 + getStartDate()));
+					saveGameProperties.setProperty(TIME, String.valueOf(getNow()));
+
+					saveGameProperties.setProperty(TIME_STOP, isTimeStop() ? "true" : "false");
 					
 					saveGameProperties.store(out, "Mount Rainier Island save game");
 				
@@ -290,6 +294,7 @@ public class MainGLFW {
 		camera.orientation.setValue(new SbVec3f(0,1,0), -(float)Math.PI/2.0f);
 		
 		double previousTimeSec = 0;
+		boolean timeStop = false;
 		
 		File saveGameFile = new File("savegame.mri");
 		if( saveGameFile.exists() ) {
@@ -309,7 +314,9 @@ public class MainGLFW {
 				previousTimeSec = Double.valueOf(saveGameProperties.getProperty(TIME,"0"));
 				
 				camera.position.setValue(x,y,z- SCENE_POSITION.getZ());
-				
+
+				timeStop = "true".equals(saveGameProperties.getProperty(TIME_STOP,"false")) ? true : false;
+
 				in.close();
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
@@ -339,10 +346,13 @@ public class MainGLFW {
 		else {
 			viewer.setStartDate(previousTimeSec - (double)System.nanoTime() /1e9);
 		}
-		
+
+		if (timeStop) {
+			viewer.toggleTimeStop();
+		}
+
 		viewer.addIdleListener((viewer1)->{
-			double nanoTime = System.nanoTime();
-			double nowSec = nanoTime / 1e9 + viewer.getStartDate();
+			double nowSec = viewer.getNow();
 			double nowHour = nowSec / 60 / 60;
 			double nowDay = 100;//nowHour / 24; // always summer
 			double nowGame = nowHour * TimeConstants./*JMEMBA_TIME_ACCELERATION*/GTA_SA_TIME_ACCELERATION;
