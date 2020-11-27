@@ -133,6 +133,8 @@ public class MainGLFW {
 	public static final String TIME = "time_sec";
 
 	public static final String TIME_STOP = "time_stop";
+
+	public static final String FLY = "fly";
 	
 	public static SbVec3f SCENE_POSITION;
 	
@@ -229,6 +231,8 @@ public class MainGLFW {
 					saveGameProperties.setProperty(TIME, String.valueOf(getNow()));
 
 					saveGameProperties.setProperty(TIME_STOP, isTimeStop() ? "true" : "false");
+
+					saveGameProperties.setProperty(FLY, isFlying() ? "true" : "false");
 					
 					saveGameProperties.store(out, "Mount Rainier Island save game");
 				
@@ -295,6 +299,7 @@ public class MainGLFW {
 		
 		double previousTimeSec = 0;
 		boolean timeStop = false;
+		boolean fly = false;
 		
 		File saveGameFile = new File("savegame.mri");
 		if( saveGameFile.exists() ) {
@@ -316,6 +321,8 @@ public class MainGLFW {
 				camera.position.setValue(x,y,z- SCENE_POSITION.getZ());
 
 				timeStop = "true".equals(saveGameProperties.getProperty(TIME_STOP,"false")) ? true : false;
+
+				fly = "true".equals(saveGameProperties.getProperty(FLY,"false")) ? true : false;
 
 				in.close();
 			} catch (FileNotFoundException e) {
@@ -349,6 +356,10 @@ public class MainGLFW {
 
 		if (timeStop) {
 			viewer.toggleTimeStop();
+		}
+
+		if(fly) {
+			viewer.toggleFly();
 		}
 
 		viewer.addIdleListener((viewer1)->{
@@ -668,6 +679,9 @@ public class MainGLFW {
 		int nb_step = 20;
 
 		viewer.addIdleListener((viewer1)->{
+			if(viewer1.isFlying()) {
+				return;
+			}
 			double dt = Math.min(1,viewer1.dt());
 			for( int i=0;i<nb_step;i++) {
 				space.collide(data, callback);
@@ -681,7 +695,7 @@ public class MainGLFW {
 			public SbVec3f getPosition() {
 				DVector3C position = body.getPosition();
 
-				return new SbVec3f((float)position.get0(),(float)position.get1(),(float)position.get2() - 0.4f + 1.75f - 0.13f );
+				return new SbVec3f((float)position.get0(),(float)position.get1(),(float)position.get2() + 1.75f/2 - 0.13f );
 			}
 		});
 

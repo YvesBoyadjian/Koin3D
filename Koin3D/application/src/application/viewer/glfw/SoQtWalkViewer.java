@@ -358,6 +358,11 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  toggleFly();
 			  return true;
 		  }
+		  else if(
+				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.T) ) {
+			  toggleTimeStop();
+			  return true;
+		  }
 		return false;
 	}
 	
@@ -385,7 +390,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  
 		  boolean wasNotif = camera.enableNotify(false);
 
-		  if( null == positionProvider ) {
+		  if( null == positionProvider  || fly ) {
 			  camera.position.setValue(new_position);
 		  }
 		  else {
@@ -638,7 +643,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		}
 	}
 	
-	private void toggleFly() {
+	public void toggleFly() {
 		fly = !fly;
 		if(fly) {
 			SPEED = GOD;
@@ -661,6 +666,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
 	public boolean isTimeStop() {
     	return timeStop;
+	}
+
+	public boolean isFlying() {
+    	return fly;
 	}
 	
 	public double dt() {
