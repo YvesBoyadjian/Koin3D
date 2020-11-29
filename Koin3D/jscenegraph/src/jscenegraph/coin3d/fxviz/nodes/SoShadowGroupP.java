@@ -1304,7 +1304,7 @@ updateDirectionalCamera(SoState state, SoShadowLightCache cache, final SbMatrix 
   // Bounding box was calculated in camera space, so we need to "flip"
   // the box (because camera is pointing in the (0,0,-1) direction
   // from origo. Add a little slack (multiply by 1.01)
-  cam.nearDistance.setValue( -box.getMax().getValueRead()[2]*1.01f);
+  cam.nearDistance.setValue( -box.getMax().getValueRead()[2]/***//1.01f); // YB : slack was wrong for near distance
   cam.farDistance.setValue( -box.getMin().getValueRead()[2]*1.01f);
 
   final SbPlane plane = new SbPlane(dir, cam.position.getValue());
