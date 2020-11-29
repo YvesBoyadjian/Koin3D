@@ -1010,7 +1010,7 @@ for(int is=0;is<4;is++) {
 		float sinus = (float)Math.sin(sunElevationAngle);
 		for(int is=0;is<4;is++) {	    		    
 		    sun[is].maxShadowDistance.setValue(1e4f + (1 - sinus)*1e5f);
-		    sun[is].bboxSize.setValue(5000+is*3000 + (1 - sinus)*10000, 5000+is*3000 + (1 - sinus)*10000, 2000);		    
+		    sun[is].bboxSize.setValue(5000+is*3000 + (1 - sinus)*10000, 5000+is*3000 + (1 - sinus)*10000, 2000);
 		}
 	}
 	
@@ -1025,15 +1025,22 @@ for(int is=0;is<4;is++) {
 			setBBoxCenter();
 			return current_z;
 		}
-		float newZ = getInternalZ(x,y,z, new int[4]);
-		
-		if( newZ < - 150 - zTranslation + CUBE_DEPTH/2 -1.5f) {
-			newZ = - 150 - zTranslation + CUBE_DEPTH/2 -1.5f;
-		}
+		float newZ = getGroundZ();
 		
 		current_z = newZ;
 		setBBoxCenter();
 		return current_z;
+	}
+
+	public float getGroundZ() {
+
+		float newZ = getInternalZ(current_x,current_y, new int[4]);
+
+		if( newZ < - 150 - zTranslation + CUBE_DEPTH/2 -1.5f) {
+			newZ = - 150 - zTranslation + CUBE_DEPTH/2 -1.5f;
+		}
+
+		return newZ;
 	}
 	
 	private void setBBoxCenter() {
@@ -1044,7 +1051,7 @@ for(int is=0;is<4;is++) {
 		for(int is=0;is<4;is++) {
 		    sun[is].bboxCenter.setValue(
 		    		current_x+2000*world_camera_direction.getX(),
-		    		current_y+2000*world_camera_direction.getY(), current_z);			
+		    		current_y+2000*world_camera_direction.getY(), /*current_z*/getGroundZ());
 		}		
 		
 		float xTransl = - transl.translation.getValue().getX();
@@ -1164,7 +1171,7 @@ for(int is=0;is<4;is++) {
 		return indices;
 	}
 	
-	public float getInternalZ(float x, float y, float z, int[] indices) {
+	public float getInternalZ(float x, float y, int[] indices) {
 		
 		float ifloat = (x - transl.translation.getValue().getX())/delta_x;
 		float jfloat = (delta_y*(h-1) -(y - transl.translation.getValue().getY() - jstart * delta_y))/delta_y;
@@ -1222,6 +1229,8 @@ for(int is=0;is<4;is++) {
 		int index = i*h+ j;
 		
 		//z = chunks.verticesGet(index*3+2) - zTranslation;
+
+		float z;
 		
 		if(alpha + beta < 1) {
 			z = z0 + (z1 - z0)*alpha + (z3 - z0)*beta;

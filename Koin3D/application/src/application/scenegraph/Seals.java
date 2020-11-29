@@ -65,15 +65,15 @@ public class Seals {
 		for( int i = 0; i < NB_SEAL_BIRTHS; i++) {
 			float x = getRandomX(randomPlacementSeals);
 			float y = getRandomY(randomPlacementSeals);
-			float z = sg.getInternalZ(x,y,0.0f,indices) + sg.getzTranslation();
+			float z = sg.getInternalZ(x,y,indices) + sg.getzTranslation();
 			
 			boolean isNearWater = Math.abs(z - zWater) < 5;
 			boolean isAboveWater = z > zWater;
 			
-			float z1 = sg.getInternalZ(x+0.5f,y,0.0f,indices) + sg.getzTranslation();
-			float z2 = sg.getInternalZ(x-0.5f,y,0.0f,indices) + sg.getzTranslation();
-			float z3 = sg.getInternalZ(x,y+0.5f,0.0f,indices) + sg.getzTranslation();
-			float z4 = sg.getInternalZ(x,y-0.5f,0.0f,indices) + sg.getzTranslation();
+			float z1 = sg.getInternalZ(x+0.5f,y,indices) + sg.getzTranslation();
+			float z2 = sg.getInternalZ(x-0.5f,y,indices) + sg.getzTranslation();
+			float z3 = sg.getInternalZ(x,y+0.5f,indices) + sg.getzTranslation();
+			float z4 = sg.getInternalZ(x,y-0.5f,indices) + sg.getzTranslation();
 			float d1 = Math.abs(z-z1);
 			float d2 = Math.abs(z-z2);
 			float d3 = Math.abs(z-z3);

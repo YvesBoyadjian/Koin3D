@@ -232,7 +232,7 @@ public class DouglasChunk {
 			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree) + foliageWidth * (float)Math.cos(angleRadian1));
 			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree) + foliageWidth * (float)Math.sin(angleRadian1));
 
-			float z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),0.0f,indices) + df.sg.getzTranslation();
+			float z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),indices) + df.sg.getzTranslation();
 			
 			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + 2.5f,z+0.2f));
 			
@@ -249,7 +249,7 @@ public class DouglasChunk {
 			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree) + foliageWidth * (float)Math.cos(angleRadian2));
 			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree) + foliageWidth * (float)Math.sin(angleRadian2));
 			
-			z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),0.0f,indices) + df.sg.getzTranslation();
+			z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),indices) + df.sg.getzTranslation();
 			
 			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + 2.5f,z+0.2f));
 			
@@ -266,7 +266,7 @@ public class DouglasChunk {
 			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree) + foliageWidth * (float)Math.cos(angleRadian3));
 			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree) + foliageWidth * (float)Math.sin(angleRadian3));
 			
-			z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),0.0f,indices) + df.sg.getzTranslation();
+			z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),indices) + df.sg.getzTranslation();
 			
 			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + 2.5f,z+0.2f));
 			

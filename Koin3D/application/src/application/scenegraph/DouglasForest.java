@@ -92,7 +92,7 @@ public class DouglasForest {
 			for( int i = 0; i < NB_DOUGLAS_SEEDS; i++) {
 				float x = getRandomX(randomPlacementTrees);
 				float y = getRandomY(randomPlacementTrees);
-				float z = sg.getInternalZ(x,y,0.0f,indices) + sg.getzTranslation();
+				float z = sg.getInternalZ(x,y,indices) + sg.getzTranslation();
 				
 				boolean isAboveWater = z > - 150 + sg.getzTranslation() - sg.CUBE_DEPTH /2;
 				boolean isUnderSnowLevel = z < sg.ALPINE_HEIGHT;
