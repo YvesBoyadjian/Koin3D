@@ -13,6 +13,8 @@ public class SoFC {
 		SoFCSeparator.initClass();
 		SoFCSelectionRoot.initClass();
 		SoFCSelection.initClass();
+		SoFCIndexedFaceSet.initClass();
+		SoFCMaterialEngine.initClass();
 	}
 
 }
