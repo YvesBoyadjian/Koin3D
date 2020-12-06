@@ -135,7 +135,7 @@ public abstract class SoBase implements Destroyable {
 	
 	private final SoAuditorList auditors = new SoAuditorList();
 	
-	private class WriteStuff {
+	private static class WriteStuff {
 		int writeCounter;
 		boolean hasName;
 		boolean multWriteRef;

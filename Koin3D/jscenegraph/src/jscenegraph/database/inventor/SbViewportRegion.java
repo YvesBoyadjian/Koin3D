@@ -90,6 +90,8 @@ public class SbViewportRegion implements Mutable {
 	private final SbVec2s vpSizePix = new SbVec2s();
 	private boolean vpSet;
 	private float pixelsPerInch;
+
+	private static float defaultPixelsPerInch = 72.0f;
 	
 	public SbViewportRegion() {
 		
@@ -100,7 +102,7 @@ public class SbViewportRegion implements Mutable {
 		   
 		    vpSet = false;
 		   
-		    pixelsPerInch = 72.0f;
+		    pixelsPerInch = /*72.0f*/defaultPixelsPerInch;
 		  	}
 	
 	//
@@ -117,7 +119,7 @@ public class SbViewportRegion implements Mutable {
 		   
 		    vpSet = false;
 		   
-		    pixelsPerInch = 72.0f;
+		    pixelsPerInch = /*72.0f*/defaultPixelsPerInch;
 		   	}
 		
 		 ////////////////////////////////////////////////////////////////////////
@@ -137,7 +139,7 @@ public class SbViewportRegion implements Mutable {
 		  		    
 		  		        vpSet = false;
 		  		    
-		  		        pixelsPerInch = 72.0f;
+		  		        pixelsPerInch = /*72.0f*/defaultPixelsPerInch;
 		  		    		}
 		
 		 ////////////////////////////////////////////////////////////////////////
@@ -323,7 +325,37 @@ public class SbViewportRegion implements Mutable {
 			
 		}
 
-    //! Convenience function that returns number of pixels per printer's point.
+
+/*!
+  Set pixels per inch. Default value is 72.
+
+  \sa getPixelsPerInch().
+ */
+	public void setPixelsPerInch(float ppi)
+	{
+//#if COIN_DEBUG
+		if (ppi<0.0f) {
+			SoDebugError.postWarning("SbViewportRegion::setPixelsPerInch",
+					"ppi value ("+ppi+") should be >=0.0f. "+
+			"Clamped to 0.0f.");
+			ppi=0.0f;
+		}
+//#endif // COIN_DEBUG
+
+		this.pixelsPerInch = ppi;
+	}
+
+/*!
+  Get pixels per inch.
+
+  \sa setPixelsPerInch().
+ */
+	public float getPixelsPerInch()
+	{
+		return this.pixelsPerInch;
+	}
+
+	//! Convenience function that returns number of pixels per printer's point.
     public float               getPixelsPerPoint() 
         { return pixelsPerInch / 72.0f; }
 
@@ -378,4 +410,7 @@ setViewportPixels(short left, short bottom,
                         (float)(height)/(float)(this.windowSize.getValue()[1]));
 }
 
+public static void setDefaultPixelsPerInch(float defaultPixelsPerInch) { // YB
+	SbViewportRegion.defaultPixelsPerInch = defaultPixelsPerInch;
+}
 }

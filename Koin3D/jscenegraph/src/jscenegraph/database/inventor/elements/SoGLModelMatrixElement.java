@@ -254,6 +254,10 @@ translateEltBy(final SbVec3f translation)
 ////////////////////////////////////////////////////////////////////////
 {
     super.translateEltBy(translation);
+
+    if (translation.getX() == 0f && translation.getY() == 0f && translation.getZ() == 0f) { // YB Koin3D
+        return;
+    }
     
     GL2 gl2 = state.getGL2();
 
@@ -281,8 +285,11 @@ rotateEltBy(final SbRotation rotation)
     super.rotateEltBy(rotation);
 
     rotation.getValue(axis, angle);
-    
-    glRotatef(angle[0] * (180.0f / (float)Math.PI), axis.getX(), axis.getY(), axis.getZ());
+
+    if ( angle[0] == 0f ) { // YB Koin3D
+        return;
+    }
+    glRotatef(angle[0] * (180.0f / (float) Math.PI), axis.getX(), axis.getY(), axis.getZ());
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -298,10 +305,14 @@ scaleEltBy(final SbVec3f scaleFactor)
 ////////////////////////////////////////////////////////////////////////
 {
     super.scaleEltBy(scaleFactor);
+
+    if(scaleFactor.getX() == 1f && scaleFactor.getY() == 1f && scaleFactor.getZ() == 1f ) { // YB Koin3D
+        return;
+    }
     
     GL2 gl2 = state.getGL2();
 
-    glScalef(scaleFactor.getValueRead()[0], scaleFactor.getValueRead()[1], scaleFactor.getValueRead()[2]);
+    glScalef(scaleFactor.getX(), scaleFactor.getY(), scaleFactor.getZ());
 }
 
 ////////////////////////////////////////////////////////////////////////

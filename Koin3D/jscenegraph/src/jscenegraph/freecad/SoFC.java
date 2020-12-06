@@ -15,6 +15,9 @@ public class SoFC {
 		SoFCSelection.initClass();
 		SoFCIndexedFaceSet.initClass();
 		SoFCMaterialEngine.initClass();
+		SoBrepPointSet.initClass();
+		SoBrepEdgeSet.initClass();
+		SoBrepFaceSet.initClass();
 	}
 
 }

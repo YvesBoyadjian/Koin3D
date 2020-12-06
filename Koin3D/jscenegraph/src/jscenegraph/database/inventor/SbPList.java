@@ -283,6 +283,7 @@ public SbPList(final SbPList pl)
 	// java port : destructor
 	@Override
 	public void destructor() {
+		truncate(0);
 		ptrs = null;
 	}
 	

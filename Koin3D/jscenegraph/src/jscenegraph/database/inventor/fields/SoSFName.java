@@ -29,7 +29,16 @@ public boolean readValue(SoInput in)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    return in.read(value);
+    //return in.read(value);
+	// Reading as SbString instead of as SbName, because the semantics
+	// of SoInput::read(SbName&) is to read token identifiers, such as
+	// node or field names, and doesn't e.g. handle quotes as expected
+	// for a "free-form" string.
+	final String[] s = new String[1];
+	boolean ok = in.read(s);
+	if (!ok) return false;
+	this.value.copyFrom(new SbName(s[0]));
+	return true;
 }
 
 /**

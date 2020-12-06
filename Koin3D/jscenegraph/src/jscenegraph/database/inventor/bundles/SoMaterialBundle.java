@@ -177,6 +177,28 @@ public void destructor()
         { reallySend(index, false, true); }
 
 
+/*!
+  Will send the material to GL even though \a index equals the current
+  index.
+
+  Provided for compatibility with the SGI Open Inventor v2.1 API.
+*/
+//    public void forceSend( int index) COIN3D
+//    {
+//        if (this.firsttime) this.setupElements(false);
+//        this.reallySend(index);
+//        this.currindex = index;
+//    }
+
+//
+// private method. Will send needed material values to GL.
+//
+    public void
+    reallySend( int index) // COIN3D
+    {
+        this./*lazyelem*/lazyElt.sendDiffuseByIndex(index);
+    }
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -209,10 +231,10 @@ reallySend(int index, boolean isBetweenBeginEnd,
 
 //#ifdef DEBUG
     // Make sure the index is valid
-    if (index >= numMaterials){
-        SoDebugError.post("SoMaterialBundle::reallySend", 
-            "Not enough colors specified");
-    }    
+//    if (index >= numMaterials){ TODO : see "villa.iv" (FreeCAD Villa savoye)
+//        SoDebugError.post("SoMaterialBundle::reallySend",
+//            "Not enough colors specified");
+//    }
 //#endif
     lazyElt.sendDiffuseByIndex(index);
     lastIndex = index;

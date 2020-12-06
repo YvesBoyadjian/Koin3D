@@ -1,7 +1,9 @@
 package vrmlviewer;
 
+import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoInputFile;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.*;
 import jsceneviewerawt.inventor.qt.SoQt;
 import jsceneviewerawt.inventor.qt.SoQtCameraController;
@@ -38,11 +40,12 @@ public static void main(String[] args) {
     //String path = "C:/Users/Yves Boyadjian/Downloads/83_honda_atc.wrl";
     String path = "C:/Users/Yves Boyadjian/Downloads/doom-combat-scene_wrl/doom combat scene.wrl";
 
+    SbViewportRegion.setDefaultPixelsPerInch(7.20f);
+
     SoSeparator cache = new SoSeparator();
 
     cache.ref();
 
-    cache.renderCaching.setValue(SoSeparator.CacheEnabled.ON);
 
     SoText3 text = new SoText3();
     text.string.setValue("Drag an Drop your WRL file here");
@@ -55,6 +58,10 @@ public static void main(String[] args) {
                 SoQtCameraController.Type.BROWSER,
                 /*panel*/frame.getContentPane()
         );
+
+        //examinerViewer.setAntialiasing(true, 256);
+        examinerViewer.getSceneHandler().setTransparencyType(SoGLRenderAction.TransparencyType.DELAYED_BLEND);
+        //examinerViewer.getSceneHandler().getGLRenderAction().setNumPasses(199);
 
         examinerViewer.buildWidget(0);
 
@@ -71,9 +78,17 @@ public static void main(String[] args) {
                     List<File> droppedFiles = (List<File>)
                             evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     cache.removeAllChildren();
+
                     for (File file : droppedFiles) {
                         SoFile input = new SoFile();
                         input.name.setValue(file.toString());
+
+                        if(file.toString().endsWith(".iv")) {
+                            cache.renderCaching.setValue(SoSeparator.CacheEnabled.AUTO);
+                        }
+                        else {
+                            cache.renderCaching.setValue(SoSeparator.CacheEnabled.ON);
+                        }
 
                         cache.addChild(input);
                         examinerViewer.viewAll();

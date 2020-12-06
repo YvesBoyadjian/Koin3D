@@ -29,7 +29,7 @@ so_vrml_init()
   SoVRMLSensor.initClass();
   SoVRMLDragSensor.initClass();
 //
-//  SoVRMLAnchor::initClass();
+  SoVRMLAnchor.initClass();
   SoVRMLAppearance.initClass();
 //  SoVRMLAudioClip::initClass();
   SoVRMLBackground.initClass();

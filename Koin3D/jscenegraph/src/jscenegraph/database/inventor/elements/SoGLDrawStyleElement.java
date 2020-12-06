@@ -97,7 +97,7 @@ public class SoGLDrawStyleElement extends SoDrawStyleElement {
     //! a chance to change our decision about what GL calls to make.
     //! If this is NULL, then there are no cache dependencies.
     SoState            copiedFromParent;
-	
+
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -132,7 +132,7 @@ push(SoState state)
 ////////////////////////////////////////////////////////////////////////
 {
 	gl2 = state.getGL2(); //java port
-	
+
      SoGLDrawStyleElement  prevElt =
         ( SoGLDrawStyleElement ) getNextInStack();
 
@@ -153,6 +153,8 @@ pop(SoState state, SoElement childElt)
 //
 ////////////////////////////////////////////////////////////////////////
 {
+    gl2 = state.getGL2(); //java port
+
     // Since popping this element has GL side effects, make sure any
     // open caches capture it.  We may not send any GL commands, but
     // the cache dependency must exist even if we don't send any GL
