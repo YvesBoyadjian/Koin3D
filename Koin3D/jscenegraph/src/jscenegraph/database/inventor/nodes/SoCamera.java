@@ -1059,7 +1059,7 @@ static int      numExtraSamples = 0;
 //
 // Use: private, static
 
-private static void
+public static void
 getJitterSample(int numPasses, int curPass, final SbVec2f samplePoint)
 //
 ////////////////////////////////////////////////////////////////////////

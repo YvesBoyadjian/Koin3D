@@ -462,9 +462,13 @@
 // *************************************************************************
 package jscenegraph.database.inventor.actions;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import jscenegraph.database.inventor.nodes.SoCamera;
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import com.jogamp.opengl.GL;
@@ -497,6 +501,8 @@ import jscenegraph.database.inventor.misc.SoCallbackList;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Util;
+
+import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * @author Yves Boyadjian
@@ -737,6 +743,13 @@ doPathSort()
 	  this.isrendering = false;
 	}
 
+	float sinc(float x) {
+	    if ( x == 0 ) {
+	        return 1f;
+        }
+	    return (float)Math.sin(x)/x;
+    }
+
 	//
 	// render multiple passes (antialiasing)
 	//
@@ -775,6 +788,88 @@ doPathSort()
 	  }
 	  this.currentpass = storedpass;
 	  gl2.glAccum(GL2.GL_RETURN, 1.0f);
+
+//	  if(this.numpasses < 2) {
+//	      return;
+//      }
+//
+//	  int width = viewport.getViewportSizePixels().getX();
+//	  int height = viewport.getViewportSizePixels().getY();
+//
+//	  if ( width < 3 || height < 3) {
+//	      return;
+//      }
+//
+//	  ByteBuffer image = BufferUtils.createByteBuffer(3*3*Float.BYTES);
+//
+//        final SbVec2f samplePoint = new SbVec2f();
+//
+//        FloatBuffer floatBuffer = image.asFloatBuffer();
+//        int index;
+//
+//        float[] x = new float[3];
+//        float[] y = new float[3];
+//
+//	  for( int pass=0;pass<this.numpasses;pass++) {
+//          SoCamera.getJitterSample(this.numpasses, pass,samplePoint);
+//          float dx = samplePoint.getX();
+//          float dy = samplePoint.getY();
+//          for( int i= -1; i<=1; i++) {
+//              x[i+1] += sinc((i+dx)*(float)Math.PI);
+//          }
+//          for( int j = -1; j<=1;j++) {
+//              y[j+1] += sinc((j+dy)*(float)Math.PI);
+//          }
+//      }
+//
+//	  x[0] = x[2] = -0.2f;
+//	  x[1] = 1.4f;
+//
+//        y[0] = y[2] = -0.2f;
+//        y[1] = 1.4f;
+//
+//        for( int i= -1; i<=1; i++) {
+//            for (int j = -1; j <= 1; j++) {
+//                float value = x[i+1]*y[j+1];
+//                index = i + 1 + (j + 1) * 3;
+//                floatBuffer.put(index,value);
+//            }
+//        }
+//
+//    for(index=0;index<9;index++) {
+//        float value = floatBuffer.get(index)/*/this.numpasses/this.numpasses*/;
+//        floatBuffer.put(index, value);
+//    }
+//
+//	  gl2.glEnable(GL2.GL_CONVOLUTION_2D);
+//	  gl2.glConvolutionFilter2D( GL2.GL_CONVOLUTION_2D,
+//
+//            GL2.GL_RGB,
+//
+//            3,
+//
+//            3,
+//
+//            GL2.GL_LUMINANCE,
+//
+//            GL2.GL_FLOAT,
+//
+//            image );
+////
+////      //gl2.glRasterPos2i(width/2-100, height/2-100);
+////	  //gl2.glCopyPixels(0,0,width/2,height/2,GL2.GL_COLOR);
+////
+////        //gl2.glPixelZoom(2.0f, 2.0f);
+//        //gl2.glRasterPos2i(0, 0);
+//        gl2.glRasterPos2f(-1f, -1f);
+//
+//        gl2.glReadBuffer(GL2.GL_FRONT);
+//        gl2.glDrawBuffer(GL2.GL_FRONT);
+//        //gl2.glClear(GL_DEPTH_BUFFER_BIT);
+//        //gl2.glDisable(GL2.GL_DEPTH_TEST);
+//
+//        gl2.glCopyPixels(-1, -1, width, height, GL2.GL_COLOR);
+//        gl2.glDisable(GL2.GL_CONVOLUTION_2D);
 	}
 
 	

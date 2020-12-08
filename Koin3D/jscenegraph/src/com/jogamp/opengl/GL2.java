@@ -11,6 +11,7 @@ import java.nio.ShortBuffer;
 import java.nio.charset.Charset;
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.ARBImaging;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.system.MemoryStack;
 
@@ -3069,6 +3070,38 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 		org.lwjgl.opengl.GL11.glDrawBuffer(arg);
 	}
 
+	default void glReadBuffer(int arg) {
+		org.lwjgl.opengl.GL11.glReadBuffer(arg);
+	}
+
+	default void glPixelZoom(float x, float y) {
+		org.lwjgl.opengl.GL11.glPixelZoom(x,y);
+	}
+
+	default void glRasterPos2i(int x, int y) {
+		org.lwjgl.opengl.GL11.glRasterPos2i(x,y);
+	}
+
+	default void glRasterPos2f(float x, float y) {
+		org.lwjgl.opengl.GL11.glRasterPos2f(x,y);
+	}
+
+	default void glConvolutionFilter2D( int target,
+
+								int internalformat,
+
+								int width,
+
+								int height,
+
+								int format,
+
+								int type,
+
+ByteBuffer data ) {
+		ARBImaging.glConvolutionFilter2D(target,internalformat,width,height,format,type,data);
+	}
+
 	default void glDepthRange(double arg1, double arg2) {
 		org.lwjgl.opengl.GL11.glDepthRange(arg1,arg2);
 	}
@@ -3636,6 +3669,17 @@ public interface GL2 extends GL2ES1, GL2GL3 {
 			throw new IllegalArgumentException();
 		}
 		org.lwjgl.opengl.GL11.glPixelMapuiv(map, values);
+	}
+
+	default void glCopyPixels( int x,
+
+							   int y,
+
+							   int width,
+							   int height,
+
+							   int type ) {
+		org.lwjgl.opengl.GL11.glCopyPixels(x,y,width,height,type);
 	}
 
 	default void glFinish() {

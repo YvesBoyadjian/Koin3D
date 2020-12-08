@@ -59,9 +59,8 @@ public static void main(String[] args) {
                 /*panel*/frame.getContentPane()
         );
 
-        //examinerViewer.setAntialiasing(true, 256);
+        //examinerViewer.setAntialiasing(true, 66);
         examinerViewer.getSceneHandler().setTransparencyType(SoGLRenderAction.TransparencyType.DELAYED_BLEND);
-        //examinerViewer.getSceneHandler().getGLRenderAction().setNumPasses(199);
 
         examinerViewer.buildWidget(0);
 
