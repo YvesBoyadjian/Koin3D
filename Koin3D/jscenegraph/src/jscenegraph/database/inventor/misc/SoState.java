@@ -498,7 +498,8 @@ public class SoState implements Destroyable {
 			GL2 gl2 = Ctx.get(GLRenderAction.getCacheContext());
 			return gl2;
 		}
-		throw new IllegalStateException("Not in a SoGLRenderAction");
+		return new GL2(){};
+		//throw new IllegalStateException("Not in a SoGLRenderAction");
 	}
 	
     //! Returns the top (read-only) instance of the given element stack

@@ -26,6 +26,11 @@ public class SbTesselator {
 		
 	}
 
+	public void beginPolygon(boolean keepVertices) {
+		// TODO Auto-generated method stub
+
+	}
+
 	public void endPolygon() {
 		// TODO Auto-generated method stub
 		

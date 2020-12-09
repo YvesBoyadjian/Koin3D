@@ -522,7 +522,12 @@ public GLData format()
             if (e instanceof MouseEvent) {
             	MouseEvent me = (MouseEvent)e;
             	if(me.getButton() == MouseEvent.BUTTON1 && me.getModifiersEx() == 0) {
-            		requestFocus();
+            		if(mainWidget != null) {
+            			mainWidget.requestFocus();
+					}
+            		else {
+						requestFocus();
+					}
             	}
             }
         }

@@ -91,6 +91,12 @@ public class IntArrayPtr implements Destroyable, IntBufferAble {
 		return array[intOffset];
 	}
 
+	public int getPlusPlus() {
+		int retVal = array[intOffset];
+		plusPlus();
+		return retVal;
+	}
+
 	public int[] getValues() {
 		return array;
 	}

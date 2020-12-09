@@ -191,7 +191,7 @@ SoFont, SoProfile, SoText2, SoTextDetail
 /**
  * @author Yves Boyadjian
  *
- * TODO : classe à implémenter
+ * TODO : classe ï¿½ implï¿½menter
  */
 public class SoText3 extends SoShape {
 	
@@ -2287,7 +2287,8 @@ private void getFrontBBox(final SbBox2f result)
     // Set up default texture coordinate mapping, if necessary:
     SoMultiTextureCoordinateElement.CoordType tcType =
         SoMultiTextureCoordinateElement.getType(state,0);
-    if (tcType == SoMultiTextureCoordinateElement.CoordType.EXPLICIT) {
+    if (tcType == SoMultiTextureCoordinateElement.CoordType.EXPLICIT
+    ||tcType == SoMultiTextureCoordinateElement.CoordType.DEFAULT) { // YB TODO
         genTexCoord = true;
         tce = null;
     } else {

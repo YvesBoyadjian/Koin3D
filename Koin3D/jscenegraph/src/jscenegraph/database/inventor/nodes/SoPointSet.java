@@ -57,12 +57,7 @@ package jscenegraph.database.inventor.nodes;
 import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
-import jscenegraph.database.inventor.SbBox3f;
-import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.SbVec4f;
-import jscenegraph.database.inventor.SoDebug;
-import jscenegraph.database.inventor.SoPrimitiveVertex;
-import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoRayPickAction;
@@ -85,6 +80,8 @@ import jscenegraph.database.inventor.fields.SoSFInt32;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.MutableSbVec3fArray;
+import jscenegraph.port.SbVec3fArray;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,8 +163,12 @@ public class SoPointSet extends SoNonIndexedShape
 		  return nodeHeader.getFieldData();
 	  }
 	  public  static SoFieldData[] getFieldDataPtr()                              
-	        { return SoSubNode.getFieldDataPtr(SoPointSet.class); }    	  	
-	
+	        { return SoSubNode.getFieldDataPtr(SoPointSet.class); }
+
+  enum Binding {
+    OVERALL,
+    PER_VERTEX
+  };
 
 //! This value, when used in the numPoints field, means use the rest of
 //! the coordinates as points
@@ -188,6 +189,38 @@ public static final int SO_POINT_SET_USE_REST_OF_POINTS = -1;
     	  isBuiltIn = true;
     }
 
+
+// Internal method which translates the current material binding
+// found on the state to a material binding for this node.
+// PER_PART, PER_FACE, PER_VERTEX and their indexed counterparts
+// are translated to PER_VERTEX binding. OVERALL means overall
+// binding for point set also, of course. The default material
+// binding is OVERALL.
+  private SoPointSet.Binding
+  findMaterialBinding(SoState state)
+  {
+    Binding binding = Binding.OVERALL;
+    if (SoMaterialBindingElement.get(state) !=
+          SoMaterialBindingElement.Binding.OVERALL) binding = Binding.PER_VERTEX;
+    return binding;
+  }
+
+//  Internal method which translates the current normal binding
+//  found on the state to a normal binding for this node.
+//  PER_PART, PER_FACE, PER_VERTEX and their indexed counterparts
+//  are translated to PER_VERTEX binding. OVERALL means overall
+//  binding for point set also, of course. The default normal
+//  binding is PER_VERTEX.
+  public SoPointSet.Binding
+  findNormalBinding(SoState state)
+
+  {
+    Binding binding = Binding.PER_VERTEX;
+
+    if (SoNormalBindingElement.get(state) ==
+          SoNormalBindingElement.Binding.OVERALL) binding = Binding.OVERALL;
+    return binding;
+  }
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -346,125 +379,207 @@ computeBBox(SoAction action, final SbBox3f box, final SbVec3f center)
 //
 // Use: protected
 
-protected void
-generatePrimitives(SoAction action)
+//protected void
+//generatePrimitives(SoAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//  // When generating primitives for picking, delay computing default
+//  // texture coordinates
+//  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
 //
-////////////////////////////////////////////////////////////////////////
+//  boolean                      materialPerPoint, normalPerPoint;
+//  int                     numPts;
+//  int                         curCoord, i;
+//  final SoPrimitiveVertex           pv = new SoPrimitiveVertex();
+//  final SoPointDetail               detail = new SoPointDetail();
+//
+//  // Push state, just in case we decide to set the NormalElement
+//  // because we're doing auto-normal generation.
+//  SoState state = action.getState();
+//  state.push();
+//
+//  // Put vertexProperty stuff into state:
+//  SoVertexProperty vp = (SoVertexProperty)vertexProperty.getValue();
+//  if (vp != null) {
+//    vp.doAction(action);
+//  }
+//
+//  // This extra level of brackets is to make bundle constructors get
+//  // called before state.pop() is called:
+//  {
+//     SoCoordinateElement     ce = ( SoCoordinateElement ) //YB not GL when picking
+//      SoCoordinateElement.getInstance(action.getState());
+//
+//    // Figure out number of points in set
+//    curCoord = (int) startIndex.getValue();
+//    numPts = numPoints.getValue();
+//    if (numPts == SO_POINT_SET_USE_REST_OF_POINTS)
+//      numPts = ce.getNum() - curCoord;
+//
+//    materialPerPoint = areMaterialsPerPoint(action);
+//    normalPerPoint   = areNormalsPerPoint(action);
+//
+//    // Test for auto-normal case; since this modifies an element this
+//    // MUST BE DONE BEFORE ANY BUNDLES ARE CREATED!
+//    SoNormalElement ne = SoNormalElement.getInstance(state);
+//    if (ne.getNum() == 0) {
+//      normalPerPoint = false;
+//    }
+//
+//    if (forPicking)
+//      pv.setTextureCoords(new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f));
+//
+//    pv.setDetail(detail);
+//
+//    final SoTextureCoordinateBundle       tcb = new SoTextureCoordinateBundle(action, false, ! forPicking);
+//
+//    pv.setMaterialIndex(curCoord);
+//    detail.setMaterialIndex(curCoord);
+//
+//    if (! normalPerPoint) {
+//      if (ne.getNum() == 0) pv.setNormal(new SbVec3f(0,0,0));
+//      else pv.setNormal(ne.get(0));
+//      detail.setNormalIndex(0);
+//    }
+//
+//    // Get the complexity element and decide how points will be skipped
+//    // during processing; note that we don't want to skip anything
+//    // when picking.
+//    float cmplxValue = SoComplexityElement.get(action.getState());
+//    float delta = 1.8f * (0.5f - ((cmplxValue < 0.5) ? cmplxValue : 0.5f));
+//    float fraction = 0.0f;
+//    if (forPicking)
+//      delta = 0.0f;
+//
+//    for (i = 0; i < numPts; i++, fraction += delta) {
+//
+//      // Check to see if this point should be skipped due to complexity
+//      if (fraction >= 1.0) {
+//        fraction -= 1.0;
+//        curCoord++;
+//        continue;
+//      }
+//
+//      // Set coordinates, normal, and texture coordinates in
+//      // detail
+//
+//      pv.setPoint(ce.get3(curCoord));
+//      detail.setCoordinateIndex(curCoord);
+//      if (normalPerPoint) {
+//        pv.setNormal(ne.get(curCoord));
+//        detail.setNormalIndex(curCoord);
+//      }
+//      if (materialPerPoint) {
+//        pv.setMaterialIndex(curCoord);
+//        detail.setMaterialIndex(curCoord);
+//      }
+//      if (tcb.isFunction()) {
+//        if (! forPicking)
+//          pv.setTextureCoords(tcb.get(pv.getPoint(),
+//          pv.getNormal()));
+//        detail.setTextureCoordIndex(0);
+//      }
+//      else {
+//        pv.setTextureCoords(tcb.get(curCoord));
+//        detail.setTextureCoordIndex(curCoord);
+//      }
+//
+//      // Generate a point primitive
+//      invokePointCallbacks(action, pv);
+//
+//      curCoord++;
+//    }
+//
+//  }
+//  state.pop();     // Restore NormalElement
+//
+//  pv.destructor();
+//  detail.destructor();
+//}
+
+// doc from parent
+  public void
+  generatePrimitives(SoAction action)
 {
-  // When generating primitives for picking, delay computing default
-  // texture coordinates
-  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
+  int numpts = this.numPoints.getValue();
+  if (numpts == 0) return;
 
-  boolean                      materialPerPoint, normalPerPoint;
-  int                     numPts;
-  int                         curCoord, i;
-  final SoPrimitiveVertex           pv = new SoPrimitiveVertex();
-  final SoPointDetail               detail = new SoPointDetail();
-
-  // Push state, just in case we decide to set the NormalElement
-  // because we're doing auto-normal generation.
   SoState state = action.getState();
+
+  if (this.vertexProperty.getValue() != null) {
   state.push();
-
-  // Put vertexProperty stuff into state:
-  SoVertexProperty vp = (SoVertexProperty)vertexProperty.getValue();
-  if (vp != null) {
-    vp.doAction(action);
-  }
-
-  // This extra level of brackets is to make bundle constructors get
-  // called before state.pop() is called:
-  {
-     SoGLCoordinateElement     ce = ( SoGLCoordinateElement )
-      SoCoordinateElement.getInstance(action.getState());
-
-    // Figure out number of points in set
-    curCoord = (int) startIndex.getValue();
-    numPts = numPoints.getValue();
-    if (numPts == SO_POINT_SET_USE_REST_OF_POINTS)
-      numPts = ce.getNum() - curCoord;
-
-    materialPerPoint = areMaterialsPerPoint(action);
-    normalPerPoint   = areNormalsPerPoint(action);
-
-    // Test for auto-normal case; since this modifies an element this
-    // MUST BE DONE BEFORE ANY BUNDLES ARE CREATED!
-    SoNormalElement ne = SoNormalElement.getInstance(state);
-    if (ne.getNum() == 0) {
-      normalPerPoint = false;
-    }
-
-    if (forPicking)
-      pv.setTextureCoords(new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f));
-
-    pv.setDetail(detail);
-
-    final SoTextureCoordinateBundle       tcb = new SoTextureCoordinateBundle(action, false, ! forPicking);
-
-    pv.setMaterialIndex(curCoord);
-    detail.setMaterialIndex(curCoord);
-
-    if (! normalPerPoint) {
-      if (ne.getNum() == 0) pv.setNormal(new SbVec3f(0,0,0));
-      else pv.setNormal(ne.get(0));
-      detail.setNormalIndex(0);
-    }
-
-    // Get the complexity element and decide how points will be skipped
-    // during processing; note that we don't want to skip anything
-    // when picking.
-    float cmplxValue = SoComplexityElement.get(action.getState());
-    float delta = 1.8f * (0.5f - ((cmplxValue < 0.5) ? cmplxValue : 0.5f));
-    float fraction = 0.0f;
-    if (forPicking)
-      delta = 0.0f;
-
-    for (i = 0; i < numPts; i++, fraction += delta) {
-
-      // Check to see if this point should be skipped due to complexity
-      if (fraction >= 1.0) {
-        fraction -= 1.0;
-        curCoord++;
-        continue;
-      }
-
-      // Set coordinates, normal, and texture coordinates in
-      // detail
-
-      pv.setPoint(ce.get3(curCoord));
-      detail.setCoordinateIndex(curCoord);
-      if (normalPerPoint) {
-        pv.setNormal(ne.get(curCoord));
-        detail.setNormalIndex(curCoord);
-      }
-      if (materialPerPoint) {
-        pv.setMaterialIndex(curCoord);
-        detail.setMaterialIndex(curCoord);
-      }
-      if (tcb.isFunction()) {
-        if (! forPicking)
-          pv.setTextureCoords(tcb.get(pv.getPoint(),
-          pv.getNormal()));
-        detail.setTextureCoordIndex(0);
-      }
-      else {
-        pv.setTextureCoords(tcb.get(curCoord));
-        detail.setTextureCoordIndex(curCoord);
-      }
-
-      // Generate a point primitive
-      invokePointCallbacks(action, pv);
-
-      curCoord++;
-    }
-
-  }
-  state.pop();     // Restore NormalElement
-  
-  pv.destructor();
-  detail.destructor();
+  this.vertexProperty.getValue().doAction(action);
 }
 
+  final SoCoordinateElement[] coords = new SoCoordinateElement[1]; //ptr
+  final SbVec3fArray[] normals = new SbVec3fArray[1]; // ptr
+  boolean doTextures;
+  boolean needNormals = true;
+
+  SoVertexShape.getVertexData(action.getState(), coords, normals,
+        needNormals);
+
+  if (normals[0] == null) needNormals = false;
+
+  final SoTextureCoordinateBundle tb = new SoTextureCoordinateBundle(action, false, false);
+  doTextures = tb.needCoordinates();
+
+  Binding mbind = this.findMaterialBinding(action.getState());
+  Binding nbind = this.findNormalBinding(action.getState());
+
+  if (!needNormals) nbind = Binding.OVERALL;
+
+  final SoPrimitiveVertex vertex = new SoPrimitiveVertex();
+  final SoPointDetail pointDetail = new SoPointDetail();
+  vertex.setDetail(pointDetail);
+
+  final SbVec3fSingle dummynormal = new SbVec3fSingle(0.0f, 0.0f, 1.0f);
+  final MutableSbVec3fArray currnormal = ( normals[0] == null) ? new MutableSbVec3fArray(dummynormal) :
+  MutableSbVec3fArray.from(normals[0]);
+  if (nbind == Binding.OVERALL && needNormals)
+    vertex.setNormal(currnormal.get(0));
+
+  int idx = this.startIndex.getValue();
+  if (numpts < 0) numpts = coords[0].getNum() - idx;
+
+  int matnr = 0;
+  int texnr = 0;
+  int normnr = 0;
+
+  this.beginShape(action, SoShape.TriangleShape.POINTS);
+  for (int i = 0; i < numpts; i++) {
+    if (nbind == Binding.PER_VERTEX) {
+      pointDetail.setNormalIndex(normnr);
+      currnormal.assign(normals[0],normnr); normnr++;
+      vertex.setNormal(currnormal.get(0));
+    }
+    if (mbind == Binding.PER_VERTEX) {
+      pointDetail.setMaterialIndex(matnr);
+      vertex.setMaterialIndex(matnr++);
+    }
+    if (doTextures) {
+      if (tb.isFunction()) {
+        vertex.setTextureCoords(tb.get(coords[0].get3(idx), currnormal.get(0)));
+      }
+      else {
+        pointDetail.setTextureCoordIndex(texnr);
+        vertex.setTextureCoords(tb.get(texnr++));
+      }
+    }
+    pointDetail.setCoordinateIndex(idx);
+    vertex.setPoint(coords[0].get3(idx++));
+    this.shapeVertex(vertex);
+  }
+  this.endShape();
+
+  if (this.vertexProperty.getValue() != null)
+  state.pop();
+
+  tb.destructor();
+  vertex.destructor();
+  pointDetail.destructor();
+}
 
 ////////////////////////////////////////////////////////////////////////
 //

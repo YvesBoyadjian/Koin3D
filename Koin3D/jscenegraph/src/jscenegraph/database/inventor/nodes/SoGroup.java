@@ -434,7 +434,9 @@ public boolean readChildren(SoInput in)
     return ret;
 }
 
-	   
+	   public void doAction(SoAction action) {
+		SoGroup_doAction(action);
+	   }
 	   
 	   ////////////////////////////////////////////////////////////////////////
 	    //

@@ -1467,8 +1467,8 @@ generatePrimitives(SoAction action)
   if (normals[0] != null) currnormal = MutableSbVec3fArray.from( normals[0]);
   vertex.setNormal(currnormal.get(0));
 
-  final int[] matnr = new int[0];
-  final int[] normnr = new int[0];
+  final int[] matnr = new int[1];
+  final int[] normnr = new int[1];
 
   while (viptr.plusLessThan(2, viendptr)) {
     v1 = viptr.get(); viptr.plusPlus();

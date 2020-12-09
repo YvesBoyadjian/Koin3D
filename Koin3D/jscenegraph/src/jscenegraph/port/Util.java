@@ -15,6 +15,7 @@ import com.jogamp.common.nio.Buffers;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
+import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**
@@ -428,4 +429,10 @@ public class Util {
 	public static int sizeof(IntArrayPtr ptr) {
 		return Integer.BYTES;
 	}
+
+    public static<T extends Mutable> void memcpy(Array<T> dest, Array<T> src, int nb) {
+		for( int i=0; i<nb;i++) {
+			dest.set(i,src.get(i));
+		}
+    }
 }

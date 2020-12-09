@@ -556,63 +556,69 @@ public boolean seekToPoint(final SbVec2s mouseLocation)
     // do the picking
     // Use assignment notation to disambiguate from expression (edison)
     final SoRayPickAction pick = new SoRayPickAction(new SbViewportRegion(sceneSize));
-    pick.setPoint(mouseLocation);
-    pick.setRadius(1.0f);
-    pick.setPickAll(false); // pick only the closest object
-    pick.apply(sceneRoot);
+    try {
+        pick.setPoint(mouseLocation);
+        pick.setRadius(1.0f);
+        pick.setPickAll(false); // pick only the closest object
+        pick.apply(sceneRoot);
 
-    // makes sure something got picked
-    SoPickedPoint pp = pick.getPickedPoint();
-    if ( pp == null ) {
-        setSeekMode(false);
-        return false;
-    }
-
-    // Get picked point and normal if detailtSeek
-    if (detailSeekFlag) {
-
-        seekPoint.copyFrom( pp.getPoint());
-        seekNormal.copyFrom( pp.getNormal());
-
-        // check to make sure normal points torward the camera, else
-        // flip the normal around
-        if ( seekNormal.dot(camera.position.getValue().operator_minus(seekPoint)) < 0 ) {
-            seekNormal.negate();
-        }
-    }
-    // else get object bounding box as the seek point and the camera
-    // orientation as the normal.
-    else {
-        // get center of object's bounding box
-        // Use assignment notation to disambiguate from expression (edison)
-        final SoGetBoundingBoxAction bba = new SoGetBoundingBoxAction(new SbViewportRegion(sceneSize));
-        bba.apply(pp.getPath());
-        final SbBox3f bbox = bba.getBoundingBox();
-        seekPoint.copyFrom( bbox.getCenter());
-
-        // keep the camera oriented the same way
-        final SbMatrix mx = new SbMatrix();
-        mx.copyFrom( camera.orientation.getValue());
-        seekNormal.setValue(mx.getValue()[2][0], mx.getValue()[2][1], mx.getValue()[2][2]);
-    }
-
-    // now check if animation sensor needs to be scheduled
-    computeSeekVariables = true;
-    if (seekAnimTime == 0) {
-        // jump to new location, no animation needed
-        interpolateSeekAnimation(1.0f);
-    } else {
-        // schedule sensor and call viewer start callbacks
-        if ( seekAnimationSensor.getAttachedField() == null ) {
-            seekAnimationSensor.attach(getRealTime());
-            seekAnimationSensor.schedule();
-            animationStarted();
+        // makes sure something got picked
+        SoPickedPoint pp = pick.getPickedPoint();
+        if (pp == null) {
+            setSeekMode(false);
+            return false;
         }
 
-        seekStartTime.copyFrom(getRealTime().getValue());
-    }
+        // Get picked point and normal if detailtSeek
+        if (detailSeekFlag) {
 
-    return true;    // successfull
+            seekPoint.copyFrom(pp.getPoint());
+            seekNormal.copyFrom(pp.getNormal());
+
+            // check to make sure normal points torward the camera, else
+            // flip the normal around
+            if (seekNormal.dot(camera.position.getValue().operator_minus(seekPoint)) < 0) {
+                seekNormal.negate();
+            }
+        }
+        // else get object bounding box as the seek point and the camera
+        // orientation as the normal.
+        else {
+            // get center of object's bounding box
+            // Use assignment notation to disambiguate from expression (edison)
+            final SoGetBoundingBoxAction bba = new SoGetBoundingBoxAction(new SbViewportRegion(sceneSize));
+            bba.apply(pp.getPath());
+            final SbBox3f bbox = bba.getBoundingBox();
+            seekPoint.copyFrom(bbox.getCenter());
+
+            // keep the camera oriented the same way
+            final SbMatrix mx = new SbMatrix();
+            mx.copyFrom(camera.orientation.getValue());
+            seekNormal.setValue(mx.getValue()[2][0], mx.getValue()[2][1], mx.getValue()[2][2]);
+            bba.destructor(); // java port
+        }
+
+        // now check if animation sensor needs to be scheduled
+        computeSeekVariables = true;
+        if (seekAnimTime == 0) {
+            // jump to new location, no animation needed
+            interpolateSeekAnimation(1.0f);
+        } else {
+            // schedule sensor and call viewer start callbacks
+            if (seekAnimationSensor.getAttachedField() == null) {
+                seekAnimationSensor.attach(getRealTime());
+                seekAnimationSensor.schedule();
+                animationStarted();
+            }
+
+            seekStartTime.copyFrom(getRealTime().getValue());
+        }
+
+        return true;    // successfull
+    }
+    finally {
+        pick.destructor(); // java port
+    }
 }
 
 

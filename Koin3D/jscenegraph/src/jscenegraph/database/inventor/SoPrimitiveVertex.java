@@ -192,4 +192,8 @@ public void copyFrom(final Object other) {
 public void destructor() {
 	// nothing to destroy
 }
+
+    static public int sizeof() { // For memcpy
+        return Mutable.sizeof();
+    }
 }

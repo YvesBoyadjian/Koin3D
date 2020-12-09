@@ -64,12 +64,7 @@ import com.jogamp.opengl.GL3ES3;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
-import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.SbVec4f;
-import jscenegraph.database.inventor.SoDebug;
-import jscenegraph.database.inventor.SoPickedPoint;
-import jscenegraph.database.inventor.SoPrimitiveVertex;
-import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoGetBoundingBoxAction;
@@ -101,8 +96,9 @@ import jscenegraph.database.inventor.nodes.SoVertexPropertyCache.SoVPCacheFunc;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
-import jscenegraph.port.Ctx;
-import jscenegraph.port.IntArray;
+import jscenegraph.port.*;
+
+import static jscenegraph.database.inventor.nodes.SoShape.TriangleShape.LINE_STRIP;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,7 +200,11 @@ public class SoIndexedLineSet extends SoIndexedShape {
         OVERALL,
         PER_SEGMENT,    PER_SEGMENT_INDEXED,
         PER_LINE,       PER_LINE_INDEXED,
-        PER_VERTEX,     PER_VERTEX_INDEXED
+        PER_VERTEX,     PER_VERTEX_INDEXED;
+
+        public int getValue() {
+            return ordinal();
+        }
     };
 
   public
@@ -299,218 +299,218 @@ public void destructor()
 //
 // Use: protected
 
-protected void
-generatePrimitives(SoAction action)
+//protected void
+//generatePrimitives(SoAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//  SoState state = action.getState();
 //
-////////////////////////////////////////////////////////////////////////
-{
-  SoState state = action.getState();
-
-  state.push();
-  //  put VertProp into state, if it exists.
-  SoVertexProperty vp = (SoVertexProperty)vertexProperty.getValue();
-  if(vp != null){
-    vp.doAction(action);
-  }
-  // When generating primitives for picking, delay computing default
-  // texture coordinates
-  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
-
-  final SoPrimitiveVertex[]           pvs = new SoPrimitiveVertex[2];
-  pvs[0] = new SoPrimitiveVertex();
-  pvs[1] = new SoPrimitiveVertex();
-  SoPrimitiveVertex pv;
-  final SoLineDetail                detail = new SoLineDetail();
-  final SoPointDetail               pd = new SoPointDetail();
-  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false, ! forPicking);
-  SoCoordinateElement   ce;
-  int                         curLine, curSeg, curVert, curCoord;
-  int                         curMaterial = -1, curNormal = -1, curTexCoord;
-  int                         vertsInLine;
-  int                         numIndices;
-  IntArray                    coordIndices, matlIndices;
-  IntArray                    normIndices, texCoordIndices;
-  Binding                     materialBinding, normalBinding;
-  boolean                      texCoordsIndexed;
-
-  materialBinding  = getMaterialBinding(action);
-  normalBinding    = getNormalBinding(action);
-  texCoordsIndexed = areTexCoordsIndexed(action);
-
-  // Test for auto-normal case
-  SoNormalElement ne = SoNormalElement.getInstance(state);
-  if (ne.getNum() == 0) {
-    normalBinding = Binding.OVERALL;
-  }
-
-  curLine = curSeg = curCoord = curVert = vertsInLine = 0;
-
-  ce = SoCoordinateElement.getInstance(state);
-
-  pvs[0].setDetail(detail);
-  pvs[1].setDetail(detail);
-
-  numIndices      = coordIndex.getNum();
-  coordIndices    = coordIndex.getValues(0);
-  matlIndices     = materialIndex.getValues(0);
-  normIndices     = normalIndex.getValues(0);
-  texCoordIndices = textureCoordIndex.getValues(0);
-
-  // Check for special case of 1 index of SO_END_LINE_INDEX. This
-  // means that coord indices are to be used for materials, normals,
-  // or texture coords as well
-  if (materialIndex.getNum() == 1 && matlIndices.get(0) == SO_END_LINE_INDEX)
-    matlIndices = coordIndices;
-  if (normalIndex.getNum() == 1 && normIndices.get(0) == SO_END_LINE_INDEX) 
-    normIndices = coordIndices;
-  if (textureCoordIndex.getNum() == 1 &&
-    texCoordIndices.get(0) == SO_END_LINE_INDEX)
-    texCoordIndices = coordIndices;
-
-  if (forPicking) {
-    final SbVec4f tc = new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f);
-    pvs[0].setTextureCoords(tc);
-    pvs[1].setTextureCoords(tc);
-  }
-
-  // Step through all the coordinate indices, building lines out
-  // of them, until we run out of coordinate indices.
-
-  while (curCoord < numIndices) {
-
-    detail.setLineIndex(curLine);
-
-    // Loop through all vertices of current line
-    while (curCoord < numIndices &&
-      coordIndices.get(curCoord) != SO_END_LINE_INDEX) {
-
-        switch (materialBinding) {
-        case OVERALL:
-          curMaterial = 0;
-          break;
-        case PER_SEGMENT:
-          curMaterial = curSeg;
-          break;
-        case PER_SEGMENT_INDEXED:
-          curMaterial = (int) matlIndices.get(curSeg);
-          break;
-        case PER_LINE:
-          curMaterial = curLine;
-          break;
-        case PER_LINE_INDEXED:
-          curMaterial = (int) matlIndices.get(curLine);
-          break;
-        case PER_VERTEX:
-          curMaterial = curVert;
-          break;
-        case PER_VERTEX_INDEXED:
-          curMaterial = (int) matlIndices.get(curCoord);
-          break;
-        }
-        switch (normalBinding) {
-        case OVERALL:
-          curNormal = 0;
-          break;
-        case PER_SEGMENT:
-          curNormal = curSeg;
-          break;
-        case PER_SEGMENT_INDEXED:
-          curNormal = (int) normIndices.get(curSeg);
-          break;
-        case PER_LINE:
-          curNormal = curLine;
-          break;
-        case PER_LINE_INDEXED:
-          curNormal = (int) normIndices.get(curLine);
-          break;
-        case PER_VERTEX:
-          curNormal = curVert;
-          break;
-        case PER_VERTEX_INDEXED:
-          curNormal = (int) normIndices.get(curCoord);
-          break;
-        }
-        curTexCoord = (texCoordsIndexed ?
-          (int) texCoordIndices.get(curCoord) : curCoord);
-
-        pv = pvs[curVert % 2];
-
-        pv.setPoint(ce.get3((int) coordIndices.get(curCoord)));
-        pv.setMaterialIndex(curMaterial);
-        if (curNormal < ne.getNum())
-          pv.setNormal(ne.get(curNormal));
-        else pv.setNormal(new SbVec3f(0,0,0));
-
-        // Set up a point detail for the current vertex
-        pd.setCoordinateIndex((int) coordIndices.get(curCoord));
-        pd.setMaterialIndex(curMaterial);
-        pd.setNormalIndex(curNormal);
-        pd.setTextureCoordIndex(curTexCoord);
-
-        // Replace the appropriate point detail in the line
-        // detail, based on the vertex index
-        if ((curVert & 1) == 0)
-          detail.setPoint0(pd);
-        else
-          detail.setPoint1(pd);
-
-        if (tcb.isFunction()) {
-          if (! forPicking)
-            pv.setTextureCoords(tcb.get(pv.getPoint(),
-            pv.getNormal()));
-        }
-        else
-          pv.setTextureCoords(tcb.get(curTexCoord));
-
-        // If we have at least two vertices in the current line
-        if (++vertsInLine >= 2) {
-          detail.setPartIndex(curSeg);
-
-          // Handle per-segment stuff specially, since we have
-          // to make sure both points/details are the same
-          if (materialBinding == Binding.PER_SEGMENT ||
-            materialBinding == Binding.PER_SEGMENT_INDEXED) {
-              pvs[0].setMaterialIndex(curMaterial);
-              pvs[1].setMaterialIndex(curMaterial);
-          }
-          if (normalBinding == Binding.PER_SEGMENT ||
-            normalBinding == Binding.PER_SEGMENT_INDEXED) {
-              pvs[0].setNormal(ne.get(curNormal));
-              pvs[1].setNormal(ne.get(curNormal));
-          }
-
-          invokeLineSegmentCallbacks(action,
-            pvs[(curVert - 1) % 2],
-            pvs[(curVert - 0) % 2]);
-
-          //
-          // Increment per-segment stuff
-          //
-          curSeg++;
-        }
-
-        //
-        // Increment per-vertex stuff
-        //
-        curVert++;
-        curCoord++;
-    }
-
-    //
-    // Increment per-line stuff
-    //
-    curCoord++;     // Skip over the END_LINE_INDEX
-    curLine++;
-    vertsInLine = 0;
-  }
-  state.pop();
-  
-  // java port
-  pvs[0].destructor(); pvs[1].destructor();
-  detail.destructor();
-  pd.destructor();
-  tcb.destructor();
-}
+//  state.push();
+//  //  put VertProp into state, if it exists.
+//  SoVertexProperty vp = (SoVertexProperty)vertexProperty.getValue();
+//  if(vp != null){
+//    vp.doAction(action);
+//  }
+//  // When generating primitives for picking, delay computing default
+//  // texture coordinates
+//  boolean forPicking = action.isOfType(SoRayPickAction.getClassTypeId());
+//
+//  final SoPrimitiveVertex[]           pvs = new SoPrimitiveVertex[2];
+//  pvs[0] = new SoPrimitiveVertex();
+//  pvs[1] = new SoPrimitiveVertex();
+//  SoPrimitiveVertex pv;
+//  final SoLineDetail                detail = new SoLineDetail();
+//  final SoPointDetail               pd = new SoPointDetail();
+//  final SoTextureCoordinateBundle   tcb = new SoTextureCoordinateBundle(action, false, ! forPicking);
+//  SoCoordinateElement   ce;
+//  int                         curLine, curSeg, curVert, curCoord;
+//  int                         curMaterial = -1, curNormal = -1, curTexCoord;
+//  int                         vertsInLine;
+//  int                         numIndices;
+//  IntArray                    coordIndices, matlIndices;
+//  IntArray                    normIndices, texCoordIndices;
+//  Binding                     materialBinding, normalBinding;
+//  boolean                      texCoordsIndexed;
+//
+//  materialBinding  = getMaterialBinding(action);
+//  normalBinding    = getNormalBinding(action);
+//  texCoordsIndexed = areTexCoordsIndexed(action);
+//
+//  // Test for auto-normal case
+//  SoNormalElement ne = SoNormalElement.getInstance(state);
+//  if (ne.getNum() == 0) {
+//    normalBinding = Binding.OVERALL;
+//  }
+//
+//  curLine = curSeg = curCoord = curVert = vertsInLine = 0;
+//
+//  ce = SoCoordinateElement.getInstance(state);
+//
+//  pvs[0].setDetail(detail);
+//  pvs[1].setDetail(detail);
+//
+//  numIndices      = coordIndex.getNum();
+//  coordIndices    = coordIndex.getValues(0);
+//  matlIndices     = materialIndex.getValues(0);
+//  normIndices     = normalIndex.getValues(0);
+//  texCoordIndices = textureCoordIndex.getValues(0);
+//
+//  // Check for special case of 1 index of SO_END_LINE_INDEX. This
+//  // means that coord indices are to be used for materials, normals,
+//  // or texture coords as well
+//  if (materialIndex.getNum() == 1 && matlIndices.get(0) == SO_END_LINE_INDEX)
+//    matlIndices = coordIndices;
+//  if (normalIndex.getNum() == 1 && normIndices.get(0) == SO_END_LINE_INDEX)
+//    normIndices = coordIndices;
+//  if (textureCoordIndex.getNum() == 1 &&
+//    texCoordIndices.get(0) == SO_END_LINE_INDEX)
+//    texCoordIndices = coordIndices;
+//
+//  if (forPicking) {
+//    final SbVec4f tc = new SbVec4f(0.0f, 0.0f, 0.0f, 0.0f);
+//    pvs[0].setTextureCoords(tc);
+//    pvs[1].setTextureCoords(tc);
+//  }
+//
+//  // Step through all the coordinate indices, building lines out
+//  // of them, until we run out of coordinate indices.
+//
+//  while (curCoord < numIndices) {
+//
+//    detail.setLineIndex(curLine);
+//
+//    // Loop through all vertices of current line
+//    while (curCoord < numIndices &&
+//      coordIndices.get(curCoord) != SO_END_LINE_INDEX) {
+//
+//        switch (materialBinding) {
+//        case OVERALL:
+//          curMaterial = 0;
+//          break;
+//        case PER_SEGMENT:
+//          curMaterial = curSeg;
+//          break;
+//        case PER_SEGMENT_INDEXED:
+//          curMaterial = (int) matlIndices.get(curSeg);
+//          break;
+//        case PER_LINE:
+//          curMaterial = curLine;
+//          break;
+//        case PER_LINE_INDEXED:
+//          curMaterial = (int) matlIndices.get(curLine);
+//          break;
+//        case PER_VERTEX:
+//          curMaterial = curVert;
+//          break;
+//        case PER_VERTEX_INDEXED:
+//          curMaterial = (int) matlIndices.get(curCoord);
+//          break;
+//        }
+//        switch (normalBinding) {
+//        case OVERALL:
+//          curNormal = 0;
+//          break;
+//        case PER_SEGMENT:
+//          curNormal = curSeg;
+//          break;
+//        case PER_SEGMENT_INDEXED:
+//          curNormal = (int) normIndices.get(curSeg);
+//          break;
+//        case PER_LINE:
+//          curNormal = curLine;
+//          break;
+//        case PER_LINE_INDEXED:
+//          curNormal = (int) normIndices.get(curLine);
+//          break;
+//        case PER_VERTEX:
+//          curNormal = curVert;
+//          break;
+//        case PER_VERTEX_INDEXED:
+//          curNormal = (int) normIndices.get(curCoord);
+//          break;
+//        }
+//        curTexCoord = (texCoordsIndexed ?
+//          (int) texCoordIndices.get(curCoord) : curCoord);
+//
+//        pv = pvs[curVert % 2];
+//
+//        pv.setPoint(ce.get3((int) coordIndices.get(curCoord)));
+//        pv.setMaterialIndex(curMaterial);
+//        if (curNormal < ne.getNum())
+//          pv.setNormal(ne.get(curNormal));
+//        else pv.setNormal(new SbVec3f(0,0,0));
+//
+//        // Set up a point detail for the current vertex
+//        pd.setCoordinateIndex((int) coordIndices.get(curCoord));
+//        pd.setMaterialIndex(curMaterial);
+//        pd.setNormalIndex(curNormal);
+//        pd.setTextureCoordIndex(curTexCoord);
+//
+//        // Replace the appropriate point detail in the line
+//        // detail, based on the vertex index
+//        if ((curVert & 1) == 0)
+//          detail.setPoint0(pd);
+//        else
+//          detail.setPoint1(pd);
+//
+//        if (tcb.isFunction()) {
+//          if (! forPicking)
+//            pv.setTextureCoords(tcb.get(pv.getPoint(),
+//            pv.getNormal()));
+//        }
+//        else
+//          pv.setTextureCoords(tcb.get(curTexCoord));
+//
+//        // If we have at least two vertices in the current line
+//        if (++vertsInLine >= 2) {
+//          detail.setPartIndex(curSeg);
+//
+//          // Handle per-segment stuff specially, since we have
+//          // to make sure both points/details are the same
+//          if (materialBinding == Binding.PER_SEGMENT ||
+//            materialBinding == Binding.PER_SEGMENT_INDEXED) {
+//              pvs[0].setMaterialIndex(curMaterial);
+//              pvs[1].setMaterialIndex(curMaterial);
+//          }
+//          if (normalBinding == Binding.PER_SEGMENT ||
+//            normalBinding == Binding.PER_SEGMENT_INDEXED) {
+//              pvs[0].setNormal(ne.get(curNormal));
+//              pvs[1].setNormal(ne.get(curNormal));
+//          }
+//
+//          invokeLineSegmentCallbacks(action,
+//            pvs[(curVert - 1) % 2],
+//            pvs[(curVert - 0) % 2]);
+//
+//          //
+//          // Increment per-segment stuff
+//          //
+//          curSeg++;
+//        }
+//
+//        //
+//        // Increment per-vertex stuff
+//        //
+//        curVert++;
+//        curCoord++;
+//    }
+//
+//    //
+//    // Increment per-line stuff
+//    //
+//    curCoord++;     // Skip over the END_LINE_INDEX
+//    curLine++;
+//    vertsInLine = 0;
+//  }
+//  state.pop();
+//
+//  // java port
+//  pvs[0].destructor(); pvs[1].destructor();
+//  detail.destructor();
+//  pd.destructor();
+//  tcb.destructor();
+//}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -691,6 +691,95 @@ wouldGenerateNormals(SoState state)
 
   return false;
 }
+
+
+//
+// translates current normal binding into the internal Binding enum
+//
+    SoIndexedLineSet.Binding
+    findNormalBinding(SoState state)
+    {
+        Binding binding = Binding.PER_VERTEX_INDEXED;
+
+        SoNormalBindingElement.Binding normbind =
+            (SoNormalBindingElement.Binding) SoNormalBindingElement.get(state);
+
+        switch (normbind) {
+            case OVERALL:
+                binding = Binding.OVERALL;
+                break;
+            case PER_VERTEX:
+                binding = Binding.PER_VERTEX;
+                break;
+            case PER_VERTEX_INDEXED:
+                binding = Binding.PER_VERTEX_INDEXED;
+                break;
+            case PER_PART:
+                binding = Binding.PER_SEGMENT;
+                break;
+            case PER_PART_INDEXED:
+                binding = Binding.PER_SEGMENT_INDEXED;
+                break;
+            case PER_FACE:
+                binding = Binding.PER_LINE;
+                break;
+            case PER_FACE_INDEXED:
+                binding = Binding.PER_LINE_INDEXED;
+                break;
+            default:
+//#if COIN_DEBUG
+                SoDebugError.postWarning("SoIndexedLineSet::findNormalBinding",
+                    "unknown normal binding setting");
+//#endif // COIN_DEBUG
+                break;
+        }
+
+        return binding;
+    }
+
+//
+// translates current material binding into the internal Binding enum
+//
+    SoIndexedLineSet.Binding
+    findMaterialBinding(SoState state)
+    {
+        Binding binding = Binding.OVERALL;
+
+        SoMaterialBindingElement.Binding matbind =
+            (SoMaterialBindingElement.Binding) SoMaterialBindingElement.get(state);
+
+        switch (matbind) {
+            case OVERALL:
+                binding = Binding.OVERALL;
+                break;
+            case PER_VERTEX:
+                binding = Binding.PER_VERTEX;
+                break;
+            case PER_VERTEX_INDEXED:
+                binding = Binding.PER_VERTEX_INDEXED;
+                break;
+            case PER_PART:
+                binding = Binding.PER_SEGMENT;
+                break;
+            case PER_PART_INDEXED:
+                binding = Binding.PER_SEGMENT_INDEXED;
+                break;
+            case PER_FACE:
+                binding = Binding.PER_LINE;
+                break;
+            case PER_FACE_INDEXED:
+                binding = Binding.PER_LINE_INDEXED;
+                break;
+            default:
+//#if COIN_DEBUG
+                SoDebugError.postWarning("SoIndexedFaceSet::findNormalBinding",
+                    "unknown normal binding setting");
+//#endif // COIN_DEBUG
+                break;
+        }
+
+        return binding;
+    }
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -892,7 +981,317 @@ countPolylinesAndSegments()
       }
     }       
   }
-}    
+}
+
+// doc from parent
+    protected void
+    generatePrimitives(SoAction action)
+    {
+        if (this.coordIndex.getNum() < 2) return;
+
+        SoState state = action.getState();
+
+        if (this.vertexProperty.getValue() != null) {
+        state.push();
+        this.vertexProperty.getValue().doAction(action);
+    }
+
+        Binding mbind = this.findMaterialBinding(state);
+        Binding nbind = this.findNormalBinding(state);
+
+  final SoCoordinateElement[] coords = new SoCoordinateElement[1]; //ptr
+  final SbVec3fArray[] normals = new SbVec3fArray[1];
+  final IntArrayPtr[] cindices = new IntArrayPtr[1];
+        final int[] numindices = new int[1];
+  final IntArrayPtr[] normindices = new IntArrayPtr[1];
+  final IntArrayPtr[] texindices = new IntArrayPtr[1];
+  final IntArrayPtr[] matindices = new IntArrayPtr[1];
+        boolean doTextures;
+        boolean sendNormals = true;
+        final boolean[] normalCacheUsed = new boolean[1];
+
+        getVertexData(state, coords, normals, cindices,
+                normindices, texindices, matindices, numindices,
+                sendNormals, normalCacheUsed);
+
+        if (normals[0] == null) {
+            sendNormals = false;
+            nbind = Binding.OVERALL;
+        }
+
+        if (this.getNodeType() == SoNode.NodeType.VRML1) {
+        // For VRML1, PER_VERTEX means per vertex in shape, not PER_VERTEX
+        // on the state.
+        if (mbind == Binding.PER_VERTEX) {
+            mbind = Binding.PER_VERTEX_INDEXED;
+            matindices[0] = cindices[0];
+        }
+        if (nbind == Binding.PER_VERTEX) {
+            nbind = Binding.PER_VERTEX_INDEXED;
+            normindices[0] = cindices[0];
+        }
+    }
+
+        final SoTextureCoordinateBundle tb = new SoTextureCoordinateBundle(action, false, false);
+
+        try {
+            doTextures = tb.needCoordinates();
+
+            if (doTextures) {
+                if (SoTextureCoordinateBindingElement.get (state) ==
+                        SoTextureCoordinateBindingElement.Binding.PER_VERTEX){
+                    texindices[0] = null; // just in case
+                }
+    else if (texindices[0] == null) {
+                    texindices[0] = cindices[0];
+                }
+            }
+
+            if (mbind == Binding.PER_VERTEX_INDEXED && matindices[0] == null) {
+                matindices[0] = cindices[0];
+            }
+            if (nbind == Binding.PER_VERTEX_INDEXED && normindices[0] == null) {
+                normindices[0] = cindices[0];
+            }
+            if (mbind == Binding.PER_VERTEX || mbind == Binding.PER_LINE || mbind == Binding.PER_SEGMENT) {
+                matindices[0] = null;
+            }
+            if (nbind == Binding.PER_VERTEX || nbind == Binding.PER_LINE || nbind == Binding.PER_SEGMENT) {
+                normindices[0] = null;
+            }
+
+            if (nbind == Binding.OVERALL) normindices[0] = null;
+            if (mbind == Binding.OVERALL) matindices[0] = null;
+
+            int matnr = 0;
+            int normnr = 0;
+            int texidx = 0;
+            int i;
+  IntArrayPtr end = new IntArrayPtr(numindices[0],cindices[0]);
+
+            final SoPrimitiveVertex vertex = new SoPrimitiveVertex();
+            final SoPointDetail pointDetail = new SoPointDetail();
+            final SoLineDetail lineDetail = new SoLineDetail();
+
+            try {
+                vertex.setDetail( pointDetail);
+
+                final SbVec3fSingle dummynormal = new SbVec3fSingle(0.0f, 0.0f, 1.0f);
+  final MutableSbVec3fArray currnormal = (normals[0] == null) ? new MutableSbVec3fArray(dummynormal) :
+                MutableSbVec3fArray.from(normals[0]);
+
+                if (nbind == Binding.OVERALL) {
+                    vertex.setNormal( currnormal.get(0));
+                }
+
+                if (mbind == Binding.PER_SEGMENT || mbind == Binding.PER_SEGMENT_INDEXED ||
+                        nbind == Binding.PER_SEGMENT || nbind == Binding.PER_SEGMENT_INDEXED) {
+                    int previ;
+                    boolean matPerPolyline = mbind == Binding.PER_LINE || mbind == Binding.PER_LINE_INDEXED;
+                    boolean normPerPolyline = nbind == Binding.PER_LINE || nbind == Binding.PER_LINE_INDEXED;
+
+                    this.beginShape(action, SoShape.TriangleShape.LINES, lineDetail);
+
+                    while (cindices[0].plusLessThan(1, end)) { // need at least two vertices
+                        previ = cindices[0].get(); cindices[0].plusPlus();
+
+                        if (matPerPolyline || mbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                            if (matindices[0] != null){ vertex.setMaterialIndex( matindices[0].get());matindices[0].plusPlus(); }
+        else vertex.setMaterialIndex(matnr++);
+                            pointDetail.setMaterialIndex(vertex.getMaterialIndex());
+                        }
+                        if (normPerPolyline || nbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                            if (normindices[0] != null) {
+                                pointDetail.setNormalIndex( normindices[0].get());
+                                currnormal.assign(normals[0], normindices[0].get()); normindices[0].plusPlus();
+                            } else {
+                                pointDetail.setNormalIndex(normnr);
+                                currnormal.assign(normals[0],normnr); normnr++;
+                            }
+                            vertex.setNormal( currnormal.get(0));
+                        }
+                        if (doTextures) {
+                            if (tb.isFunction()) {
+                                vertex.setTextureCoords(tb.get(coords[0].get3(previ), currnormal.get(0)));
+                            } else {
+                                pointDetail.setTextureCoordIndex(texindices[0] != null ? texindices[0].get():texidx);
+                                vertex.setTextureCoords(tb.get(texindices[0] != null ? texindices[0].get():texidx++));
+                                if(texindices[0] != null) texindices[0].plusPlus();
+                            }
+                        }
+
+                        while (cindices[0].plusLessThan(0, end) && (i = cindices[0].getPlusPlus()) >=0){
+                            if (mbind == Binding.PER_SEGMENT || mbind == Binding.PER_SEGMENT_INDEXED) {
+                                if (matindices[0]!=null){ vertex.setMaterialIndex( matindices[0].get()); matindices[0].plusPlus();}
+          else vertex.setMaterialIndex(matnr++);
+                                pointDetail.setMaterialIndex(vertex.getMaterialIndex());
+                            }
+                            if (nbind == Binding.PER_SEGMENT || nbind == Binding.PER_SEGMENT_INDEXED) {
+                                if (normindices[0] != null) {
+                                    pointDetail.setNormalIndex( normindices[0].get());
+                                    currnormal.assign(normals[0], normindices[0].get()); normindices[0].plusPlus();
+                                } else {
+                                    pointDetail.setNormalIndex(normnr);
+                                    currnormal.assign(normals[0],normnr); normnr++;
+                                }
+                                vertex.setNormal( currnormal.get(0));
+                            }
+                            pointDetail.setCoordinateIndex(previ);
+                            vertex.setPoint(coords[0].get3(previ));
+                            this.shapeVertex( vertex);
+
+                            if (mbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                                if (matindices[0]!=null) { vertex.setMaterialIndex( matindices[0].get()); matindices[0].plusPlus();}
+          else vertex.setMaterialIndex(matnr++);
+                                pointDetail.setMaterialIndex(vertex.getMaterialIndex());
+                            }
+                            if (nbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                                if (normindices[0]!=null) {
+                                    pointDetail.setNormalIndex( normindices[0].get());
+                                    currnormal.assign(normals[0], normindices[0].get()); normindices[0].plusPlus();
+                                } else {
+                                    pointDetail.setNormalIndex(normnr);
+                                    currnormal.assign(normals[0],normnr); normnr++;
+                                }
+                                vertex.setNormal( currnormal.get(0));
+                            }
+                            if (doTextures) {
+                                if (tb.isFunction()) {
+                                    vertex.setTextureCoords(tb.get(coords[0].get3(i), currnormal.get(0)));
+                                } else {
+                                    pointDetail.setTextureCoordIndex(texindices[0] != null ? texindices[0].get():texidx);
+                                    vertex.setTextureCoords(tb.get(texindices[0] != null ? texindices[0].get():texidx++));
+                                    if (texindices[0] != null) texindices[0].plusPlus();
+                                }
+                            }
+                            pointDetail.setCoordinateIndex(i);
+                            vertex.setPoint(coords[0].get3(i));
+                            this.shapeVertex( vertex);
+                            lineDetail.incPartIndex();
+                            previ = i;
+                        }
+                        lineDetail.incLineIndex();
+                        if (mbind == Binding.PER_VERTEX_INDEXED) matindices[0].plusPlus();
+                        if (nbind == Binding.PER_VERTEX_INDEXED) normindices[0].plusPlus();
+                        if (doTextures && texindices[0] != null) texindices[0].plusPlus();
+                    }
+                    this.endShape();
+                    return;
+                }
+
+                while (cindices[0].plusLessThan( 1, end)) { // need at least two vertices
+                    this.beginShape(action, LINE_STRIP,  lineDetail);
+                    i = cindices[0].get(); cindices[0].plusPlus();
+                    assert (i >= 0);
+                    if (matindices[0] != null) {
+                        pointDetail.setMaterialIndex( matindices[0].get());
+                        vertex.setMaterialIndex( matindices[0].get()); matindices[0].plusPlus();
+                    } else if (mbind != Binding.OVERALL) {
+                        pointDetail.setMaterialIndex(matnr);
+                        vertex.setMaterialIndex(matnr++);
+                    }
+                    if (normindices[0] != null) {
+                        pointDetail.setNormalIndex( normindices[0].get());
+                        currnormal.assign(normals[0], normindices[0].get()); normindices[0].plusPlus();
+                    } else if (nbind != Binding.OVERALL) {
+                        pointDetail.setNormalIndex(normnr);
+                        currnormal.assign(normals[0],normnr); normnr++;
+                    }
+                    vertex.setNormal(  currnormal.get(0));
+                    if (doTextures) {
+                        if (tb.isFunction()) {
+                            vertex.setTextureCoords(tb.get(coords[0].get3(i), currnormal.get(0)));
+                        } else {
+                            pointDetail.setTextureCoordIndex(texindices[0] != null ? texindices[0].get():texidx);
+                            vertex.setTextureCoords(tb.get(texindices[0] != null ? texindices[0].get():texidx++));
+                            if( texindices[0] != null ) texindices[0].plusPlus();
+                        }
+                    }
+                    pointDetail.setCoordinateIndex(i);
+                    vertex.setPoint(coords[0].get3(i));
+                    this.shapeVertex( vertex);
+
+                    i = cindices[0].get(); cindices[0].plusPlus();
+                    assert (i >= 0);
+                    if (mbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                        if (matindices[0]!=null){ vertex.setMaterialIndex( matindices[0].get()); matindices[0].plusPlus();}
+      else vertex.setMaterialIndex(matnr++);
+                        pointDetail.setMaterialIndex(vertex.getMaterialIndex());
+                    }
+                    if (nbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                        if (normindices[0]!=null) {
+                            pointDetail.setNormalIndex( normindices[0].get());
+                            currnormal.assign(normals[0],normindices[0].get()); normindices[0].plusPlus();
+                        } else {
+                            pointDetail.setNormalIndex(normnr);
+                            currnormal.assign(normals[0],normnr); normnr++;
+                        }
+                        vertex.setNormal( currnormal.get(0));
+                    }
+                    if (doTextures) {
+                        if (tb.isFunction()) {
+                            vertex.setTextureCoords(tb.get(coords[0].get3(i), currnormal.get(0)));
+                        } else {
+                            pointDetail.setTextureCoordIndex(texindices[0]!=null ? texindices[0].get():texidx);
+                            vertex.setTextureCoords(tb.get(texindices[0]!=null ? texindices[0].get():texidx++));
+                            if(texindices[0]!=null) texindices[0].plusPlus();
+                        }
+                    }
+                    pointDetail.setCoordinateIndex(i);
+                    vertex.setPoint(coords[0].get3(i));
+                    this.shapeVertex( vertex);
+                    lineDetail.incPartIndex();
+
+                    while (cindices[0].plusLessThan(0, end) && (i = cindices[0].getPlusPlus()) >=0){
+                        assert (cindices[0].plusLessThan(-1, end));
+                        if (mbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                            if (matindices[0]!=null) { vertex.setMaterialIndex( matindices[0].get()); matindices[0].plusPlus();}
+        else vertex.setMaterialIndex(matnr++);
+                            pointDetail.setMaterialIndex(vertex.getMaterialIndex());
+                        }
+                        if (nbind.getValue() >= Binding.PER_VERTEX.getValue()) {
+                            if (normindices[0] != null) {
+                                pointDetail.setNormalIndex( normindices[0].get());
+                                currnormal.assign(normals[0],normindices[0].get()); normindices[0].plusPlus();
+                            } else {
+                                pointDetail.setNormalIndex(normnr);
+                                currnormal.assign(normals[0],normnr); normnr++;
+                            }
+                            vertex.setNormal( currnormal.get(0));
+                        }
+                        if (doTextures) {
+                            if (tb.isFunction()) {
+                                vertex.setTextureCoords(tb.get(coords[0].get3(i), currnormal.get(0)));
+                            } else {
+                                pointDetail.setTextureCoordIndex(texindices[0] != null ? texindices[0].get():texidx);
+                                vertex.setTextureCoords(tb.get(texindices[0] != null ? texindices[0].get():texidx++));
+                                if(texindices[0] != null) texindices[0].plusPlus();
+                            }
+                        }
+                        pointDetail.setCoordinateIndex(i);
+                        vertex.setPoint(coords[0].get3(i));
+                        this.shapeVertex( vertex);
+                        lineDetail.incPartIndex();
+                    }
+                    this.endShape(); // end of line strip
+                    if (mbind == Binding.PER_VERTEX_INDEXED) matindices[0].plusPlus();
+                    if (nbind == Binding.PER_VERTEX_INDEXED) normindices[0].plusPlus();
+                    if (doTextures && texindices[0] != null) texindices[0].plusPlus();
+                    lineDetail.incLineIndex();
+                }
+
+                if (this.vertexProperty.getValue() != null) {
+                    state.pop();
+                }
+            } finally {
+                vertex.destructor();
+                pointDetail.destructor();
+                lineDetail.destructor();
+            }
+        } finally {
+            tb.destructor(); // java port
+        }
+    }
 
 ////////////////////////////////////////////////////////////////////////
 //

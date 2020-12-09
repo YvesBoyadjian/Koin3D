@@ -935,11 +935,11 @@ computeObjectSpaceRay(SoRayPickAction action, final SbMatrix matrix)
 //
 // Use: protected
 
-protected void
+public void
 invokeTriangleCallbacks(SoAction action,
-                                 final SoPrimitiveVertex v1,
-                                 final SoPrimitiveVertex v2,
-                                 final SoPrimitiveVertex v3)
+                        final SoPrimitiveVertex v1,
+                        final SoPrimitiveVertex v2,
+                        final SoPrimitiveVertex v3)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -994,58 +994,58 @@ public void beginShape(SoAction action, TriangleShape shapeType) {
 	beginShape(action, shapeType, null);
 }
 
-protected void
-beginShape(SoAction action, TriangleShape shapeType,
-                    SoFaceDetail _faceDetail)
+//protected void
+//beginShape(SoAction action, TriangleShape shapeType,
+//                    SoFaceDetail _faceDetail)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    if (primVerts == null) {
+//        primVerts   = new SoPrimitiveVertex[2];
+//        primVerts[0] = new SoPrimitiveVertex();primVerts[1] = new SoPrimitiveVertex();
+//        vertDetails = new SoPointDetail[2];
+//        vertDetails[0] = new SoPointDetail();vertDetails[1] = new SoPointDetail();
+//    }
 //
-////////////////////////////////////////////////////////////////////////
-{
-    if (primVerts == null) {
-        primVerts   = new SoPrimitiveVertex[2];
-        primVerts[0] = new SoPrimitiveVertex();primVerts[1] = new SoPrimitiveVertex();
-        vertDetails = new SoPointDetail[2];
-        vertDetails[0] = new SoPointDetail();vertDetails[1] = new SoPointDetail();
-    }
-
-    primShapeType = shapeType;
-    primVertNum   = 0;
-    primShape     = this;
-    primAction    = action;
-
-    // Save face detail unless we are called recursively
-    if (nestLevel++ == 0)
-        faceDetail = _faceDetail;
-
-    switch (shapeType) {
-
-      case TRIANGLE_STRIP:
-      case TRIANGLE_FAN:
-      case TRIANGLES:
-        // If the face detail is not NULL, get it ready to store the 3
-        // point details for each triangle
-        if (faceDetail != null)
-            faceDetail.setNumPoints(3);
-        break;
-
-      case POLYGON:
-        {
-            final SoShapeHintsElement.VertexOrdering[] vo = new SoShapeHintsElement.VertexOrdering[1];
-            final SoShapeHintsElement.ShapeType[] st = new SoShapeHintsElement.ShapeType[1];
-            final SoShapeHintsElement.FaceType[] ft = new SoShapeHintsElement.FaceType[1];
-            SoShapeHintsElement.get(action.getState(), vo, st, ft);
-
-            if (ft[0] == SoShapeHintsElement.FaceType.CONVEX) {
-                // Convex polygons can be drawn as triangle fans
-                primShapeType = TriangleShape.TRIANGLE_FAN;
-                // Do the same stuff needed for TRIANGLE_FAN:
-                if (faceDetail != null)
-                    faceDetail.setNumPoints(3);
-            }
-            else polyVertNum = 0;
-        }
-        break;
-    }
-}
+//    primShapeType = shapeType;
+//    primVertNum   = 0;
+//    primShape     = this;
+//    primAction    = action;
+//
+//    // Save face detail unless we are called recursively
+//    if (nestLevel++ == 0)
+//        faceDetail = _faceDetail;
+//
+//    switch (shapeType) {
+//
+//      case TRIANGLE_STRIP:
+//      case TRIANGLE_FAN:
+//      case TRIANGLES:
+//        // If the face detail is not NULL, get it ready to store the 3
+//        // point details for each triangle
+//        if (faceDetail != null)
+//            faceDetail.setNumPoints(3);
+//        break;
+//
+//      case POLYGON:
+//        {
+//            final SoShapeHintsElement.VertexOrdering[] vo = new SoShapeHintsElement.VertexOrdering[1];
+//            final SoShapeHintsElement.ShapeType[] st = new SoShapeHintsElement.ShapeType[1];
+//            final SoShapeHintsElement.FaceType[] ft = new SoShapeHintsElement.FaceType[1];
+//            SoShapeHintsElement.get(action.getState(), vo, st, ft);
+//
+//            if (ft[0] == SoShapeHintsElement.FaceType.CONVEX) {
+//                // Convex polygons can be drawn as triangle fans
+//                primShapeType = TriangleShape.TRIANGLE_FAN;
+//                // Do the same stuff needed for TRIANGLE_FAN:
+//                if (faceDetail != null)
+//                    faceDetail.setNumPoints(3);
+//            }
+//            else polyVertNum = 0;
+//        }
+//        break;
+//    }
+//}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -1056,47 +1056,47 @@ beginShape(SoAction action, TriangleShape shapeType,
 //
 // Use: protected
 
-public void
-shapeVertex(final SoPrimitiveVertex v)
+//public void
+//shapeVertex(final SoPrimitiveVertex v)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    switch (primShapeType) {
 //
-////////////////////////////////////////////////////////////////////////
-{
-    switch (primShapeType) {
-
-      case TRIANGLE_STRIP:
-        triangleVertex(v, primVertNum & 1);
-        break;
-
-      case TRIANGLE_FAN:
-        triangleVertex(v, primVertNum == 0 ? 0 : 1);
-        break;
-
-      case TRIANGLES:
-        triangleVertex(v, primVertNum == 2 ? -1 : primVertNum);
-        // Reset for next triangle if processed 3 vertices
-        if (primVertNum == 3)
-            primVertNum = 0;
-        break;
-
-      case POLYGON:
-        // Make sure there is enough room in polyVerts array
-        allocateVerts();
-        polyVerts.get(polyVertNum).copyFrom(v);
-
-        if (faceDetail != null) {
-
-            // Save point detail for given vertex in array
-            polyDetails.get(polyVertNum).copyFrom(
-                 ( SoPointDetail ) v.getDetail());
-
-            // Store pointer to point detail in saved polygon vertex
-            polyVerts.get(polyVertNum).setDetail(polyDetails.get(polyVertNum));
-        }
-
-        ++polyVertNum;
-        break;
-    }
-}
+//      case TRIANGLE_STRIP:
+//        triangleVertex(v, primVertNum & 1);
+//        break;
+//
+//      case TRIANGLE_FAN:
+//        triangleVertex(v, primVertNum == 0 ? 0 : 1);
+//        break;
+//
+//      case TRIANGLES:
+//        triangleVertex(v, primVertNum == 2 ? -1 : primVertNum);
+//        // Reset for next triangle if processed 3 vertices
+//        if (primVertNum == 3)
+//            primVertNum = 0;
+//        break;
+//
+//      case POLYGON:
+//        // Make sure there is enough room in polyVerts array
+//        allocateVerts();
+//        polyVerts.get(polyVertNum).copyFrom(v);
+//
+//        if (faceDetail != null) {
+//
+//            // Save point detail for given vertex in array
+//            polyDetails.get(polyVertNum).copyFrom(
+//                 ( SoPointDetail ) v.getDetail());
+//
+//            // Store pointer to point detail in saved polygon vertex
+//            polyVerts.get(polyVertNum).setDetail(polyDetails.get(polyVertNum));
+//        }
+//
+//        ++polyVertNum;
+//        break;
+//    }
+//}
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -1205,98 +1205,124 @@ allocateVerts()
 //
 // Use: protected
 
-public void
-endShape()
+//public void
+//endShape()
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    int i;
 //
-////////////////////////////////////////////////////////////////////////
-{
-    int i;
-    
-    final GLU glu = new GLUgl2();
+//    final GLU glu = new GLUgl2();
+//
+//    switch (primShapeType) {
+//      case TRIANGLE_STRIP:
+//      case TRIANGLE_FAN:
+//      case TRIANGLES:
+//        primVertNum = 0;
+//        break;
+//
+//      case POLYGON:
+//        // Don't bother with degenerate polygons
+//        if (polyVertNum < 3) {
+//            polyVertNum = 0;
+//            break;
+//        }
+//
+//        // Concave polygons need to be tesselated; we'll use the
+//        // GLU routines to do this:
+//        if (tobj == null) {
+//            tobj = GLU.gluNewTess();
+//
+//            GLUtessellatorCallback beginGLUCB = new GLUtessellatorCallbackAdapter() {
+//            	public void begin(int type) {
+//            		SoShape.this.beginCB(type);
+//            	}
+//            };
+//
+//            GLU.gluTessCallback(tobj, (int)GLU.GLU_BEGIN,
+//                            beginGLUCB);
+//
+//            GLUtessellatorCallback endGLUCB = new GLUtessellatorCallbackAdapter() {
+//            	public void end() {
+//            		SoShape.this.endCB();
+//            	}
+//            };
+//
+//            GLU.gluTessCallback(tobj, (int)GLU.GLU_END,
+//                            endGLUCB);
+//
+//            GLUtessellatorCallback vtxGLUCB = new GLUtessellatorCallbackAdapter() {
+//            	public void vertex(Object vertexData) {
+//            		SoShape.this.vtxCB(vertexData);
+//            	}
+//            };
+//
+//            GLU.gluTessCallback(tobj, (int)GLU.GLU_VERTEX,
+//                            vtxGLUCB);
+//
+//            GLUtessellatorCallback errorGLUCB = new GLUtessellatorCallbackAdapter() {
+//            	public void error(int errnum) {
+//            		/*SoShape.this.*/errorCB(errnum,glu);
+//            	}
+//            };
+//
+//            GLU.gluTessCallback(tobj, (int)GLU.GLU_ERROR,
+//                            errorGLUCB);
+//        }
+////#ifdef GLU_VERSION_1_2
+//        GLU.gluTessBeginPolygon(tobj, null);
+//        GLU.gluTessBeginContour(tobj);
+////#else
+////        glu.gluBeginPolygon(tobj);
+////#endif
+//
+//        for (i = 0; i < polyVertNum; i++) {
+//            final SbVec3f t = polyVerts.get(i).getPoint();
+//
+//            double[] dv = new double[3];  // glu requires double...
+//            dv[0] = t.getValueRead()[0]; dv[1] = t.getValueRead()[1]; dv[2] = t.getValueRead()[2];
+//            GLU.gluTessVertex(tobj, dv, 0,(Object)polyVerts.get(i));
+//        }
+////#ifdef GLU_VERSION_1_2
+//        GLU.gluTessEndContour(tobj);
+//        GLU.gluTessEndPolygon(tobj);
+////#else
+////        glu.gluEndPolygon(tobj);
+////#endif
+//
+//        polyVertNum = 0;
+//        break;
+//    }
+//
+//    nestLevel--;
+//}
 
-    switch (primShapeType) {
-      case TRIANGLE_STRIP:
-      case TRIANGLE_FAN:
-      case TRIANGLES:
-        primVertNum = 0;
-        break;
 
-      case POLYGON:
-        // Don't bother with degenerate polygons
-        if (polyVertNum < 3) {
-            polyVertNum = 0;
-            break;
-        }
+/*!
 
-        // Concave polygons need to be tesselated; we'll use the
-        // GLU routines to do this:
-        if (tobj == null) {
-            tobj = GLU.gluNewTess();
-            
-            GLUtessellatorCallback beginGLUCB = new GLUtessellatorCallbackAdapter() {
-            	public void begin(int type) {
-            		SoShape.this.beginCB(type);
-            	}
-            };
-            
-            GLU.gluTessCallback(tobj, (int)GLU.GLU_BEGIN,
-                            beginGLUCB);
-            
-            GLUtessellatorCallback endGLUCB = new GLUtessellatorCallbackAdapter() {
-            	public void end() {
-            		SoShape.this.endCB();
-            	}
-            };
-                                    
-            GLU.gluTessCallback(tobj, (int)GLU.GLU_END, 
-                            endGLUCB);
-            
-            GLUtessellatorCallback vtxGLUCB = new GLUtessellatorCallbackAdapter() {
-            	public void vertex(Object vertexData) {
-            		SoShape.this.vtxCB(vertexData);
-            	}
-            };            
-            
-            GLU.gluTessCallback(tobj, (int)GLU.GLU_VERTEX, 
-                            vtxGLUCB);
-            
-            GLUtessellatorCallback errorGLUCB = new GLUtessellatorCallbackAdapter() {
-            	public void error(int errnum) {
-            		/*SoShape.this.*/errorCB(errnum,glu);
-            	}
-            };                        
-            
-            GLU.gluTessCallback(tobj, (int)GLU.GLU_ERROR,
-                            errorGLUCB);
-        }
-//#ifdef GLU_VERSION_1_2
-        GLU.gluTessBeginPolygon(tobj, null);
-        GLU.gluTessBeginContour(tobj);
-//#else
-//        glu.gluBeginPolygon(tobj);
-//#endif
+  This method is used while generating primitives for a shape. See
+  beginShape() for more details.
 
-        for (i = 0; i < polyVertNum; i++) {
-            final SbVec3f t = polyVerts.get(i).getPoint();
-
-            double[] dv = new double[3];  // glu requires double...
-            dv[0] = t.getValueRead()[0]; dv[1] = t.getValueRead()[1]; dv[2] = t.getValueRead()[2];
-            GLU.gluTessVertex(tobj, dv, 0,(Object)polyVerts.get(i));
-        }
-//#ifdef GLU_VERSION_1_2
-        GLU.gluTessEndContour(tobj);
-        GLU.gluTessEndPolygon(tobj);
-//#else
-//        glu.gluEndPolygon(tobj);
-//#endif
-
-        polyVertNum = 0;
-        break;
+  \sa beginShape(), endShape()
+*/
+    public void
+    shapeVertex( SoPrimitiveVertex v)
+    {
+        soshape_get_staticdata().primdata.shapeVertex(v);
     }
 
-    nestLevel--;
-}
+/*!
 
+  This method is used while generating primitives for a shape. See
+  beginShape() for more details.
+
+  \sa beginShape(), shapeVertex()
+*/
+    public void
+    endShape()
+    {
+        soshape_get_staticdata().primdata.endShape();
+    }
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -1378,10 +1404,10 @@ getScreenSize(SoState state, final SbBox3f boundingBox,
 //
 // Use: protected
 
-protected void
+public void
 invokeLineSegmentCallbacks(SoAction action,
-                                    final SoPrimitiveVertex v1,
-                                    final SoPrimitiveVertex v2)
+                           final SoPrimitiveVertex v1,
+                           final SoPrimitiveVertex v2)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -1584,7 +1610,7 @@ rayPickLineSegment(SoRayPickAction action,
 //
 // Use: protected
 
-protected void
+public void
 invokePointCallbacks(SoAction action, final SoPrimitiveVertex v)
 //
 ////////////////////////////////////////////////////////////////////////

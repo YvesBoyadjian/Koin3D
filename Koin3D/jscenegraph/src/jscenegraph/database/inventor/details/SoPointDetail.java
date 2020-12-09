@@ -207,4 +207,8 @@ public static void initClass()
             new SbName("SoPointDetail"), null));
 }
 
+
+    static public int sizeof() { // For memcpy
+        return Mutable.sizeof();
+    }
 }
