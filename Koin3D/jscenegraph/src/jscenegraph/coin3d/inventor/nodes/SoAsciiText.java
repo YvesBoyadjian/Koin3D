@@ -139,16 +139,24 @@
 
 package jscenegraph.coin3d.inventor.nodes;
 
-import jscenegraph.database.inventor.SbBox3f;
-import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.SoType;
+import com.jogamp.opengl.GL2;
+import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
+import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
+import jscenegraph.database.inventor.bundles.SoMaterialBundle;
+import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.fields.*;
-import jscenegraph.database.inventor.nodes.SoShape;
-import jscenegraph.database.inventor.nodes.SoSphere;
-import jscenegraph.database.inventor.nodes.SoSubNode;
-import jscenegraph.database.inventor.nodes.SoSwitch;
+import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.database.inventor.nodes.*;
 import org.lwjgl.system.CallbackI;
+import org.lwjglx.util.glu.GLUtessellator;
+import com.jogamp.opengl.glu.GLU;
+import org.lwjglx.util.glu.GLUtessellatorCallback;
+import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
+
+import java.nio.FloatBuffer;
 
 
 // *************************************************************************
@@ -256,6 +264,23 @@ public class SoAsciiText extends SoShape {
 
     private SoAsciiTextP pimpl;
 
+    //! Private data:
+    //! MyOutlineFontCache is an internal, opaque class used to
+    //! maintain gl display lists and other information for each
+    //! character in a font.
+    MyOutlineFontCache myFont; //ptr
+
+    //! All this stuff is used while generating primitives:
+    static SoAsciiText currentGeneratingNode; //ptr
+    static SoPrimitiveVertex[] genPrimVerts = new SoPrimitiveVertex[3]; //ptr
+    static final SbVec3fSingle genTranslate = new SbVec3fSingle();
+    static int genWhichVertex;
+    static int genPrimType;
+    static SoAction genAction; //ptr
+    static boolean genBack;
+    static boolean genTexCoord;
+    static SoMultiTextureCoordinateElement tce; //ptr
+
 /*!
   Constructor.
 */
@@ -277,6 +302,201 @@ public class SoAsciiText extends SoShape {
         pimpl.cache = null;
     }
 
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Performs GL rendering of a Text3.
+//
+// Use: extender
+
+    static GLUtessellator/*gluTESSELATOR*/ tobj = null; //ptr
+
+    public void
+    GLRender(SoGLRenderAction action)
+//
+////////////////////////////////////////////////////////////////////////
+    {
+
+        // First see if the object is visible and should be rendered now
+        if (! shouldGLRender(action))
+            return;
+
+        SoState state = action.getState();
+
+        if (!setupFontCache(state, true))
+            return;
+
+        SoMaterialBindingElement.Binding mbe =
+            SoMaterialBindingElement.get(state);
+        boolean materialPerPart =
+                (mbe == SoMaterialBindingElement.Binding.PER_PART_INDEXED ||
+                        mbe == SoMaterialBindingElement.Binding.PER_PART);
+
+        final SoMaterialBundle    mb = new SoMaterialBundle(action);
+        if (!materialPerPart) {
+            // Make sure the fist current material is sent to GL
+            mb.sendFirst();
+        }
+
+        final GL2 gl2 = action.getState().getGL2();
+
+        if (tobj == null) {
+            tobj = /*(gluTESSELATOR )*/GLU.gluNewTess();
+            GLUtessellatorCallback cb = new GLUtessellatorCallbackAdapter() {
+
+                public void begin(int val) {
+                    gl2.glBegin(val);
+                }
+
+                public void end() {
+                    gl2.glEnd();
+                }
+
+                public void vertex(Object object) {
+                    if(object instanceof FloatBuffer) {
+                        gl2.glVertex2fv((FloatBuffer)object);
+                    }
+                    else if(object instanceof SbVec2f) {
+                        SbVec2f vec = (SbVec2f)object;
+                        gl2.glVertex2fv(vec.getValueRead(), 0);
+                    }
+                    else {
+                        gl2.glVertex2fv((float[])object, 0);
+                    }
+                }
+
+                public void error(int val) {
+                    MyOutlineFontCache.errorCB(val);
+                }
+            };
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_BEGIN, cb/*(OPENGL_CALLBACKFUNC)glBegin*/);
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_END, cb/*(OPENGL_CALLBACKFUNC)glEnd*/);
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_VERTEX, cb/*(OPENGL_CALLBACKFUNC)glVertex2fv*/);
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_ERROR,
+                    cb/*(OPENGL_CALLBACKFUNC)MyOutlineFontCache::errorCB*/);
+        }
+
+        // See if texturing is enabled
+        genTexCoord = SoGLMultiTextureEnabledElement.get(action.getState(),0); // YB port to Koin3D
+
+        if (materialPerPart) mb.sendFirst();
+
+        gl2.glNormal3f(0, 0, 1);
+
+        myFont.setupToRenderFront(state);
+
+        if (genTexCoord) {
+            gl2.glPushAttrib(GL2.GL_TEXTURE_BIT);
+            gl2.glTexGeni(GL2.GL_S, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
+            gl2.glTexGeni(GL2.GL_T, GL2.GL_TEXTURE_GEN_MODE, GL2.GL_OBJECT_LINEAR);
+            float[] params = new float[4];
+            params[0] = 1.0f/myFont.getHeight();
+            params[1] = params[2] = params[3] = 0.0f;
+            gl2.glTexGenfv(GL2.GL_S, GL2.GL_OBJECT_PLANE, params);
+            params[1] = params[0];
+            params[0] = 0.0f;
+            gl2.glTexGenfv(GL2.GL_T, GL2.GL_OBJECT_PLANE, params);
+
+            gl2.glEnable(GL2.GL_TEXTURE_GEN_S);
+            gl2.glEnable(GL2.GL_TEXTURE_GEN_T);
+        }
+
+        for (int line = 0; line < string.getNum(); line++) {
+            gl2.glPushMatrix();
+            float w = (line < width.getNum()) ? width.getValueAt(line) : 0;
+            SbVec2fSingle p = new SbVec2fSingle(getStringOffset(line, w));
+            if (p.getValue()[0] != 0.0 || p.getValue()[1] != 0.0)
+                gl2.glTranslatef(p.getValue()[0], p.getValue()[1], 0.0f);
+            renderFront(action, string.getValueAt(line), w, tobj);
+            gl2.glPopMatrix();
+        }
+
+        if (genTexCoord) {
+            gl2.glPopAttrib();
+        }
+        mb.destructor();
+    }
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Figure out how much to offset the given line of text.  The X
+//    offset depends on the justification and the width of the string
+//    in the current font.  The Y offset depends on the line spacing
+//    and font height.
+//
+// Use: private
+
+    public SbVec2f
+    getStringOffset(int line, float width)
+//
+////////////////////////////////////////////////////////////////////////
+    {
+        final SbVec2fSingle result = new SbVec2fSingle(0,0);
+
+        if (justification.getValue() == SoAsciiText.Justification.RIGHT.getValue()) {
+            if (width <= 0)
+                width = myFont.getWidth(string.getValueAt(line));
+            result.getValue()[0] = -width;
+        }
+        if (justification.getValue() == SoAsciiText.Justification.CENTER.getValue()) {
+            if (width <= 0)
+                width = myFont.getWidth(string.getValueAt(line));
+            result.getValue()[0] = -width/2.0f;
+        }
+        result.getValue()[1] = -line*myFont.getHeight()*spacing.getValue();
+
+        return result;
+    }
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Render the fronts of the given string.  The GL transformation
+//    matrix is munged by this routine-- surround it by
+//    PushMatrix/PopMatrix.
+//
+// Use: public, internal
+
+    public void
+    renderFront(SoGLRenderAction action, final String string,
+                             float width, /*gluTESSELATOR*/GLUtessellator tobj)
+//
+////////////////////////////////////////////////////////////////////////
+    {
+        String chars = string/*.getString()*/;
+
+        // if we have a fixed width, use it.
+        float off = 0;
+        if (width > 0) {
+            float naturalWidth = myFont.getWidth(string);
+            off = (width - naturalWidth) / (string.length() - 1);
+        }
+
+        // First, try to figure out if we can use glCallLists:
+        boolean useCallLists = true;
+
+        for (int i = 0; i < string.length(); i++) {
+            // See if the font cache already has (or can build) a display
+            // list for this character:
+            if (!myFont.hasFrontDisplayList(chars.charAt(i), tobj)) {
+                useCallLists = false;
+                break;
+            }
+        }
+
+        // if we have display lists for all of the characters, use
+        // glCallLists:
+        if (useCallLists && off == 0) {
+            myFont.callFrontLists(string, off);
+        }
+        // if we don't, draw the string character-by-character, using the
+        // display lists we do have:
+        else {
+            myFont.renderFront(string, off, tobj);
+        }
+    }
+
     /*!
       \copybrief SoBase::initClass(void)
     */
@@ -294,5 +514,44 @@ public class SoAsciiText extends SoShape {
     @Override
     protected void generatePrimitives(SoAction action) {
 
+    }
+
+////////////////////////////////////////////////////////////////////////
+//
+// Description:
+//    Setup internal font cache.  Called by all action methods before
+//    doing their thing.  GLRender passes TRUE to do special rendering
+//    setup.  Returns FALSE if there are problems and the action
+//    should bail.
+//
+// Use: private
+
+    public boolean
+    setupFontCache(SoState state, boolean forRender)
+//
+////////////////////////////////////////////////////////////////////////
+    {
+        // The state must be pushed here because myFont->isRenderValid
+        // depends on the state being the correct depth (it must be the
+        // same depth as when the font cache was built).
+        state.push();
+
+        if (myFont != null) {
+            boolean isValid;
+            if (forRender)
+                isValid = myFont.isRenderValid(state);
+            else
+                isValid = myFont.isValid(state);
+
+            if (!isValid) {
+                myFont.unref(state);
+                myFont = null;
+            }
+        }
+        if (myFont == null) {
+            myFont = MyOutlineFontCache.getFont(state, forRender);
+        }
+        state.pop();
+        return  myFont != null;
     }
 }

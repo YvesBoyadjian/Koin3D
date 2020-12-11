@@ -11,6 +11,9 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFInt32;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoSubNode;
+import jscenegraph.port.IntArray;
+import jscenegraph.port.MutableIntArray;
+import jscenegraph.port.SbVec3fArray;
 
 /**
  * @author BOYADJIAN
@@ -51,7 +54,21 @@ public SoVRMLIndexedLine() // protected
 
 	  public void computeBBox(SoAction action,
               final SbBox3f box, final SbVec3f center) {
-		  //TODO
+		  SoVRMLCoordinate node = (SoVRMLCoordinate) this.coord.getValue();
+		  if (node == null) return;
+
+		  int numCoords = node.point.getNum();
+  SbVec3fArray coords = node.point.getValues(0);
+
+		  box.makeEmpty();
+  final MutableIntArray ptr = MutableIntArray.from(coordIndex.getValues(0));
+  final MutableIntArray endptr = ptr.plus(coordIndex.getNum());
+		  while (ptr.lessThan( endptr)) {
+			  int idx = ptr.get(); ptr.plusPlus();
+			  assert(idx < numCoords);
+			  if (idx >= 0) box.extendBy(coords.getFast(idx));
+		  }
+		  if (!box.isEmpty()) center.copyFrom(box.getCenter());
 	  }
 
 	  /*!

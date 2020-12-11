@@ -686,87 +686,90 @@ public boolean readFieldDescriptions(SoInput in, SoFieldContainer object,
 
 private boolean readFieldDescriptions(
     SoInput in, SoFieldContainer object, int numDescriptions)
+{
+	return readFieldDescriptions(in,object,numDescriptions,true);
+}
 
 //
 ////////////////////////////////////////////////////////////////////////
-{
-    boolean gotChar;
-    final SbName fieldType = new SbName();//, fieldName; java port
-    final char[]   c = new char[1];
-
-    boolean isBinary = in.isBinary();
-
-    boolean hadFieldsDefined = fields.getLength() > 0;
-
-    if (!isBinary) 
-        if (! ((gotChar = in.read(c)) || c[0] != OPEN_BRACE_CHAR))
-            return false;
-
-    for (int i = 0; i < numDescriptions; i++) {
-
-        // Check for closing brace:
-        if (!isBinary) {
-            // Check for closing brace:
-            if (in.read(c) && c[0] == CLOSE_BRACE_CHAR)
-                return true;
-            else in.putBack(c[0]);
-        }
-
-        final SbName type = new SbName(), fieldName = new SbName();
-        if (!in.read(type, true)) return false;
-        if (!in.read(fieldName, true)) return false;
-
-        SoType fldType = SoType.fromName(type);
-
-        if (!hadFieldsDefined) {
-            // Only create fields if fields haven't already been
-            // defined.  This isn't 100% correct-- we'll create
-            // field for nodes/engines that have not fields if the
-            // user specifies fields/inputs for them.  But that's
-            // a case I'm not going to worry about (there are VERY
-            // few nodes that have no fields).
-
-            if (fldType.isBad())
-                return false;
-
-            // Create and initialize an instance of the field.
-            // Add it to the field data.
-            SoField fld = (SoField )(fldType.createInstance());
-            fld.setContainer(object);
-
-            // Cast const away:
-            SoFieldData This = (SoFieldData )this;
-            This.addField(object.getClass(),object, fieldName.getString(), fld);
-        }
-//#ifdef DEBUG
-        else {
-            // Check to make sure specification matches reality:
-            SoField f = object.getField(fieldName);
-            if (f == null) {
-                SoDebugError.post("SoFieldData::readFieldDescriptions",
-                		object.getTypeId().getName().getString()+" does not have a field named "+fieldName.getString());
-            }
-            else if (!f.isOfType(fldType)) {
-                SoDebugError.postWarning("SoFieldData::readFieldDescriptions",
-                		object.getTypeId().getName().getString()+"."+fieldName.getString()+" is type "+f.getTypeId().getName().getString()+", NOT type "+type.getString());
-            }
-        }
-//#endif
-        if (!isBinary) {
-            // Better get a ',' or a ']' at this point:
-            if (! in.read(c))
-                return false;
-            if (c[0] != VALUE_SEPARATOR_CHAR) {
-                if (c[0] == CLOSE_BRACE_CHAR)
-                    return true;
-                else return false;
-            }
-            // Got a ',', continue reading
-        }
-    }
-
-    return true;
-}
+//{
+//    boolean gotChar;
+//    final SbName fieldType = new SbName();//, fieldName; java port
+//    final char[]   c = new char[1];
+//
+//    boolean isBinary = in.isBinary();
+//
+//    boolean hadFieldsDefined = fields.getLength() > 0;
+//
+//    if (!isBinary)
+//        if (! ((gotChar = in.read(c)) || c[0] != OPEN_BRACE_CHAR))
+//            return false;
+//
+//    for (int i = 0; i < numDescriptions; i++) {
+//
+//        // Check for closing brace:
+//        if (!isBinary) {
+//            // Check for closing brace:
+//            if (in.read(c) && c[0] == CLOSE_BRACE_CHAR)
+//                return true;
+//            else in.putBack(c[0]);
+//        }
+//
+//        final SbName type = new SbName(), fieldName = new SbName();
+//        if (!in.read(type, true)) return false;
+//        if (!in.read(fieldName, true)) return false;
+//
+//        SoType fldType = SoType.fromName(type);
+//
+//        if (!hadFieldsDefined) {
+//            // Only create fields if fields haven't already been
+//            // defined.  This isn't 100% correct-- we'll create
+//            // field for nodes/engines that have not fields if the
+//            // user specifies fields/inputs for them.  But that's
+//            // a case I'm not going to worry about (there are VERY
+//            // few nodes that have no fields).
+//
+//            if (fldType.isBad())
+//                return false;
+//
+//            // Create and initialize an instance of the field.
+//            // Add it to the field data.
+//            SoField fld = (SoField )(fldType.createInstance());
+//            fld.setContainer(object);
+//
+//            // Cast const away:
+//            SoFieldData This = (SoFieldData )this;
+//            This.addField(object.getClass(),object, fieldName.getString(), fld);
+//        }
+////#ifdef DEBUG
+//        else {
+//            // Check to make sure specification matches reality:
+//            SoField f = object.getField(fieldName);
+//            if (f == null) {
+//                SoDebugError.post("SoFieldData::readFieldDescriptions",
+//                		object.getTypeId().getName().getString()+" does not have a field named "+fieldName.getString());
+//            }
+//            else if (!f.isOfType(fldType)) {
+//                SoDebugError.postWarning("SoFieldData::readFieldDescriptions",
+//                		object.getTypeId().getName().getString()+"."+fieldName.getString()+" is type "+f.getTypeId().getName().getString()+", NOT type "+type.getString());
+//            }
+//        }
+////#endif
+//        if (!isBinary) {
+//            // Better get a ',' or a ']' at this point:
+//            if (! in.read(c))
+//                return false;
+//            if (c[0] != VALUE_SEPARATOR_CHAR) {
+//                if (c[0] == CLOSE_BRACE_CHAR)
+//                    return true;
+//                else return false;
+//            }
+//            // Got a ',', continue reading
+//        }
+//    }
+//
+//    return true;
+//}
 
 /*!
   Read field data from the \a in stream for fields belonging to \a

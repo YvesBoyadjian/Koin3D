@@ -297,6 +297,8 @@ public static final int FT_FACE_FLAG_COLOR             =( 1 << 14 );
 	  this.available = available;
   }
 
+  public abstract FLoutline getOutline(FLfontStruct fs, int c);
+
 public abstract FLoutline getUniOutline(FLfontStruct[] fsList, char uCS2);
 
 public FLbitmap getUniBitmap(FLfontStruct[] fsList, char uCS2) {
@@ -759,6 +761,11 @@ static FLfontImpl freetypeImpl = new FLfontImpl(
 ) {
 
 	@Override
+	public FLoutline getOutline(FLfontStruct fs, int c) {
+		return _flFTGetOutline(fs,c);
+	}
+
+	@Override
 	public FLoutline getUniOutline(FLfontStruct[] fsList, char uCS2) {
 		  FLfontStruct fs;
 		  FLoutline outline;
@@ -804,6 +811,18 @@ public static void flSetHint(
 		return current_context;
 	}
 
+	/*FLfontNumber*/
+	public static int
+	flGetCurrentFont()
+	{
+		FLcontext ctx = current_context;
+		/*FLfontNumber*/int fn = ctx != null ? ctx.current_font : BAD_FONT_NUMBER;
+
+		//TRACE(("flGetCurrentFont: fn=%d\n", fn));
+
+		return fn;
+	}
+
 	public static boolean flMakeCurrentContext(FLcontext ctx) {
 		  if (ctx == null)
 			    return false;
@@ -812,9 +831,23 @@ public static void flSetHint(
 			  return true;
 	}
 
-	public static void flDestroyFont(int operator_square_bracket) {
-		// TODO Auto-generated method stub
-		
+	public static boolean
+	flMakeCurrentFont(/*FLfontNumber*/int fn)
+	{
+		FLcontext ctx = current_context;
+
+		//TRACE(("flMakeCurrentFont: fn=%d\n", fn));
+
+		if ( ctx == null)
+			return false;
+
+		ctx.current_font = fn;
+		return true;
+	}
+
+	public static void flDestroyFont(int fn) {
+		FLfontStruct fs = flGetFontInfo(fn);
+		//TODO
 	}
 
 	public static FLcontext flCreateContext(String fontPath, int fontNamePreference, String fontNameRestriction, float pointsPerUMx, float pointsPerUMy) {
@@ -1087,6 +1120,23 @@ flGetFontInfo(int fn)
   return (ctx != null && fn > 0 && fn <= ctx.numFont) ? ctx.fontTable[fn] : null;
 }
 
+	public static FLoutline
+	flGetOutline(/*FLfontNumber*/int fn, /*GLuint*/int c)
+	{
+		//TRACE(("flGetOutline: fn=%d, c='%c'(%u)\n", fn, c, c));
+		return _flGetOutline(flGetFontInfo(fn), c);
+	}
+
+
+	static FLoutline
+	_flGetOutline(FLfontStruct fs, /*GLuint*/int c)
+	{
+		FLfontImpl impl = _flGetFontImpl();
+
+		//CHECK(fs, impl, getOutline, NULL);
+
+		return impl.getOutline(fs, c);
+	}
 
 static FLoutline 
 _flUniGetOutline(FLfontStruct[] fsList, char UCS2)

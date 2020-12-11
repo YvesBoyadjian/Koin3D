@@ -1,5 +1,6 @@
 package vrmlviewer;
 
+import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoInputFile;
@@ -48,7 +49,7 @@ public static void main(String[] args) {
 
 
     SoText3 text = new SoText3();
-    text.string.setValue("Drag an Drop your WRL file here");
+    text.string.setValue("Drag an Drop your IV/WRL file here");
 
     cache.addChild(text);
 
@@ -61,6 +62,8 @@ public static void main(String[] args) {
 
         //examinerViewer.setAntialiasing(true, 66);
         examinerViewer.getSceneHandler().setTransparencyType(SoGLRenderAction.TransparencyType.DELAYED_BLEND);
+
+        examinerViewer.getSceneHandler().setBackgroundColor(new SbColor(0.6f,0.535f,0.28f));
 
         examinerViewer.buildWidget(0);
 

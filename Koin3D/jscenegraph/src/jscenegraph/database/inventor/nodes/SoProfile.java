@@ -164,8 +164,8 @@ public abstract class SoProfile extends SoNode {
     public final SoSFEnum            linkage = new SoSFEnum();      
 
     //! Returns vertices approximating the profile
-    abstract void        getVertices(final SoState state, final IntConsumer nVertices,
-                                    final Consumer<SbVec2f[]> vertices);
+    public abstract void        getVertices(final SoState state, final IntConsumer nVertices,
+                                            final Consumer<SbVec2f[]> vertices);
 
 
 ////////////////////////////////////////////////////////////////////////

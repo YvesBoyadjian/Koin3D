@@ -4,9 +4,12 @@
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.actions.SoAction;
+import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFNode;
+import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 
 /**
@@ -46,6 +49,41 @@ public abstract class SoVRMLVertexLine extends SoVRMLGeometry {
 		nodeHeader.SO_VRMLNODE_ADD_EXPOSED_FIELD(coord,"coord", (null));
 	  nodeHeader.SO_VRMLNODE_ADD_EXPOSED_FIELD(color,"color", (null));
 	  nodeHeader.SO_VRMLNODE_ADD_FIELD(colorPerVertex,"colorPerVertex", (true));
+	}
+
+
+// Doc in parent
+	public void
+	doAction(SoAction action)
+	{
+		SoNode node;
+
+		node = this.coord.getValue();
+		if (node!=null) node.doAction(action);
+
+		node = this.color.getValue();
+		if (node!=null) node.doAction(action);
+	}
+
+// Doc in parent
+	public void
+	GLRender(SoGLRenderAction action)
+	{
+		SoNode node;
+
+		node = this.coord.getValue();
+		if (node!=null) node.GLRender(action);
+
+		node = this.color.getValue();
+		if (node!=null) node.GLRender(action);
+	}
+
+// Doc in parent
+	public boolean
+	shouldGLRender(SoGLRenderAction action)
+	{
+		if (this.coord.getValue() == null) return false;
+		return super.shouldGLRender(action);
 	}
 
 	/*!

@@ -287,7 +287,7 @@ public void getTrimCurve(SoState state, IntConsumer numPoints, Consumer<float[]>
  * @see jscenegraph.database.inventor.nodes.SoProfile#getVertices(jscenegraph.database.inventor.misc.SoState, java.util.function.IntConsumer, java.util.function.Consumer)
  */
 @Override
-void getVertices(SoState state,	IntConsumer nVertices, Consumer<SbVec2f[]> vertices)
+public void getVertices(SoState state, IntConsumer nVertices, Consumer<SbVec2f[]> vertices)
 //
 ////////////////////////////////////////////////////////////////////////
 {
