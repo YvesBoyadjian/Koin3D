@@ -284,8 +284,10 @@ public boolean readInstance(SoInput in, short flags)
                 else
                     break;
             }
-            else
+            else {
                 f.readOK = false;
+                break; // Coin3D
+            }
         }
         in.closeFile();
     }

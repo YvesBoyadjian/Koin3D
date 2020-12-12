@@ -29,7 +29,7 @@ import jscenegraph.database.inventor.SbIntList;
 public class FILE {
 	
 	public static final int EOF = -1;
-	private static final int BUFFER_SIZE = 1 << 10;
+	private static final int BUFFER_SIZE = 1 << 16;
 	/* Seek method constants */
 
 	public static final int SEEK_CUR    =1;

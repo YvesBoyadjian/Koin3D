@@ -512,7 +512,7 @@ private static boolean read(SoInput in, final SoBase[] base)
     // If no valid base was read, but we haven't hit EOF, that means
     // that there's extra crap in the input that's not an Inventor
     // thing. If so, report an error.
-    if (ret && base == null && ! in.eof()) {
+    if (ret && base[0] == null && ! in.eof()) {
         final char[]    c = new char[1];
         in.get(c);
         SoReadError.post(in, "Extra characters ('"+c[0]+"') found in input");

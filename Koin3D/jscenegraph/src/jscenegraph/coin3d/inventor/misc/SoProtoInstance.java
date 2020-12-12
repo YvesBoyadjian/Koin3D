@@ -62,6 +62,15 @@ public SoFieldData getFieldData()
   }
 
 /*!
+  Returns the PROTO definition for this instance.
+*/
+  public SoProto
+  getProtoDefinition()
+  {
+    return pimpl.protodef;
+  }
+
+/*!
   Given root node \a rootnode, return the PROTO instance, or NULL if
   \a rootnode is not a PROTO instance root node.
 */

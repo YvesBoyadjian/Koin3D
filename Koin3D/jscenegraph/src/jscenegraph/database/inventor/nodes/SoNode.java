@@ -60,6 +60,7 @@ import java.lang.reflect.Method;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowSpotLight;
 import jscenegraph.coin3d.inventor.misc.SoProto;
+import jscenegraph.coin3d.inventor.misc.SoProtoInstance;
 import jscenegraph.coin3d.inventor.nodes.*;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SoDB;
@@ -415,29 +416,82 @@ notify(SoNotList list)
 	 *
 	 * @return
 	 */
-	public SoNode addToCopyDict() {
+//	public SoNode addToCopyDict() {
+//
+//	     // If this node is already in the dictionary, nothing else to do
+//		       SoNode copy = (SoNode ) checkCopy(this);
+//		       if (copy == null) {
+//
+//		           // Create and add a new instance to the dictionary
+//		           copy = (SoNode ) getTypeId().createInstance();
+//		           copy.ref();
+//		           addCopy(this, copy);            // Adds a ref()
+//		           copy.unrefNoDelete();
+//
+//		           // Recurse on children, if any
+//		           SoChildList kids = getChildren();
+//		           if (kids != null) {
+//					for (int i = 0; i < kids.getLength(); i++) {
+//						kids.operator_square_bracket(i).addToCopyDict();
+//					}
+//				}
+//		       }
+//
+//		       return copy;
+//		  	}
 
-	     // If this node is already in the dictionary, nothing else to do
-		       SoNode copy = (SoNode ) checkCopy(this);
-		       if (copy == null) {
+/*!
+  Add a copy of this node and (recursively) all children to the copy
+  dictionary of SoFieldContainer if this has not already been done.
 
-		           // Create and add a new instance to the dictionary
-		           copy = (SoNode ) getTypeId().createInstance();
-		           copy.ref();
-		           addCopy(this, copy);            // Adds a ref()
-		           copy.unrefNoDelete();
+  Used internally during copy operations.
+*/
+	public SoNode
+	addToCopyDict()
+	{
+//#if COIN_DEBUG && 0 // debug
+//		SoDebugError::postInfo("SoNode::addToCopyDict",
+//			"%s node", this->getTypeId().getName().getString());
+//#endif // debug
 
-		           // Recurse on children, if any
-		           SoChildList kids = getChildren();
-		           if (kids != null) {
-					for (int i = 0; i < kids.getLength(); i++) {
-						kids.operator_square_bracket(i).addToCopyDict();
-					}
+		SoNode cp = (SoNode )SoFieldContainer.checkCopy(this);
+		if (cp == null) {
+			// We need to do some extra work when copying nodes that are
+			// ProtoInstance root nodes. We create a new ProtoInstance node,
+			// and register its root node as the copy. pederb, 2002-06-17
+			SoProtoInstance inst = SoProtoInstance.findProtoInstance(this);
+			if (inst != null) {
+				SoProto proto = inst.getProtoDefinition();
+				SoProtoInstance newinst = proto.createProtoInstance();
+				if (inst.getName().getLength()!=0) newinst.setName(inst.getName());
+				cp = newinst.getRootNode();
+				assert(cp!=null);
+				// We have to call addCopy() before calling copyContents() since
+				// the proto instance might have a field that has a pointer to
+				// the root node. pederb, 2002-09-04
+				/*SoFieldContainer::*/super.addCopy(this, cp);
+				newinst.copyContents(inst, false);
+			}
+			else {
+				if (this.isOfType(SoProto.getClassTypeId())) {
+					// just copy the pointer. A PROTO definition is
+					// read-only. It's not possible to change it after it has been
+					// created so this should be safe.
+					cp = (SoNode) this;
 				}
-		       }
+      else {
+					cp = (SoNode)this.getTypeId().createInstance();
+				}
+				assert(cp!=null);
+				/*SoFieldContainer::*/super.addCopy(this, cp);
 
-		       return copy;
-		  	}
+				SoChildList l = this.getChildren();
+				for (int i=0; l!=null && (i < l.getLength()); i++)
+					(l).operator_square_bracket(i).addToCopyDict();
+			}
+		}
+		return cp;
+	}
 
 	/**
 	 * Copies the contents of the given node into this instance.

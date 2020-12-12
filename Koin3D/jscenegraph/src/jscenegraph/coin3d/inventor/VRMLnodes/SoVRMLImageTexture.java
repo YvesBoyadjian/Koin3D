@@ -103,6 +103,17 @@ public SoVRMLImageTexture()
 }
 
 
+/*!
+  Sets whether the image loading is delayed until the first time the
+  image is needed, or if the image is loaded immediately when the
+  url field is changed/set. Default value is \e TRUE.
+*/
+  public static void
+  setDelayFetchURL( boolean onoff)
+  {
+    imagetexture_delay_fetch = onoff;
+  }
+
   static SoGLImage.Wrap
   imagetexture_translate_wrap( boolean repeat)
   {

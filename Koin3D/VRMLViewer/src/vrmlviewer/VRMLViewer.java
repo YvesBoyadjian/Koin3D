@@ -1,11 +1,14 @@
 package vrmlviewer;
 
+import com.jogamp.opengl.GL2;
+import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLImageTexture;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoInput;
 import jscenegraph.database.inventor.SoInputFile;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.*;
+import jscenegraph.port.Ctx;
 import jsceneviewerawt.inventor.qt.SoQt;
 import jsceneviewerawt.inventor.qt.SoQtCameraController;
 import jsceneviewerawt.inventor.qt.viewers.SoQtExaminerViewer;
@@ -27,7 +30,7 @@ public static void main(String[] args) {
     SoQt.init("VRMLViewer");
 
     //JPanel panel = new JPanel();
-    JFrame frame = new JFrame("Frame");
+    JFrame frame = new JFrame("VRMLViewer");
     frame.getContentPane().setBackground(new Color(0,true));
     //frame.getContentPane().add(panel);
     frame.getContentPane().setLayout(new BorderLayout());
@@ -42,6 +45,8 @@ public static void main(String[] args) {
     String path = "C:/Users/Yves Boyadjian/Downloads/doom-combat-scene_wrl/doom combat scene.wrl";
 
     SbViewportRegion.setDefaultPixelsPerInch(7.20f);
+
+    SoVRMLImageTexture.setDelayFetchURL(false); // Don't wait to load textures
 
     SoSeparator cache = new SoSeparator();
 
@@ -81,6 +86,20 @@ public static void main(String[] args) {
                             evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     cache.removeAllChildren();
 
+//                    SoCallback callback = new SoCallback();
+//
+//                    callback.setCallback(action -> {
+//                        if(action instanceof SoGLRenderAction) {
+//                            SoGLRenderAction glRenderAction = (SoGLRenderAction)action;
+//                            GL2 gl2 = Ctx.get(glRenderAction.getCacheContext());
+//                            gl2.glEnable(GL2.GL_FRAMEBUFFER_SRGB);
+//                            gl2.glLightModeli(GL2.GL_LIGHT_MODEL_LOCAL_VIEWER, GL2.GL_TRUE);
+//                        }
+//                    });
+//                    cache.addChild(callback);
+
+                    String title = "";
+
                     for (File file : droppedFiles) {
                         SoFile input = new SoFile();
                         input.name.setValue(file.toString());
@@ -94,7 +113,11 @@ public static void main(String[] args) {
 
                         cache.addChild(input);
                         examinerViewer.viewAll();
+
+                        title += file.getName()+" ";
                     }
+                    frame.setTitle(title);
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

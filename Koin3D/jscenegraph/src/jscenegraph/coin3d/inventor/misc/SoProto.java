@@ -633,7 +633,7 @@ private SoNode createInstanceRoot(SoProtoInstance inst) {
         SoNode orgnode = ((SoSFNode) orgf).getValue();
         if (orgnode != null) {
           SoField cpyf = fd2.getField(cpy, i);
-          if (cpyf.getTypeId() == sosftype) {
+          if (cpyf.getTypeId().operator_equal_equal(sosftype)) {
             SoNode found = locate_node_copy(searchfor, orgnode, ((SoSFNode) cpyf).getValue());
             if (found != null) return found;
           }
