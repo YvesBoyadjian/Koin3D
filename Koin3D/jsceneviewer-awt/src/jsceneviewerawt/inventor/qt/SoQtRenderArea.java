@@ -167,7 +167,7 @@ public class SoQtRenderArea extends SoQtGLWidget {
     
     protected //! this is emitted when the scene manager requests a redraw of the scene
     void redrawRequested() {
-    	//getGLWidget().redraw(); nothing to do : updateGL does it
+    	getGLWidget().repaint();//can still be useful when A.I.is on.  redraw(); //nothing to do : updateGL does it
     }
 	
     protected void visibilityChanged (boolean visible) {
