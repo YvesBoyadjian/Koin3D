@@ -477,7 +477,7 @@ private static boolean read(SoInput in, final SoBase[] base)
 ////////////////////////////////////////////////////////////////////////
 {
     boolean        ret;
-    String dataFileName;
+    Path dataFileName;
     String searchPath = null;
 
 //#ifdef DEBUG
@@ -498,8 +498,8 @@ private static boolean read(SoInput in, final SoBase[] base)
         // Set up the directory search stack if necessary. Look for
         // the last '/' in the path. If there is none, there's no
         // path. Otherwise, remove the slash and everything after it.
-        FileSystem fs = FileSystems.getDefault();
-        Path path = fs.getPath(dataFileName);
+        //FileSystem fs = FileSystems.getDefault();
+        Path path = /*fs.getPath(*/dataFileName/*)*/;
         searchPath = path.getParent().toString();
         
         if (!searchPath.isEmpty()) {

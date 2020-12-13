@@ -254,7 +254,7 @@ soproto_fetchextern_default_cb(SoInput in,
     // Take care of popping the file off the stack. This is a bit
     // "hack-ish", but its done this way instead of loosening the
     // protection of SoInput::popFile().
-    if (Objects.equals(in.getCurFileName(),filename)) {
+    if (Objects.equals(in.getCurFileName().getFileName(),filename)) { // YB TODO
       final char[] dummy = new char[1];
       while (!in.eof() && in.get(dummy)) { }
 

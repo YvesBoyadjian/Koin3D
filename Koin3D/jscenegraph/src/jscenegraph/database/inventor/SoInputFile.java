@@ -59,6 +59,7 @@ package jscenegraph.database.inventor;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.file.Path;
 
 import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.coin3d.inventor.misc.SoProto;
@@ -84,7 +85,7 @@ import jscenegraph.port.FILE;
 
 public class SoInputFile {
     String            name;           //!< Name of file
-    String            fullName;       //!< Name of file with full path
+    Path fullName;       //!< Name of file with full path
     FILE                fp;            //!< File pointer
     String          buffer;        //!< Buffer to read from (or NULL)
     int                curBuf;        //!< Current location in buffer
@@ -111,7 +112,7 @@ public class SoInputFile {
     public SoInputFile() {                      //!< Too complex for inlining
     // Initialize variables:
     name = "";
-    fullName = "";
+    fullName = null;//""; YB
     fp = null;
     buffer = null;
     curBuf = 0;

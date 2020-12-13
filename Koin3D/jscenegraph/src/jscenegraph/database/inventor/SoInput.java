@@ -62,10 +62,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -473,13 +470,13 @@ public void clearDirectories()
 //! Initializes reading from file
 // java port
 private void                initFile(FILE newFP, String fileName,
-                             final String fullName, boolean openedHere) {
+                             final Path fullName, boolean openedHere) {
 	initFile(newFP, fileName, fullName, openedHere, null);
 }
 
 private void initFile(FILE newFP,          // New file pointer
                   String fileName, // Name of new file to read
-                  final String fullName,   // Full name of new file
+                  final Path fullName,   // Full name of new file
                   boolean openedHere,    // true if SoInput opened file
                   SbDict refDict)      // Dictionary of base references
                                         // (default is null: create new dict)
@@ -487,8 +484,13 @@ private void initFile(FILE newFP,          // New file pointer
 ////////////////////////////////////////////////////////////////////////
 {
     curFile.name       = fileName;
-    if (fullName == null)
-        curFile.fullName = fileName;
+    if (fullName == null) {
+        try {
+            curFile.fullName = FileSystems.getDefault().getPath(fileName);
+        } catch (InvalidPathException e) {
+            curFile.fullName = null; // YB java port
+        }
+    }
     else
         curFile.fullName = fullName;
     curFile.fp         = newFP;
@@ -561,7 +563,7 @@ private void initFile(FILE newFP,          // New file pointer
 	////////////////////////////////////////////////////////////////////////
 	{
     FILE newFP = null;
-    final String[]    fullName = new String[1];
+    final Path[]    fullName = new Path[1];
 
     if (fileName != null && !fileName.isEmpty()) {
         newFP = findFile(fileName, fullName);
@@ -601,7 +603,16 @@ public static String getPathname(String filename)
 	Path path = Paths.get(filename);
 	return path.getParent().toString();
 }
-	
+
+    /*!
+      Finds and returns the part of the given filename which is the
+      directory path name.
+     */
+    public static String getPathname(Path path)
+    {
+        return path.getParent().toString();
+    }
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -615,7 +626,7 @@ pushFile( String fileName) // Name of file
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    final String[]    fullName = new String[1];
+    final Path[]    fullName = new Path[1];
 
     FILE newFP = findFile(fileName, fullName);
 
@@ -683,7 +694,7 @@ public void getLocationString(final String[] string)
 //
 // Use: public
 
-public FILE findFile(String fileName, final String[] fullName)
+public FILE findFile(String fileName, final Path[] fullName)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -695,8 +706,8 @@ public FILE findFile(String fileName, final String[] fullName)
 
     // If filename is absolute
     if(fileNamePath.isAbsolute()) {
-    	fullName[0] = fileName;
-    	fp = FILE.fopen(fileName, "r");
+    	fullName[0] = /*fileName*/fileNamePath;
+    	fp = FILE.fopen(fileNamePath, "r");
     }
 
     // For relative file names, try each of the directories in the search path
@@ -706,8 +717,8 @@ public FILE findFile(String fileName, final String[] fullName)
         SbStringList directories = SoInput.getDirectories();
 
         for (i = 0; i < directories.getLength(); i++) {
-            fullName[0] = (String)directories.operator_square_bracket(i);
-            fullName[0] = fileSystem.getPath(fullName[0], fileName).toString();
+            fullName[0] = fileSystem.getPath((String)directories.operator_square_bracket(i));
+            fullName[0] = fileSystem.getPath(fullName[0].toString(), fileName);
             fp = FILE.fopen(fullName[0], "r");
             if (fp != null)
                 break;
@@ -740,7 +751,7 @@ public FILE getCurFile()
 //
 // Use: public
 
-public String getCurFileName()
+public Path getCurFileName()
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -3443,7 +3454,7 @@ getDirectories()
 
 // internal method used for testing if a file exists
 private static boolean
-test_filename(final String filename)
+test_filename(final Path filename)
 {
   FILE fp = FILE.fopen(filename, "rb");
 //#if COIN_DEBUG && 0 // flip 1<->0 to turn texture search trace on or off
@@ -3480,7 +3491,9 @@ searchForFile( final String basename,
 {
   int i;
 
-  if (test_filename(basename)) return basename;
+  FileSystem default_fs = FileSystems.getDefault();
+
+  if (test_filename(default_fs.getPath(basename))) return basename;
 
   String fullname = basename;
 
@@ -3509,7 +3522,7 @@ searchForFile( final String basename,
 
       tmpstring = dirname/*.getString(),*/+
                         fullname/*.getString()*/;
-      if (test_filename(tmpstring)) return tmpstring;
+      if (test_filename(default_fs.getPath(tmpstring))) return tmpstring;
     }
   }
 //
@@ -3523,7 +3536,7 @@ searchForFile( final String basename,
     int dirlen = dirname.length();
 
     File file = new File(dirname,base);
-    fullname = file.toString();
+    Path fullNamePath = file.toPath();
 //
 //    if (dirlen > 0 &&
 //        dirname[dirlen-1] != '/' &&
@@ -3533,15 +3546,15 @@ searchForFile( final String basename,
 //    }
 //    fullname.sprintf("%s%s", dirname.getString(),
 //                     base.getString());
-    if (test_filename(fullname)) return fullname;
+    if (test_filename(fullNamePath)) return fullname;
     for (int j = 0; j < subdirectories.getLength(); j++) {
         File subFile = new File(dirname,(String)subdirectories.operator_square_bracket(j));
         file = new File(subFile,base);
-        fullname = file.toString();
+        fullNamePath = file.toPath();
 //      fullname.sprintf("%s%s/%s", dirname.getString(),
 //                       subdirectories[j]->getString(),
 //                       base.getString());
-      if (test_filename(fullname)) return fullname;
+      if (test_filename(fullNamePath)) return fullname;
     }
   }
   // none found
