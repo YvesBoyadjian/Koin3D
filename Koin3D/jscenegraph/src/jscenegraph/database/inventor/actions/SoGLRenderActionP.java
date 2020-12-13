@@ -796,47 +796,59 @@ doPathSort()
 //	  int width = viewport.getViewportSizePixels().getX();
 //	  int height = viewport.getViewportSizePixels().getY();
 //
-//	  if ( width < 3 || height < 3) {
+//	  if ( width < 5 || height < 5) {
 //	      return;
 //      }
 //
-//	  ByteBuffer image = BufferUtils.createByteBuffer(3*3*Float.BYTES);
+//	  ByteBuffer image = BufferUtils.createByteBuffer(5*5*Float.BYTES);
 //
 //        final SbVec2f samplePoint = new SbVec2f();
 //
 //        FloatBuffer floatBuffer = image.asFloatBuffer();
 //        int index;
 //
-//        float[] x = new float[3];
-//        float[] y = new float[3];
+//        float[] x = new float[5];
+//        float[] y = new float[5];
 //
-//	  for( int pass=0;pass<this.numpasses;pass++) {
-//          SoCamera.getJitterSample(this.numpasses, pass,samplePoint);
-//          float dx = samplePoint.getX();
-//          float dy = samplePoint.getY();
-//          for( int i= -1; i<=1; i++) {
-//              x[i+1] += sinc((i+dx)*(float)Math.PI);
-//          }
-//          for( int j = -1; j<=1;j++) {
-//              y[j+1] += sinc((j+dy)*(float)Math.PI);
-//          }
-//      }
+////	  for( int pass=0;pass<this.numpasses;pass++) {
+////          SoCamera.getJitterSample(this.numpasses, pass,samplePoint);
+////          float dx = samplePoint.getX();
+////          float dy = samplePoint.getY();
+////          for( int i= -2; i<=2; i++) {
+////              x[i+2] += sinc((i+dx)*(float)Math.PI);
+////          }
+////          for( int j = -2; j<=2;j++) {
+////              y[j+2] += sinc((j+dy)*(float)Math.PI);
+////          }
+////      }
 //
-//	  x[0] = x[2] = -0.2f;
-//	  x[1] = 1.4f;
+////	  x[0] = x[2] = -0.2f;
+////	  x[1] = 1.4f;
+////
+////        y[0] = y[2] = -0.2f;
+////        y[1] = 1.4f;
 //
-//        y[0] = y[2] = -0.2f;
-//        y[1] = 1.4f;
+//        float a = 0.05f;
+//	  float b = -0.32f;
+//	  float c = 1 - (a+b)*2;
 //
-//        for( int i= -1; i<=1; i++) {
-//            for (int j = -1; j <= 1; j++) {
-//                float value = x[i+1]*y[j+1];
-//                index = i + 1 + (j + 1) * 3;
+//	  x[0] = x[4] = a;
+//      x[1] = x[3] = b;
+//	  x[2] = c;
+//
+//        y[0] = y[4] = a;
+//        y[1] = y[3] = b;
+//        y[2] = c;
+//
+//        for( int i= -2; i<=2; i++) {
+//            for (int j = -2; j <= 2; j++) {
+//                float value = x[i+2]*y[j+2];
+//                index = i + 2 + (j + 2) * 5;
 //                floatBuffer.put(index,value);
 //            }
 //        }
 //
-//    for(index=0;index<9;index++) {
+//    for(index=0;index<25;index++) {
 //        float value = floatBuffer.get(index)/*/this.numpasses/this.numpasses*/;
 //        floatBuffer.put(index, value);
 //    }
@@ -846,9 +858,9 @@ doPathSort()
 //
 //            GL2.GL_RGB,
 //
-//            3,
+//            5,
 //
-//            3,
+//            5,
 //
 //            GL2.GL_LUMINANCE,
 //
@@ -863,12 +875,12 @@ doPathSort()
 //        //gl2.glRasterPos2i(0, 0);
 //        gl2.glRasterPos2f(-1f, -1f);
 //
-//        gl2.glReadBuffer(GL2.GL_FRONT);
-//        gl2.glDrawBuffer(GL2.GL_FRONT);
+//        gl2.glReadBuffer(GL2.GL_BACK);
+//        gl2.glDrawBuffer(GL2.GL_BACK);
 //        //gl2.glClear(GL_DEPTH_BUFFER_BIT);
 //        //gl2.glDisable(GL2.GL_DEPTH_TEST);
 //
-//        gl2.glCopyPixels(-1, -1, width, height, GL2.GL_COLOR);
+//        gl2.glCopyPixels(-2, -2, width, height, GL2.GL_COLOR);
 //        gl2.glDisable(GL2.GL_CONVOLUTION_2D);
 	}
 

@@ -72,8 +72,12 @@ public class FILE {
 	 * @return
 	 */
 	public static FILE fopen(String fileName, String options) {
-	    FileSystem fileSystem = FileSystems.getDefault();
-	    Path fileNamePath = fileSystem.getPath(fileName);
+		FileSystem fileSystem = FileSystems.getDefault();
+		Path fileNamePath = fileSystem.getPath(fileName);
+		return fopen(fileNamePath,options);
+	}
+
+	public static FILE fopen(Path fileNamePath, String options) {
 	    OpenOption option = null;
 	    switch(options) {
 	    case "r":
