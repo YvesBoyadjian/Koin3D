@@ -15,6 +15,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipException;
 
 import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SbIntList;
@@ -85,6 +87,19 @@ public class FILE {
 	    
 	    try {
 			InputStream inputStream = Files.newInputStream(fileNamePath, option);
+			GZIPInputStream gzip;
+			try {
+				gzip = new GZIPInputStream(inputStream);
+			} catch(ZipException e) {
+				// not a gzip file
+				gzip = null;
+			}
+			if ( gzip != null) {
+				inputStream = gzip;
+			}
+			else {
+				inputStream = Files.newInputStream(fileNamePath, option);
+			}
 
 			long length;
 			try {

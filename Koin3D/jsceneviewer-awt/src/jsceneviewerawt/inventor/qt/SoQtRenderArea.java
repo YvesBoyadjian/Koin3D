@@ -90,7 +90,7 @@ public class SoQtRenderArea extends SoQtGLWidget {
 	        // the widget is not visible, so check this first before rendering
 	        if (isVisible()) {
 	            updateGL();
-	        }	    	
+	        }
 	    }
 		@Override
 		public
