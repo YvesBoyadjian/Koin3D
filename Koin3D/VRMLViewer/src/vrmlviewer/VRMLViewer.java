@@ -54,7 +54,7 @@ public static void main(String[] args) {
 
 
     SoText3 text = new SoText3();
-    text.string.setValue("Drag an Drop your IV/WRL file here");
+    text.string.setValue("Drag an drop your iv/wrl/zip file here");
 
     cache.addChild(text);
 
@@ -65,7 +65,7 @@ public static void main(String[] args) {
                 /*panel*/frame.getContentPane()
         );
 
-        //examinerViewer.setAntialiasing(true, 66);
+        //examinerViewer.setAntialiasing(true, 15);
         examinerViewer.getSceneHandler().setTransparencyType(SoGLRenderAction.TransparencyType.DELAYED_BLEND);
 
         examinerViewer.getSceneHandler().setBackgroundColor(new SbColor(0.6f,0.535f,0.28f));

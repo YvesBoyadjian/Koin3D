@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import com.sun.nio.zipfs.ZipFileSystemProvider;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoInput;
@@ -73,6 +74,16 @@ import jscenegraph.database.inventor.misc.SoChildList;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jscenegraph.database.inventor.sensors.SoSensorCB;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.zip.ZipError;
 
 /**
  * @author Yves Boyadjian
@@ -249,6 +260,29 @@ public boolean readInstance(SoInput in, short flags)
     return readOK;
 }
 
+private static Path findIVOrWRL(Path parentPath) {
+        Path fileName = parentPath.getFileName();
+        if(
+        fileName != null
+        && (fileName.toString().endsWith(".iv")||fileName.toString().endsWith(".wrl"))
+        && ( parentPath.getParent().getFileName() == null
+        || fileName.toString().startsWith(parentPath.getParent().getFileName().toString()))) {
+            return parentPath;
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(parentPath)) {
+            for (Path file: stream) {
+                Path found = findIVOrWRL(file);
+                if( found != null ) {
+                    return found;
+                }
+            }
+        } catch (IOException | DirectoryIteratorException x) {
+            // IOException can never be thrown by the iteration.
+            // In this snippet, it can only be thrown by newDirectoryStream.
+            //System.err.println(x);
+        }
+        return null;
+}
     
 ////////////////////////////////////////////////////////////////////////
 //
@@ -265,11 +299,44 @@ public boolean readInstance(SoInput in, short flags)
     final SoInput in = new SoInput();
     String filename = f.name.getValue();
 
-    
-    
+    // _______________________________________ Test if it is a zip file
+    boolean zip = true;
+        FileSystem fs = null;
+
+    try {
+        Path zipfile = Paths.get(filename);
+        ZipFileSystemProvider provider = new ZipFileSystemProvider();
+        Map<String,?> env = Collections.emptyMap();
+        fs = provider.newFileSystem(zipfile,env);
+    }
+    catch (IOException e) {
+        zip = false;
+    }
+    catch (ProviderNotFoundException e) {
+        zip = false;
+    }
+    catch (UnsupportedOperationException e) {
+        zip = false;
+    }
+    catch (ZipError e) {
+        zip = false;
+    }
+    Path ivOrwrl = null;
+    if ( fs != null) {
+        for (Path root : fs.getRootDirectories()) {
+            ivOrwrl = findIVOrWRL(root);
+            if (ivOrwrl != null) {
+                break;
+            }
+        }
+    }
+
     // Open file
     f.readOK = true;
-    if (! in.openFile(filename, true)) {
+
+    boolean found = (ivOrwrl != null) ? in.openFile(ivOrwrl,true) : in.openFile(filename, true);
+
+    if (! /*in.openFile(filename, true)*/found) {
         f.readOK = false;
         SoReadError.post(in, "Can't open included file \""+filename+"\" in File node");
     }

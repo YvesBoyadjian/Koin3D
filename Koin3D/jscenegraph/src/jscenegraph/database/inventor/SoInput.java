@@ -754,7 +754,7 @@ public FILE findFile(Path fileNamePath, final Path[] fullName) {
 
         for (i = 0; i < directories.getLength(); i++) {
             fullName[0] = /*fileSystem.getPath((String)*/(Path)directories.operator_square_bracket(i)/*)*/;
-            fullName[0] = fullName[0].resolve(fileNamePath);
+            fullName[0] = fullName[0].resolve(fileNamePath.toString());
             fp = FILE.fopen(fullName[0], "r");
             if (fp != null)
                 break;

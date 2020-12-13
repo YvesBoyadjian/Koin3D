@@ -3,10 +3,7 @@
  */
 package jscenegraph.port;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PushbackInputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.FileSystem;
@@ -88,7 +85,15 @@ public class FILE {
 	    
 	    try {
 			InputStream inputStream = Files.newInputStream(fileNamePath, option);
-			long length = fileNamePath.toFile().length();
+
+			long length;
+			try {
+				File file = fileNamePath.toFile();
+				length = fileNamePath.toFile().length();
+			}catch (UnsupportedOperationException e) {
+				length = BUFFER_SIZE;
+			}
+
 			return new FILE(inputStream, length);
 		} catch (IOException e) {
 			return null;

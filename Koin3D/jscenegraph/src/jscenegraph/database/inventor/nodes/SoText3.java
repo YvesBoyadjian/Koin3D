@@ -1795,10 +1795,15 @@ public void GLRender(SoGLRenderAction action)
 				}
 			}
 
+            public void combine(double[] coords, Object[] data,
+                                float[] weight, Object[] outData) {
+			    outData[0] = data[0]; // YB for compatibility with rounding errors
+            }
         };
         GLU.gluTessCallback(tobj, GLU.GLU_BEGIN, cb);
         GLU.gluTessCallback(tobj, GLU.GLU_END, cb);
         GLU.gluTessCallback(tobj, GLU.GLU_VERTEX, cb);
+        GLU.gluTessCallback(tobj, GLU.GLU_TESS_COMBINE, cb); // YB for compatibility
         GLU.gluTessCallback(tobj, GLU.GLU_ERROR, cb);
     }
 
