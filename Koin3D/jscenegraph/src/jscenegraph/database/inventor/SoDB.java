@@ -478,7 +478,7 @@ private static boolean read(SoInput in, final SoBase[] base)
 {
     boolean        ret;
     Path dataFileName;
-    String searchPath = null;
+    Path searchPath = null;
 
 //#ifdef DEBUG
     if (globalDB == null) {
@@ -500,9 +500,9 @@ private static boolean read(SoInput in, final SoBase[] base)
         // path. Otherwise, remove the slash and everything after it.
         //FileSystem fs = FileSystems.getDefault();
         Path path = /*fs.getPath(*/dataFileName/*)*/;
-        searchPath = path.getParent().toString();
+        searchPath = path.getParent();
         
-        if (!searchPath.isEmpty()) {
+        if (!searchPath.toString().isEmpty()) {
             SoInput.addDirectoryFirst(searchPath);
         }
     }

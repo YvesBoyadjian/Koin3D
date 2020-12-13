@@ -134,13 +134,13 @@ public class SoInput {
     
   final Map<String, SoBase> copied_references = new HashMap<>();		   
 
-  static SbStringList dirsearchlist;
+  static SbPList dirsearchlist;
 
   static SbStorage soinput_tls = null; //ptr
 
 public static class soinput_tls_data {
 	
-  SbStringList searchlist; //ptr
+  SbPList searchlist; //ptr
   int instancecount;
 }
 
@@ -307,9 +307,9 @@ private void constructorsCommon() {
 
   soinput_tls_data data = (soinput_tls_data) soinput_tls.get();
   if (data.instancecount == 0) {
-    final SbStringList dir = SoInput.dirsearchlist;
+    final SbPList dir = SoInput.dirsearchlist;
     for (int i = 0; i < dir.getLength(); i++) {
-      data.searchlist.append((String)(dir.operator_square_bracket(i)));
+      data.searchlist.append((Path)(dir.operator_square_bracket(i)));
     }
   }
   data.instancecount++;
@@ -366,7 +366,7 @@ public void addRoute(final SbName fromnode, final SbName fromfield,
 //
 // Use: public, static
 
-public static void addDirectoryFirst(String dirName)
+public static void addDirectoryFirst(Path dirName)
 //
 ////////////////////////////////////////////////////////////////////////
 {
@@ -380,11 +380,11 @@ public static void addDirectoryFirst(String dirName)
   Add a directory to the search list at the specified index value. An index
   of -1 means append.
  */
-public static void addDirectoryIdx( int idx, String dirName)
+public static void addDirectoryIdx( int idx, Path dirName)
 {
   assert(idx > -2);
-  if ( dirName.length() == 0) return; // Don't add empty dirs
-  SbStringList dirs = SoInput.dirsearchlist; //ptr
+  if ( dirName.toString().length() == 0) return; // Don't add empty dirs
+  SbPList dirs = SoInput.dirsearchlist; //ptr
 
   if (soinput_tls != null) {
     soinput_tls_data data = (soinput_tls_data )soinput_tls.get();
@@ -398,7 +398,7 @@ public static void addDirectoryIdx( int idx, String dirName)
   // using SoInput::pushFile(). So don't try to "fix" or change this
   // aspect of adding entries to the directory search list. --mortene
 
-  String ns = dirName;
+  Path ns = dirName;
   if (idx == -1) dirs.append(ns);
   else dirs.insert(ns, idx);
 }
@@ -414,9 +414,9 @@ public static void addDirectoryIdx( int idx, String dirName)
   \sa addEnvDirectoriesFirst(), addEnvDirectoriesLast()
   \sa clearDirectories()
  */
-public static void removeDirectory(String dirName)
+public static void removeDirectory(Path dirName)
 {
-  SbStringList dirs = SoInput.dirsearchlist; //ptr
+  SbPList dirs = SoInput.dirsearchlist; //ptr
 
   if (soinput_tls != null) {
     soinput_tls_data data = (soinput_tls_data )soinput_tls.get();
@@ -537,7 +537,7 @@ private void initFile(FILE newFP,          // New file pointer
 	    assert(SoInput.dirsearchlist == null);
 
 	    SoInput.dirsearchlist = new SbStringList();
-	    SoInput.addDirectoryFirst(".");
+	    SoInput.addDirectoryFirst(FileSystems.getDefault().getPath("."));
 
 	    soinput_tls = new SbStorage(soinput_tls_data.class,
 	                                SoInput::soinput_construct_tls_data,
@@ -608,9 +608,9 @@ public static String getPathname(String filename)
       Finds and returns the part of the given filename which is the
       directory path name.
      */
-    public static String getPathname(Path path)
+    public static Path getPathname(Path path)
     {
-        return path.getParent().toString();
+        return path.getParent();
     }
 
 ////////////////////////////////////////////////////////////////////////
@@ -714,11 +714,11 @@ public FILE findFile(String fileName, final Path[] fullName)
     else {
         fp = null;
 
-        SbStringList directories = SoInput.getDirectories();
+        SbPList directories = SoInput.getDirectories();
 
         for (i = 0; i < directories.getLength(); i++) {
-            fullName[0] = fileSystem.getPath((String)directories.operator_square_bracket(i));
-            fullName[0] = fileSystem.getPath(fullName[0].toString(), fileName);
+            fullName[0] = /*fileSystem.getPath((String)*/(Path)directories.operator_square_bracket(i)/*)*/;
+            fullName[0] = fullName[0].resolve(fileName);
             fp = FILE.fopen(fullName[0], "r");
             if (fp != null)
                 break;
@@ -3440,12 +3440,12 @@ makeRoomInBuf(int nBytes)
   Coin and VRML format files. Directory searches will be done whenever
   any external references appears in a file, for instance to texture images.
  */
-public static SbStringList 
+public static /*SbStringList*/SbPList
 getDirectories()
 {
   if (soinput_tls != null) {
     soinput_tls_data  data = (soinput_tls_data )soinput_tls.get();
-    if (data.instancecount != 0) { return new SbStringList(data.searchlist); }
+    if (data.instancecount != 0) { return new SbPList(data.searchlist); }
   }
 
   return SoInput.dirsearchlist;
@@ -3510,7 +3510,7 @@ searchForFile( final String basename,
   if (lastdelim != null && trypath) {
     String tmpstring;
     for (i = 0; i < directories.getLength(); i++) {
-      String dirname = (String)directories.operator_square_bracket(i)/*.getString()*/;
+      String dirname = directories.operator_square_bracket(i).toString()/*.getString()*/;
       int dirlen = dirname.length();
 
       if (dirlen > 0 &&
@@ -3532,11 +3532,11 @@ searchForFile( final String basename,
     basename;
 //
   for (i = 0; i < directories.getLength(); i++) {
-    String dirname = (String) directories.operator_square_bracket(i);
-    int dirlen = dirname.length();
+    Path dirname = (Path) directories.operator_square_bracket(i);
+    int dirlen = dirname.toString().length();
 
-    File file = new File(dirname,base);
-    Path fullNamePath = file.toPath();
+    //File file = new File(dirname,base);
+    Path fullNamePath = dirname.resolve(base);//file.toPath(); YB
 //
 //    if (dirlen > 0 &&
 //        dirname[dirlen-1] != '/' &&
@@ -3548,9 +3548,9 @@ searchForFile( final String basename,
 //                     base.getString());
     if (test_filename(fullNamePath)) return fullname;
     for (int j = 0; j < subdirectories.getLength(); j++) {
-        File subFile = new File(dirname,(String)subdirectories.operator_square_bracket(j));
-        file = new File(subFile,base);
-        fullNamePath = file.toPath();
+        //File subFile = new File(dirname,(String)subdirectories.operator_square_bracket(j));
+        //file = new File(subFile,base);
+        fullNamePath = dirname.resolve((String)subdirectories.operator_square_bracket(j)).resolve(base);//file.toPath();
 //      fullname.sprintf("%s%s/%s", dirname.getString(),
 //                       subdirectories[j]->getString(),
 //                       base.getString());

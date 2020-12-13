@@ -26,6 +26,7 @@ package jscenegraph.coin3d.inventor;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
@@ -220,14 +221,14 @@ getValue(final SbVec3s  size, final int[] bytesperpixel)
 */
 public static String
 searchForFile(final String  basename,
-                       final String[] dirlist, final int numdirs)
+                       final Object[] dirlist, final int numdirs)
 {
   int i;
   final SbStringList directories = new SbStringList();
   final SbStringList subdirectories = new SbStringList();
 
   for (i = 0; i < numdirs; i++) {
-    directories.append((String)(dirlist[i]));
+    directories.append((Path)(dirlist[i]));
   }
   subdirectories.append("texture");
   subdirectories.append("textures");
@@ -256,7 +257,7 @@ searchForFile(final String  basename,
 */
 public boolean
 readFile(final String  filename,
-                  final String[] searchdirectories,
+                  final Object[] searchdirectories,
                   final int numdirectories)
 {
   // FIXME: Add 3D image support when that is added to simage (kintel 20011118)
@@ -558,7 +559,7 @@ private static boolean ReadImage(final SoInput in, final int[] w, final int[] h,
 public boolean scheduleReadFile(SbImageScheduleReadCB cb,
                           Object closure,
                           final String filename,
-                          final String[] searchdirectories,
+                          final Object[] searchdirectories,
                           final int numdirectories)
 {
   this.setValue(new SbVec3s((short)0,(short)0,(short)0), 0, null);

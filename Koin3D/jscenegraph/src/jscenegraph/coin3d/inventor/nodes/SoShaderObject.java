@@ -43,11 +43,7 @@ import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoMFUniformShaderParameter;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderStateMatrixParameter;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoUniformShaderParameter;
-import jscenegraph.database.inventor.SbColor;
-import jscenegraph.database.inventor.SbName;
-import jscenegraph.database.inventor.SbStringList;
-import jscenegraph.database.inventor.SoInput;
-import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoSearchAction;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
@@ -777,7 +773,7 @@ sensorCB(Object data, SoSensor sensor)
 }
 
 private void
-setSearchDirectories(final SbStringList list)
+setSearchDirectories(final SbPList list)
 {
   int i;
   for (i = 0; i< this.searchdirectories.getLength(); i++) {

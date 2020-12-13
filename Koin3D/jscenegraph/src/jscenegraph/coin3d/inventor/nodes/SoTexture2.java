@@ -17,11 +17,7 @@ import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
 import jscenegraph.coin3d.inventor.threads.SbMutex;
 import jscenegraph.coin3d.misc.SoGL;
-import jscenegraph.database.inventor.SbColor;
-import jscenegraph.database.inventor.SbStringList;
-import jscenegraph.database.inventor.SbVec2s;
-import jscenegraph.database.inventor.SoInput;
-import jscenegraph.database.inventor.SoType;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
@@ -483,7 +479,7 @@ loadFilename()
   boolean retval = false;
   if (this.filename.getValue().length() != 0) {
     final SbImage tmpimage = new SbImage();
-    SbStringList sl = SoInput.getDirectories();
+    SbPList sl = SoInput.getDirectories();
     if (tmpimage.readFile(this.filename.getValue(),
                           sl.getArrayPtr(), sl.getLength())) {
       final int[] nc = new int[1];

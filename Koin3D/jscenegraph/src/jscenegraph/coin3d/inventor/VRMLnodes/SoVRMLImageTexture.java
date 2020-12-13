@@ -30,6 +30,8 @@ import jscenegraph.database.inventor.sensors.SoTimerSensor;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
 
+import java.nio.file.Path;
+
 /**
  * @author BOYADJIAN
  *
@@ -257,8 +259,11 @@ public static boolean default_prequalify_cb(String url, Object closure,
 {
   boolean ret = true;
   if (!SoVRMLImageTextureP.is_exiting && !thisp.pimpl.isdestructing) {
-    SbStringList sl = SoInput.getDirectories();
-    ret = thisp.pimpl.image.readFile(url, sl.getArrayPtr(), sl.getLength());
+    SbPList sl = SoInput.getDirectories();
+    Object[] ptr = sl.getArrayPtr();
+    Path[] paths = new Path[ptr.length];
+    for( int i=0;i<ptr.length;i++) { paths[i] = (Path)ptr[i];}
+    ret = thisp.pimpl.image.readFile(url, paths, sl.getLength());
   }
   return ret;
 }
@@ -285,7 +290,7 @@ public boolean loadUrl()
 
   boolean retval = true;
   if (this.url.getNum() != 0 && this.url.operator_square_bracket(0).length() != 0) {
-    final SbStringList sl = pimpl.searchdirs;
+    final SbPList sl = pimpl.searchdirs;
     if (sl.getLength() == 0) { // will be empty if the node isn't read but created in C++
       pimpl.setSearchDirs(SoInput.getDirectories());
     }

@@ -5,6 +5,7 @@ package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import jscenegraph.coin3d.inventor.SbImage;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
+import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SbStringList;
 import jscenegraph.database.inventor.sensors.SoFieldSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
@@ -34,7 +35,7 @@ public class SoVRMLImageTextureP {
   //void readimage_cleanup(void);
   boolean isdestructing;
 
-  final SbStringList searchdirs = new SbStringList();
+  final SbPList searchdirs = new SbPList();
 
 	
 	public SoVRMLImageTextureP(SoVRMLImageTexture master) {
@@ -72,7 +73,7 @@ public void clearSearchDirs() {
     this.searchdirs.truncate(0);
   }
 
-public void setSearchDirs(final SbStringList sl) {
+public void setSearchDirs(final SbPList sl) {
     this.clearSearchDirs();
     int n = sl.getLength();
     for (int i = 0; i < n; i++) {
