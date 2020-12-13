@@ -264,6 +264,8 @@ public boolean readInstance(SoInput in, short flags)
 
     final SoInput in = new SoInput();
     String filename = f.name.getValue();
+
+    
     
     // Open file
     f.readOK = true;

@@ -474,19 +474,46 @@ private void                initFile(FILE newFP, String fileName,
 	initFile(newFP, fileName, fullName, openedHere, null);
 }
 
-private void initFile(FILE newFP,          // New file pointer
+    private void initFile(FILE newFP,          // New file pointer
+                          Path fileNamePath, // Name of new file to read
+                          final Path fullName,   // Full name of new file
+                          boolean openedHere    // true if SoInput opened file
+                          )
+    // (default is null: create new dict)
+    {
+        initFile(newFP,fileNamePath,fullName,openedHere,null);
+    }
+
+    private void initFile(FILE newFP,          // New file pointer
                   String fileName, // Name of new file to read
                   final Path fullName,   // Full name of new file
                   boolean openedHere,    // true if SoInput opened file
                   SbDict refDict)      // Dictionary of base references
                                         // (default is null: create new dict)
+{
+    Path filePath = null;
+    try {
+        filePath = FileSystems.getDefault().getPath(fileName);
+    }
+    catch (InvalidPathException e) {
+        filePath = null;
+    }
+    initFile(newFP,filePath,fullName,openedHere,refDict);
+}
+
+private void initFile(FILE newFP,          // New file pointer
+                      Path fileNamePath, // Name of new file to read
+                      final Path fullName,   // Full name of new file
+                      boolean openedHere,    // true if SoInput opened file
+                      SbDict refDict)      // Dictionary of base references
+                                        // (default is null: create new dict)
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    curFile.name       = fileName;
+    curFile.name       = fileNamePath == null ?"": fileNamePath.toString();
     if (fullName == null) {
         try {
-            curFile.fullName = FileSystems.getDefault().getPath(fileName);
+            curFile.fullName = fileNamePath;
         } catch (InvalidPathException e) {
             curFile.fullName = null; // YB java port
         }
@@ -558,14 +585,19 @@ private void initFile(FILE newFP,          // New file pointer
 	public boolean	openFile(String fileName) {
 		return openFile(fileName,false);
 	}
-	public boolean	openFile(String fileName, boolean okIfNotFound)
+	public boolean	openFile(String fileName, boolean okIfNotFound) {
+
+        return openFile(FileSystems.getDefault().getPath(fileName),okIfNotFound);
+    }
+
+    public boolean	openFile(Path fileName, boolean okIfNotFound)
 	//
 	////////////////////////////////////////////////////////////////////////
 	{
     FILE newFP = null;
     final Path[]    fullName = new Path[1];
 
-    if (fileName != null && !fileName.isEmpty()) {
+    if (fileName != null && !fileName.toString().isEmpty()) {
         newFP = findFile(fileName, fullName);
     }
 
@@ -693,16 +725,20 @@ public void getLocationString(final String[] string)
 //    the fullName parameter. Returns null on error.
 //
 // Use: public
-
-public FILE findFile(String fileName, final Path[] fullName)
 //
 ////////////////////////////////////////////////////////////////////////
-{
+
+public FILE findFile(String fileName, final Path[] fullName) {
+    FileSystem fileSystem = FileSystems.getDefault();
+    Path fileNamePath = fileSystem.getPath(fileName);
+
+    return findFile(fileNamePath,fullName);
+}
+
+public FILE findFile(Path fileNamePath, final Path[] fullName) {
     FILE        fp;
     int         i;
     
-    FileSystem fileSystem = FileSystems.getDefault();
-    Path fileNamePath = fileSystem.getPath(fileName); 
 
     // If filename is absolute
     if(fileNamePath.isAbsolute()) {
@@ -718,7 +754,7 @@ public FILE findFile(String fileName, final Path[] fullName)
 
         for (i = 0; i < directories.getLength(); i++) {
             fullName[0] = /*fileSystem.getPath((String)*/(Path)directories.operator_square_bracket(i)/*)*/;
-            fullName[0] = fullName[0].resolve(fileName);
+            fullName[0] = fullName[0].resolve(fileNamePath);
             fp = FILE.fopen(fullName[0], "r");
             if (fp != null)
                 break;
