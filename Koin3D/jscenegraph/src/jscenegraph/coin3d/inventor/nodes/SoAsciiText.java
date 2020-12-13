@@ -364,6 +364,10 @@ public class SoAsciiText extends SoShape {
                         gl2.glVertex2fv((float[])object, 0);
                     }
                 }
+                public void combine(double[] coords, Object[] data,
+                                    float[] weight, Object[] outData) {
+                    outData[0] = data[0]; // YB : dummy combine to avoid errors
+                }
 
                 public void error(int val) {
                     MyOutlineFontCache.errorCB(val);
@@ -372,6 +376,7 @@ public class SoAsciiText extends SoShape {
             GLU.gluTessCallback(tobj, (int)GLU.GLU_BEGIN, cb/*(OPENGL_CALLBACKFUNC)glBegin*/);
             GLU.gluTessCallback(tobj, (int)GLU.GLU_END, cb/*(OPENGL_CALLBACKFUNC)glEnd*/);
             GLU.gluTessCallback(tobj, (int)GLU.GLU_VERTEX, cb/*(OPENGL_CALLBACKFUNC)glVertex2fv*/);
+            GLU.gluTessCallback(tobj, (int)GLU.GLU_TESS_COMBINE, cb); // YB, to avoid errors reading villa Savoye
             GLU.gluTessCallback(tobj, (int)GLU.GLU_ERROR,
                     cb/*(OPENGL_CALLBACKFUNC)MyOutlineFontCache::errorCB*/);
         }
