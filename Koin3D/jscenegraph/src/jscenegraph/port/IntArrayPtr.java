@@ -140,7 +140,7 @@ public class IntArrayPtr implements Destroyable, IntBufferAble {
 		if(array != other.array) {
 			throw new IllegalArgumentException();
 		}
-		return other.intOffset - intOffset;
+		return intOffset - other.intOffset;
 	}
 
 	private boolean lessThan(IntArrayPtr other) {

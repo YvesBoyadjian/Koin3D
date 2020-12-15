@@ -113,4 +113,11 @@ public class MutableSbVec3fArray implements FloatBufferAble {
 		}
 		this.delta = other.delta + delta;
 	}
+
+	public float[] get3Floats(float[] dummy) {
+		dummy[0] = valuesArray.getFloat(delta*3);
+		dummy[1] = valuesArray.getFloat(delta*3+1);
+		dummy[2] = valuesArray.getFloat(delta*3+2);
+		return dummy;
+	}
 }

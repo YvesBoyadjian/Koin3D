@@ -3370,6 +3370,11 @@ ByteBuffer data ) {
 		ARBVertexBufferObject.glDeleteBuffersARB(startIndex);
 	}
 
+	default void glGenBuffersARB(int n, int[] buffers) {
+		assert( n == buffers.length);
+		ARBVertexBufferObject.glGenBuffersARB(buffers);
+	}
+
 	default void glDeleteTextures(int[] startIndex) {
 		org.lwjgl.opengl.GL11.glDeleteTextures(startIndex);
 	}

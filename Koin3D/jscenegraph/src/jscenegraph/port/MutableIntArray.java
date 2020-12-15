@@ -15,6 +15,13 @@ public class MutableIntArray {
         return new MutableIntArray(values);
     }
 
+    public static MutableIntArray from(IntArrayPtr values) {
+        if ( values == null ) {
+            return null;
+        }
+        return new MutableIntArray(values);
+    }
+
     private MutableIntArray(IntArray other) {
         valuesArray = other.values();
         this.delta = other.delta();
@@ -23,6 +30,11 @@ public class MutableIntArray {
     private MutableIntArray(MutableIntArray other, int delta) {
         valuesArray = other.valuesArray;
         this.delta = other.delta + delta;
+    }
+
+    private MutableIntArray(IntArrayPtr other) {
+        valuesArray = other.getValues();
+        this.delta = other.getStart();
     }
 
     public void plusPlus() {
@@ -45,5 +57,21 @@ public class MutableIntArray {
             throw new IllegalArgumentException();
         }
         return delta < other.delta;
+    }
+
+    public int getPlusPlus() {
+        int ret_val = get();
+        plusPlus();
+        return ret_val;
+    }
+
+    public boolean plusLessThan(int i, MutableIntArray other) {
+        if ( other == null ) {
+            return false;
+        }
+        if ( other.valuesArray != valuesArray) {
+            throw new IllegalArgumentException();
+        }
+        return delta + i < other.delta;
     }
 }

@@ -24,7 +24,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  *  Contact information: MeVis, Center for Medical Diagnostic Systems and
- *  Visualization GmbH, Universitätsallee 29, D-28359 Bremen, GERMANY, or:
+ *  Visualization GmbH, Universitï¿½tsallee 29, D-28359 Bremen, GERMANY, or:
  *
  *  http://www.mevis.de
  *
@@ -587,7 +587,7 @@ bindBuffer(int contextid)
   if ((this._data == null) ||
       (this.datasize == 0)) {
     throw new IllegalStateException(/*assert(0 &&*/ "no data in buffer");
-    //return; java port
+    //return; //java port
   }
 
   final cc_glglue glue = SoGL.cc_glglue_instance((int) contextid);

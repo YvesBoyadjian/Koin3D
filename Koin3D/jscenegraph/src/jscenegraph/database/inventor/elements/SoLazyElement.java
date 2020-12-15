@@ -809,30 +809,42 @@ public void init(SoState state)
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
-//    get the indexed diffuse color in the element 
+//    get the indexed diffuse color in the element
 //
 // Use: public, static
 ////////////////////////////////////////////////////////////////////////
-public static SbColor 
-getDiffuse(SoState state, int index) 
-{
-    SoLazyElement curElt = getInstance(state);
-    if(state.isCacheOpen()) curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());  
-//#ifdef DEBUG
-    if (index > curElt.ivState.numDiffuseColors || index < 0){
-        SoDebugError.post("SoLazyElement.getDiffuse", 
-                        "invalid index");
-        return(new SbColor(defaultDiffuseColor.get(0)));
-    }
-//#endif
-    if (!curElt.ivState.packed) return (curElt.coinstate.diffusearray.get(index));
-    unpacker.copyFrom( new SbColor( 
-       ((curElt.coinstate.packedarray.get(index) & 0xff000000) >> 24) * 1.0f/255,  
-       ((curElt.coinstate.packedarray.get(index) & 0xff0000) >> 16) * 1.0f/255,              
-       ((curElt.coinstate.packedarray.get(index) & 0xff00)>> 8) * 1.0f/255)); 
-    return unpacker;
-      
-}
+//public static SbColor
+//getDiffuse(SoState state, int index)
+//{
+//    SoLazyElement curElt = getInstance(state);
+//    if(state.isCacheOpen()) curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
+////#ifdef DEBUG
+//    if (index > curElt.ivState.numDiffuseColors || index < 0){
+//        SoDebugError.post("SoLazyElement.getDiffuse",
+//                        "invalid index");
+//        return(new SbColor(defaultDiffuseColor.get(0)));
+//    }
+////#endif
+//    if (!curElt.ivState.packed) return (curElt.coinstate.diffusearray.get(index));
+//    unpacker.copyFrom( new SbColor(
+//       ((curElt.coinstate.packedarray.get(index) & 0xff000000) >> 24) * 1.0f/255,
+//       ((curElt.coinstate.packedarray.get(index) & 0xff0000) >> 16) * 1.0f/255,
+//       ((curElt.coinstate.packedarray.get(index) & 0xff00)>> 8) * 1.0f/255));
+//    return unpacker;
+//
+//}
+
+public static SbColor
+	getDiffuse(SoState state, int index)
+	{
+		SoLazyElement elem = getInstance(state);
+		if (elem.coinstate.packeddiffuse) {
+			final float[] dummy = new float[1];
+			return lazy_unpacked.get(0).setPackedValue(elem.coinstate.packedarray.get(index), dummy);
+		}
+		return elem.coinstate.diffusearray.get(index);
+	}
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -1436,9 +1448,9 @@ setDiffuseElt(SoNode  node,  int numColors,
         SbColorArray colors, SoColorPacker packer)
 {
 
-	coinstate.diffusenodeid = node.getNodeId();
-    coinstate.diffusearray = colors;
-    ivState.numDiffuseColors = numColors;
+	//coinstate.diffusenodeid = node.getNodeId();
+    //coinstate.diffusearray = colors;
+    //ivState.numDiffuseColors = numColors;
   
     ivState.packed=false;
     //ivState.packedTransparent = false;

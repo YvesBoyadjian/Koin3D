@@ -760,7 +760,7 @@ readLockNormalCache()
   \sa readLockNormalCache()
   \since Coin 2.0
 */
-void 
+protected void
 readUnlockNormalCache()
 {
   if (SoVertexShapeP.normalcachemutex != null) {

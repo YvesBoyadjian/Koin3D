@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -17,6 +18,8 @@ import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.system.MemoryUtil;
 
 /**
  * @author Yves Boyadjian
@@ -435,4 +438,12 @@ public class Util {
 			dest.set(i,src.get(i));
 		}
     }
+
+	public static FloatBuffer float_malloc(int size) {
+		return BufferUtils.createFloatBuffer(size);//MemoryUtil.memAllocFloat(size);
+	}
+
+	public static IntBuffer int_malloc(int size) {
+		return BufferUtils.createIntBuffer(size);//MemoryUtil.memAllocInt(size);
+	}
 }

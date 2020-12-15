@@ -67,6 +67,7 @@ public static void main(String[] args) {
 
         //examinerViewer.setAntialiasing(true, 15);
         examinerViewer.getSceneHandler().setTransparencyType(SoGLRenderAction.TransparencyType.DELAYED_BLEND);
+        //examinerViewer.getSceneHandler().setTransparencyType(SoGLRenderAction.TransparencyType.SORTED_LAYERS_BLEND); still bugs with villa Savoye
 
         examinerViewer.getSceneHandler().setBackgroundColor(new SbColor(0.6f,0.535f,0.28f));
 
