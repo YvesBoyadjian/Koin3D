@@ -282,9 +282,9 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
 
                     /* We decode the Vertex1 color */
                     RGBA = mycolor1.getPackedValue();
-                    R = ( RGBA & 0xFF000000 ) >> 24 ;
-                    G = ( RGBA & 0xFF0000 ) >> 16;
-                    B = ( RGBA & 0xFF00 ) >> 8;
+                    R = ( RGBA & 0xFF000000 ) >>> 24 ;
+                    G = ( RGBA & 0xFF0000 ) >>> 16;
+                    B = ( RGBA & 0xFF00 ) >>> 8;
                     A = ( RGBA & 0xFF );
 
                     Rf = (((float )R) / 255.0f);
@@ -309,9 +309,9 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
                     vertex_array.put(indice+5, dummy[2]);
 
                     RGBA = mycolor2.getPackedValue();
-                    R = ( RGBA & 0xFF000000 ) >> 24 ;
-                    G = ( RGBA & 0xFF0000 ) >> 16;
-                    B = ( RGBA & 0xFF00 ) >> 8;
+                    R = ( RGBA & 0xFF000000 ) >>> 24 ;
+                    G = ( RGBA & 0xFF0000 ) >>> 16;
+                    B = ( RGBA & 0xFF00 ) >>> 8;
                     A = ( RGBA & 0xFF );
 
                     Rf = (((float )R) / 255.0f);
@@ -336,9 +336,9 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
                     vertex_array.put(indice+5, dummy[2]);
 
                     RGBA = mycolor3.getPackedValue();
-                    R = ( RGBA & 0xFF000000 ) >> 24 ;
-                    G = ( RGBA & 0xFF0000 ) >> 16;
-                    B = ( RGBA & 0xFF00 ) >> 8;
+                    R = ( RGBA & 0xFF000000 ) >>> 24 ;
+                    G = ( RGBA & 0xFF0000 ) >>> 16;
+                    B = ( RGBA & 0xFF00 ) >>> 8;
                     A = ( RGBA & 0xFF );
 
                     Rf = (((float )R) / 255.0f);
@@ -522,6 +522,188 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
             mb.destructor();
         }
     }
+
+//    public void GLRender(SoGLRenderAction action)
+//    {
+//        //SoBase::staticDataLock();
+////        static bool init = false;
+////        if (!init) {
+////            std::string ext = (const char*)(glGetString(GL_EXTENSIONS));
+//            pimpl.vboAvailable = true;//(ext.find("GL_ARB_vertex_buffer_object") != std::string::npos);
+////            init = true;
+////        }
+//        //SoBase::staticDataUnlock();
+//
+//        if (this.coordIndex.getNum() < 3)
+//        return;
+//
+////        SelContextPtr ctx2;
+////        std::vector<SelContextPtr> ctxs;
+////        SelContextPtr ctx = Gui::SoFCSelectionRoot::getRenderContext(this,selContext,ctx2);
+////        if(ctx2 && ctx2.selectionIndex.empty())
+////            return;
+////        if(selContext2.checkGlobal(ctx))
+////            ctx = selContext2;
+////        if(ctx && (!ctx.selectionIndex.size() && ctx.highlightIndex<0))
+////            ctx.reset();
+//
+//        SoState state = action.getState();
+////        selCounter.checkRenderCache(state);
+//
+//        // override material binding to PER_PART_INDEX to achieve
+//        // preselection/selection with transparency
+//        boolean pushed = false;//overrideMaterialBinding(action,ctx,ctx2);
+//        if(!pushed){
+//            // for non transparent cases, we still use the old selection rendering
+//            // code, because it can override emission color, which gives a more
+//            // distinguishable selection highlight. The above material binding
+//            // override method can't, because Coin does not support per part
+//            // emission color
+//
+//            // There are a few factors affects the rendering order.
+//            //
+//            // 1) For normal case, the highlight (pre-selection) is the top layer. And since
+//            // the depth buffer clipping is on here, we shall draw highlight first, then
+//            // selection, then the rest part.
+//            //
+//            // 2) If action.isRenderingDelayedPaths() is true, it means we are rendering
+//            // with depth buffer clipping turned off (always on top rendering), so we shall
+//            // draw the top layer last, i.e. renderHighlight() last
+//            //
+//            // 3) If highlightIndex==INT_MAX, it means we are rendering full object highlight
+//            // In order to not obscure selection layer, we shall draw highlight after selection
+//            // if and only if it is not a full object selection.
+//            //
+//            // Transparency complicates stuff even more, but not here. It will be handled inside
+//            // overrideMaterialBinding()
+//            //
+////            if(ctx && ctx.highlightIndex==INT_MAX) {
+////                if(ctx.selectionIndex.empty() || ctx.isSelectAll()) {
+////                    if(ctx2) {
+////                        ctx2.selectionColor = ctx.highlightColor;
+////                        renderSelection(action,ctx2);
+////                    } else
+////                        renderHighlight(action,ctx);
+////                }else{
+////                    if(!action.isRenderingDelayedPaths())
+////                        renderSelection(action,ctx);
+////                    if(ctx2) {
+////                        ctx2.selectionColor = ctx.highlightColor;
+////                        renderSelection(action,ctx2);
+////                    } else
+////                        renderHighlight(action,ctx);
+////                    if(action.isRenderingDelayedPaths())
+////                        renderSelection(action,ctx);
+////                }
+////                return;
+////            }
+//
+//            if(!action.isRenderingDelayedPaths())
+//                ;//renderHighlight(action,ctx);
+////            if(ctx && ctx.selectionIndex.size()) {
+////                if(ctx.isSelectAll()) {
+////                    if(ctx2) {
+////                        ctx2.selectionColor = ctx.selectionColor;
+////                        renderSelection(action,ctx2);
+////                    } else
+////                        renderSelection(action,ctx);
+////                    if(action.isRenderingDelayedPaths())
+////                        renderHighlight(action,ctx);
+////                    return;
+////                }
+////                if(!action.isRenderingDelayedPaths())
+////                    renderSelection(action,ctx);
+////            }
+////            if(ctx2) {
+////                renderSelection(action,ctx2,false);
+////                if(action.isRenderingDelayedPaths()) {
+////                    renderSelection(action,ctx);
+////                    renderHighlight(action,ctx);
+////                }
+////                return;
+////            }
+//        }
+//
+//        final SoMaterialBundle mb = new SoMaterialBundle(action);
+//        try {
+//            // It is important to send material before shouldGLRender(), otherwise
+//            // material override with transparncy won't work.
+//            mb.sendFirst();
+//
+//            // When setting transparency shouldGLRender() handles the rendering and returns false.
+//            // Therefore generatePrimitives() needs to be re-implemented to handle the materials
+//            // correctly.
+//            if (this.shouldGLRender(action)) {
+//                Binding mbind = this.findMaterialBinding2(state);
+//                Binding nbind = this.findNormalBinding2(state);
+//
+//        final SoCoordinateElement[] coords = new SoCoordinateElement[1];
+//        final SbVec3fArray[] normals = new SbVec3fArray[1];
+//        final IntArrayPtr[] cindices = new IntArrayPtr[1];
+//                final int[] numindices = new int[1];
+//        final IntArrayPtr[] nindices = new IntArrayPtr[1];
+//        final IntArrayPtr[] tindices = new IntArrayPtr[1];
+//        final IntArrayPtr[] mindices = new IntArrayPtr[1];
+//        final IntArray pindices;
+//                int numparts;
+//                boolean doTextures;
+//                final boolean[] normalCacheUsed = new boolean[1];
+//
+//                final SoTextureCoordinateBundle tb = new SoTextureCoordinateBundle(action, true, false);
+//                try {
+//                    doTextures = tb.needCoordinates();
+//                    boolean sendNormals = !mb.isColorOnly() || tb.isFunction();
+//
+//                    this.getVertexData(state, coords, normals, cindices,
+//                            nindices, tindices, mindices, numindices,
+//                            sendNormals, normalCacheUsed);
+//
+//                    // just in case someone forgot
+//                    if (null==mindices[0]) mindices[0] = cindices[0];
+//                    if (null==nindices[0]) nindices[0] = cindices[0];
+//                    pindices = this.partIndex.getValues(0);
+//                    numparts = this.partIndex.getNum();
+//
+//                    boolean hasVBO = /*!ctx2 &&*/ pimpl.vboAvailable;
+//                    if (hasVBO) {
+//                        // get the VBO status of the viewer
+//                        //Gui::SoGLVBOActivatedElement::get(state, hasVBO);
+//                        //
+//                        //if (SoGLVBOElement::shouldCreateVBO(state, numindices)) {
+//                        //    this.startVertexArray(action, coords, normals, false, false);
+//                        //}
+//                    }
+//                    renderShape(action, hasVBO,
+//                            (SoGLCoordinateElement) (coords[0]), cindices[0], numindices[0],
+//                            pindices, numparts, normals[0], nindices[0], mb, mindices[0],
+//                    tb, tindices[0], nbind, mbind, doTextures ? 1 : 0);
+//
+//                    // if (!hasVBO) {
+//                    //     // Disable caching for this node
+//                    //     SoGLCacheContextElement::shouldAutoCache(state, SoGLCacheContextElement::DONT_AUTO_CACHE);
+//                    // }else
+//                    //     SoGLCacheContextElement::setAutoCacheBits(state, SoGLCacheContextElement::DO_AUTO_CACHE);
+//
+//                    if (normalCacheUsed[0])
+//                        this.readUnlockNormalCache();
+//                } finally {
+//                    tb.destructor();
+//                }
+//            }
+//
+////            if (pushed) {
+////                SbBool notify = enableNotify(FALSE);
+////                materialIndex.setNum(0);
+////                if (notify) enableNotify(notify);
+////                state.pop();
+////            } else if (action.isRenderingDelayedPaths()) {
+////                renderSelection(action, ctx);
+////                renderHighlight(action, ctx);
+////            }
+//        } finally {
+//            mb.destructor();
+//        }
+//    }
 
     void renderShape(SoGLRenderAction action,
                                     boolean hasVBO,
