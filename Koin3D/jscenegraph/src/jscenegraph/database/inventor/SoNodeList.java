@@ -94,7 +94,7 @@ SoNode
  * @author Yves Boyadjian
  *
  */
-public class SoNodeList extends SoBaseList implements Iterable<SoNode> {
+public class SoNodeList<E extends SoNode> extends SoBaseList<E> implements Iterable<SoNode> {
 	
    public SoNodeList() { super();  }
    public SoNodeList(int size) { super(size); }
@@ -106,8 +106,8 @@ public class SoNodeList extends SoBaseList implements Iterable<SoNode> {
 		 super.append((SoBase) ptr); 
 	}
 	
-	public SoNode operator_square_bracket(int i) {
-		return (SoNode) super.operator_square_bracket(i);
+	public E operator_square_bracket(int i) {
+		return (E) super.operator_square_bracket(i);
 	}
 
     //! Copies a list, keeping all reference counts correct.

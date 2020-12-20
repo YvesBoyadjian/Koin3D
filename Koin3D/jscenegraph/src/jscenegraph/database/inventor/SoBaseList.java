@@ -108,7 +108,7 @@ SoBase, SoNodeList, SoPathList
  * @author Yves Boyadjian
  *
  */
-public class SoBaseList extends SbPList implements Destroyable {
+public class SoBaseList<E extends SoBase> extends SbPList<E> implements Destroyable {
 	
 	private boolean addRefs;
 	
@@ -175,7 +175,7 @@ public SoBaseList(final SoBaseList l)
 	    
 	   // Adds a pointer to the end of the list. 
 	public void append(SoBase ptr) {
-		  super.append((Object) ptr);
+		  super.append((E) ptr);
 		    if (addRefs && ptr != null)
 		    ptr.ref();
 		  		
@@ -197,7 +197,7 @@ insert(SoBase ptr,         // pointer to insert
 {
     if (addRefs && ptr != null)
         ptr.ref();
-    super.insert((Object) ptr, addBefore);
+    super.insert((E) ptr, addBefore);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -234,7 +234,7 @@ remove(int which)           // index of pointer to remove
 
 		// Just forward call to remove(), which takes care of the
 		// dereferencing.
-		this.remove(this.find(item));
+		this.remove(this.find((E)item));
 	}
 
 	
@@ -285,8 +285,8 @@ copy( SoBaseList bList)       // list to copy from
 
 	
 
-	public SoBase operator_square_bracket(int i) {
-		return (SoBase) super.operator_square_bracket(i);
+	public E operator_square_bracket(int i) {
+		return (E) super.operator_square_bracket(i);
 	}
 	
 	// Sets an element of a list. 
@@ -300,7 +300,7 @@ copy( SoBaseList bList)       // list to copy from
 	    	               (this).operator_square_bracket(i).unref();
 	    	           }
 	    	       }
-	    	       super.operator_square_bracket(i, (Object) ptr);
+	    	       super.operator_square_bracket(i, (E) ptr);
 	    	  	}
 	
 	/**

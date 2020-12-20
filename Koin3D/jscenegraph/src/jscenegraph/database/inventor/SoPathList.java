@@ -94,7 +94,7 @@ SoPath
  * @author Yves Boyadjian
  *
  */
-public class SoPathList extends SoBaseList {
+public class SoPathList extends SoBaseList<SoPath> {
 	
 	public     SoPathList() {super(); }
   public  SoPathList(int size) { super(size); }

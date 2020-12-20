@@ -23,6 +23,7 @@
 
 package jscenegraph.coin3d.inventor.nodes;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -193,7 +194,7 @@ public class SoShaderObject extends SoNode {
   private boolean shouldload;
   private SoNodeSensor sensor;
 
-  private final SbStringList searchdirectories = new SbStringList();
+  private final SbPList<Path> searchdirectories = new SbPList<>();
   final HashMap <Integer, SoGLShaderObject> glshaderobjects = new HashMap<>();  //java port
 
   public static void initClass()
@@ -244,7 +245,7 @@ public void destructor() {
 
 	  this.deleteGLShaderObjects();
 
-	  final SbStringList empty = new SbStringList();
+	  final SbPList<Path> empty = new SbPList<Path>();
 	  this.setSearchDirectories(empty);
 	  this.sensor.destructor();
 	  
@@ -773,7 +774,7 @@ sensorCB(Object data, SoSensor sensor)
 }
 
 private void
-setSearchDirectories(final SbPList list)
+setSearchDirectories(final SbPList<Path> list)
 {
   int i;
   for (i = 0; i< this.searchdirectories.getLength(); i++) {
@@ -781,7 +782,7 @@ setSearchDirectories(final SbPList list)
   }
 
   for (i = 0; i < list.getLength(); i++) {
-    this.searchdirectories.append(((String)list.operator_square_bracket(i)));
+    this.searchdirectories.append((list.operator_square_bracket(i)));
   }
   this.didSetSearchDirectories = true;
 }

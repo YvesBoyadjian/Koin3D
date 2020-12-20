@@ -91,7 +91,7 @@ SoPickedPoint, SoRayPickAction
  * @author Yves Boyadjian
  *
  */
-public class SoPickedPointList extends SbPList implements Destroyable {
+public class SoPickedPointList extends SbPList<SoPickedPoint> implements Destroyable {
 	
   public
     SoPickedPointList() {                super();     }
@@ -161,7 +161,7 @@ set(int i, SoPickedPoint pickedPoint)
     if ((this).operator_square_bracket(i) != null)
         (this).operator_square_bracket(i).destructor();
 
-    (this).operator_square_bracket(i, (Object) pickedPoint);
+    (this).operator_square_bracket(i, pickedPoint);
 }
 
 	

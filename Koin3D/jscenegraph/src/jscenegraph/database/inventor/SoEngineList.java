@@ -85,10 +85,12 @@ SoEngine
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+import jscenegraph.database.inventor.engines.SoEngine;
+
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoEngineList extends SoBaseList {
+public class SoEngineList extends SoBaseList<SoEngine> {
 
 }

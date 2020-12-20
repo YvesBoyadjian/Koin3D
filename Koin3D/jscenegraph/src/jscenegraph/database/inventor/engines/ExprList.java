@@ -9,7 +9,7 @@ import jscenegraph.database.inventor.SbPList;
  * @author Yves Boyadjian
  *
  */
-public class ExprList extends SbPList {
+public class ExprList extends SbPList<Expr> {
 
 	public     Expr operator_square_bracket(int i) 
         { return (Expr) super.operator_square_bracket(i); }

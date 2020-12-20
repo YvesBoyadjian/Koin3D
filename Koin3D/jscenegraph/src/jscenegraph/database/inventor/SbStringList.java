@@ -71,7 +71,7 @@ package jscenegraph.database.inventor;
  * @author Yves Boyadjian
  *
  */
-public class SbStringList extends SbPList {
+public class SbStringList extends SbPList<String> {
 	
 	public SbStringList() {
 		super();
@@ -84,7 +84,7 @@ public class SbStringList extends SbPList {
 
 	// Adds given pointer to end of list. 
 	public void append(String string) {
-		 ((SbPList ) this).append((Object) string); 
+		 super.append( string);
 	}
 
 	public String[] getArrayPtr() {

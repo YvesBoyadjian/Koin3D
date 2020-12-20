@@ -134,13 +134,13 @@ public class SoInput {
     
   final Map<String, SoBase> copied_references = new HashMap<>();		   
 
-  static SbPList dirsearchlist;
+  static SbPList<Path> dirsearchlist;
 
   static SbStorage soinput_tls = null; //ptr
 
 public static class soinput_tls_data {
 	
-  SbPList searchlist; //ptr
+  SbPList<Path> searchlist; //ptr
   int instancecount;
 }
 
@@ -148,7 +148,7 @@ private static void
 soinput_construct_tls_data(Object closure)
 {
   soinput_tls_data data = (soinput_tls_data) closure;
-  data.searchlist = new SbStringList();
+  data.searchlist = new SbPList<>();
   data.instancecount = 0;
 }
 
@@ -307,7 +307,7 @@ private void constructorsCommon() {
 
   soinput_tls_data data = (soinput_tls_data) soinput_tls.get();
   if (data.instancecount == 0) {
-    final SbPList dir = SoInput.dirsearchlist;
+    final SbPList<Path> dir = SoInput.dirsearchlist;
     for (int i = 0; i < dir.getLength(); i++) {
       data.searchlist.append((Path)(dir.operator_square_bracket(i)));
     }
@@ -384,7 +384,7 @@ public static void addDirectoryIdx( int idx, Path dirName)
 {
   assert(idx > -2);
   if ( dirName.toString().length() == 0) return; // Don't add empty dirs
-  SbPList dirs = SoInput.dirsearchlist; //ptr
+  SbPList<Path> dirs = SoInput.dirsearchlist; //ptr
 
   if (soinput_tls != null) {
     soinput_tls_data data = (soinput_tls_data )soinput_tls.get();
@@ -416,7 +416,7 @@ public static void addDirectoryIdx( int idx, Path dirName)
  */
 public static void removeDirectory(Path dirName)
 {
-  SbPList dirs = SoInput.dirsearchlist; //ptr
+  SbPList<Path> dirs = SoInput.dirsearchlist; //ptr
 
   if (soinput_tls != null) {
     soinput_tls_data data = (soinput_tls_data )soinput_tls.get();
@@ -563,7 +563,7 @@ private void initFile(FILE newFP,          // New file pointer
 	    // inadvertently).
 	    assert(SoInput.dirsearchlist == null);
 
-	    SoInput.dirsearchlist = new SbStringList();
+	    SoInput.dirsearchlist = new SbPList<>();
 	    SoInput.addDirectoryFirst(FileSystems.getDefault().getPath("."));
 
 	    soinput_tls = new SbStorage(soinput_tls_data.class,
@@ -3476,12 +3476,12 @@ makeRoomInBuf(int nBytes)
   Coin and VRML format files. Directory searches will be done whenever
   any external references appears in a file, for instance to texture images.
  */
-public static /*SbStringList*/SbPList
+public static /*SbStringList*/SbPList<Path>
 getDirectories()
 {
   if (soinput_tls != null) {
     soinput_tls_data  data = (soinput_tls_data )soinput_tls.get();
-    if (data.instancecount != 0) { return new SbPList(data.searchlist); }
+    if (data.instancecount != 0) { return new SbPList<>(data.searchlist); }
   }
 
   return SoInput.dirsearchlist;
@@ -3522,7 +3522,7 @@ test_filename(final Path filename)
 */
 public static String
 searchForFile( final String basename,
-                       final SbStringList directories,
+                       final SbPList<Path> directories,
                        final SbStringList subdirectories)
 {
   int i;

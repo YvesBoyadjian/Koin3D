@@ -90,7 +90,7 @@ SoDetail
  * @author Yves Boyadjian
  *
  */
-public class SoDetailList extends SbPList {
+public class SoDetailList extends SbPList<SoDetail> {
 
   public
     SoDetailList() {                     super();     }
@@ -177,7 +177,7 @@ set(int i, SoDetail detail)
     if ((this).operator_square_bracket(i) != null)
         (this).operator_square_bracket(i).destructor();
 
-    ( this).operator_square_bracket(i, (Object) detail);
+    ( this).operator_square_bracket(i, detail);
 }
 
     //! Access an element of a list

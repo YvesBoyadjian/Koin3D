@@ -72,7 +72,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
  * @author Yves Boyadjian
  *
  */
-public class SoActionMethodList extends SbPList {
+public class SoActionMethodList extends SbPList<SoActionMethodList.SoActionMethod> {
 	
 	public static interface SoActionMethod {
 		

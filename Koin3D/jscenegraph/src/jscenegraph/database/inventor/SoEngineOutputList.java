@@ -85,10 +85,12 @@ SoEngineOutput
 */
 ////////////////////////////////////////////////////////////////////////////////
 
+import jscenegraph.database.inventor.engines.SoEngineOutput;
+
 /**
  * @author Yves Boyadjian
  *
  */
-public class SoEngineOutputList extends SbPList {
+public class SoEngineOutputList extends SbPList<SoEngineOutput> {
 
 }

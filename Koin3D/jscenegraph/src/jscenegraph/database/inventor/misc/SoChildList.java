@@ -100,7 +100,7 @@ import jscenegraph.port.Destroyable;
  * @author Yves Boyadjian
  *
  */
-public class SoChildList extends SoNodeList implements Destroyable {
+public class SoChildList extends SoNodeList<SoNode> implements Destroyable {
 	
    private  SoNode              parent;
 	private final SbPList auditors = new SbPList();

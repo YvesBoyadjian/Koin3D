@@ -78,7 +78,7 @@ This class allows random access, insertion, and removal.
  * @author Yves Boyadjian
  *
  */
-public class SbPList implements Destroyable, Mutable {
+public class SbPList<E> implements Destroyable, Mutable {
 	
 	private static final int DEFAULT_INITIAL_SIZE = 4;
 	
@@ -128,14 +128,14 @@ public SbPList(final SbPList pl)
 
 	
 	// Adds given pointer to end of list. 
-	public void append(Object ptr) {
+	public void append(E ptr) {
 		 if (nPtrs + 1 > ptrsSize) expand(nPtrs + 1);
 		 ptrs[nPtrs] = ptr;
 		 nPtrs++;
 	}
 	
 	// Returns index of given pointer in list, or -1 if not found. 
-	public int find(Object ptr) {
+	public int find(E ptr) {
 		  int i;
 		   
 		    for (i = 0; i < nPtrs; i++)
@@ -146,7 +146,7 @@ public SbPList(final SbPList pl)
 	}
 	
 	// Inserts given pointer in list before pointer with given index. 
-	public void insert(Object ptr, int addBefore) {
+	public void insert(E ptr, int addBefore) {
 		
 	     int i;
 	      
@@ -196,19 +196,19 @@ public SbPList(final SbPList pl)
 	}
 	
 	// Returns pointer with given index. 
-	public Object operator_square_bracket(int i) {
-		 if (i >= nPtrs) grow(i); return ptrs[i]; 
+	public E operator_square_bracket(int i) {
+		 if (i >= nPtrs) grow(i); return (E)ptrs[i];
 	}
 	
 	// java port
-	public void operator_square_bracket(int i, Object object) {
+	public void operator_square_bracket(int i, E object) {
 		 if (i >= nPtrs) grow(i);
 		 ptrs[i] = object; 
 	}
 	
 	// Internal versions of [] that do not check for bounds: 
-	public Object get(int i) {
-		 return ptrs[i]; 
+	public E get(int i) {
+		 return (E)ptrs[i];
 	}
 	
 	//
@@ -278,7 +278,7 @@ public SbPList(final SbPList pl)
 		 
 	}
 	
-	public  void set(int i, Object j) { ptrs[i] = j; }	
+	public  void set(int i, E j) { ptrs[i] = j; }
 
 	// java port : destructor
 	@Override

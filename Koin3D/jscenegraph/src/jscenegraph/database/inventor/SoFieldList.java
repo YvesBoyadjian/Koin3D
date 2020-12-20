@@ -90,7 +90,7 @@ SoField
  * @author Yves Boyadjian
  *
  */
-public class SoFieldList extends SbPList {
+public class SoFieldList extends SbPList<SoField> {
 
 	// Internal versions of [] that do not check for bounds: 
 	public SoField get(int i) {

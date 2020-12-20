@@ -30,10 +30,7 @@ import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
-import jscenegraph.database.inventor.SbStringList;
-import jscenegraph.database.inventor.SbVec2s;
-import jscenegraph.database.inventor.SbVec3s;
-import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.FILE;
@@ -224,7 +221,7 @@ searchForFile(final String  basename,
                        final Object[] dirlist, final int numdirs)
 {
   int i;
-  final SbStringList directories = new SbStringList();
+  final SbPList<Path> directories = new SbPList<>();
   final SbStringList subdirectories = new SbStringList();
 
   for (i = 0; i < numdirs; i++) {
