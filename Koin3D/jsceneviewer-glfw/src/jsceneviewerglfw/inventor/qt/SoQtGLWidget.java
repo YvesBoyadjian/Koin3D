@@ -736,4 +736,16 @@ public int getColorBitDepth()
 	  public void show() {
 		  // TODO
 	  }
+
+	protected void showEvent() {
+		if( null != mainWidget ) {
+			mainWidget.setVisible(true);
+		}
+	}
+
+	protected void hideEvent () {
+	  	if( null != mainWidget ) {
+	  		mainWidget.setVisible(false);
+		}
+	}
 }

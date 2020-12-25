@@ -274,12 +274,12 @@ public void setHeadlight (boolean flag)
 
 	    
 protected void showEvent() {
-	
+	super.showEvent();
 }
 	    
 protected void hideEvent ()
 {
-    //super.hideEvent ();
+    super.hideEvent ();
 
 //    if (prefSheetDialog != null) {
 //        prefSheetDialog.close();

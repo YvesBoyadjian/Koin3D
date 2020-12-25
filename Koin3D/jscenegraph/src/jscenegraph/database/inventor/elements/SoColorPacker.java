@@ -147,5 +147,12 @@ reallocate(int size)
     packedColors = new int[size];
     packedArraySize = size;
 }
-    
+
+    public long getDiffuseId() {
+        return diffuseNodeId;//this.diffuseid;
+    }
+    public long getTranspId() {
+        return transpNodeId;//this.transpid;
+    }
+
 }

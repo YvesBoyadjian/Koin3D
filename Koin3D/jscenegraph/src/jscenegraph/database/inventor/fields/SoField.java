@@ -1939,7 +1939,7 @@ public boolean readConnection(SoInput in)
 													// SoSFEnum!
 		SoSFFloat.initClass(SoSFFloat.class);
 		SoSFImage.initClass(SoSFImage.class);
-		SoSFInt32.initClass(SoSFInt32.class);
+		SoSFInt32.initClass(SoSFInt32.class); SoSFLong.initClass(SoSFLong.class);
 		SoSFMatrix.initClass(SoSFMatrix.class);
 		SoSFMatrixd.initClass(SoSFMatrixd.class);
 		SoSFName.initClass(SoSFName.class);

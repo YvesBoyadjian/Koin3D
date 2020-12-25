@@ -717,8 +717,8 @@ doAction(SoAction action)
 		       SoUnits.initClass();
 		       SoUnknownNode.initClass();
 		       SoVertexProperty.initClass();
-//		       SoWWWAnchor.initClass();
-//		       SoWWWInline.initClass();
+		       SoWWWAnchor.initClass();
+		       SoWWWInline.initClass();
 
 		       // Four self-animating nodes. These are subclassed from
 		       // SoSwitch, SoRotation, and SoTranslation

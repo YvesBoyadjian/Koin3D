@@ -284,7 +284,7 @@ setBufferData(VoidPtr data, int size)
 	setBufferData(data, size, 0);
 }
 public void
-setBufferData(VoidPtr data, int size, int dataid)
+setBufferData(VoidPtr data, int size, long dataid)
 {
 	setBufferData(data,size,dataid,null); // TODO YB 
 }
@@ -350,7 +350,7 @@ public VoidPtr allocBufferData(int size) {
 	return allocBufferData(size,0);
 }
 
-public VoidPtr allocBufferData(int size, int dataid) {
+public VoidPtr allocBufferData(int size, long dataid) {
 	return allocBufferData(size,dataid,null); // TODO YB
 }
 

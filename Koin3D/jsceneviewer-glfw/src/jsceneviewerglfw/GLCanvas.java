@@ -107,7 +107,7 @@ public class GLCanvas extends Composite {
 		glfwSwapInterval(format.waitForRefresh ? 1 : 0);
 
 		// Make the window visible
-		glfwShowWindow(window);
+		//glfwShowWindow(window);
 		setVisible(true);
 		
 		glfwSetWindowSizeCallback(window, new GLFWWindowSizeCallbackI() {
@@ -210,5 +210,16 @@ public class GLCanvas extends Composite {
 		glfwFreeCallbacks(window);
 		glfwDestroyWindow(window);
 		super.dispose();
+	}
+
+	public void setVisible (boolean visible) {
+		super.setVisible(visible);
+		if(0 != window) {
+			if (!visible) {
+				glfwHideWindow(window);
+			} else {
+				glfwShowWindow(window);
+			}
+		}
 	}
 }

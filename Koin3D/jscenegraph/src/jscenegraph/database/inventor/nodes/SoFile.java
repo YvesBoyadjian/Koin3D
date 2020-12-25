@@ -321,6 +321,10 @@ private static Path findIVOrWRL(Path parentPath) {
     catch (ZipError e) {
         zip = false;
     }
+    catch(FileSystemNotFoundException e) {
+        zip = false;
+    }
+
     Path ivOrwrl = null;
     if ( fs != null) {
         for (Path root : fs.getRootDirectories()) {

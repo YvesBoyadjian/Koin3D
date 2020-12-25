@@ -56,6 +56,7 @@
 
 package jscenegraph.database.inventor.caches;
 
+import jscenegraph.coin3d.TidBits;
 import jscenegraph.database.inventor.SbPList;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.elements.SoCacheElement;
@@ -63,6 +64,7 @@ import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
+import jscenegraph.port.Util;
 
 
 /////////////////////////////////////////////////////////////////////////
@@ -91,7 +93,7 @@ public class SoGLRenderCache extends SoCache {
   private
     SoGLDisplayList     list;          //!< Display list structure
   private  boolean              listOpen;       //!< Whether display list is open
-  private  final SbPList             nestedCaches = new SbPList();   //!< List of nested caches
+  private  final SbPList<SoGLDisplayList>             nestedCaches = new SbPList<>();   //!< List of nested caches
 
     //! Save state that opened a cache, to use when it is closed:
   private  SoState            saveState;
@@ -111,7 +113,9 @@ public class SoGLRenderCache extends SoCache {
 
     //! indicates that a send must be issued prior to calling cache.
   private  int            doSendFlag;
-    
+
+    private
+    final SoGLRenderCacheP pimpl = new SoGLRenderCacheP();
 
 	
 ////////////////////////////////////////////////////////////////////////
@@ -334,43 +338,88 @@ close()
 //
 // Use: public
 
-public void
-call(SoState state)
+//public void
+//call(SoState state)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
 //
-////////////////////////////////////////////////////////////////////////
-{ 
+////#ifdef DEBUG
+//    if (list == null) {
+//        SoDebugError.post("SoGLRenderCache.call",
+//                           "Cache was never compiled!");
+//        return;
+//    }
+////#endif /* DEBUG */
+//
+//    // Make sure all open caches depend on us
+//    SoCacheElement.addCacheDependency(state, this);
+//
+//    list.call(state);
+//
+//    // get the current lazy element from the state
+//    SoGLLazyElement currentLazyElt = SoGLLazyElement.getInstance(state);
+//
+//    //If this cache call occurred within a cache, must pass info to
+//    //parent cache.
+//    if (state.isCacheOpen()){
+//        SoGLRenderCache parentCache = (SoGLRenderCache)
+//                SoCacheElement.getCurrentCache(state);
+//        SoGLRenderCache childCache = this;
+//
+//        currentLazyElt.mergeCacheInfo(childCache, parentCache, doSendFlag,
+//            checkIVFlag, checkGLFlag);
+//    }
+//
+//    // copy back the CacheLazyElement's GL State
+//    // also set GLSendBits and invalidBits.
+//    currentLazyElt.copyBackGL(GLCacheLazyElement, cachedGLState);
+//}
 
-//#ifdef DEBUG
-    if (list == null) {
-        SoDebugError.post("SoGLRenderCache.call",
-                           "Cache was never compiled!");
-        return;
+
+/*!
+  Executes the cached display list.
+
+  \sa open()
+*/
+static int COIN_NESTED_CACHING = -1;
+
+    public void
+    call(SoState state)
+    {
+        assert(/*pimpl.displaylist*/list != null);
+
+        if (COIN_NESTED_CACHING < 0) {
+    String env = TidBits.coin_getenv("COIN_NESTED_CACHING");
+            if (env!=null) COIN_NESTED_CACHING = Util.atoi(env);
+            else COIN_NESTED_CACHING = 0;
+        }
+
+        if (COIN_NESTED_CACHING != 0) {
+            if (state.isCacheOpen()) {
+                SoCacheElement.addCacheDependency(state, this);
+
+                /*pimpl.displaylist*/list.call(state);
+                SoGLLazyElement.mergeCacheInfo(state,
+                                      pimpl.prestate,
+                                      pimpl.poststate);
+
+                SoGLRenderCache parentCache = (SoGLRenderCache)(
+                        SoCacheElement.getCurrentCache(state)
+       );
+                parentCache.addNestedCache(/*pimpl.displaylist*/list);
+            }
+            else {
+                /*pimpl.displaylist*/list.call(state);
+            }
+        }
+        else { // no nested caching
+            SoCacheElement.invalidate(state); // destroy any parent caches
+            /*pimpl.displaylist*/list.call(state);
+        }
     }
-//#endif /* DEBUG */
 
-    // Make sure all open caches depend on us
-    SoCacheElement.addCacheDependency(state, this);
 
-    list.call(state);
-     
-    // get the current lazy element from the state 
-    SoGLLazyElement currentLazyElt = SoGLLazyElement.getInstance(state);
-          
-    //If this cache call occurred within a cache, must pass info to
-    //parent cache.
-    if (state.isCacheOpen()){
-        SoGLRenderCache parentCache = (SoGLRenderCache)
-                SoCacheElement.getCurrentCache(state);
-        SoGLRenderCache childCache = this;      
-           
-        currentLazyElt.mergeCacheInfo(childCache, parentCache, doSendFlag, 
-            checkIVFlag, checkGLFlag);
-    }   
-    
-    // copy back the CacheLazyElement's GL State
-    // also set GLSendBits and invalidBits.
-    currentLazyElt.copyBackGL(GLCacheLazyElement, cachedGLState);
-}
 	    //! method for the lazy element to set flags:
     public void setLazyBits(int ivFlag, int glFlag, int sendFlag)
         {checkGLFlag |= glFlag;

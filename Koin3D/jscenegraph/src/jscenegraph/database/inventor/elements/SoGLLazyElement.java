@@ -60,6 +60,7 @@ import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.misc.SoGL;
+import jscenegraph.coin3d.misc.Tidbits;
 import jscenegraph.coin3d.shaders.SoGLShaderProgram;
 import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
 import jscenegraph.database.inventor.SbBasic;
@@ -79,12 +80,7 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.misc.SoVBO;
-import jscenegraph.port.Ctx;
-import jscenegraph.port.FloatArray;
-import jscenegraph.port.IntArrayPtr;
-import jscenegraph.port.SbColorArray;
-import jscenegraph.port.Util;
-import jscenegraph.port.VoidPtr;
+import jscenegraph.port.*;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 
@@ -122,6 +118,7 @@ public class SoGLLazyElement extends SoLazyElement {
 	   public static class GLLazyState {
 	        long        GLDiffuseNodeId;
 	        long        GLTranspNodeId;
+            int cachebitmask; // COIN3D
 	        int diffuse; //COIN3D
 	        final SbColor           ambient = new SbColor();
 	        final SbColor           emissive = new SbColor();
@@ -362,36 +359,36 @@ pop(SoState state, SoElement prevTopElement)
 // Use: private, virtual
 //
 ////////////////////////////////////////////////////////////////////////
-public void
-setDiffuseElt(SoNode node,  
-    int numColors,   SbColorArray colors, SoColorPacker cPacker)
-{
-	// COIN 3D
-	  super.setDiffuseElt(node, numColors, colors, cPacker);
-	  this.colorpacker = cPacker;
-	
-	
-    if (colorIndex) return;
-    coinstate.diffusearray = colors;
-    ivState.numDiffuseColors = numColors;        
-    coinstate.diffusenodeid = (node.getNodeId()); 
-    ivState.packed = false;
-    //ivState.packedTransparent = false;
-
-    //Pack the colors and transparencies, if necessary:
-    if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
-            (!cPacker.transpMatch(coinstate.transpnodeid)))
-        packColors(cPacker);
-            
-    coinstate.packedarray = new IntArrayPtr(cPacker.getPackedColors());
-                           
-    // for open caches,  record the fact that set was called:
-    ivState.cacheLevelSetBits |= masks.DIFFUSE_MASK.getValue();
-
-    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId)
-        invalidBits |= masks.DIFFUSE_MASK.getValue();
-
-  }
+//public void
+//setDiffuseElt(SoNode node,
+//    int numColors,   SbColorArray colors, SoColorPacker cPacker)
+//{
+//	// COIN 3D
+//	  super.setDiffuseElt(node, numColors, colors, cPacker);
+//	  this.colorpacker = cPacker;
+//
+//
+//    if (colorIndex) return;
+//    coinstate.diffusearray = colors;
+//    ivState.numDiffuseColors = numColors;
+//    coinstate.diffusenodeid = (node.getNodeId());
+//    ivState.packed = false;
+//    //ivState.packedTransparent = false;
+//
+//    //Pack the colors and transparencies, if necessary:
+//    if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
+//            (!cPacker.transpMatch(coinstate.transpnodeid)))
+//        packColors(cPacker);
+//
+//    coinstate.packedarray = new IntArrayPtr(cPacker.getPackedColors());
+//
+//    // for open caches,  record the fact that set was called:
+//    ivState.cacheLevelSetBits |= masks.DIFFUSE_MASK.getValue();
+//
+//    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId)
+//        invalidBits |= masks.DIFFUSE_MASK.getValue();
+//
+//  }
   
 /////////////////////////////////////////////////////////////////////////
 //
@@ -401,17 +398,17 @@ setDiffuseElt(SoNode node,
 // Use: private, virtual
 //
 ////////////////////////////////////////////////////////////////////////
-protected void
-setTranspTypeElt(int type)
-{
-    if(coinstate.transptype != type){
-    	super.setTranspTypeElt(type); // COIN 3D
-        coinstate.transptype = type;
-        // make sure transparencies send:
-        invalidBits |= masks.TRANSPARENCY_MASK.getValue();
-        glState.GLStippleNum = -1;
-    }
-}  
+//protected void
+//setTranspTypeElt(int type)
+//{
+//    if(coinstate.transptype != type){
+//    	super.setTranspTypeElt(type); // COIN 3D
+//        coinstate.transptype = type;
+//        // make sure transparencies send:
+//        invalidBits |= masks.TRANSPARENCY_MASK.getValue();
+//        glState.GLStippleNum = -1;
+//    }
+//}
   
 /////////////////////////////////////////////////////////////////////////
 //
@@ -421,44 +418,44 @@ setTranspTypeElt(int type)
 // Use: private, virtual
 //
 ////////////////////////////////////////////////////////////////////////
-public void
-setTranspElt(SoNode node,  
-    int numTrans,   FloatMemoryBuffer trans, SoColorPacker cPacker)
-{
-    ivState.numTransparencies = numTrans;
-    ivState.transparencies = trans;
-
-    // determine the appropriate stippleNum:
-    // set to zero unless have nonzero stipple transparency.
-
-    ivState.stippleNum = 0;
-    if (trans.getFloat(0) > 0.0) {
-        if (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
-            ivState.stippleNum =
-                (int)(trans.getFloat(0)*getNumPatterns());
-        }       
-    }
-    if (numTrans == 1 && trans.getFloat(0) == 0) coinstate.transpnodeid = 0;
-    else coinstate.transpnodeid = node.getNodeId();
-    ivState.packed = false;
-    //ivState.packedTransparent = false;
-    if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
-            (!cPacker.transpMatch(coinstate.transpnodeid)))
-        packColors(cPacker);
-            
-    coinstate.packedarray = new IntArrayPtr(cPacker.getPackedColors());
-                           
-    // for open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= (masks.TRANSPARENCY_MASK.getValue()|masks.DIFFUSE_MASK.getValue());
-
-    if (coinstate.transpnodeid != glState.GLTranspNodeId) 
-        invalidBits |= masks.DIFFUSE_MASK.getValue();
-        
-    if (ivState.stippleNum != glState.GLStippleNum)
-        invalidBits |= masks.TRANSPARENCY_MASK.getValue();
-    else invalidBits &= ~masks.TRANSPARENCY_MASK.getValue();
-
-  }
+//public void
+//setTranspElt(SoNode node,
+//    int numTrans,   FloatMemoryBuffer trans, SoColorPacker cPacker)
+//{
+//    ivState.numTransparencies = numTrans;
+//    ivState.transparencies = trans;
+//
+//    // determine the appropriate stippleNum:
+//    // set to zero unless have nonzero stipple transparency.
+//
+//    ivState.stippleNum = 0;
+//    if (trans.getFloat(0) > 0.0) {
+//        if (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
+//            ivState.stippleNum =
+//                (int)(trans.getFloat(0)*getNumPatterns());
+//        }
+//    }
+//    if (numTrans == 1 && trans.getFloat(0) == 0) coinstate.transpnodeid = 0;
+//    else coinstate.transpnodeid = node.getNodeId();
+//    ivState.packed = false;
+//    //ivState.packedTransparent = false;
+//    if(!cPacker.diffuseMatch(coinstate.diffusenodeid) ||
+//            (!cPacker.transpMatch(coinstate.transpnodeid)))
+//        packColors(cPacker);
+//
+//    coinstate.packedarray = new IntArrayPtr(cPacker.getPackedColors());
+//
+//    // for open caches, record the fact that set was called:
+//    ivState.cacheLevelSetBits |= (masks.TRANSPARENCY_MASK.getValue()|masks.DIFFUSE_MASK.getValue());
+//
+//    if (coinstate.transpnodeid != glState.GLTranspNodeId)
+//        invalidBits |= masks.DIFFUSE_MASK.getValue();
+//
+//    if (ivState.stippleNum != glState.GLStippleNum)
+//        invalidBits |= masks.TRANSPARENCY_MASK.getValue();
+//    else invalidBits &= ~masks.TRANSPARENCY_MASK.getValue();
+//
+//  }
 /////////////////////////////////////////////////////////////////////////
 //
 // Description:  set color indices in element
@@ -467,26 +464,26 @@ setTranspElt(SoNode node,
 // Use: private, virtual
 //
 ////////////////////////////////////////////////////////////////////////
-public void
-setColorIndexElt(SoNode node, 
-         int numIndices,   int[] indices)
-{
-    if (!colorIndex) return;
-    ivState.numDiffuseColors = numIndices;
-    ivState.colorIndices = indices;
-      
-    coinstate.diffusenodeid = (node.getNodeId()); 
-    ivState.packed = false;
-    //ivState.packedTransparent = false;
-
-    // for open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= masks.DIFFUSE_MASK.getValue();
-
-    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId)
-        invalidBits |= masks.DIFFUSE_MASK.getValue();
-    else invalidBits &= ~masks.DIFFUSE_MASK.getValue();
-
-}
+//public void
+//setColorIndexElt(SoNode node,
+//         int numIndices,   int[] indices)
+//{
+//    if (!colorIndex) return;
+//    ivState.numDiffuseColors = numIndices;
+//    ivState.colorIndices = indices;
+//
+//    coinstate.diffusenodeid = (node.getNodeId());
+//    ivState.packed = false;
+//    //ivState.packedTransparent = false;
+//
+//    // for open caches, record the fact that set was called:
+//    ivState.cacheLevelSetBits |= masks.DIFFUSE_MASK.getValue();
+//
+//    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId)
+//        invalidBits |= masks.DIFFUSE_MASK.getValue();
+//    else invalidBits &= ~masks.DIFFUSE_MASK.getValue();
+//
+//}
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -497,43 +494,6 @@ setColorIndexElt(SoNode node,
 // Use: private, virtual
 //
 ////////////////////////////////////////////////////////////////////////
-protected void
-setPackedElt(SoNode node, int numColors, 
-      int[] colors)
-{
-    if (colorIndex) return;
-    coinstate.packedarray        = new IntArrayPtr(colors);
-    ivState.numDiffuseColors    = numColors;
-    ivState.numTransparencies   = numColors;
-    coinstate.diffusenodeid       = node.getNodeId();
-    coinstate.transpnodeid        = node.getNodeId();
-    
-    ivState.stippleNum = 0;     
-    if ((colors[0]&0xff) != 0xff){      
-        if(coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
-            ivState.stippleNum = (int)(getNumPatterns()*
-                (1.-(colors[0] & 0xff)*(1./255.)));
-        }           
-    }
-    
-    ivState.packed              = true;
-    //ivState.packedTransparent   = (node instanceof SoPackedColor) ? ((SoPackedColor) node).isTransparent() : false; //TODO COIN3D
-     
-    // For open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= (masks.DIFFUSE_MASK.getValue()|masks.TRANSPARENCY_MASK.getValue());      
- 
-    if ((invalidBits & (masks.DIFFUSE_MASK.getValue()|masks.TRANSPARENCY_MASK.getValue()))!=0) return;
-
-    if (coinstate.diffusenodeid != glState.GLDiffuseNodeId ||
-        coinstate.transpnodeid != glState.GLTranspNodeId)
-        invalidBits |= masks.DIFFUSE_MASK.getValue();
-    else invalidBits &= ~masks.DIFFUSE_MASK.getValue();
-    
-    if (ivState.stippleNum != glState.GLStippleNum)
-        invalidBits |= masks.TRANSPARENCY_MASK.getValue();
-    else invalidBits &= ~masks.TRANSPARENCY_MASK.getValue();
-
-}
 
 //////////////////////////////////////////////////////////////////////////
 //
@@ -548,18 +508,6 @@ setAmbientElt(  SbColor color)
 {
 	super.setAmbientElt(color);
 	
-    ivState.ambientColor.setValue((float[])color.getValueRead());
-
-    // For open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= masks.AMBIENT_MASK.getValue();  
-
-
-    //for(int i=0; i<3; i++){
-        if (ivState.ambientColor.operator_not_equal(glState.ambient)){
-            invalidBits |= masks.AMBIENT_MASK.getValue();
-            return;
-        }
-    //}
     invalidBits &= ~masks.AMBIENT_MASK.getValue();
 }
 
@@ -576,17 +524,6 @@ setEmissiveElt(  SbColor color)
 {
 	super.setEmissiveElt(color);
 	
-    ivState.emissiveColor.setValue((float[])color.getValueRead());
-
-    // For open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= masks.EMISSIVE_MASK.getValue(); 
- 
-    //for(int i=0; i<3; i++){
-        if (ivState.emissiveColor.operator_not_equal(glState.emissive)){
-            invalidBits |= masks.EMISSIVE_MASK.getValue();
-            return;
-        }
-    //}
     invalidBits &= ~masks.EMISSIVE_MASK.getValue();
 }
 /////////////////////////////////////////////////////////////////////////
@@ -602,17 +539,6 @@ setSpecularElt(  SbColor color)
 {
 	super.setSpecularElt(color);
 	
-    ivState.specularColor.setValue((float[])color.getValueRead());
-
-    // For open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= masks.SPECULAR_MASK.getValue(); 
-
-    for(int i=0; i<3; i++){
-        if (ivState.specularColor.getValueRead()[i] != glState.specular.getValueRead()[i]){
-            invalidBits |= masks.SPECULAR_MASK.getValue();
-            return;
-        }
-    }
     invalidBits &= ~masks.SPECULAR_MASK.getValue();
 }
 
@@ -629,15 +555,6 @@ setShininessElt(float value)
 {
 	super.setShininessElt(value);
 	
-    ivState.shininess = value;
-
-    // For open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= masks.SHININESS_MASK.getValue();        
-
-    // set invalid bit based on value
-    if (Math.abs(ivState.shininess - glState.GLShininess) > SO_LAZY_SHINY_THRESHOLD)
-            invalidBits |= masks.SHININESS_MASK.getValue();
-        else invalidBits &= ~masks.SHININESS_MASK.getValue();
     return;
 }
 /////////////////////////////////////////////////////////////////////////
@@ -653,18 +570,6 @@ setColorMaterialElt(boolean value)
 {
 	super.setColorMaterialElt(value);
 	
-    // don't turn on colorMaterial if lighting off:
-    if (ivState.lightModel == LightModel.BASE_COLOR.getValue()) value = false;
-    ivState.colorMaterial = value;
-
-    // For open caches, record the fact that set was called:
-        ivState.cacheLevelSetBits |= masks.COLOR_MATERIAL_MASK.getValue();       
- 
-
-    // set invalid bit based on value
-    if ((ivState.colorMaterial?1:0) != glState.GLColorMaterial)
-            invalidBits |= masks.COLOR_MATERIAL_MASK.getValue();
-        else invalidBits &= ~masks.COLOR_MATERIAL_MASK.getValue();
     return;
 }
 /////////////////////////////////////////////////////////////////////////
@@ -715,28 +620,28 @@ setMaterialElt(SoNode node, int mask,
 {
     if ((mask & masks.DIFFUSE_MASK.getValue())!=0 && !colorIndex ){
         coinstate.diffusearray = diffuse.getValuesSbColorArray(/*0*/);
-        ivState.numDiffuseColors = diffuse.getNum();        
+        coinstate.numdiffuse = diffuse.getNum();
         coinstate.diffusenodeid = (node.getNodeId()); 
-        ivState.packed = false;
+        coinstate.packeddiffuse = false;
         //ivState.packedTransparent = false;      
     }
     
     if ((mask & masks.TRANSPARENCY_MASK.getValue())!=0){
-        ivState.numTransparencies = transp.getNum();
-        ivState.transparencies = transp.getValuesFloat(/*0*/);    
-        ivState.stippleNum = 0;
-        if (ivState.numTransparencies == 1 && ivState.transparencies.getFloat(0) == 0.0)
+        coinstate.numtransp = transp.getNum();
+        coinstate.transparray = transp.getValues(0);
+        coinstate.stipplenum = 0;
+        if (coinstate.numtransp == 1 && coinstate.transparray.get(0) == 0.0)
             coinstate.transpnodeid = 0;
         else { 
             coinstate.transpnodeid = node.getNodeId();
-            if (ivState.transparencies.getFloat(0) != 0.0 &&        
+            if (coinstate.transparray.get(0) != 0.0 &&
                     coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue()){
-                ivState.stippleNum =
-                    (int)(ivState.transparencies.getFloat(0)*getNumPatterns());
+                coinstate.stipplenum =
+                    (int)(coinstate.transparray.get(0)*getNumPatterns());
             }   
         }
             
-        if  (ivState.stippleNum != glState.GLStippleNum)
+        if  (coinstate.stipplenum != glState.GLStippleNum)
             invalidBits |= masks.TRANSPARENCY_MASK.getValue();
         else invalidBits &= ~masks.TRANSPARENCY_MASK.getValue();
     }
@@ -756,10 +661,10 @@ setMaterialElt(SoNode node, int mask,
     }
        
     if ((mask & masks.AMBIENT_MASK.getValue())!=0){
-        ivState.ambientColor.copyFrom(ambient.operator_square_bracket(0));
+        coinstate.ambient.copyFrom(ambient.operator_square_bracket(0));
         invalidBits &= ~masks.AMBIENT_MASK.getValue();
         for (int i=0; i<3; i++){
-            if (ivState.ambientColor.operator_square_bracket(i) != glState.ambient.getValueRead()[i]){
+            if (coinstate.ambient.operator_square_bracket(i) != glState.ambient.getValueRead()[i]){
                 invalidBits |= masks.AMBIENT_MASK.getValue();
                 break;
             }
@@ -767,10 +672,10 @@ setMaterialElt(SoNode node, int mask,
     }  
     
     if ((mask & masks.EMISSIVE_MASK.getValue())!=0){
-        ivState.emissiveColor.copyFrom( emissive.operator_square_bracket(0));
+        coinstate.emissive.copyFrom( emissive.operator_square_bracket(0));
         invalidBits &= ~masks.EMISSIVE_MASK.getValue();
         for (int i=0; i<3; i++){
-            if (ivState.emissiveColor.operator_square_bracket(i) != glState.emissive.getValueRead()[i]){
+            if (coinstate.emissive.operator_square_bracket(i) != glState.emissive.getValueRead()[i]){
                 invalidBits |= masks.EMISSIVE_MASK.getValue();
                 break;
             }
@@ -778,10 +683,10 @@ setMaterialElt(SoNode node, int mask,
     }
         
     if ((mask & masks.SPECULAR_MASK.getValue())!=0){
-        ivState.specularColor.copyFrom( specular.operator_square_bracket(0));
+        coinstate.specular.copyFrom( specular.operator_square_bracket(0));
         invalidBits &= ~masks.SPECULAR_MASK.getValue();
         for (int i=0; i<3; i++){
-            if (ivState.specularColor.operator_square_bracket(i) != glState.specular.getValueRead()[i]){
+            if (coinstate.specular.operator_square_bracket(i) != glState.specular.getValueRead()[i]){
                 invalidBits |= masks.SPECULAR_MASK.getValue();
                 break;
             }
@@ -789,15 +694,15 @@ setMaterialElt(SoNode node, int mask,
     }
     
     if ((mask & masks.SHININESS_MASK.getValue())!=0){
-        ivState.shininess = shininess.operator_square_bracket(0);
-        if (Math.abs(ivState.shininess - glState.GLShininess) 
+        coinstate.shininess = shininess.operator_square_bracket(0);
+        if (Math.abs(coinstate.shininess - glState.GLShininess)
                 > SO_LAZY_SHINY_THRESHOLD){
             invalidBits |= masks.SHININESS_MASK.getValue();
         }      
         else invalidBits &= ~masks.SHININESS_MASK.getValue();       
     }
     // For open caches, record the fact that set was called:
-    ivState.cacheLevelSetBits |= mask;    
+    cachebitmask |= mask;
 }
 
 public void
@@ -919,7 +824,7 @@ registerRedundantSet(SoState state, int bitmask)
 //#endif /*DEBUG*/
     //Must obtain a writable version of element (i.e. may need to push)
     SoGLLazyElement le = (SoGLLazyElement)getWInstance(state);
-    le.ivState.cacheLevelSetBits |= bitmask;
+    le.cachebitmask |= bitmask;
  
 }
 /////////////////////////////////////////////////////////////////////////
@@ -943,7 +848,7 @@ registerGetDependence(SoState state, int bitmask)
     SoGLRenderCache thisCache = (SoGLRenderCache)
             SoCacheElement.getCurrentCache((SoState)state);
     SoGLLazyElement cacheLazyElt = thisCache.getLazyElt();
-    int levelSetBits = ivState.cacheLevelSetBits;
+    int levelSetBits = cachebitmask;
     int didRealSendBits = cacheLazyElt.GLSendBits;
         
     //If there was no set and no real send, there is an IV dependence:
@@ -1093,9 +998,20 @@ reset(SoState state, int bitmask)
         {
 //    	if (((mask & invalidBits)!=0) ||(state.isCacheOpen()))  
 //            ((SoGLLazyElement)(this)).reallySend(state, mask);
-    	doPackColors();
-    	
-  int stipplenum;
+    	//doPackColors();
+
+            if (this.colorpacker != null) {
+            if (!this.colorpacker.diffuseMatch(this.coinstate.diffusenodeid) ||
+            !this.colorpacker.transpMatch(this.coinstate.transpnodeid)) {
+                this.packColors(this.colorpacker);
+            }
+            this.packedpointer = new IntArrayPtr(this.colorpacker.getPackedColors());
+        }
+  else this.packedpointer = this.coinstate.packedarray;
+
+            assert(this.packedpointer != null);
+
+            int stipplenum;
 
   for (int i = 0; (i < SoLazyElement.cases.LAZYCASES_LAST.getValue()) && mask != 0; i++, mask>>=1) {
     if ((mask&1)!=0) {
@@ -1236,307 +1152,7 @@ reset(SoState state, int bitmask)
 //
 // Use: private
 ////////////////////////////////////////////////////////////////////////
-private void
-reallySend(final SoState state, int bitmask) 
 
-//Send only the parts that don't match inventor state: 
-// does the following:
-//   copies the inventor state to the GL state
-//   sends the GL value to GL
-//   sets the appropriate invalidBits off.
-//   sets the appropriate GLSendBits on.
-//
-// If a renderCache is open, it does additional work,
-// identifying if this is the first send of the component in the cache,
-// identifying if it has been set in the cache, etc.
-// This information is used to determine whether there is a cache dependency,
-// and if so, whether it is dependent on the inventor state, GL state, or
-// dependent on inventor matching GL.
-{  
-	final GL2 gl2 = state.getGL2(); // java port
-
-    int sendBits = bitmask & invalidBits;
-    int realSendBits = 0;
-    // with base_color, don't send nondiffuse colors.
-    if (coinstate.lightmodel == SoLazyElement.LightModel.BASE_COLOR.getValue()) sendBits &= ~SoLazyElement.internalMasks.OTHER_COLOR_MASK.getValue();
-
-    //everything that was requested to send will be valid afterward, 
-   
-    invalidBits &= ~(sendBits);
-    
-    boolean sendit;
-
-    for(int j = 0; (j< SO_LAZY_NUM_COMPONENTS) && (sendBits != 0); 
-                j++,sendBits >>>=1){
-        if ((sendBits & 1)!=0){
-            int i;
-            switch(cases.fromValue(j)){
-                // Note that lightmodel and colormaterial have to send
-                // before diffuse, so that we can force send diffuse
-                                
-                case LIGHT_MODEL_CASE :
-                    if (glState.GLLightModel == coinstate.lightmodel) break;
-                    SoGLShaderProgram prog = SoGLShaderProgramElement.get((SoState) state); //COIN 3D 
-                    if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_light_model"), /*this.coinstate*/coinstate.lightmodel); // COIN 3D
-                    ////if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside ? 1:0);
-                    if (coinstate.lightmodel == SoLazyElement.LightModel.PHONG.getValue()){
-                        gl2.glEnable(GL2.GL_LIGHTING);
-                        if (colorIndex)gl2.glShadeModel(GL2.GL_FLAT);
-                    }
-                    else {
-                        gl2.glDisable(GL2.GL_LIGHTING);
-                        if (colorIndex) gl2.glShadeModel(GL2.GL_SMOOTH);
-                    }
-                    glState.GLLightModel = coinstate.lightmodel;
-                    realSendBits |= masks.LIGHT_MODEL_MASK.getValue();
-                    //force-send the diffuse color:
-                    sendBits |= (masks.DIFFUSE_MASK.getValue() >>> cases.LIGHT_MODEL_CASE.getValue());
-                    glState.GLDiffuseNodeId = 1;
-                    break;
-        
-                case COLOR_MATERIAL_CASE :              
-                    // Handle color material if light model does not change:
-                    if ((ivState.colorMaterial?1:0) == glState.GLColorMaterial) break;                                                                
-                    realSendBits |= masks.COLOR_MATERIAL_MASK.getValue();               
-                    glState.GLColorMaterial = ivState.colorMaterial?1:0;
-                    if (ivState.colorMaterial){
-                            gl2.glColorMaterial(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE);
-                            gl2.glEnable(GL2.GL_COLOR_MATERIAL);
-                        }
-                    else gl2.glDisable(GL2.GL_COLOR_MATERIAL);
-//#ifdef DEBUG
-                    if ((glState.GLLightModel == LightModel.BASE_COLOR.getValue()) &&
-                        (glState.GLColorMaterial != 0)){
-                            SoDebugError.post("SoGLLazyElement.reallySend", 
-                            "ColorMaterial being used with BASE_COLOR");
-                        }
-//#endif /*DEBUG*/                  
-                    // ensure diffuse color will send:
-                    sendBits |= (masks.DIFFUSE_MASK.getValue() >>> cases.COLOR_MATERIAL_CASE.getValue());
-                    glState.GLDiffuseNodeId = 1;                            
-                    break;
-            
-                case DIFFUSE_CASE :              
-                    // in this case, always send color[0]
-                    if (glState.GLDiffuseNodeId == coinstate.diffusenodeid &&
-                        glState.GLTranspNodeId == coinstate.transpnodeid)
-                        break;
-                    realSendBits |= masks.DIFFUSE_MASK.getValue();
-                    glState.GLDiffuseNodeId = coinstate.diffusenodeid;
-                    glState.GLTranspNodeId = coinstate.transpnodeid;
-                    
-                    if(colorIndex){
-//#ifdef DEBUG
-                        if (glState.GLLightModel != LightModel.BASE_COLOR.getValue()){
-                            SoDebugError.post("SoGLLazyElement.reallySend", 
-                            "PHONG shading used in colorIndex mode");
-                        }
-//#endif                                          
-                        gl2.glIndexi((int)ivState.colorIndices[0]);
-                        break;
-                    }
-                    final float[] col4 = new float[4];                  
-                 
-                    final byte[] pColors = new byte[4];
-                    SoMachine.DGL_HTON_INT32(pColors, /*Util.toIntArray(*/coinstate.packedarray.getValues()/*)*/);
-                    gl2.glColor4ubv(pColors,0);
-                    if (!(glState.GLColorMaterial != 0 || (glState.GLLightModel == LightModel.BASE_COLOR.getValue()))) {
-                        col4[3] =  (coinstate.packedarray.get(0) & 
-                            0xff)   * 1.0f/255;
-                        col4[2] = ((coinstate.packedarray.get(0) & 
-                            0xff00) >>>  8) * 1.0f/255;
-                        col4[1] = ((coinstate.packedarray.get(0) & 
-                            0xff0000)>>> 16) * 1.0f/255;
-                        col4[0] = ((coinstate.packedarray.get(0) & 
-                            0xff000000)>>>24) * 1.0f/255;
-                        gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK, GL2.GL_DIFFUSE, col4,0);
-                    }             
-                    break;
-                                      
-                case AMBIENT_CASE :     
-                    sendit = false;
-                    for(i=0; i<3; i++){
-                        if (glState.ambient.getValueRead()[i] != ivState.ambientColor.operator_square_bracket(i)){ 
-                            sendit=true;
-                            glState.ambient.operator_square_bracket(i,ivState.ambientColor.operator_square_bracket(i));
-                        }
-                    }
-                    if (!sendit) break;
-                    realSendBits |= masks.AMBIENT_MASK.getValue();
-                    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_AMBIENT,
-                        glState.ambient.getValueRead(),0); 
-                    break;
-
-                case EMISSIVE_CASE :
-                    sendit = false;
-                    for(i=0; i<3; i++){
-                        if (glState.emissive.getValueRead()[i]!=ivState.emissiveColor.operator_square_bracket(i)){
-                            sendit = true;
-                            glState.emissive.operator_square_bracket(i,ivState.emissiveColor.operator_square_bracket(i));
-                        }
-                    }
-                    if (!sendit) break;
-                    realSendBits |= masks.EMISSIVE_MASK.getValue();
-                    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_EMISSION,
-                        glState.emissive.getValueRead(),0); 
-                    break;
-
-                case SPECULAR_CASE :
-                    sendit = false;
-                    for(i=0; i<3; i++){
-                        if (glState.specular.getValueRead()[i]!=ivState.specularColor.operator_square_bracket(i)){
-                            sendit = true;
-                            glState.specular.operator_square_bracket(i,ivState.specularColor.operator_square_bracket(i));
-                        }
-                    }
-                    if (!sendit) break;
-                    realSendBits |= masks.SPECULAR_MASK.getValue();
-                    gl2.glMaterialfv(GL2.GL_FRONT_AND_BACK,GL2.GL_SPECULAR,
-                        glState.specular.getValueRead(),0); 
-                    break;
-
-                case SHININESS_CASE :
-                    if (Math.abs(glState.GLShininess-ivState.shininess)<
-                        SO_LAZY_SHINY_THRESHOLD) break;
-                    realSendBits |= masks.SHININESS_MASK.getValue();
-                    glState.GLShininess=ivState.shininess;
-                    gl2.glMaterialf(GL2.GL_FRONT_AND_BACK,GL2.GL_SHININESS,
-                        glState.GLShininess*128.0f); 
-                    break;
-                    
-                case BLENDING_CASE :
-                                    
-                    if (glState.blending == coinstate.blending) break;
-                    realSendBits |= masks.BLENDING_MASK.getValue();              
-                    glState.blending = coinstate.blending;
-                    if (coinstate.blending != 0){
-                        gl2.glEnable(GL2.GL_BLEND);                     
-                    }
-                    // blend is being turned off:
-                    else {
-                    	gl2.glDisable(GL2.GL_BLEND);
-                    }
-                    break;
-                                 
-                case TRANSPARENCY_CASE :                
-                        
-                    if (ivState.stippleNum == glState.GLStippleNum) break;
-                    
-                    if (ivState.stippleNum == 0){
-                        gl2.glDisable(GL2.GL_POLYGON_STIPPLE);
-                    }
-                    else{
-                        sendStipple(state, ivState.stippleNum);
-                        if (glState.GLStippleNum <= 0)
-                            gl2.glEnable(GL2.GL_POLYGON_STIPPLE);
-                    }
-                    glState.GLStippleNum = ivState.stippleNum;                  
-                                        
-                    realSendBits |= masks.TRANSPARENCY_MASK.getValue();
-                    break;
-                    
-                case VERTEXORDERING_CASE:
-                	
-                    if (this.glState.vertexordering != this.coinstate.vertexordering) {
-                      this.sendVertexOrdering(SoLazyElement.VertexOrdering.fromValue(this.coinstate.vertexordering));
-                    }
-                    break;
-                    
-                case TWOSIDE_CASE:
-                    if (this.glState.twoside != this.coinstate.twoside) {
-                      /*SoGLShaderProgram*/ prog = SoGLShaderProgramElement.get((SoState) state);
-                      if (prog != null) prog.updateCoinParameter((SoState)state, new SbName("coin_two_sided_lighting"), this.coinstate.twoside);
-                      this.sendTwosideLighting(this.coinstate.twoside != 0);
-                    }
-                    break;
-                    
-//                case SHADE_MODEL_CASE:
-//                    if (this.glState.flatshading != this.coinstate.flatshading) {
-//                      this.sendFlatshading(this.coinstate.flatshading);
-//                    }
-//                    break;
-            }
-        }
-    }
-    //Record the real_sends:
-    GLSendBits |= realSendBits;
-    
-    // if cache is open, record required info:
-    if (state.isCacheOpen()){
-        SoGLRenderCache thisCache = (SoGLRenderCache)
-                SoCacheElement.getCurrentCache((SoState)state);
-        SoGLLazyElement cacheLazyElt = thisCache.getLazyElt();
-        int didRealSendBits = cacheLazyElt.GLSendBits;
-        int levelSetBits = ivState.cacheLevelSetBits;
-        int levelSendBits = ivState.cacheLevelSendBits;
-        
-        // To determine which of doSend, checkGL, and checkIV bits to set,
-        // All combinations of the bits
-        //      A:  levelSendBits
-        //      B:  levelSetBits
-        //      C:  didRealSendBits
-        //      D:  realSendBits
-        // are considered.  The following matrix describes the resulting
-        // dependencies:
-        //
-        //              A=0         A=1         A=0         A=1
-        //              B=0         B=0         B=1         B=1
-        //
-        //  C=0,D=0     IV=GL       (IV=GL)     GL          GL
-        //                          
-        //  C=0,D=1     IV          (IV)        OK          OK
-        //
-        //  C=1,D=0     IV          (IV)        OK          OK
-        //
-        //  C=1,D=1     IV          IV          OK          OK
-        //
-        //  In the above, OK means no dependence, a dependence in parens
-        //  means that the dependence is already implied by another
-        //  send in the same scene graph.
-                
-        // doSend flag indicates dependencies on IV=GL; these are components
-        // with no set and a non-real send in the cache.
-        int doSend = bitmask&(~didRealSendBits)&(~realSendBits) 
-            &(~levelSetBits)&(~levelSendBits);
-                    
-        // checkIV flag indicates dependence on IV.  These are components that
-        // did a real send not preceded by a set:
-        int checkIV = bitmask&(~levelSetBits)&
-            (((~levelSendBits)&(realSendBits))|
-            ((~levelSendBits)&(didRealSendBits))|
-            ((didRealSendBits)&(realSendBits)));
-            
-        //checkGL indicates a dependence on GL.  These are components that did
-        //a non-real send after a real set.
-        int checkGL = bitmask&(~didRealSendBits)&(~realSendBits)
-            &(levelSetBits);
-
-        //with light model, a dependence on IV=GL is also a dependence on GL
-        
-        if((doSend & masks.LIGHT_MODEL_MASK.getValue())!=0){
-            checkGL |= masks.LIGHT_MODEL_MASK.getValue();       
-        }
-        //with diffuse colors, if there are multiple colors, an IV=GL 
-        //dependence is also an IV dependence
-        if(((doSend & masks.DIFFUSE_MASK.getValue())!=0)&&(ivState.numDiffuseColors > 1)){
-            checkIV |= masks.DIFFUSE_MASK.getValue();
-        }           
-        cacheLazyElt.GLSendBits |= realSendBits;
-        if (checkGL != 0) copyGLValues(checkGL,cacheLazyElt);  
-        if (checkIV != 0) copyIVValues(checkIV,cacheLazyElt);
-        thisCache.setLazyBits(checkIV, checkGL, doSend);
-        
-        //If we set a bit in levelSendBits, must do this on a writable element:
-        if (ivState.cacheLevelSendBits != (ivState.cacheLevelSendBits|bitmask)){
-            SoGLLazyElement le = 
-                (SoGLLazyElement)getWInstance((SoState )state);
-            le.ivState.cacheLevelSendBits |= bitmask;
-        }
-    }   
-
-    return;
-}
- 
 //! Replace  matches() for this element:
 //! matches "this" element GL or IV state with values in eltInState
 	public boolean lazyMatches(int checkGLFlag, int checkIVFlag,
@@ -1586,12 +1202,12 @@ fullLazyMatches(int checkGL, int checkIV,
             int j;
             switch(cases.fromValue(i)){
                 case LIGHT_MODEL_CASE :
-                    if (ivState.lightModel != stateLazyElt.ivState.lightModel){
+                    if (coinstate.lightmodel != stateLazyElt.coinstate.lightmodel){
 //#ifdef DEBUG
                         if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                             System.err.printf("CACHE DEBUG: cache not valid\n ");       
                             System.err.printf("lightModel match failed,\n");
-                            System.err.printf("prev,  current "+ivState.lightModel+" "+stateLazyElt.ivState.lightModel+"\n");
+                            System.err.printf("prev,  current "+coinstate.lightmodel+" "+stateLazyElt.coinstate.lightmodel+"\n");
                         }
 //#endif /*DEBUG*/           
                         return false;
@@ -1599,17 +1215,17 @@ fullLazyMatches(int checkGL, int checkIV,
                     break;
                                      
                 case COLOR_MATERIAL_CASE :
-                    if (ivState.colorMaterial != 
-                        stateLazyElt.ivState.colorMaterial){
-//#ifdef DEBUG
-                        if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
-                        	System.err.printf("CACHE DEBUG: cache not valid\n ");       
-                        	System.err.printf("colorMaterial match failed,\n");
-                        	System.err.printf("prev,  current "+ivState.colorMaterial+" "+stateLazyElt.ivState.colorMaterial+"\n");
-                        }
-//#endif /*DEBUG*/           
-                        return false;
-                    }                   
+//                    if (coinstate.colorMaterial !=
+//                        stateLazyElt.coinstate.colorMaterial){
+////#ifdef DEBUG
+//                        if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
+//                        	System.err.printf("CACHE DEBUG: cache not valid\n ");
+//                        	System.err.printf("colorMaterial match failed,\n");
+//                        	System.err.printf("prev,  current "+coinstate.colorMaterial+" "+stateLazyElt.coinstate.colorMaterial+"\n");
+//                        }
+////#endif /*DEBUG*/
+//                        return false;
+//                    }
                     break;
                     
                 case DIFFUSE_CASE :
@@ -1629,13 +1245,13 @@ fullLazyMatches(int checkGL, int checkIV,
                     break;                                  
                 case AMBIENT_CASE :
                     for(j=0; j<3; j++){
-                        if (ivState.ambientColor.operator_square_bracket(j)!=
-                            stateLazyElt.ivState.ambientColor.operator_square_bracket(j)){
+                        if (coinstate.ambient.operator_square_bracket(j)!=
+                            stateLazyElt.coinstate.ambient.operator_square_bracket(j)){
 //#ifdef DEBUG
                             if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                                System.err.print( "CACHE DEBUG: cache not valid\n");       
                                System.err.print( "ambient "+j+" match failed,\n");
-                               System.err.print( "prev,  current "+ivState.ambientColor.operator_square_bracket(j)+" "+stateLazyElt.ivState.ambientColor.operator_square_bracket(j)+"\n");
+                               System.err.print( "prev,  current "+coinstate.ambient.operator_square_bracket(j)+" "+stateLazyElt.coinstate.ambient.operator_square_bracket(j)+"\n");
                             }
 //#endif /*DEBUG*/                                 
                             return(false);
@@ -1645,13 +1261,13 @@ fullLazyMatches(int checkGL, int checkIV,
 
                 case EMISSIVE_CASE :
                     for(j=0; j<3; j++){
-                        if (ivState.emissiveColor.operator_square_bracket(j)!=
-                            stateLazyElt.ivState.emissiveColor.operator_square_bracket(j)){
+                        if (coinstate.emissive.operator_square_bracket(j)!=
+                            stateLazyElt.coinstate.emissive.operator_square_bracket(j)){
 //#ifdef DEBUG
                             if (SoDebug.GetEnv("IV_DEBUG_CACHES")!= null) {
                                System.err.print( "CACHE DEBUG: cache not valid\n");      
                                System.err.print( "emissive "+j+" match failed,\n");
-                               System.err.print( "prev,  current "+ivState.emissiveColor.operator_square_bracket(j)+" "+stateLazyElt.ivState.emissiveColor.operator_square_bracket(j)+"\n");
+                               System.err.print( "prev,  current "+coinstate.emissive.operator_square_bracket(j)+" "+stateLazyElt.coinstate.emissive.operator_square_bracket(j)+"\n");
                             }
 //#endif /*DEBUG*/                         
                             return(false);
@@ -1661,13 +1277,13 @@ fullLazyMatches(int checkGL, int checkIV,
 
                 case SPECULAR_CASE :
                     for(j=0; j<3; j++){
-                        if (ivState.specularColor.operator_square_bracket(j)!=
-                            stateLazyElt.ivState.specularColor.operator_square_bracket(j)){
+                        if (coinstate.specular.operator_square_bracket(j)!=
+                            stateLazyElt.coinstate.specular.operator_square_bracket(j)){
 //#ifdef DEBUG
                             if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                                System.err.print( "CACHE DEBUG: cache not valid\n");       
                                System.err.print( "specular "+j+" match failed,\n");
-                               System.err.print( "prev,  current "+ivState.specularColor.operator_square_bracket(j)+" "+stateLazyElt.ivState.specularColor.operator_square_bracket(j)+"\n");
+                               System.err.print( "prev,  current "+coinstate.specular.operator_square_bracket(j)+" "+stateLazyElt.coinstate.specular.operator_square_bracket(j)+"\n");
                             }
 //#endif /*DEBUG*/                                 
                              return(false);
@@ -1676,13 +1292,13 @@ fullLazyMatches(int checkGL, int checkIV,
                     break;
 
                 case SHININESS_CASE :
-                    if (Math.abs(ivState.shininess - stateLazyElt.ivState.shininess)
+                    if (Math.abs(coinstate.shininess - stateLazyElt.coinstate.shininess)
                         >  SO_LAZY_SHINY_THRESHOLD){
 //#ifdef DEBUG
                         if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                             System.err.print( "CACHE DEBUG: cache not valid\n");       
                             System.err.print( "shininess match failed,\n");
-                            System.err.print( "prev,  current "+ivState.shininess+" "+stateLazyElt.ivState.shininess+"\n");
+                            System.err.print( "prev,  current "+coinstate.shininess+" "+stateLazyElt.coinstate.shininess+"\n");
                         }
 //#endif /*DEBUG*/                                  
                         return (false);
@@ -1704,13 +1320,13 @@ fullLazyMatches(int checkGL, int checkIV,
                     
 
                 case TRANSPARENCY_CASE :                                            
-                    if (ivState.stippleNum != 
-                            stateLazyElt.ivState.stippleNum){                  
+                    if (coinstate.stipplenum !=
+                            stateLazyElt.coinstate.stipplenum){
 //#ifdef DEBUG
                         if (SoDebug.GetEnv("IV_DEBUG_CACHES") != null) {
                             System.err.print( "CACHE DEBUG: cache not valid\n");       
                             System.err.print( "IVstipple match failed,\n");
-                            System.err.print( "prev,  current "+ivState.stippleNum+" "+stateLazyElt.ivState.stippleNum+"\n");
+                            System.err.print( "prev,  current "+coinstate.stipplenum+" "+stateLazyElt.coinstate.stipplenum+"\n");
                         }
 //#endif /*DEBUG*/                        
                         return false;
@@ -1926,39 +1542,28 @@ copyLazyMatchInfo(SoState state)
 // use: SoINTERNAL public
 //
 ////////////////////////////////////////////////////////////////////////////
-public void 
-mergeCacheInfo(SoGLRenderCache childCache, 
-    SoGLRenderCache parentCache, int doSendFlag, int checkIVFlag, 
-    int checkGLFlag)
-{       
-    SoGLLazyElement parentLazyElt = parentCache.getLazyElt();
-    SoGLLazyElement childLazyElt = childCache.getLazyElt();
-    int parentDidRealSendBits = parentLazyElt.GLSendBits;
-    int parentSetBits = ivState.cacheLevelSetBits;
-    int doSend = (~parentDidRealSendBits)& doSendFlag 
-        &(~ivState.cacheLevelSendBits)&(~ivState.cacheLevelSetBits);
-    int checkIV =  checkIVFlag & (~ivState.cacheLevelSetBits);
-    int checkGL = (~parentDidRealSendBits)& checkGLFlag;
-        
-        
-    if (checkGL != 0) 
-        childLazyElt.copyGLValues(checkGL, parentLazyElt);
-    if (checkIV != 0) 
-        childLazyElt.copyIVValues(checkIV, parentLazyElt);  
-    
-    // in addition we must consider the case where the parent cache issued
-    // a set, and the child issued a send which was not a real_send.    
-    int moreGL = (~parentDidRealSendBits)&(parentSetBits)&
-        ( checkGLFlag|doSendFlag );
-    if (moreGL != 0) copyGLValues(moreGL,parentLazyElt);
-    
-    parentCache.setLazyBits
-            (checkIV, checkGL|moreGL, doSend);
-    // merge the child didRealSendBits into parent:
-    parentLazyElt.GLSendBits |= childLazyElt.GLSendBits;
- 
-    
-}       
+
+/*!
+  Merge cache info from a child cache (when doing nested caching)
+  into the current cache.
+*/
+    public static void
+    mergeCacheInfo(SoState state,
+                   GLLazyState childprestate,
+                   GLLazyState childpoststate)
+    {
+        SoGLLazyElement elt = SoGLLazyElement.getInstance(state);
+
+        // just add pre-dependencies from child cache
+        elt.lazyDidntSet(childprestate.cachebitmask);
+
+        // update current element's didsetbitmask
+        elt.lazyDidSet(childpoststate.cachebitmask);
+
+        // also update cachebitmask so that the current cache knows about the changes
+        // done by the child cache
+        elt.cachebitmask |= childpoststate.cachebitmask;
+    }
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -2300,11 +1905,11 @@ copyIVValues(int bitmask,SoGLLazyElement lazyElt)
             switch(cases.fromValue(j)){
                 
                 case LIGHT_MODEL_CASE :
-                    lazyElt.ivState.lightModel = ivState.lightModel;
+                    lazyElt.coinstate.lightmodel = coinstate.lightmodel;
                     break;
                 
                 case COLOR_MATERIAL_CASE :
-                    lazyElt.ivState.colorMaterial = ivState.colorMaterial;
+//                    lazyElt.coinstate.colorMaterial = ivState.colorMaterial;
                     break;
                     
                 case DIFFUSE_CASE :
@@ -2314,24 +1919,24 @@ copyIVValues(int bitmask,SoGLLazyElement lazyElt)
                     
                 case AMBIENT_CASE :
                     for(i=0; i<3; i++)
-                        lazyElt.ivState.ambientColor.operator_square_bracket(i, 
-                            ivState.ambientColor.operator_square_bracket(i));
+                        lazyElt.coinstate.ambient.operator_square_bracket(i,
+                            coinstate.ambient.operator_square_bracket(i));
                     break;
 
                 case EMISSIVE_CASE :
                     for(i=0; i<3; i++)
-                        lazyElt.ivState.emissiveColor.operator_square_bracket(i, 
-                            ivState.emissiveColor.operator_square_bracket(i));
+                        lazyElt.coinstate.emissive.operator_square_bracket(i,
+                            coinstate.emissive.operator_square_bracket(i));
                     break;
 
                 case SPECULAR_CASE :
                     for(i=0; i<3; i++)
-                        lazyElt.ivState.specularColor.operator_square_bracket(i,
-                            ivState.specularColor.operator_square_bracket(i));
+                        lazyElt.coinstate.specular.operator_square_bracket(i,
+                            coinstate.specular.operator_square_bracket(i));
                     break;
 
                 case SHININESS_CASE :
-                    lazyElt.ivState.shininess = ivState.shininess;
+                    lazyElt.coinstate.shininess = coinstate.shininess;
                     break;
                     
                 case BLENDING_CASE :
@@ -2339,7 +1944,7 @@ copyIVValues(int bitmask,SoGLLazyElement lazyElt)
                     break;
 
                 case TRANSPARENCY_CASE :                
-                    lazyElt.ivState.stippleNum = ivState.stippleNum;           
+                    lazyElt.coinstate.stipplenum = coinstate.stipplenum;
                     break;
             }
         }
@@ -2447,9 +2052,44 @@ public void updateColorVBO( SoState state, SoVBO vbo ) // FIXME YB not in synchr
     maxId = coinstate.transpnodeid;
   }
   if (vbo.getDataId()!=maxId) {
-    vbo.setData((int)(ivState.numDiffuseColors * (long)Integer.SIZE/Byte.SIZE), VoidPtr.create(/*Util.toByteBuffer(*/coinstate.packedarray/*)*/), maxId, state);
+    vbo.setData((int)(coinstate.numdiffuse * (long)Integer.SIZE/Byte.SIZE), VoidPtr.create(/*Util.toByteBuffer(*/coinstate.packedarray/*)*/), maxId, state);
   }
 }
+
+    public void
+    updateColorVBO(SoVBO vbo)
+    {
+        if (this.colorpacker != null) {
+        long maxid = this.colorpacker.getDiffuseId();
+        long tid = this.colorpacker.getTranspId();
+        if (tid > maxid) {
+            maxid = tid;
+        }
+        long vboid = vbo.getBufferDataId();
+        if (vboid != maxid) {
+      int n = this.coinstate.numdiffuse;
+            // need to update the VBO
+      int[] src = this.colorpacker.getPackedColors();
+            if (Tidbits.coin_host_get_endianness() == Tidbits.CoinEndiannessValues.COIN_HOST_IS_BIGENDIAN) {
+                vbo.setBufferData(VoidPtr.create(new IntArrayPtr(src)), n * Integer.BYTES/* sizeof(uint32_t)*/,
+                        maxid);
+            }
+            else {
+                IntBuffer dst =
+                vbo.allocBufferData(n * Integer.BYTES/*sizeof(uint32_t)*/,
+                        maxid).toIntBuffer();
+                for (int i = 0; i < n; i++) {
+                    int tmp = src[i];
+                    dst.put(i,
+                            (tmp << 24) |
+                                    ((tmp & 0xff00) << 8) |
+                                    ((tmp & 0xff0000) >>> 8) |
+                                    (tmp >>> 24));
+                }
+            }
+        }
+    }
+    }
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -2492,7 +2132,7 @@ sendDiffuseByIndex(int index)
 	      // this test is really not necessary. SoMaterialBundle does the
 	      // same test.  We also need to send the color here to work around
 	      // an nVIDIA bug
-	      // if (col != this->glstate.diffuse)
+	      // if (col != this.glstate.diffuse)
 	      this.sendPackedDiffuse(col);
 	    }
 	
@@ -2641,8 +2281,49 @@ public static void
        elem.lazyDidntSet(masks.CULLING_MASK.getValue());
      }
    }
-   
-   public void
+
+    public void
+    setDiffuseElt(SoNode node,  int numcolors,
+                               final SbColorArray colors, SoColorPacker packer)
+    {
+        super.setDiffuseElt(node, numcolors, colors, packer);
+        this.colorpacker = packer;
+    }
+
+    public void
+    setPackedElt(SoNode node, int numcolors,
+                 IntArray colors, boolean packedtransparency)
+    {
+        super.setPackedElt(node, numcolors, colors, packedtransparency);
+        this.colorpacker = null;
+        this.packedpointer = new IntArrayPtr(colors);
+    }
+
+    public void
+    setColorIndexElt(SoNode node, int numindices,
+                                  int[] indices)
+    {
+        super.setColorIndexElt(node, numindices, indices);
+    }
+
+    public void
+    setTranspElt(SoNode node, int numtransp,
+                              final FloatMemoryBuffer transp, SoColorPacker packer)
+    {
+        super.setTranspElt(node, numtransp, transp, packer);
+        this.colorpacker = packer;
+    }
+
+
+    public void
+    setTranspTypeElt(int type)
+    {
+        super.setTranspTypeElt(type);
+        this.transpmask = type == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue() ? 0xff : 0x00;
+    }
+
+
+    public void
    sendLightModel( int model)
    {
      if (model == SoLazyElement.LightModel.PHONG.getValue()) gl2.glEnable(GL2.GL_LIGHTING);
