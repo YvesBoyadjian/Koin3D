@@ -74,6 +74,7 @@ public class SoShadowLightCache implements Destroyable {
 	  float nearval;
 	  int texunit;
 	  int lightid;
+	  float precision; // YB : Precision used to compute ShadowLightCache
 
 	  SoSeparator bboxnode; //ptr
 	  SoShaderProgram vsm_program; //ptr
@@ -135,8 +136,9 @@ public class SoShadowLightCache implements Destroyable {
     }
     
     // YB : no more need to have a power of two size in modern opengl
-    
-    int TEXSIZE = /*Tidbits.coin_geq_power_of_two(*/(int) (sg.precision.getValue() * Math.min(maxsize, maxtexsize))/*)*/;
+    precision = sg.precision.getValue();
+
+    int TEXSIZE = /*Tidbits.coin_geq_power_of_two(*/(int) (precision * Math.min(maxsize, maxtexsize))/*)*/;
 
     this.lightid = -1;
     this.vsm_program = null;
@@ -268,6 +270,10 @@ public class SoShadowLightCache implements Destroyable {
 		    if (this.depthmap != null) this.depthmap.unref();
 		    if (this.camera != null) this.camera.unref();
 		  }
+
+		  public float getPrecision() {
+    return precision;
+          }
 
 public void
 createVSMProgram()

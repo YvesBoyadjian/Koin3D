@@ -204,6 +204,17 @@ public class SoShadowGroupP implements Destroyable {
 		    this.shadowlights.truncate(0);
 		  }
 
+	public boolean containsInvalidShadowLights() {
+
+		float masterPrecision = master.precision.getValue();
+
+		for (int i = 0; i < this.shadowlights.getLength(); i++) {
+			if(this.shadowlights.operator_square_bracket(i).getPrecision() != masterPrecision) {
+				return true;
+			}
+		}
+		return false;
+	}
 	  
 	  public static void
 	  shader_enable_cb(Object closure,
@@ -399,7 +410,7 @@ public class SoShadowGroupP implements Destroyable {
 	        SoLight light = (SoLight)((SoFullPath.cast(pl.operator_square_bracket(i)))).getTail();
 	        if (light.on.getValue() && (numlights < maxlights)) numlights++;
 	      }
-	      if (numlights != this.shadowlights.getLength()) {
+	      if (numlights != this.shadowlights.getLength() || containsInvalidShadowLights() ) {
 	        // just delete and recreate all if the number of spot lights have changed
 	        this.deleteShadowLights();
 	        int id = lightidoffset;

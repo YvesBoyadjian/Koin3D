@@ -15,7 +15,9 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
  */
 public class Seals {
 
-	int NB_SEAL_BIRTHS = 4000000;
+	final int FOUR_MILLION = 4000000;
+	final int FIVE_HUNDRED_THOUSAND = 500000;
+	int NB_SEAL_BIRTHS = FIVE_HUNDRED_THOUSAND;
 	
 	final static int SEED_SEAL_PLACEMENT = 48;
 	

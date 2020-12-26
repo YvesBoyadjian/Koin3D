@@ -1339,4 +1339,20 @@ for(int is=0;is<4;is++) {
 	public ChunkArray getChunks() {
 		return chunks;
 	}
+
+	public SoShadowGroup getShadowGroup() {
+		return shadowGroup;
+	}
+
+	public void enableNotifySun() {
+		for( int i=0;i<4;i++) {
+			sun[i].enableNotify(true);
+		}
+	}
+
+	public void disableNotifySun() {
+		for( int i=0;i<4;i++) {
+			sun[i].enableNotify(false);
+		}
+	}
 }

@@ -119,6 +119,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	private boolean fly = false;
 
 	private boolean timeStop = false;
+
+	private Consumer<SoQtWalkViewer> escapeCallback;
 	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
@@ -286,8 +288,13 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  }
 		  if (SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.ESCAPE))
 		  {
-			  onClose();
-			  glfwSetWindowShouldClose(getGLWidget().getWindow(), true);
+		  	if( escapeCallback != null ) {
+		  		escapeCallback.accept(this);
+			}
+		  	else {
+				onClose();
+				glfwSetWindowShouldClose(getGLWidget().getWindow(), true);
+			}
 		    return true;
 		  }
 		  else if (SoKeyboardEvent.SO_KEY_PRESS_EVENT(event, SoKeyboardEvent.Key.W) ||
@@ -618,6 +625,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
 	public void setForceProvider(ForceProvider pp) {
 		this.forceProvider = pp;
+	}
+
+	public void setEscapeCallback(Consumer<SoQtWalkViewer> escapeCallback) {
+    	this.escapeCallback = escapeCallback;
 	}
 
 	// to be redefined

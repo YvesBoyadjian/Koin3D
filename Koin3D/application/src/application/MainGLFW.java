@@ -40,6 +40,7 @@ import javax.swing.JLabel;
 import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 
+import application.gui.OptionDialog;
 import application.viewer.glfw.ForceProvider;
 import application.viewer.glfw.PositionProvider;
 import com.badlogic.gdx.math.Matrix4;
@@ -423,8 +424,6 @@ public class MainGLFW {
 	    gl2.glGetIntegerv(GL2.GL_DEPTH_BITS, depthBits);
 	    
 	    System.out.println("Depth Buffer : "+depthBits[0]);
-	    
-	    window.setVisible(false);
 
 	    // _____________________________________________________ Physics with bullet physics
 	    
@@ -714,7 +713,21 @@ public class MainGLFW {
 			}
 		});
 
+		OptionDialog dialog = new OptionDialog(viewer,sg);
+
+		viewer.setEscapeCallback((viewer2)->{
+			if(!viewer2.isTimeStop()) {
+				viewer2.toggleTimeStop();
+			}
+			viewer2.setVisible(false);
+			dialog.pack();
+			dialog.setLocationRelativeTo(null);
+			dialog.setVisible(true);
+		});
+
 		// _____________________________________________________ Physics with ODE4j (End)
+
+		window.setVisible(false);
 
 		boolean success = viewer.setFocus();
 	    
