@@ -673,7 +673,7 @@ for(int is=0;is<4;is++) {
 	    
 	    douglasSep.addChild(transl);
 	    
-		douglasTreesT = getDouglasTreesT(douglasTreesRefPoint,DOUGLAS_DISTANCE);
+		douglasTreesT = getDouglasTreesT(douglasTreesRefPoint,DOUGLAS_DISTANCE/2);
 		
 	    SoSeparator douglasSepF = new SoSeparator();
 	    douglasSepF.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
@@ -813,7 +813,7 @@ for(int is=0;is<4;is++) {
 	    
 	    douglasSepS.addChild(transl);
 	    
-		douglasTreesST = getDouglasTreesT(douglasTreesSRefPoint,DOUGLAS_DISTANCE_SHADOW);
+		douglasTreesST = getDouglasTreesT(douglasTreesSRefPoint,DOUGLAS_DISTANCE_SHADOW/2);
 		
 		douglasSepS.addChild(douglasTreesST);
 		
@@ -1026,13 +1026,13 @@ for(int is=0;is<4;is++) {
 		
 		if(FLY) {
 			current_z = z;
-			setBBoxCenter();
+			//setBBoxCenter();
 			return current_z;
 		}
 		float newZ = getGroundZ();
 		
 		current_z = newZ;
-		setBBoxCenter();
+		//setBBoxCenter();
 		return current_z;
 	}
 
