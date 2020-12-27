@@ -613,9 +613,11 @@ public class MainGLFW {
 							body1.addForce(0,0,force*mass - 10*body1.getLinearVel().get2()*mass);
 							//if (depth < 0.2) {
 								DVector3 lvDir = body1.getLinearVel().clone();
-								lvDir.normalize();
-								lvDir.scale(-mass*3);
-								body1.addForce(lvDir);
+								if(lvDir.lengthSquared() != 0) {
+									lvDir.normalize();
+									lvDir.scale(-mass * 3);
+									body1.addForce(lvDir);
+								}
 								DVector3 lv = body1.getLinearVel().clone();
 								lv.scale(-mass*0.5);
 								body1.addForce(lv);
@@ -626,9 +628,11 @@ public class MainGLFW {
 							body2.addForce(0,0,force*mass - 10*body2.getLinearVel().get2()*mass);
 							//if (depth < 0.2) {
 								DVector3 lvDir = body2.getLinearVel().clone();
-								lvDir.normalize();
-								lvDir.scale(-mass*3);
-								body2.addForce(lvDir);
+								if(lvDir.lengthSquared() != 0) {
+									lvDir.normalize();
+									lvDir.scale(-mass * 3);
+									body2.addForce(lvDir);
+								}
 								DVector3 lv = body2.getLinearVel().clone();
 								lv.scale(-mass*0.5);
 								body2.addForce(lv);
