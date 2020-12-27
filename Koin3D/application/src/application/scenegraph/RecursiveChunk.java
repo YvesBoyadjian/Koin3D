@@ -116,16 +116,22 @@ public class RecursiveChunk {
 		return Math.abs(x_max - x_min) / getDecimatedChunkWidth(); 
 	}
 
-	public SoNode getGroup(SoTouchLODMaster master, float lodFactor, boolean culling) {
+	public SoNode getGroup(SoTouchLODMaster master, boolean culling) {
 		
 		if(childs.isEmpty()) {
 			return getIndexedFaceSet();
 		}
 		else {
-			SoLOD lod = new SoTouchLOD2(master);
-			lod.center.setValue(getCenter());
 			float deltaX = getDeltaX();
-			lod.range.setValue(ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/lodFactor);
+			SoLOD lod = new SoTouchLOD2(master) {
+
+				@Override
+				public void setLodFactor(float lodFactor) {
+					range.setValue(ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/master.getLodFactor());
+				}
+			};
+			lod.center.setValue(getCenter());
+			lod.range.setValue(ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/master.getLodFactor());
 			SoGroup subChunkGroup = new SoGroup() {
 //				public void notify(SoNotList list) {
 //					super.notify(list);
@@ -138,35 +144,41 @@ public class RecursiveChunk {
 				//subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 			}
 			
-			subChunkGroup.addChild(childs.get(0).getGroup(master, lodFactor,culling));
-			subChunkGroup.addChild(childs.get(1).getGroup(master, lodFactor,culling));
-			subChunkGroup.addChild(childs.get(2).getGroup(master, lodFactor,culling));
-			subChunkGroup.addChild(childs.get(3).getGroup(master, lodFactor,culling));
+			subChunkGroup.addChild(childs.get(0).getGroup(master,culling));
+			subChunkGroup.addChild(childs.get(1).getGroup(master,culling));
+			subChunkGroup.addChild(childs.get(2).getGroup(master,culling));
+			subChunkGroup.addChild(childs.get(3).getGroup(master,culling));
 			lod.addChild(subChunkGroup);
 			lod.addChild(getIndexedFaceSet());
 			return lod;
 		}
 	}
 
-	public SoNode getShadowGroup(SoTouchLODMaster master, float lodFactor, boolean culling) {
+	public SoNode getShadowGroup(SoTouchLODMaster master, boolean culling) {
 		
 		if(childs.isEmpty()) {
 			return getIndexedFaceSet();
 		}
 		else {
-			SoCameraLOD lod = new SoTouchLOD3(master);
-			lod.center.setValue(getCenter());
 			float deltaX = getDeltaX();
-			lod.range.setValue(200 + ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/lodFactor);
+			SoCameraLOD lod = new SoTouchLOD3(master) {
+
+				@Override
+				public void setLodFactor(float lodFactor) {
+					range.setValue(200 + ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/master.getLodFactor());
+				}
+			};
+			lod.center.setValue(getCenter());
+			lod.range.setValue(200 + ChunkArray.DEFINITION * deltaX * 85.0f / /*250.0f*/master.getLodFactor());
 			SoGroup subChunkGroup = new SoGroup();
 			if(culling) {
 				//subChunkGroup.renderCulling.setValue(SoSeparator.CacheEnabled.ON);
 			}
 			
-			subChunkGroup.addChild(childs.get(0).getShadowGroup(master,lodFactor,culling));
-			subChunkGroup.addChild(childs.get(1).getShadowGroup(master,lodFactor,culling));
-			subChunkGroup.addChild(childs.get(2).getShadowGroup(master,lodFactor,culling));
-			subChunkGroup.addChild(childs.get(3).getShadowGroup(master,lodFactor,culling));
+			subChunkGroup.addChild(childs.get(0).getShadowGroup(master,culling));
+			subChunkGroup.addChild(childs.get(1).getShadowGroup(master,culling));
+			subChunkGroup.addChild(childs.get(2).getShadowGroup(master,culling));
+			subChunkGroup.addChild(childs.get(3).getShadowGroup(master,culling));
 			lod.addChild(subChunkGroup);
 			lod.addChild(getIndexedFaceSet());
 			return lod;

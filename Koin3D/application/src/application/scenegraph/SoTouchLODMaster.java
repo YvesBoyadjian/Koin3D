@@ -8,6 +8,9 @@ import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Yves Boyadjian
  *
@@ -23,9 +26,25 @@ public class SoTouchLODMaster extends SoNode {
 	private boolean firstRender = true;
 	
 	private String name;
+
+	private float lodFactor;
+
+	private List<SoTouchLODSlave> slaves = new ArrayList<>();
+
+	public interface SoTouchLODSlave {
+		void setLodFactor(float lodFactor);
+	}
 	
 	public SoTouchLODMaster(String name) {
 		this.name = name;
+	}
+
+	public void register(SoTouchLODSlave slave) {
+		slaves.add(slave);
+	}
+
+	public void unregister(SoTouchLODSlave slave) {
+		slaves.remove(slave);
 	}
 
 	private void reset() {
@@ -63,5 +82,16 @@ public class SoTouchLODMaster extends SoNode {
 
 	public SoCamera getCamera() {
 		return camera;
+	}
+
+	public void setLodFactor(float lodFactor) {
+		this.lodFactor = lodFactor;
+		for(SoTouchLODSlave slave:slaves) {
+			slave.setLodFactor(lodFactor);
+		}
+	}
+
+	public float getLodFactor() {
+		return lodFactor;
 	}
 }

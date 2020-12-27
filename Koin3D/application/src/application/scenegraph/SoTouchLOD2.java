@@ -23,7 +23,7 @@ import jscenegraph.database.inventor.nodes.SoSeparator;
  * @author Yves Boyadjian
  *
  */
-public class SoTouchLOD2 extends SoLOD {
+public abstract class SoTouchLOD2 extends SoLOD implements SoTouchLODMaster.SoTouchLODSlave {
 	
 	public static final int FRONT_DISTANCE = 0;//1000;
 	
@@ -41,6 +41,12 @@ public class SoTouchLOD2 extends SoLOD {
 	
 	public SoTouchLOD2(SoTouchLODMaster master) {
 		this.master = master;
+		master.register(this);
+	}
+
+	public void destructor() {
+		master.unregister(this);
+		super.destructor();
 	}
 	
 //	public static final int MAX_CHANGE = 9999;

@@ -13,6 +13,8 @@ public class OptionDialog extends JDialog {
     private JButton buttonOK;
     private JButton buttonCancel;
     private JSpinner shadowgroupSpinner;
+    private JSpinner spinnerLODFactor;
+    private JSpinner spinnerLODFactorShadow;
     SoQtWalkViewer viewer;
     SceneGraphIndexedFaceSetShader sg;
 
@@ -57,8 +59,10 @@ public class OptionDialog extends JDialog {
         // add your code here
         //dispose();
         setVisible(false);
-        sg.enableNotifySun();
+        //sg.enableNotifySun();
         sg.getShadowGroup().precision.setValue((float)((double)((Double)((SpinnerNumberModel)shadowgroupSpinner.getModel()).getNumber())));
+        sg.setLevelOfDetail((float)((double)((Double)((SpinnerNumberModel)spinnerLODFactor.getModel()).getNumber())));
+        sg.setLevelOfDetailShadow((float)((double)((Double)((SpinnerNumberModel)spinnerLODFactorShadow.getModel()).getNumber())));
         //sg.disableNotifySun();
         if(viewer.isTimeStop()) {
             viewer.toggleTimeStop();
@@ -80,6 +84,8 @@ public class OptionDialog extends JDialog {
     public void setVisible(boolean b) {
         if(b) {
             shadowgroupSpinner.setModel(new SpinnerNumberModel((double)sg.getShadowGroup().precision.getValue(),0.05,1.0,0.05));
+            spinnerLODFactor.setModel(new SpinnerNumberModel((double)sg.getLevelOfDetail(),0.05,2.0,0.05));
+            spinnerLODFactorShadow.setModel(new SpinnerNumberModel((double)sg.getLevelOfDetailShadow(),0.05,2.0,0.05));
         }
         super.setVisible(b);
     }

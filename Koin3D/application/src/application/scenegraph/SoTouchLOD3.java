@@ -13,7 +13,7 @@ import jscenegraph.database.inventor.nodes.SoNode;
  * @author Yves Boyadjian
  *
  */
-public class SoTouchLOD3 extends SoCameraLOD {
+public abstract class SoTouchLOD3 extends SoCameraLOD implements SoTouchLODMaster.SoTouchLODSlave {
 
 	public static final int MOST_DETAILED = 0;
 
@@ -29,6 +29,12 @@ public class SoTouchLOD3 extends SoCameraLOD {
 	
 	public SoTouchLOD3(SoTouchLODMaster master) {
 		this.master = master;
+		master.register(this);
+	}
+
+	public void destructor() {
+		master.unregister(this);
+		super.destructor();
 	}
 	
 	//public static final int MAX_CHANGE = 9999;

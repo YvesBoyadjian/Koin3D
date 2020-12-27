@@ -599,10 +599,12 @@ for(int is=0;is<4;is++) {
 	    RecursiveChunk rc = chunks.getRecursiveChunk();
 	    
 	    master = new SoTouchLODMaster("viewer");
+
+		master.setLodFactor(LEVEL_OF_DETAIL);
 	    
 	    landSep.addChild(master);
 	    
-	    chunkTree = rc.getGroup(master,/*600*/LEVEL_OF_DETAIL,true);
+	    chunkTree = rc.getGroup(master,true);
 	    landSep.addChild(chunkTree);
 	    
 		shadowGroup.addChild(landSep);
@@ -789,10 +791,12 @@ for(int is=0;is<4;is++) {
 	    //RecursiveChunk rcS = chunks.getRecursiveChunk();
 	    
 	    masterS = new SoTouchLODMaster("shadow");
+
+		masterS.setLodFactor(LEVEL_OF_DETAIL_SHADOW);
 	    
 	    shadowLandSep.addChild(masterS);
 	    
-	    shadowTree = rc.getShadowGroup(master/*S*/,LEVEL_OF_DETAIL_SHADOW,false);
+	    shadowTree = rc.getShadowGroup(masterS,false);
 	    shadowLandSep.addChild(shadowTree);
 	    
 	    //shadowLandSep.addChild(chunks.getShadowGroup());
@@ -1322,7 +1326,7 @@ for(int is=0;is<4;is++) {
 	public void setCamera(SoCamera camera) {
 		this.camera = camera;
 	    master.setCamera(camera);	
-	    //masterS.setCamera(camera);
+	    masterS.setCamera(camera);
 		RecursiveChunk.setCamera(chunkTree, camera);
 		RecursiveChunk.setCamera(shadowTree, camera);		
 	}
@@ -1354,5 +1358,23 @@ for(int is=0;is<4;is++) {
 		for( int i=0;i<4;i++) {
 			sun[i].enableNotify(false);
 		}
+	}
+
+	public float getLevelOfDetail() {
+		return LEVEL_OF_DETAIL / master.getLodFactor();
+	}
+
+	public float getLevelOfDetailShadow() {
+		return LEVEL_OF_DETAIL_SHADOW / masterS.getLodFactor();
+	}
+
+	public void setLevelOfDetail(float levelOfDetail) {
+		float lodFactor = LEVEL_OF_DETAIL / levelOfDetail;
+		master.setLodFactor(lodFactor);
+	}
+
+	public void setLevelOfDetailShadow(float levelOfDetailShadow) {
+		float lodFactor = LEVEL_OF_DETAIL_SHADOW / levelOfDetailShadow;
+		masterS.setLodFactor(lodFactor);
 	}
 }
