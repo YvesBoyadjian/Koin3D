@@ -12,9 +12,11 @@ public class OptionDialog extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
-    private JSpinner shadowgroupSpinner;
+    private JSpinner spinnerShadowgroup;
     private JSpinner spinnerLODFactor;
     private JSpinner spinnerLODFactorShadow;
+    private JSpinner spinnerTreeDistance;
+    private JSpinner spinnerTreeShadowDistance;
     SoQtWalkViewer viewer;
     SceneGraphIndexedFaceSetShader sg;
 
@@ -60,9 +62,11 @@ public class OptionDialog extends JDialog {
         //dispose();
         setVisible(false);
         //sg.enableNotifySun();
-        sg.getShadowGroup().precision.setValue((float)((double)((Double)((SpinnerNumberModel)shadowgroupSpinner.getModel()).getNumber())));
+        sg.getShadowGroup().precision.setValue((float)((double)((Double)((SpinnerNumberModel) spinnerShadowgroup.getModel()).getNumber())));
         sg.setLevelOfDetail((float)((double)((Double)((SpinnerNumberModel)spinnerLODFactor.getModel()).getNumber())));
         sg.setLevelOfDetailShadow((float)((double)((Double)((SpinnerNumberModel)spinnerLODFactorShadow.getModel()).getNumber())));
+        sg.setTreeDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeDistance.getModel()).getNumber())));
+        sg.setTreeShadowDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeShadowDistance.getModel()).getNumber())));
         //sg.disableNotifySun();
         if(viewer.isTimeStop()) {
             viewer.toggleTimeStop();
@@ -83,9 +87,11 @@ public class OptionDialog extends JDialog {
 
     public void setVisible(boolean b) {
         if(b) {
-            shadowgroupSpinner.setModel(new SpinnerNumberModel((double)sg.getShadowGroup().precision.getValue(),0.05,1.0,0.05));
+            spinnerShadowgroup.setModel(new SpinnerNumberModel((double)sg.getShadowGroup().precision.getValue(),0.05,1.0,0.05));
             spinnerLODFactor.setModel(new SpinnerNumberModel((double)sg.getLevelOfDetail(),0.05,2.0,0.05));
             spinnerLODFactorShadow.setModel(new SpinnerNumberModel((double)sg.getLevelOfDetailShadow(),0.05,2.0,0.05));
+            spinnerTreeDistance.setModel(new SpinnerNumberModel((double)sg.getTreeDistance(),500,30000,500));
+            spinnerTreeShadowDistance.setModel(new SpinnerNumberModel((double)sg.getTreeShadowDistance(),500,30000,500));
         }
         super.setVisible(b);
     }

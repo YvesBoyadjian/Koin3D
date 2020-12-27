@@ -16,7 +16,7 @@ public class SoLODGroup extends SoGroup {
 
 	public final SbVec3f referencePoint = new SbVec3f();
 	
-	public float maxDistance;
+	public float[] maxDistance;
 	
 	public final SbBox3f box = new SbBox3f();
 	
@@ -33,7 +33,7 @@ public class SoLODGroup extends SoGroup {
 		else {
 			SbVec3f closestPoint = box.getClosestExternalPoint(referencePoint);
 			
-			if( closestPoint.operator_minus(referencePoint,dummy).length() <= maxDistance ) {
+			if( closestPoint.operator_minus(referencePoint,dummy).length() <= maxDistance[0] ) {
 				cleared = false;
 				super.GLRender(action);				
 			}

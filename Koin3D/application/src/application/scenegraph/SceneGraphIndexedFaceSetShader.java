@@ -116,7 +116,15 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	static final int DOUGLAS_DISTANCE_SHADOW = 3000;
 	
 	static final boolean WITH_DOUGLAS = true;
-	
+
+	private final float[] douglas_distance_trunk = new float[1];
+
+	private final float[] douglas_distance_foliage = new float[1];
+
+	private final float[] douglas_distance_shadow_trunk = new float[1];
+
+	private final float[] douglas_distance_shadow_foliage = new float[1];
+
 	private SoSeparator sep = new SoSeparator() {
 		public void ref() {
 			super.ref();
@@ -672,15 +680,19 @@ for(int is=0;is<4;is++) {
 	    
 	    
 	    douglasSep.addChild(transl);
+
+	    douglas_distance_trunk[0] = DOUGLAS_DISTANCE/2;
 	    
-		douglasTreesT = getDouglasTreesT(douglasTreesRefPoint,DOUGLAS_DISTANCE/2);
+		douglasTreesT = getDouglasTreesT(douglasTreesRefPoint,douglas_distance_trunk);
 		
 	    SoSeparator douglasSepF = new SoSeparator();
 	    douglasSepF.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    
 		douglasSep.addChild(douglasTreesT);
+
+		douglas_distance_foliage[0] = DOUGLAS_DISTANCE;
 		
-		douglasTreesF = getDouglasTreesF(douglasTreesRefPoint,DOUGLAS_DISTANCE,true);
+		douglasTreesF = getDouglasTreesF(douglasTreesRefPoint,douglas_distance_foliage,true);
 		
 	    douglasSepF.addChild(douglasTexture);
 	    
@@ -812,12 +824,16 @@ for(int is=0;is<4;is++) {
 	    douglasSepS.addChild(shapeHints);
 	    
 	    douglasSepS.addChild(transl);
+
+		douglas_distance_shadow_trunk[0] = DOUGLAS_DISTANCE_SHADOW/2;
 	    
-		douglasTreesST = getDouglasTreesT(douglasTreesSRefPoint,DOUGLAS_DISTANCE_SHADOW/2);
+		douglasTreesST = getDouglasTreesT(douglasTreesSRefPoint,douglas_distance_shadow_trunk);
 		
 		douglasSepS.addChild(douglasTreesST);
+
+		douglas_distance_shadow_foliage[0] = DOUGLAS_DISTANCE_SHADOW;
 		
-		douglasTreesSF = getDouglasTreesF(douglasTreesSRefPoint,DOUGLAS_DISTANCE_SHADOW, false);
+		douglasTreesSF = getDouglasTreesF(douglasTreesSRefPoint,douglas_distance_shadow_foliage, false);
 		
 		douglasSepS.addChild(douglasTreesSF);
 		
@@ -1064,8 +1080,8 @@ for(int is=0;is<4;is++) {
 		
 		float zTransl = - transl.translation.getValue().getZ();
 		
-		float trees_x = current_x + xTransl+DOUGLAS_DISTANCE*0.4f/*3000*/*world_camera_direction.getX();
-		float trees_y = current_y + yTransl+DOUGLAS_DISTANCE*0.4f/*3000*/*world_camera_direction.getY();
+		float trees_x = current_x + xTransl+douglas_distance_foliage[0]*0.4f/*3000*/*world_camera_direction.getX();
+		float trees_y = current_y + yTransl+douglas_distance_foliage[0]*0.4f/*3000*/*world_camera_direction.getY();
 		
 		douglasTreesRefPoint.setValue(trees_x,trees_y,current_z + zTransl);
 		
@@ -1093,8 +1109,8 @@ for(int is=0;is<4;is++) {
 //			}
 		}
 				
-		float treesS_x = current_x + xTransl+DOUGLAS_DISTANCE_SHADOW*0.3f/*1000*/*world_camera_direction.getX();
-		float treesS_y = current_y + yTransl+DOUGLAS_DISTANCE_SHADOW*0.3f/*1000*/*world_camera_direction.getY();
+		float treesS_x = current_x + xTransl+douglas_distance_shadow_foliage[0]*0.3f/*1000*/*world_camera_direction.getX();
+		float treesS_y = current_y + yTransl+douglas_distance_shadow_foliage[0]*0.3f/*1000*/*world_camera_direction.getY();
 		
 		douglasTreesSRefPoint.setValue(treesS_x,treesS_y,current_z + zTransl);
 		
@@ -1285,7 +1301,7 @@ for(int is=0;is<4;is++) {
 		
 	}
 		
-	SoGroup getDouglasTreesT(SbVec3f refPoint, float distance) {
+	SoGroup getDouglasTreesT(SbVec3f refPoint, final float[] distance) {
 		
 		if( forest == null) {
 			computeDouglas();
@@ -1294,7 +1310,7 @@ for(int is=0;is<4;is++) {
 		return forest.getDouglasTreesT(refPoint, distance);			
 	}	
 	
-	SoGroup getDouglasTreesF(SbVec3f refPoint, float distance, boolean withColors) {
+	SoGroup getDouglasTreesF(SbVec3f refPoint, final float[] distance, boolean withColors) {
 		
 		if( forest == null) {
 			computeDouglas();
@@ -1376,5 +1392,23 @@ for(int is=0;is<4;is++) {
 	public void setLevelOfDetailShadow(float levelOfDetailShadow) {
 		float lodFactor = LEVEL_OF_DETAIL_SHADOW / levelOfDetailShadow;
 		masterS.setLodFactor(lodFactor);
+	}
+
+	public void setTreeDistance(float treeDistance) {
+		douglas_distance_trunk[0] = treeDistance/2;
+		douglas_distance_foliage[0] = treeDistance;
+	}
+
+	public void setTreeShadowDistance(float treeShadowDistance) {
+		douglas_distance_shadow_trunk[0] = treeShadowDistance/2;
+		douglas_distance_shadow_foliage[0] = treeShadowDistance;
+	}
+
+	public float getTreeDistance() {
+		return douglas_distance_foliage[0];
+	}
+
+	public float getTreeShadowDistance() {
+		return douglas_distance_shadow_foliage[0];
 	}
 }

@@ -25,7 +25,7 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 
 	private final SbVec3f referencePoint;
 	
-	public float maxDistance;
+	public float[] maxDistance;
 	
 	private final SbBox3f box = new SbBox3f();
 	
@@ -58,7 +58,7 @@ public class SoLODIndexedFaceSet extends SoIndexedFaceSet {
 		else {
 			SbVec3f closestPoint = box.getClosestExternalPoint(referencePoint);
 			
-			if( closestPoint.operator_minus(referencePoint,dummy).length() <= maxDistance ) {
+			if( closestPoint.operator_minus(referencePoint,dummy).length() <= maxDistance[0] ) {
 				load();
 				super.GLRender(action);				
 			}
