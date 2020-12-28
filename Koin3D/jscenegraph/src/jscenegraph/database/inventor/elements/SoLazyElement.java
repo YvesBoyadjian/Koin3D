@@ -1331,59 +1331,59 @@ setShininess(SoState state, float value)
 // use:  public, SoEXTERNAL, static
 //
 ///////////////////////////////////////////////////////////////////////  
-public static void    
-setMaterials(SoState state,  SoNode node, 
-    int bitmask, SoColorPacker cPacker,  
-    final SoMFColor diffuse, final SoMFFloat transp, final SoMFColor ambient,
-    final SoMFColor emissive, final SoMFColor specular, 
-    final SoMFFloat shininess)
-{
-	  if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
-		    SoGLVBOElement.setColorVBO(state, null);
-		  }
-    int realSet = 0;    
-    SoLazyElement curElt = SoLazyElement.getInstance(state);
-    
-    // If we are setting transparency and not diffuse, or vice-versa,
-    // then there is a get-dependence:
-    if(state.isCacheOpen()){
-        int tempMask = bitmask & (masks.DIFFUSE_MASK.getValue() | masks.TRANSPARENCY_MASK.getValue());
-        if (tempMask != 0 && tempMask != (masks.DIFFUSE_MASK.getValue() | masks.TRANSPARENCY_MASK.getValue()))
-            curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
-    }
-    // build a mask (realSet) indicating what really will be set in the state:
-    if ((bitmask & masks.EMISSIVE_MASK.getValue()) != 0 &&(emissive.operator_square_bracket(0).operator_not_equal(curElt.coinstate.emissive)))
-        realSet |= masks.EMISSIVE_MASK.getValue();
-    if ((bitmask & masks.SPECULAR_MASK.getValue()) != 0 &&(specular.operator_square_bracket(0).operator_not_equal(curElt.coinstate.specular)))
-        realSet |= masks.SPECULAR_MASK.getValue(); 
-    if ((bitmask & masks.AMBIENT_MASK.getValue()) != 0 &&(ambient.operator_square_bracket(0).operator_not_equal(curElt.coinstate.ambient)))
-        realSet |= masks.AMBIENT_MASK.getValue();
-    if ((bitmask & masks.SHININESS_MASK.getValue()) != 0 &&
-            Math.abs(shininess.operator_square_bracket(0) - curElt.coinstate.shininess)>
-            SO_LAZY_SHINY_THRESHOLD) realSet |= masks.SHININESS_MASK.getValue();
-            
-    long nodeId = node.getNodeId();
-    if ((bitmask & masks.DIFFUSE_MASK.getValue()) != 0 && 
-        nodeId != curElt.coinstate.diffusenodeid) realSet |= masks.DIFFUSE_MASK.getValue();
-
-    //For transparency nodeid, opaque nodes are identified as nodeId = 0:       
-    if(transp.getNum() == 1 && transp.operator_square_bracket(0) == 0.0) nodeId = 0;
-    
-    if (/*curElt.ivState.transpNodeId*/curElt.coinstate.transpnodeid != nodeId && (bitmask & masks.TRANSPARENCY_MASK.getValue()) != 0)  
-        realSet |= masks.TRANSPARENCY_MASK.getValue();
-        
-    if (realSet != 0){ 
-        curElt = getWInstance(state);
-        curElt.setMaterialElt(node, realSet, cPacker,  
-            diffuse, transp, ambient, emissive, specular, shininess);
-    }
-    //Indicate redundant set for colors that matched the one in the state:
-    if (state.isCacheOpen()){ 
-        int notRealSet = bitmask & (~realSet);
-        if(notRealSet != 0) curElt.registerRedundantSet(state, notRealSet);
-    }  
-    
-}
+//public static void
+//setMaterials(SoState state,  SoNode node,
+//    int bitmask, SoColorPacker cPacker,
+//    final SoMFColor diffuse, final SoMFFloat transp, final SoMFColor ambient,
+//    final SoMFColor emissive, final SoMFColor specular,
+//    final SoMFFloat shininess)
+//{
+//	  if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) { // COIN 3D
+//		    SoGLVBOElement.setColorVBO(state, null);
+//		  }
+//    int realSet = 0;
+//    SoLazyElement curElt = SoLazyElement.getInstance(state);
+//
+//    // If we are setting transparency and not diffuse, or vice-versa,
+//    // then there is a get-dependence:
+//    if(state.isCacheOpen()){
+//        int tempMask = bitmask & (masks.DIFFUSE_MASK.getValue() | masks.TRANSPARENCY_MASK.getValue());
+//        if (tempMask != 0 && tempMask != (masks.DIFFUSE_MASK.getValue() | masks.TRANSPARENCY_MASK.getValue()))
+//            curElt.registerGetDependence(state, masks.DIFFUSE_MASK.getValue());
+//    }
+//    // build a mask (realSet) indicating what really will be set in the state:
+//    if ((bitmask & masks.EMISSIVE_MASK.getValue()) != 0 &&(emissive.operator_square_bracket(0).operator_not_equal(curElt.coinstate.emissive)))
+//        realSet |= masks.EMISSIVE_MASK.getValue();
+//    if ((bitmask & masks.SPECULAR_MASK.getValue()) != 0 &&(specular.operator_square_bracket(0).operator_not_equal(curElt.coinstate.specular)))
+//        realSet |= masks.SPECULAR_MASK.getValue();
+//    if ((bitmask & masks.AMBIENT_MASK.getValue()) != 0 &&(ambient.operator_square_bracket(0).operator_not_equal(curElt.coinstate.ambient)))
+//        realSet |= masks.AMBIENT_MASK.getValue();
+//    if ((bitmask & masks.SHININESS_MASK.getValue()) != 0 &&
+//            Math.abs(shininess.operator_square_bracket(0) - curElt.coinstate.shininess)>
+//            SO_LAZY_SHINY_THRESHOLD) realSet |= masks.SHININESS_MASK.getValue();
+//
+//    long nodeId = node.getNodeId();
+//    if ((bitmask & masks.DIFFUSE_MASK.getValue()) != 0 &&
+//        nodeId != curElt.coinstate.diffusenodeid) realSet |= masks.DIFFUSE_MASK.getValue();
+//
+//    //For transparency nodeid, opaque nodes are identified as nodeId = 0:
+//    if(transp.getNum() == 1 && transp.operator_square_bracket(0) == 0.0) nodeId = 0;
+//
+//    if (/*curElt.ivState.transpNodeId*/curElt.coinstate.transpnodeid != nodeId && (bitmask & masks.TRANSPARENCY_MASK.getValue()) != 0)
+//        realSet |= masks.TRANSPARENCY_MASK.getValue();
+//
+//    if (realSet != 0){
+//        curElt = getWInstance(state);
+//        curElt.setMaterialElt(node, realSet, cPacker,
+//            diffuse, transp, ambient, emissive, specular, shininess);
+//    }
+//    //Indicate redundant set for colors that matched the one in the state:
+//    if (state.isCacheOpen()){
+//        int notRealSet = bitmask & (~realSet);
+//        if(notRealSet != 0) curElt.registerRedundantSet(state, notRealSet);
+//    }
+//
+//}
 
 public static void // COIN 3D
 setMaterials(SoState state, SoNode node, int bitmask,
@@ -1644,43 +1644,43 @@ setShininessElt(float value )
 // Use: protected
 ////////////////////////////////////////////////////////////////////////
 
-public void
-setMaterialElt(SoNode node, int mask, SoColorPacker packer,  
-    final SoMFColor diffuse, final SoMFFloat transp, 
-    final SoMFColor ambient, final SoMFColor emissive, 
-    final SoMFColor specular, final SoMFFloat shininess)
-{
-    if ((mask & masks.DIFFUSE_MASK.getValue()) != 0){
-    	coinstate.diffusenodeid = node.getNodeId();
-        coinstate.diffusearray = diffuse.getValuesSbColorArray();
-        coinstate.numdiffuse = diffuse.getNum();
-        coinstate.packeddiffuse=false;
-        //ivState.packedTransparent = false;
-    }
-    if ((mask & masks.TRANSPARENCY_MASK.getValue()) != 0){
-        coinstate.numtransp = transp.getNum();
-        coinstate.transparray = transp.getValues(0);
-        coinstate.stipplenum = 0;
-        if ((coinstate.transparray.get(0)> 0.0) &&
-                (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue())) {
-            coinstate.stipplenum =
-                (int)(coinstate.transparray.get(0)*getNumPatterns());
-        }
-        coinstate.packeddiffuse=false;
-        //ivState.packedTransparent = false;
-    }
-    if ((mask & masks.AMBIENT_MASK.getValue())!=0)
-        coinstate.ambient.copyFrom(ambient.operator_square_bracket(0));
-    
-    if ((mask & masks.EMISSIVE_MASK.getValue())!=0)
-        coinstate.emissive.copyFrom(emissive.operator_square_bracket(0));
-        
-    if ((mask & masks.SPECULAR_MASK.getValue())!=0)
-        coinstate.specular.copyFrom(specular.operator_square_bracket(0));
-    
-    if ((mask & masks.SHININESS_MASK.getValue())!=0)
-        coinstate.shininess = shininess.operator_square_bracket(0);
-}
+//public void
+//setMaterialElt(SoNode node, int mask, SoColorPacker packer,
+//    final SoMFColor diffuse, final SoMFFloat transp,
+//    final SoMFColor ambient, final SoMFColor emissive,
+//    final SoMFColor specular, final SoMFFloat shininess)
+//{
+//    if ((mask & masks.DIFFUSE_MASK.getValue()) != 0){
+//    	coinstate.diffusenodeid = node.getNodeId();
+//        coinstate.diffusearray = diffuse.getValuesSbColorArray();
+//        coinstate.numdiffuse = diffuse.getNum();
+//        coinstate.packeddiffuse=false;
+//        //ivState.packedTransparent = false;
+//    }
+//    if ((mask & masks.TRANSPARENCY_MASK.getValue()) != 0){
+//        coinstate.numtransp = transp.getNum();
+//        coinstate.transparray = transp.getValues(0);
+//        coinstate.stipplenum = 0;
+//        if ((coinstate.transparray.get(0)> 0.0) &&
+//                (coinstate.transptype == SoGLRenderAction.TransparencyType.SCREEN_DOOR.getValue())) {
+//            coinstate.stipplenum =
+//                (int)(coinstate.transparray.get(0)*getNumPatterns());
+//        }
+//        coinstate.packeddiffuse=false;
+//        //ivState.packedTransparent = false;
+//    }
+//    if ((mask & masks.AMBIENT_MASK.getValue())!=0)
+//        coinstate.ambient.copyFrom(ambient.operator_square_bracket(0));
+//
+//    if ((mask & masks.EMISSIVE_MASK.getValue())!=0)
+//        coinstate.emissive.copyFrom(emissive.operator_square_bracket(0));
+//
+//    if ((mask & masks.SPECULAR_MASK.getValue())!=0)
+//        coinstate.specular.copyFrom(specular.operator_square_bracket(0));
+//
+//    if ((mask & masks.SHININESS_MASK.getValue())!=0)
+//        coinstate.shininess = shininess.operator_square_bracket(0);
+//}
 
 public void // COIN 3D
 setMaterialElt(SoNode node, int bitmask,
