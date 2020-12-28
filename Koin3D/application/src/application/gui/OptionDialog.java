@@ -17,6 +17,7 @@ public class OptionDialog extends JDialog {
     private JSpinner spinnerLODFactorShadow;
     private JSpinner spinnerTreeDistance;
     private JSpinner spinnerTreeShadowDistance;
+    private JCheckBox onCheckBox;
     SoQtWalkViewer viewer;
     SceneGraphIndexedFaceSetShader sg;
 
@@ -67,6 +68,7 @@ public class OptionDialog extends JDialog {
         sg.setLevelOfDetailShadow((float)((double)((Double)((SpinnerNumberModel)spinnerLODFactorShadow.getModel()).getNumber())));
         sg.setTreeDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeDistance.getModel()).getNumber())));
         sg.setTreeShadowDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeShadowDistance.getModel()).getNumber())));
+        sg.getShadowGroup().isVolumetricActive.setValue(onCheckBox.getModel().isSelected());
         //sg.disableNotifySun();
         if(viewer.isTimeStop()) {
             viewer.toggleTimeStop();
@@ -92,6 +94,7 @@ public class OptionDialog extends JDialog {
             spinnerLODFactorShadow.setModel(new SpinnerNumberModel((double)sg.getLevelOfDetailShadow(),0.05,2.0,0.05));
             spinnerTreeDistance.setModel(new SpinnerNumberModel((double)sg.getTreeDistance(),500,30000,500));
             spinnerTreeShadowDistance.setModel(new SpinnerNumberModel((double)sg.getTreeShadowDistance(),500,30000,500));
+            onCheckBox.getModel().setSelected(sg.getShadowGroup().isVolumetricActive.getValue());
         }
         super.setVisible(b);
     }

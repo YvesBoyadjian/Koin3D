@@ -173,7 +173,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	int jstart;
 	
-	SoShadowGroup shadowGroup;
+	SoVolumetricShadowGroup shadowGroup;
 	SoNode shadowTree;
 	SoNode chunkTree;
 	SoCamera camera;
@@ -1360,7 +1360,7 @@ for(int is=0;is<4;is++) {
 		return chunks;
 	}
 
-	public SoShadowGroup getShadowGroup() {
+	public SoVolumetricShadowGroup getShadowGroup() {
 		return shadowGroup;
 	}
 

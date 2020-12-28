@@ -5,11 +5,20 @@ import jscenegraph.coin3d.inventor.misc.SoShaderGenerator;
 
 public class SoVolumetricShadowGroupP extends SoShadowGroupP {
 
-    public SoVolumetricShadowGroupP(SoShadowGroup master) {
+    public SoVolumetricShadowGroupP(SoVolumetricShadowGroup master) {
         super(master);
     }
 
+    private SoVolumetricShadowGroup getMaster() {
+        return (SoVolumetricShadowGroup)master;
+    }
+
     protected void startFragmentShader(SoShaderGenerator gen) {
+
+        if(!getMaster().isVolumetricActive.getValue()) {
+            return;
+        }
+
         int numshadowlights = this.shadowlights.getLength();
 
         if (numshadowlights != 0) {
@@ -32,6 +41,10 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
     }
 
     protected void endShadowLight(SoShaderGenerator gen,int index) {
+
+        if(!getMaster().isVolumetricActive.getValue()) {
+            return;
+        }
         gen.addMainStatement("sunDirection = normalize(vec3(gl_LightSource["+index+"].position));");
         gen.addMainStatement("g_SunColor = gl_LightSource["+index+"].diffuse.rgb;");
         //gen.addMainStatement("g_ShadowViewProjectionMatrix = ;");
@@ -52,6 +65,12 @@ public class SoVolumetricShadowGroupP extends SoShadowGroupP {
     }
 
     protected void endFragmentShader(SoShaderGenerator gen, SoEnvironmentElement.FogType fogType) {
+
+        if(!getMaster().isVolumetricActive.getValue()) {
+            super.endFragmentShader(gen,fogType);
+            return;
+        }
+
         switch (fogType) {
             case NONE:
                 break;

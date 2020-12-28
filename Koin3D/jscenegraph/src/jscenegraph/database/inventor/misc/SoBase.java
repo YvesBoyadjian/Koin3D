@@ -59,6 +59,7 @@ package jscenegraph.database.inventor.misc;
 
 import jscenegraph.coin3d.inventor.misc.SoProto;
 import jscenegraph.coin3d.inventor.misc.SoProtoInstance;
+import jscenegraph.coin3d.threads.Mutex;
 import jscenegraph.database.inventor.SbDict;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbPList;
@@ -79,6 +80,9 @@ import jscenegraph.database.inventor.sensors.SoDataSensor;
 import jscenegraph.port.CString;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Util;
+
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,6 +155,8 @@ public abstract class SoBase implements Destroyable {
 	
 	// This speed up reading a little:
 	private static SbName globalFieldName;
+
+	private static final Lock global_mutex = new ReentrantLock(true);
 
 	// Setup type information. 
 	 ////////////////////////////////////////////////////////////////////////
@@ -1364,7 +1370,7 @@ public static boolean readRoute(SoInput in)
 public static void
 staticDataLock()
 {
-  //CC_MUTEX_LOCK(SoBase.PImpl.global_mutex); TODO
+  Mutex.cc_mutex_lock(/*SoBase.PImpl.*/global_mutex);
 }
 
 /*!
@@ -1374,7 +1380,7 @@ staticDataLock()
 public static void
 staticDataUnlock()
 {
-  //CC_MUTEX_UNLOCK(SoBase.PImpl.global_mutex); TODO
+  Mutex.cc_mutex_unlock(/*SoBase.PImpl.*/global_mutex);
 }
 
 	

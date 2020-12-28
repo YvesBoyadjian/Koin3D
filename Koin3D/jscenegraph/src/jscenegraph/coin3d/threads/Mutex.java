@@ -13,14 +13,14 @@ public class Mutex {
 
 
 /*! Locks the \a mutex specified. */
-static void
+public static void
 cc_mutex_lock(/*cc_mutex*/Lock mutex)
 {
 	mutex.lock();
 }
 /*! Unlocks the specified \a mutex.*/
 
-static void
+public static void
 cc_mutex_unlock(/*cc_mutex **/ Lock mutex)
 {
 	mutex.unlock();
