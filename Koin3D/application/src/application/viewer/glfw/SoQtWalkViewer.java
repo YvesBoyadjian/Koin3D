@@ -544,7 +544,11 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	
 	long lastFrameTime = -100;
 	
-	final static int NB_FRAMES = 100;
+	final static int NB_FRAMES = 120;
+
+	final static double FPS_FREQUENCY_SEC = 1.0;
+
+	float fps;
 
     protected void paintGL(GL2 gl2) {
     	
@@ -554,20 +558,24 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	if(lastFrameTime < 0) {
     		lastFrameTime++;
     	}
-    	if(lastFrameTime == 0) {
+    	else if(lastFrameTime == 0) {
     		lastFrameTime = System.nanoTime();
     	}
-    	if(lastFrameTime > 0) {
+    	else {
     		nbFrames++;
     	}
-    	if(nbFrames == NB_FRAMES) {
-    		long newFrameTime = System.nanoTime();
-    		float fps = 1.0e9f/(newFrameTime - lastFrameTime)*NB_FRAMES;
+		long newFrameTime = System.nanoTime();
+    	if(nbFrames == NB_FRAMES || (newFrameTime - lastFrameTime) > FPS_FREQUENCY_SEC*1e9 ) {
+    		fps = 1.0e9f/(newFrameTime - lastFrameTime)*nbFrames;
     		//System.out.println("fps = "+fps);
     		nbFrames = 0;
     		lastFrameTime = newFrameTime;
     	}
     }
+
+    public float getFPS() {
+    	return fps;
+	}
     
 //    public void actualRedraw()
 //    {
@@ -598,7 +606,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 //	private long lastTime = Instant.now().toEpochMilli();
 
 //    public void swapBuffers() {
-//    	
+//
 //    	long present = Instant.now().toEpochMilli();
 //    	long deltaMilli = present - lastTime;
 //    	long deltaMinMilli = 1000 / (int)MAX_FPS;
@@ -610,7 +618,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 //				e.printStackTrace();
 //			}
 //    	}
-//    	
+//
 //    	lastTime = Instant.now().toEpochMilli();
 //    	super.swapBuffers();
 //    }

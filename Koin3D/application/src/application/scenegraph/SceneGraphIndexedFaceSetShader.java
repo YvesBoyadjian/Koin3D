@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -45,23 +46,7 @@ import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.misc.SoNotList;
-import jscenegraph.database.inventor.nodes.SoCallback;
-import jscenegraph.database.inventor.nodes.SoCamera;
-import jscenegraph.database.inventor.nodes.SoCube;
-import jscenegraph.database.inventor.nodes.SoDirectionalLight;
-import jscenegraph.database.inventor.nodes.SoEnvironment;
-import jscenegraph.database.inventor.nodes.SoGroup;
-import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
-import jscenegraph.database.inventor.nodes.SoLight;
-import jscenegraph.database.inventor.nodes.SoMaterial;
-import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.database.inventor.nodes.SoPerspectiveCamera;
-import jscenegraph.database.inventor.nodes.SoPickStyle;
-import jscenegraph.database.inventor.nodes.SoQuadMesh;
-import jscenegraph.database.inventor.nodes.SoSeparator;
-import jscenegraph.database.inventor.nodes.SoShapeHints;
-import jscenegraph.database.inventor.nodes.SoSphere;
-import jscenegraph.database.inventor.nodes.SoTranslation;
+import jscenegraph.database.inventor.nodes.*;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
 
@@ -208,6 +193,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	final float[] fArray = new float[1];
 
 	float delta = 0;
+
+	final SoSwitch fpsSwitch = new SoSwitch();
+
+	final SoText2 fpsDisplay = new SoText2();
 
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
 		super();
@@ -396,7 +385,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		}
 		
 		chunks.initIndexedFaceSets();
-		
+
+		sep.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
+
+		sep.addChild(new SoPerspectiveCamera());
+
 	    SoCallback callback = new SoCallback();
 	    
 	    callback.setCallback(action -> {
@@ -408,7 +401,6 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    	}
 	    });
 	    
-	    sep.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	    sep.addChild(callback);
 	    
 	    //sep.addChild(new SoAbort());
@@ -539,7 +531,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    shadowGroup.epsilon.setValue(3.0e-6f);
 	    shadowGroup.smoothBorder.setValue(1.0f);
 	    
-for(int is=0;is<4;is++) {	    
+	for(int is=0;is<4;is++) {
 	    sun[is] = new SoShadowDirectionalLight();
 	    //sun = new SoDirectionalLight();
 	    sun[is].color.setValue(SUN_COLOR);
@@ -552,7 +544,7 @@ for(int is=0;is<4;is++) {
 	    
 	    shadowGroup.addChild(sun[is]);
 	    sun[is].enableNotify(false); // In order not to recompute shaders
-}
+	}
 
 	skySep.addChild(transl);
 
@@ -847,6 +839,37 @@ for(int is=0;is<4;is++) {
 		
 		//sep.ref();
 		forest = null; // for garbage collection
+
+		SoSeparator billboardSeparator = new SoSeparator();
+
+		SoOrthographicCamera billboardCamera = new SoOrthographicCamera();
+
+		billboardSeparator.addChild(billboardCamera);
+
+		SoTranslation textTransl = new SoTranslation();
+		textTransl.translation.setValue(1,0.9f,0);
+
+		billboardSeparator.addChild(textTransl);
+
+		SoFont font = new SoFont();
+		font.size.setValue(40.0f);
+
+		billboardSeparator.addChild(font);
+
+		SoBaseColor color = new SoBaseColor();
+
+		color.rgb.setValue(0,0,0);
+
+		billboardSeparator.addChild(color);
+
+		fpsDisplay.string.setValue("60.0 FPS");
+		fpsDisplay.enableNotify(false);
+
+		billboardSeparator.addChild(fpsDisplay);
+
+		fpsSwitch.addChild(billboardSeparator);
+		fpsSwitch.whichChild.setValue(SoSwitch.SO_SWITCH_NONE);
+		sep.addChild(fpsSwitch);
 	}
 
 	public float getZ(int i, int j) {
@@ -1410,5 +1433,24 @@ for(int is=0;is<4;is++) {
 
 	public float getTreeShadowDistance() {
 		return douglas_distance_shadow_foliage[0];
+	}
+
+	public void setFPS(float fps) {
+		if( fpsSwitch.whichChild.getValue() == SoSwitch.SO_SWITCH_NONE) {
+			return; // FPS disabled
+		}
+
+		String str = String.format("%.1f", fps);
+		//if (!Objects.equals(fpsDisplay.string.getValueAt(0),str)) { // Better foster frame regularity
+			fpsDisplay.string.setValue(str);
+		//}
+	}
+
+	public void enableFPS(boolean enable) {
+		fpsSwitch.whichChild.setValue(enable ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
+	}
+
+	public boolean isFPSEnabled() {
+		return fpsSwitch.whichChild.getValue() == SoSwitch.SO_SWITCH_ALL;
 	}
 }

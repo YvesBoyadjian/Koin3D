@@ -731,6 +731,11 @@ public class MainGLFW {
 
 		// _____________________________________________________ Physics with ODE4j (End)
 
+		viewer.addIdleListener((viewer1)->{
+					sg.setFPS(viewer1.getFPS());
+				}
+		);
+
 		window.setVisible(false);
 
 		boolean success = viewer.setFocus();
