@@ -293,4 +293,21 @@ public boolean              isColorOnly()      { return colorOnly; }
 
 
 
+//
+// private method. Stores info and element pointers.
+//
+//    public void setupElements(final boolean isbetweenbeginend) COIN3D
+//    {
+//        this.lazyElt = (SoGLLazyElement)(SoLazyElement.getInstance(this.state));
+//        this.currindex = 0;
+//
+//        if (isbetweenbeginend || (this.coloronly & FLAG_COLORONLY)) {
+//        this.lazyElt.send(this.state, SoLazyElement.internalMasks.DIFFUSE_ONLY_MASK.getValue());
+//    }
+//  else {
+//        this.lazyElt.send(this.state, SoLazyElement.masks.ALL_MASK.getValue());
+//    }
+//        this.firsttime = false;
+//    }
+
 }

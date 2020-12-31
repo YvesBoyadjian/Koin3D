@@ -2132,8 +2132,8 @@ sendDiffuseByIndex(int index)
 	      // this test is really not necessary. SoMaterialBundle does the
 	      // same test.  We also need to send the color here to work around
 	      // an nVIDIA bug
-	      // if (col != this.glstate.diffuse)
-	      this.sendPackedDiffuse(col);
+	      if (col != this.glState.diffuse) // YB : reactivate the test, as bug should have been corrected
+	        this.sendPackedDiffuse(col);
 	    }
 	
 //    final float[] col4 = new float[4];

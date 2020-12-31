@@ -72,7 +72,7 @@ void setRotation()
 {
 	double M_PI = Math.PI;
 	
-  if (this.starttime == SbTime.zero()) {
+  if (this.starttime.operator_equal_equal(SbTime.zero())) {
     // don't do anything first time we get here
     this.starttime.copyFrom( get_current_time() );
     return;

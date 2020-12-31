@@ -144,7 +144,7 @@ public class SoSensorManager implements Destroyable {
 		 // scheduled, get the delay queue timeout ready to go
 		  // off.
 		  if ((s.getPriority() != 0) && !delayQTimeoutSensor.isScheduled()
-		  && (delayQTimeout != SbTime.zero())) {
+		  && (delayQTimeout.operator_not_equal(SbTime.zero()))) {
 		
 		  delayQTimeoutSensor.unschedule();
 		  delayQTimeoutSensor.setTimeFromNow(delayQTimeout);

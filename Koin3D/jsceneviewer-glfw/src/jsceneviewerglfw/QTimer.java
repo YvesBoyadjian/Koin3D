@@ -45,7 +45,9 @@ public class QTimer {
 		isActive = true;
 		display.timerExec( microsec, ()->{
 			if(isActive){
-				isActive = false;
+				if(singleShot) {
+					isActive = false;
+				}
 				callback.run(object);
 			};
 		});

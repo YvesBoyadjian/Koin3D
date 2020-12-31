@@ -111,40 +111,34 @@ public class Display {
 		
 	}
 
-	public boolean readAndDispatch() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	public void register(Composite composite) {
-		composites.add(composite);
-	}
-	
-	public void loop() {
-		while( !composites.stream().map(Composite::shouldClose).reduce(false, new BinaryOperator<Boolean>() {
+	public boolean shouldClose() {
+		return composites.stream().map(Composite::shouldClose).reduce(false, new BinaryOperator<Boolean>() {
 
 			@Override
 			public Boolean apply(Boolean first, Boolean second) {
 				return first || second;
 			}
-			
-		})) {
-			glfwPollEvents();
-			
-			double currentTimeMicro = System.nanoTime()/1000.0;//Instant.now().toEpochMilli();
-			
-			boolean treated;
-			do {
-				treated = false;
-				
-				FutureEvent fe = timersQueue.peek();			
-				if(fe != null) {
-					if( fe.startTimeMicroseconds <= currentTimeMicro) {
-						treated = true;
-						timersQueue.remove();
-						fe.doit.run();
-					}
+
+		});
+	}
+
+	public /*boolean*/void readAndDispatch() {
+		glfwPollEvents();
+
+		double currentTimeMicro = System.nanoTime()/1000.0;//Instant.now().toEpochMilli();
+
+		boolean treated;
+		do {
+			treated = false;
+
+			FutureEvent fe = timersQueue.peek();
+			if(fe != null) {
+				if( fe.startTimeMicroseconds <= currentTimeMicro) {
+					treated = true;
+					timersQueue.remove();
+					fe.doit.run();
 				}
+			}
 //				for(Long timerStartTime : timers.keySet()) {
 //					if(timerStartTime <= currentTimeMicro) {
 //						List<Runnable> runnables = timers.get(timerStartTime);
@@ -154,18 +148,27 @@ public class Display {
 //						break;
 //					}
 //				}
-			} while(treated);
-			
-			composites.forEach(Composite::loop);
-			
+		} while(treated);
+
+		composites.forEach(Composite::loop);
+
 //		    Thread t = new Thread(()->  {
 //		    	System.gc();
 //		    });
 //		    t.start();
-		    
-			
+
+
 //			System.gc();
 //			System.runFinalization();
+	}
+	
+	public void register(Composite composite) {
+		composites.add(composite);
+	}
+	
+	public void loop() {
+		while( !shouldClose()) {
+			readAndDispatch();
 		}
 	}
 
