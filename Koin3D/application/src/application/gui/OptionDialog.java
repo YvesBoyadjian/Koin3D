@@ -91,12 +91,19 @@ public class OptionDialog extends JDialog {
 
     public void setVisible(boolean b) {
         if(b) {
+            // SHADOW_PRECISION
             spinnerShadowgroup.setModel(new SpinnerNumberModel((double)sg.getShadowGroup().precision.getValue(),0.05,1.0,0.05));
+            // LOD_FACTOR
             spinnerLODFactor.setModel(new SpinnerNumberModel((double)sg.getLevelOfDetail(),0.05,2.0,0.05));
+            // LOD_FACTOR_SHADOW
             spinnerLODFactorShadow.setModel(new SpinnerNumberModel((double)sg.getLevelOfDetailShadow(),0.05,2.0,0.05));
+            // TREE_DISTANCE
             spinnerTreeDistance.setModel(new SpinnerNumberModel((double)sg.getTreeDistance(),500,30000,500));
+            // TREE_SHADOW_DISTANCE
             spinnerTreeShadowDistance.setModel(new SpinnerNumberModel((double)sg.getTreeShadowDistance(),500,30000,500));
+            // VOLUMETRIC_SKY
             volumetricSkyCheckBox.getModel().setSelected(sg.getShadowGroup().isVolumetricActive.getValue());
+            // DISPLAY_FPS
             displayFPSCheckBox.getModel().setSelected(sg.isFPSEnabled());
         }
         super.setVisible(b);

@@ -130,6 +130,20 @@ public class MainGLFW {
 
 	public static final String FLY = "fly";
 
+	public static final String SHADOW_PRECISION = "shadow_precision";
+
+	public static final String LOD_FACTOR = "lod_factor";
+
+	public static final String LOD_FACTOR_SHADOW = "lod_factor_shadow";
+
+	public static final String TREE_DISTANCE = "tree_distance";
+
+	public static final String TREE_SHADOW_DISTANCE = "tree_shadow_distance";
+
+	public static final String VOLUMETRIC_SKY = "volumetric_sky";
+
+	public static final String DISPLAY_FPS = "display_fps";
+
 	public static SbVec3f SCENE_POSITION;
 
 	public static final SbColor SKY_BLUE = new SbColor(0.53f, 0.81f, 0.92f);
@@ -257,6 +271,37 @@ public class MainGLFW {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+
+				File graphicsFile = new File("graphics.mri");
+
+				Properties graphicsProperties = new Properties();
+
+				try {
+					OutputStream out = new FileOutputStream(graphicsFile);
+
+					graphicsProperties.setProperty(SHADOW_PRECISION, String.valueOf(sg.getShadowGroup().precision.getValue()));
+
+					graphicsProperties.setProperty(LOD_FACTOR,String.valueOf(sg.getLevelOfDetail()));
+
+					graphicsProperties.setProperty(LOD_FACTOR_SHADOW,String.valueOf(sg.getLevelOfDetailShadow()));
+
+					graphicsProperties.setProperty(TREE_DISTANCE,String.valueOf(sg.getTreeDistance()));
+
+					graphicsProperties.setProperty(TREE_SHADOW_DISTANCE,String.valueOf(sg.getTreeShadowDistance()));
+
+					graphicsProperties.setProperty(VOLUMETRIC_SKY,sg.getShadowGroup().isVolumetricActive.getValue() ? "true":"false" );
+
+					graphicsProperties.setProperty(DISPLAY_FPS,sg.isFPSEnabled() ? "true":"false" );
+
+					graphicsProperties.store(out,"Mount Rainier Island graphics");
+
+					out.close();
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
 			}
 
 			byte[] gunSound = loadSound("GUN_FIRE-GoodSoundForYou-820112263_10db.wav");
@@ -315,6 +360,38 @@ public class MainGLFW {
 		double previousTimeSec = 0;
 		boolean timeStop = false;
 		boolean fly = false;
+
+		File graphicsFile = new File("graphics.mri");
+		if (graphicsFile.exists()) {
+			try {
+				InputStream in = new FileInputStream(graphicsFile);
+
+				Properties graphicsProperties = new Properties();
+
+				graphicsProperties.load(in);
+
+				sg.getShadowGroup().precision.setValue(Float.valueOf(graphicsProperties.getProperty(SHADOW_PRECISION,"0.4")));
+
+				sg.setLevelOfDetail(Float.valueOf(graphicsProperties.getProperty(LOD_FACTOR,"1")));
+
+				sg.setLevelOfDetailShadow(Float.valueOf(graphicsProperties.getProperty(LOD_FACTOR_SHADOW,"1")));
+
+				sg.setTreeDistance(Float.valueOf(graphicsProperties.getProperty(TREE_DISTANCE,"7000")));
+
+				sg.setTreeShadowDistance(Float.valueOf(graphicsProperties.getProperty(TREE_SHADOW_DISTANCE,"3000")));
+
+				sg.getShadowGroup().isVolumetricActive.setValue("true".equals(graphicsProperties.getProperty(VOLUMETRIC_SKY,"true")));
+
+				sg.enableFPS("true".equals(graphicsProperties.getProperty(DISPLAY_FPS,"false")));
+
+				in.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
 
 		File saveGameFile = new File("savegame.mri");
 		if (saveGameFile.exists()) {
