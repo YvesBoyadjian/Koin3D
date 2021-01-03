@@ -64,6 +64,26 @@ public class OptionDialog extends JDialog {
         // add your code here
         //dispose();
         setVisible(false);
+        apply();
+        if(viewer.isTimeStop()) {
+            viewer.toggleTimeStop();
+        }
+        viewer.setVisible(true);
+        viewer.setFocus();
+    }
+
+    private void onCancel() {
+        // add your code here if necessary
+        setVisible(false);//dispose(); //dispose() triggers a crash on linux, at least on Ubuntu
+        apply();
+        if(viewer.isTimeStop()) {
+            viewer.toggleTimeStop();
+        }
+        viewer.onClose();
+        glfwSetWindowShouldClose(viewer.getGLWidget().getWindow(), true);
+    }
+
+    private void apply() {
         //sg.enableNotifySun();
         sg.getShadowGroup().precision.setValue((float)((double)((Double)((SpinnerNumberModel) spinnerShadowgroup.getModel()).getNumber())));
         sg.setLevelOfDetail((float)((double)((Double)((SpinnerNumberModel)spinnerLODFactor.getModel()).getNumber())));
@@ -74,21 +94,6 @@ public class OptionDialog extends JDialog {
         sg.getShadowGroup().isVolumetricActive.setValue(volumetricSkyCheckBox.getModel().isSelected());
         sg.enableFPS(displayFPSCheckBox.getModel().isSelected());
         //sg.disableNotifySun();
-        if(viewer.isTimeStop()) {
-            viewer.toggleTimeStop();
-        }
-        viewer.setVisible(true);
-        viewer.setFocus();
-    }
-
-    private void onCancel() {
-        // add your code here if necessary
-        dispose();
-        if(viewer.isTimeStop()) {
-            viewer.toggleTimeStop();
-        }
-        viewer.onClose();
-        glfwSetWindowShouldClose(viewer.getGLWidget().getWindow(), true);
     }
 
     public void setVisible(boolean b) {

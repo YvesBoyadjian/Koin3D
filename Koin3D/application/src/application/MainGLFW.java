@@ -894,6 +894,8 @@ public class MainGLFW {
 						window = null;
 
 						KDebug.dump();
+
+						System.exit(0); // Necessary, because of Linux
 					}
 			);
 		else {
