@@ -97,31 +97,42 @@ public class DouglasForest {
 				boolean isAboveWater = z > - 150 + sg.getzTranslation() - sg.CUBE_DEPTH /2;
 				boolean isUnderSnowLevel = z < sg.ALPINE_HEIGHT;
 				boolean isStone = sg.isStone(x,y);
+
+				final float randomHeight = DouglasFir.getHeight(randomHeightTrees);
+				final float randomAngle = randomAngleTrees.nextFloat();
+				final float randomTop = randomTopTrees.nextFloat();
+				final float randomBottom = randomBottomTrees.nextFloat();
+				final float randomLeanAngle_ = randomLeanAngle.nextFloat();
+				final float randomLeanDirection = randomLeanDirectionAngle.nextFloat();
+				final float randomColorMultiplier1 = randomColorMultiplier.nextFloat();
+				final float randomColorMultiplier2 = randomColorMultiplier.nextFloat();
+				final float randomColorMultiplier3 = randomColorMultiplier.nextFloat();
+
 				if( isAboveWater && isUnderSnowLevel && !isStone) {
 					
-					float height = DouglasFir.getHeight(randomHeightTrees);
+					float height = randomHeight;//DouglasFir.getHeight(randomHeightTrees);
 					
 					xArray[i] = x;
 					yArray[i] = y;
 					zArray[i] = z;
 					heightArray[i] = height;
-					float angleDegree = 120.0f * randomAngleTrees.nextFloat();
+					float angleDegree = 120.0f * randomAngle;//randomAngleTrees.nextFloat();
 					angleDegree1[i] = angleDegree;
 					float width = height * 0.707f / 50.0f;
-					float widthTop = width */*2.5f*/5f * (float)Math.pow(randomTopTrees.nextFloat(),2.0f);
+					float widthTop = width */*2.5f*/5f * (float)Math.pow(randomTop/*randomTopTrees.nextFloat()*/,2.0f);
 					randomTopTree[i] = widthTop;
-					float foliageWidth = (height+ randomBottomTrees.nextFloat()*12.0f) * 0.1f;
+					float foliageWidth = (height+ randomBottom/*randomBottomTrees.nextFloat()*/*12.0f) * 0.1f;
 					randomBottomTree[i] = foliageWidth;
 					
-					float leanAngleTree = randomLeanAngle.nextFloat();
+					float leanAngleTree = randomLeanAngle_;//randomLeanAngle.nextFloat();
 					randomLeanAngleTree[i] = (float)(Math.pow(leanAngleTree, 5)*Math.PI/2/10);
 					
-					float leanAngleDirectionTree = randomLeanDirectionAngle.nextFloat();
+					float leanAngleDirectionTree = randomLeanDirection;//randomLeanDirectionAngle.nextFloat();
 					randomLeanDirectionAngleTree[i] = (float)(leanAngleDirectionTree * Math.PI * 2);					
 					
-					float deltaR = randomColorMultiplier.nextFloat() - 0.5f;
-					float deltaG = randomColorMultiplier.nextFloat() - 0.5f;
-					float deltaB = randomColorMultiplier.nextFloat() - 0.5f;
+					float deltaR = randomColorMultiplier1/*randomColorMultiplier.nextFloat()*/ - 0.5f;
+					float deltaG = randomColorMultiplier2/*randomColorMultiplier.nextFloat()*/ - 0.5f;
+					float deltaB = randomColorMultiplier3/*randomColorMultiplier.nextFloat()*/ - 0.5f;
 					
 					int power = 5;
 					deltaR = (float)Math.pow(deltaR*2.0, power)/2.0f;
