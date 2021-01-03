@@ -140,6 +140,8 @@ public class MainGLFW {
 
 	public static final String TREE_SHADOW_DISTANCE = "tree_shadow_distance";
 
+	public static final String MAX_I = "max_i";
+
 	public static final String VOLUMETRIC_SKY = "volumetric_sky";
 
 	public static final String DISPLAY_FPS = "display_fps";
@@ -231,12 +233,71 @@ public class MainGLFW {
 		//SoSeparator.setNumRenderCaches(0);
 		//SceneGraph sg = new SceneGraphQuadMesh(r);
 
+		float shadow_precision = 0.4f;
+		float level_of_detail = 1f;
+		float level_of_detail_shadow = 1f;
+		float tree_distance = 7000f;
+		float tree_shadow_distance = 3000f;
+		int max_i = 14000;
+		boolean volumetric_sky = true;
+		boolean display_fps = false;
+
+		File graphicsFile = new File("graphics.mri");
+		if (graphicsFile.exists()) {
+			try {
+				InputStream in = new FileInputStream(graphicsFile);
+
+				Properties graphicsProperties = new Properties();
+
+				graphicsProperties.load(in);
+
+				shadow_precision = Float.valueOf(graphicsProperties.getProperty(SHADOW_PRECISION,"0.4"));
+
+				level_of_detail = Float.valueOf(graphicsProperties.getProperty(LOD_FACTOR,"1"));
+
+				level_of_detail_shadow = Float.valueOf(graphicsProperties.getProperty(LOD_FACTOR_SHADOW,"1"));
+
+				tree_distance = Float.valueOf(graphicsProperties.getProperty(TREE_DISTANCE,"7000"));
+
+				tree_shadow_distance = Float.valueOf(graphicsProperties.getProperty(TREE_SHADOW_DISTANCE,"3000"));
+
+				max_i = Integer.valueOf(graphicsProperties.getProperty(MAX_I,"14000"));
+
+				volumetric_sky = "true".equals(graphicsProperties.getProperty(VOLUMETRIC_SKY,"true"));
+
+				display_fps = "true".equals(graphicsProperties.getProperty(DISPLAY_FPS,"false"));
+
+				in.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+
+
 		int overlap = 13;
 		//SceneGraph sg = new SceneGraphIndexedFaceSet(rw,re,overlap,Z_TRANSLATION);
-		sg = new SceneGraphIndexedFaceSetShader(rw, re, overlap, Z_TRANSLATION);
+		sg = new SceneGraphIndexedFaceSetShader(rw, re, overlap, Z_TRANSLATION, max_i);
 		//SceneGraph sg = new ShadowTestSceneGraph();
 		rw = null; // for garbage collection
 		re = null; // for garbage collection
+
+
+		sg.getShadowGroup().precision.setValue(shadow_precision);
+
+		sg.setLevelOfDetail(level_of_detail);
+
+		sg.setLevelOfDetailShadow(level_of_detail_shadow);
+
+		sg.setTreeDistance(tree_distance);
+
+		sg.setTreeShadowDistance(tree_shadow_distance);
+
+		sg.getShadowGroup().isVolumetricActive.setValue(volumetric_sky);
+
+		sg.enableFPS(display_fps);
 
 		viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE, SoQtCameraController.Type.BROWSER,/*shell*/null, style) {
 
@@ -289,6 +350,8 @@ public class MainGLFW {
 
 					graphicsProperties.setProperty(TREE_SHADOW_DISTANCE,String.valueOf(sg.getTreeShadowDistance()));
 
+					graphicsProperties.setProperty(MAX_I,String.valueOf(sg.getMaxI()));
+
 					graphicsProperties.setProperty(VOLUMETRIC_SKY,sg.getShadowGroup().isVolumetricActive.getValue() ? "true":"false" );
 
 					graphicsProperties.setProperty(DISPLAY_FPS,sg.isFPSEnabled() ? "true":"false" );
@@ -315,7 +378,8 @@ public class MainGLFW {
 				SbViewportRegion vr = this.getSceneHandler().getViewportRegion();
 				SoNode sg = this.getSceneHandler().getSceneGraph();
 
-				new Thread(new TargetSearchRunnable(this, vr, sg)).start();
+				SwingUtilities.invokeLater(new TargetSearchRunnable(this, vr, sg));
+				//new Thread(new TargetSearchRunnable(this, vr, sg)).start();
 			}
 		};
 		GLData glf = new GLData(/*GLProfile.getDefault()*/);
@@ -360,38 +424,6 @@ public class MainGLFW {
 		double previousTimeSec = 0;
 		boolean timeStop = false;
 		boolean fly = false;
-
-		File graphicsFile = new File("graphics.mri");
-		if (graphicsFile.exists()) {
-			try {
-				InputStream in = new FileInputStream(graphicsFile);
-
-				Properties graphicsProperties = new Properties();
-
-				graphicsProperties.load(in);
-
-				sg.getShadowGroup().precision.setValue(Float.valueOf(graphicsProperties.getProperty(SHADOW_PRECISION,"0.4")));
-
-				sg.setLevelOfDetail(Float.valueOf(graphicsProperties.getProperty(LOD_FACTOR,"1")));
-
-				sg.setLevelOfDetailShadow(Float.valueOf(graphicsProperties.getProperty(LOD_FACTOR_SHADOW,"1")));
-
-				sg.setTreeDistance(Float.valueOf(graphicsProperties.getProperty(TREE_DISTANCE,"7000")));
-
-				sg.setTreeShadowDistance(Float.valueOf(graphicsProperties.getProperty(TREE_SHADOW_DISTANCE,"3000")));
-
-				sg.getShadowGroup().isVolumetricActive.setValue("true".equals(graphicsProperties.getProperty(VOLUMETRIC_SKY,"true")));
-
-				sg.enableFPS("true".equals(graphicsProperties.getProperty(DISPLAY_FPS,"false")));
-
-				in.close();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		}
 
 		File saveGameFile = new File("savegame.mri");
 		if (saveGameFile.exists()) {

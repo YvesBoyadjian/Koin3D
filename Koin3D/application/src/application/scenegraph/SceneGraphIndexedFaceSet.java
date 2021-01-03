@@ -126,7 +126,7 @@ public class SceneGraphIndexedFaceSet implements SceneGraph {
 		h = Math.min(hImageW, MAX_J);// 8112
 		w = Math.min(wImageW+wImageE-I_START-overlap, MAX_I);// 13711
 		
-		chunks = new ChunkArray(w,h);
+		chunks = new ChunkArray(w,h,wImageW+wImageE-I_START-overlap);
 		
 		float West_Bounding_Coordinate = -122.00018518518522f;
 	      float East_Bounding_Coordinate= -121.74981481481484f;

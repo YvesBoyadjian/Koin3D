@@ -96,14 +96,14 @@ public class Seals {
 	}
 
 	float getRandomX(Random randomPlacementTrees) {
-		SbBox3f sceneBox = sg.getChunks().getSceneBox();
+		SbBox3f sceneBox = sg.getChunks().getSceneBoxFullIsland();
 		float xMin = sceneBox.getBounds()[0];
 		float xMax = sceneBox.getBounds()[3];
 		return xMin + (xMax - xMin) * randomPlacementTrees.nextFloat();
 	}
 	
 	float getRandomY(Random randomPlacementTrees) {
-		SbBox3f sceneBox = sg.getChunks().getSceneBox();
+		SbBox3f sceneBox = sg.getChunks().getSceneBoxFullIsland();
 		float yMin = sceneBox.getBounds()[1];
 		float yMax = sceneBox.getBounds()[4];
 		return yMin + (yMax - yMin) * randomPlacementTrees.nextFloat();

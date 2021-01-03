@@ -62,7 +62,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	private static final int I_START = 2500;
 	
-	private static final int MAX_I = 20000;//9000;
+	//private static final int MAX_I = 14000;//9000;
 	
 	private static final int MAX_J = 9000;
 	
@@ -152,6 +152,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	float delta_x;
 	int h;
 	int w;
+	int full_island_w;
 	
 	float total_height_meter;
 	float total_width_meter;
@@ -198,12 +199,15 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	final SoText2 fpsDisplay = new SoText2();
 
-	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation) {
+	private int max_i;
+
+	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation, int max_i) {
 		super();
 		this.rw = rw;
 		this.re = re;
 		this.overlap = overlap;
 		this.zTranslation = zTranslation;
+		this.max_i = max_i;
 		
 		int hImageW = rw.getHeight();
 		int wImageW = rw.getWidth();
@@ -212,9 +216,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		int wImageE = re.getWidth();
 		
 		h = Math.min(hImageW, MAX_J);// 8112
-		w = Math.min(wImageW+wImageE-I_START-overlap, MAX_I);// 13711
+		full_island_w = wImageW+wImageE-I_START-overlap;// 13711
+		w = Math.min(full_island_w, /*MAX_I*/max_i);
 		
-		chunks = new ChunkArray(w,h);
+		chunks = new ChunkArray(w,h,full_island_w);
 		
 		float West_Bounding_Coordinate = -122.00018518518522f;
 	      float East_Bounding_Coordinate= -121.74981481481484f;
@@ -1452,5 +1457,13 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	public boolean isFPSEnabled() {
 		return fpsSwitch.whichChild.getValue() == SoSwitch.SO_SWITCH_ALL;
+	}
+
+	public int getMaxI() {
+		return max_i;
+	}
+
+	public void setMaxI(int max_i) {
+		this.max_i = max_i;
 	}
 }

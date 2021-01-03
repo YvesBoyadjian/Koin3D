@@ -46,14 +46,19 @@ public class ChunkArray {
 	
 	private int w;
 	private int h;
+	private int full_island_w;
+
+	private float delta_x;
+	private float delta_y;
 	
 	private int nbChunkWidth;
 	private int nbChunkHeight;
 	
-	public ChunkArray(int w, int h) {
+	public ChunkArray(int w, int h, int full_island_w) {
 		
 		this.w = w;
 		this.h = h;
+		this.full_island_w = full_island_w;
 		
 		nbChunkHeight = Math.max(1,lowChunkFromIndice(h-1));
 		nbChunkWidth = Math.max(1,lowChunkFromIndice(w-1));
@@ -477,6 +482,9 @@ public class ChunkArray {
 	}
 
 	public void initXY(float delta_x, float delta_y) {
+		this.delta_x = delta_x;
+		this.delta_y = delta_y;
+
 		for(int i=0;i<nbChunkWidth;i++) {
 			for(int j=0;j<nbChunkHeight;j++) {
 				float x0 = i * delta_x * (Chunk.CHUNK_WIDTH-1);
@@ -484,12 +492,12 @@ public class ChunkArray {
 				chunks[i][j].initXY(delta_x,delta_y,x0,y0);
 			}
 		}
-		
 	}
 	
 	SbBox3f sceneBox = new SbBox3f();
 	SbVec3f sceneCenter = new SbVec3f();
-	
+	SbBox3f sceneBoxFullIsland = new SbBox3f();
+
 	private void computeBBox() {
 		
 		if(sceneBox.isEmpty()) {
@@ -502,6 +510,23 @@ public class ChunkArray {
 			}
 			sceneCenter.setValue(sceneBox.getCenter());
 		
+		}
+	}
+
+	private void computeBBoxFullIsland() {
+
+		if(sceneBoxFullIsland.isEmpty()) {
+
+			computeBBox();
+
+			sceneBoxFullIsland.extendBy(sceneBox);
+
+			SbVec3f max_i_point = new SbVec3f();
+			max_i_point.copyFrom(sceneBoxFullIsland.getMax());
+			SbVec3f min_i_point = new SbVec3f();
+			min_i_point.copyFrom(sceneBoxFullIsland.getMin());
+			max_i_point.setX((full_island_w-1) * delta_x);
+			sceneBoxFullIsland.setBounds(min_i_point,max_i_point);
 		}
 	}
 
@@ -591,5 +616,12 @@ public class ChunkArray {
 		computeBBox();
 
 		return sceneBox;
+	}
+
+	public SbBox3f getSceneBoxFullIsland() {
+
+		computeBBoxFullIsland();
+
+		return sceneBoxFullIsland;
 	}
 }

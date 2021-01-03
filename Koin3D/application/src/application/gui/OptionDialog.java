@@ -19,6 +19,7 @@ public class OptionDialog extends JDialog {
     private JSpinner spinnerTreeShadowDistance;
     private JCheckBox volumetricSkyCheckBox;
     private JCheckBox displayFPSCheckBox;
+    private JSpinner spinnerMaxI;
     SoQtWalkViewer viewer;
     SceneGraphIndexedFaceSetShader sg;
 
@@ -69,6 +70,7 @@ public class OptionDialog extends JDialog {
         sg.setLevelOfDetailShadow((float)((double)((Double)((SpinnerNumberModel)spinnerLODFactorShadow.getModel()).getNumber())));
         sg.setTreeDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeDistance.getModel()).getNumber())));
         sg.setTreeShadowDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeShadowDistance.getModel()).getNumber())));
+        sg.setMaxI(((int)((Integer)((SpinnerNumberModel)spinnerMaxI.getModel()).getNumber())));
         sg.getShadowGroup().isVolumetricActive.setValue(volumetricSkyCheckBox.getModel().isSelected());
         sg.enableFPS(displayFPSCheckBox.getModel().isSelected());
         //sg.disableNotifySun();
@@ -101,6 +103,8 @@ public class OptionDialog extends JDialog {
             spinnerTreeDistance.setModel(new SpinnerNumberModel((double)sg.getTreeDistance(),500,30000,500));
             // TREE_SHADOW_DISTANCE
             spinnerTreeShadowDistance.setModel(new SpinnerNumberModel((double)sg.getTreeShadowDistance(),500,30000,500));
+            // MAX_I
+            spinnerMaxI.setModel(new SpinnerNumberModel(sg.getMaxI(),7000,14000,500));
             // VOLUMETRIC_SKY
             volumetricSkyCheckBox.getModel().setSelected(sg.getShadowGroup().isVolumetricActive.getValue());
             // DISPLAY_FPS
