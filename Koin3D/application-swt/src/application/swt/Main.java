@@ -12,6 +12,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
+import application.TimeConstants;
 import application.scenegraph.SceneGraph;
 import application.scenegraph.SceneGraphIndexedFaceSet;
 import application.scenegraph.SceneGraphQuadMesh;

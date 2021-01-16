@@ -58,9 +58,9 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 
     private Set<SoKeyboardEvent.Key> keysDown = new HashSet<>();
 
-    private List<Consumer<application.viewer.SoQtWalkViewer>> idleListeners = new ArrayList<>();
+    private List<Consumer<application.swt.SoQtWalkViewer>> idleListeners = new ArrayList<>();
 
-    private SoIdleSensor idleSensor = new SoIdleSensor(application.viewer.SoQtWalkViewer::idleCB,this);
+    private SoIdleSensor idleSensor = new SoIdleSensor(application.swt.SoQtWalkViewer::idleCB,this);
 
     public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
         super(flag, type, parent, f);
@@ -290,7 +290,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     }
 
     public static void idleCB(Object data, SoSensor sensor) {
-        application.viewer.SoQtWalkViewer viewer = (application.viewer.SoQtWalkViewer)data;
+        application.swt.SoQtWalkViewer viewer = (application.swt.SoQtWalkViewer)data;
         viewer.idle();
         //System.out.println("idle");
         //viewer.getSceneHandler().getSceneGraph().touch();

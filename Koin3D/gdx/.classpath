@@ -7,9 +7,9 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry exported="true" kind="lib" path="lib/gdx.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/gdx-bullet.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/gdx-bullet-natives.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/gdx-natives.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdx-1.9.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdx-bullet-1.9.11.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdx-bullet-platform-1.9.11-natives-desktop.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/gdx-platform-1.9.11-natives-desktop.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

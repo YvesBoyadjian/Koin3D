@@ -7,7 +7,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Automatic-Module-Name: lwjgl-utils
 Export-Package: org.lwjgl,
  org.lwjgl.util,
- org.lwjgl.util.applet,
  org.lwjgl.util.generator,
  org.lwjgl.util.generator.openal,
  org.lwjgl.util.generator.opengl,
