@@ -278,7 +278,14 @@ public GLData format()
       return (mainWidget != null) ? /*mainWidget.devicePixelRatio()*/1.0 : 1.0;
   }
 
-    
+
+	public void setEventCallback (eventCBType cb, Object data)
+	{
+		// event callback handled in RealGLWidget
+		eventCBData = data;
+		eventCB = cb;
+	}
+
     protected
         //! handles events from the real QGLWidget, mostly mouse events
     void        processEvent (ComponentEvent anyEvent, EventType type, boolean[] isAccepted) {
