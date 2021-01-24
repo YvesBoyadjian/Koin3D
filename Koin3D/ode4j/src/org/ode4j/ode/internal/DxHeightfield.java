@@ -1488,12 +1488,12 @@ public class DxHeightfield extends DxAbstractHeightfield {
 
 			DxAbstractHeightfield terrain = o1;
 
-			final DVector3 posbak = new DVector3();
-			final DMatrix3 Rbak = new DMatrix3();
-			final DAABB aabbbak = new DAABB();
+			DVector3 posbak = new DVector3();
+			DMatrix3 Rbak = new DMatrix3();
+			DAABB aabbbak = new DAABB();
 			int gflagsbak = 0;
-			final DVector3 pos0 = new DVector3(), pos1 = new DVector3();
-			final DMatrix3 R1 = new DMatrix3();
+			DVector3 pos0 = new DVector3(), pos1 = new DVector3();
+			DMatrix3 R1 = new DMatrix3();
 
 			int numTerrainContacts = 0;
 			int numTerrainOrigContacts = 0;

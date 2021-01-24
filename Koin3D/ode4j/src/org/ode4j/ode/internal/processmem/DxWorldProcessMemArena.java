@@ -204,6 +204,10 @@ public final class DxWorldProcessMemArena {
         return new int[size];
     }
 
+    public final double[] AllocateOveralignedArrayDReal(int size, int alignment) {
+        return new double[size];
+    }
+
     /**
      * Reminder function. At the place where it is called, something needs to 
      * be implemented with respect to ProcessMemManagement.

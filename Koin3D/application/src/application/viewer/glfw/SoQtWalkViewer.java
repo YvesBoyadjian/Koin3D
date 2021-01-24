@@ -384,7 +384,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		// do nothing by default
 	}
 
-	public void updateLocation(SbVec3f diff_position) {
+	public void updateLocation(SbVec3f diff_position, ForceProvider.Direction direction) {
 		
 		double currentTimeSec = System.nanoTime()/1.0e9;
 		
@@ -401,7 +401,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  camera.position.setValue(new_position);
 		  }
 		  else {
-		  	camera.position.setValue(positionProvider.getPosition());
+		  	SbVec3f newPosition = positionProvider.getPosition();
+		  	if( null != newPosition ) {
+				camera.position.setValue(newPosition);
+			}
 		  }
 
 		  getCameraController().changeCameraValues(camera);
@@ -409,7 +412,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  camera.enableNotify(wasNotif);
 
 		  if ( null != forceProvider ) {
-		  	forceProvider.apply(diff_position.operator_div((float)dt()));
+		  	forceProvider.apply(diff_position.operator_div((float)dt()),direction);
 		  }
 
 		  lastTimeSec = currentTimeSec;
@@ -487,14 +490,15 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			deltaT = 1.0f;
 		}
 		dt = deltaT;
-		
+
+		updateLocation(new SbVec3f(0,0,0),ForceProvider.Direction.STILL);
 		  if (
 			  keysDown.contains(SoKeyboardEvent.Key.W)) {
 			  
 			  //lastTimeSec = System.nanoTime()/1.0e9;
 			  
 			  
-			  updateLocation(new SbVec3f(0.0f, 0.0f, -SPEED* (float)deltaT));
+			  updateLocation(new SbVec3f(0.0f, 0.0f, -SPEED* (float)deltaT),ForceProvider.Direction.FRONT);
 		  }
 		  if (
 		  
@@ -502,25 +506,24 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 			  
 				//  lastTimeSec = System.nanoTime()/1.0e9;
 			  
-			  updateLocation(new SbVec3f(0.0f, 0.0f, SPEED* (float)deltaT));
+			  updateLocation(new SbVec3f(0.0f, 0.0f, SPEED* (float)deltaT),ForceProvider.Direction.BACK);
 
 		  }
 		  if (  keysDown.contains(SoKeyboardEvent.Key.A)) {
 			  
 				  //lastTimeSec = System.nanoTime()/1.0e9;
 			  
-			  updateLocation(new SbVec3f(- SPEED* (float)deltaT, 0.0f, 0.0f));
+			  updateLocation(new SbVec3f(- SPEED* (float)deltaT, 0.0f, 0.0f),ForceProvider.Direction.LEFT);
 			  
 		  }
 		  if (  keysDown.contains(SoKeyboardEvent.Key.D)) {
 			  
 				  //lastTimeSec = System.nanoTime()/1.0e9;
 
-			  updateLocation( new SbVec3f(SPEED* (float)deltaT, 0.0f, 0.0f));
+			  updateLocation( new SbVec3f(SPEED* (float)deltaT, 0.0f, 0.0f),ForceProvider.Direction.RIGHT);
 
 		  }
-		  updateLocation(new SbVec3f(0,0,0));
-		  
+
 		  oneShotIdleListeners.forEach((item)->item.accept(this));
 		  
 		  oneShotIdleListeners.clear();

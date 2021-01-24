@@ -4,5 +4,13 @@ import jscenegraph.database.inventor.SbVec3f;
 
 public interface ForceProvider {
 
-    void apply(SbVec3f force);
+    enum Direction {
+        STILL,
+        FRONT,
+        BACK,
+        LEFT,
+        RIGHT
+    }
+
+    void apply(SbVec3f force, Direction direction);
 }

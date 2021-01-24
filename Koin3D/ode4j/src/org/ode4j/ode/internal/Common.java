@@ -397,8 +397,8 @@ public class Common extends OdeConstants {
 	public static final double dNaN = Double.NaN;
 
 	//#define dCopySign(a,b) (copysign((a),(b)))
-	public final double dCopySign(double a, double b) {
-		throw new UnsupportedOperationException();
+	public final static double dCopySign(double a, double b) {
+		return Math.copySign(a,b);//throw new UnsupportedOperationException();
 	}
 
 	/* error numbers */

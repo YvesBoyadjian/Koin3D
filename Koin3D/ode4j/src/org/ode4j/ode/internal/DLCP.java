@@ -50,6 +50,7 @@ import static org.ode4j.ode.internal.cpp4j.Cstring.memmove;
 import org.ode4j.math.DMatrixN;
 import org.ode4j.ode.DStopwatch;
 import org.ode4j.ode.OdeConfig;
+import org.ode4j.ode.internal.processmem.DxUtil;
 import org.ode4j.ode.internal.processmem.DxUtil.BlockPointer;
 import org.ode4j.ode.internal.processmem.DxWorldProcessMemArena;
 
@@ -212,6 +213,8 @@ public class DLCP {
 	//TZ: remove TODO
 	//protected static final boolean DEBUG_LCP = true;
 	protected static final boolean DEBUG_LCP = false;
+
+	public final static int LMATRIX_ALIGNMENT =      DxUtil.dMAX(64, DxUtil.EFFICIENT_ALIGNMENT);
 
 	//***************************************************************************
 
@@ -734,6 +737,45 @@ public class DLCP {
 	    }
 	}
 
+	void unpermute_X()
+	{
+		int[] p = m_p;
+		double[] /*pairsbx*/x = /*m_pairsbx*/m_x;
+    final int n = m_n;
+		for (int j = 0; j < n; ++j) {
+			int k = p[j];
+			if (k != j) {
+				// p[j] = j; -- not going to be checked anymore anyway
+				double x_j = /*(pairsbx + (sizeint)j * PBX__MAX)[PBX_X]*/x[j];
+				for (;;) {
+					double tmp = x[k]; x[k] = x_j; x_j = tmp;
+					//dxSwap(x_j, /*(pairsbx + (sizeint)k * PBX__MAX)[PBX_X]*/x[k]);
+
+					int orig_k = p[k];
+					p[k] = k;
+					if (orig_k == j) {
+						break;
+					}
+					k = orig_k;
+				}
+				/*(pairsbx + (sizeint)j * PBX__MAX)[PBX_X]*/x[j] = x_j;
+			}
+		}
+	}
+
+	void unpermute_W()
+	{
+		memcpy (m_tmp, m_w, m_n /** sizeof(dReal)*/);
+
+    final int[] p = m_p;
+		double[] w = m_w, tmp = m_tmp;
+    final int n = m_n;
+		for (int j = 0; j < n; ++j) {
+			int k = p[j];
+			w[k] = tmp[j];
+		}
+	}
+
 	//***************************************************************************
 	// an optimized Dantzig LCP driver routine for the lo-hi LCP problem.
 
@@ -1031,6 +1073,309 @@ public class DLCP {
 
 		  lcp.unpermute();
 	}
+
+//***************************************************************************
+// an optimized Dantzig LCP driver routine for the lo-hi LCP problem.
+
+	static
+	void dSolveLCP_Generic (DxWorldProcessMemArena memarena, int n, double[] A, /*double[] pairsbx*/double[] x, double[] b/*[PBX__MAX]*/,
+							 double[] outer_w/*=NULL*/, int nub, /*double[] pairslh*/double[] lo, double[] hi/*[PLH__MAX]*/, int[] findex)
+	{
+		dAASSERT (n > 0 && A != null /*&& pairsbx != null && pairslh != null*/ && nub >= 0 && nub < n);
+if(!dNODEBUG) {//# ifndef dNODEBUG
+	{
+		int PLH_LO = 0;
+		int PLH_HI = 1;
+		// check restrictions on lo and hi
+		/*dReal **/int endlh =(int) /*pairslh +*/ (/*sizeint*/long) n * /*PLH__MAX*/2;
+		for (/*dReal **/int currlh = /*pairslh*/0; currlh != endlh; currlh += /*PLH__MAX*/2) {
+			//dIASSERT(/*currlh*/pairslh[currlh + PLH_LO] <= 0 && /*currlh*/pairslh[currlh + PLH_HI] >= 0);
+			dIASSERT(lo[currlh/2] <= 0);
+			dIASSERT( hi[currlh/2] >= 0);
+		}
+	}
+}//# endif
+
+    final int nskip = dPAD(n);
+		double[] L = memarena.AllocateOveralignedArrayDReal ((int)nskip * n, LMATRIX_ALIGNMENT);
+		double[] d = memarena.AllocateArrayDReal (n);
+		double[] w = outer_w != null ? outer_w : memarena.AllocateArrayDReal (n);
+		double[] delta_w = memarena.AllocateArrayDReal (n);
+		double[] delta_x = memarena.AllocateArrayDReal (n);
+		double[] Dell = memarena.AllocateArrayDReal (n);
+		double[] ell = memarena.AllocateArrayDReal (n);
+		double[][] Arows;
+if (ROWPTRS) {
+	Arows = memarena.AllocateArrayDRealDReal(n);
+} else {
+	Arows = null;
+}
+		int[] p = memarena.AllocateArrayInt (n);
+		int[] C = memarena.AllocateArrayInt (n);
+
+		// for i in N, state[i] is 0 if x(i)==lo(i) or 1 if x(i)==hi(i)
+		boolean[] state = memarena.AllocateArrayBool (n);
+
+		// create LCP object. note that tmp is set to delta_w to save space, this
+		// optimization relies on knowledge of how tmp is used, so be careful!
+		DLCP lcp = new DLCP(n, nskip, nub, A, /*pairsbx*/x,b, w, /*pairslh*/lo,hi, L, d, Dell, ell, delta_w, state, findex, p, C, Arows);
+		int adj_nub = lcp.getNub();
+
+		// loop over all indexes adj_nub..n-1. for index i, if x(i),w(i) satisfy the
+		// LCP conditions then i is added to the appropriate index set. otherwise
+		// x(i),w(i) is driven either +ve or -ve to force it to the valid region.
+		// as we drive x(i), x(C) is also adjusted to keep w(C) at zero.
+		// while driving x(i) we maintain the LCP conditions on the other variables
+		// 0..i-1. we do this by watching out for other x(i),w(i) values going
+		// outside the valid region, and then switching them between index sets
+		// when that happens.
+
+		boolean hit_first_friction_index = false;
+		for (int i = adj_nub; i < n; ++i) {
+			boolean s_error = false;
+			// the index i is the driving index and indexes i+1..n-1 are "dont care",
+			// i.e. when we make changes to the system those x's will be zero and we
+			// don't care what happens to those w's. in other words, we only consider
+			// an (i+1)*(i+1) sub-problem of A*x=b+w.
+
+			// if we've hit the first friction index, we have to compute the lo and
+			// hi values based on the values of x already computed. we have been
+			// permuting the indexes, so the values stored in the findex vector are
+			// no longer valid. thus we have to temporarily unpermute the x vector.
+			// for the purposes of this computation, 0*infinity = 0 ... so if the
+			// contact constraint's normal force is 0, there should be no tangential
+			// force applied.
+
+			if (!hit_first_friction_index && findex!=null && findex[i] >= 0) {
+				// un-permute x into delta_w, which is not being used at the moment
+				for (int j = 0; j < n; ++j) delta_w[p[j]] = x[j];//(pairsbx + (sizeint)j * PBX__MAX)[PBX_X];
+
+				// set lo and hi values
+				for (int k = i; k < n; ++k) {
+					//dReal *currlh = pairslh + (sizeint)k * PLH__MAX;
+					double wfk = delta_w[findex[k]];
+					if (wfk == 0) {
+						/*currlh[PLH_HI]*/hi[k] = 0;
+						/*currlh[PLH_LO]*/lo[k] = 0;
+					}
+					else {
+						/*currlh[PLH_HI]*/hi[k] = dFabs (/*currlh[PLH_HI]*/hi[k] * wfk);
+						/*currlh[PLH_LO]*/lo[k] = -/*currlh[PLH_HI]*/hi[k];
+					}
+				}
+				hit_first_friction_index = true;
+			}
+
+			// thus far we have not even been computing the w values for indexes
+			// greater than i, so compute w[i] now.
+			double wPrep = lcp.AiC_times_qC (i, x/*pairsbx + PBX_X*/) + lcp.AiN_times_qN (i, /*pairsbx + PBX_X*/x);
+
+			//dReal *currbx = pairsbx + (sizeint)i * PBX__MAX;
+
+			w[i] = wPrep - /*currbx[PBX_B]*/b[i];
+
+			// if lo=hi=0 (which can happen for tangential friction when normals are
+			// 0) then the index will be assigned to set N with some state. however,
+			// set C's line has zero size, so the index will always remain in set N.
+			// with the "normal" switching logic, if w changed sign then the index
+			// would have to switch to set C and then back to set N with an inverted
+			// state. this is pointless, and also computationally expensive. to
+			// prevent this from happening, we use the rule that indexes with lo=hi=0
+			// will never be checked for set changes. this means that the state for
+			// these indexes may be incorrect, but that doesn't matter.
+
+			//dReal *currlh = pairslh + (sizeint)i * PLH__MAX;
+
+			// see if x(i),w(i) is in a valid region
+			if (/*currlh[PLH_LO]*/lo[i] == 0 && w[i] >= 0) {
+				lcp.transfer_i_to_N (i);
+				state[i] = false;
+			}
+			else if (/*currlh[PLH_HI]*/hi[i] == 0 && w[i] <= 0) {
+				lcp.transfer_i_to_N (i);
+				state[i] = true;
+			}
+			else if (w[i] == 0) {
+				// this is a degenerate case. by the time we get to this test we know
+				// that lo != 0, which means that lo < 0 as lo is not allowed to be +ve,
+				// and similarly that hi > 0. this means that the line segment
+				// corresponding to set C is at least finite in extent, and we are on it.
+				// NOTE: we must call lcp.solve1() before lcp.transfer_i_to_C()
+				lcp.solve1 (delta_x, i, /*false*/0, /*1*/true);
+
+				lcp.transfer_i_to_C (i);
+			}
+			else {
+				// we must push x(i) and w(i)
+				for (;;) {
+					// find direction to push on x(i)
+					boolean dir_positive = (w[i] <= 0);
+
+					// compute: delta_x(C) = -dir*A(C,C)\A(C,i)
+					lcp.solve1 (delta_x, i, dir_positive ? 1 : 0);
+
+					// note that delta_x[i] = (dir_positive ? 1 : -1), but we wont bother to set it
+
+					// compute: delta_w = A*delta_x ... note we only care about
+					// delta_w(N) and delta_w(i), the rest is ignored
+					lcp.pN_equals_ANC_times_qC (delta_w, delta_x);
+					lcp.pN_plusequals_ANi (delta_w, i, dir_positive ? 1 : 0);
+					delta_w[i] = dir_positive
+							? lcp.AiC_times_qC(i, delta_x) + lcp.Aii(i)
+                    : lcp.AiC_times_qC(i, delta_x) - lcp.Aii(i);
+
+					// find largest step we can take (size=s), either to drive x(i),w(i)
+					// to the valid LCP region or to drive an already-valid variable
+					// outside the valid region.
+
+					int cmd = 1;		// index switching command
+					int si = 0;		// si = index to switch if cmd>3
+
+					double s = delta_w[i] != 0.0/*REAL(0.0)*/
+							? -w[i] / delta_w[i]
+							: (w[i] != /*REAL(0.0)*/0.0 ? Common.dCopySign(dInfinity, -w[i]) : /*REAL(0.0)*/0.0);
+
+					if (dir_positive) {
+						if (/*currlh[PLH_HI]*/hi[i] < dInfinity) {
+							double s2 = (/*currlh[PLH_HI]*/hi[i] - /*currbx[PBX_X]*/x[i]);	// was (hi[i]-x[i])/dirf	// step to x(i)=hi(i)
+							if (s2 < s) {
+								s = s2;
+								cmd = 3;
+							}
+						}
+					}
+					else {
+						if (/*currlh[PLH_LO]*/lo[i] > -dInfinity) {
+							double s2 = (/*currbx[PBX_X]*/x[i] - /*currlh[PLH_LO]*/lo[i]); // was (lo[i]-x[i])/dirf	// step to x(i)=lo(i)
+							if (s2 < s) {
+								s = s2;
+								cmd = 2;
+							}
+						}
+					}
+
+					{
+                    final int numN = lcp.numN();
+						for (int k = 0; k < numN; ++k) {
+                        final int indexN_k = lcp.indexN(k);
+							if (!state[indexN_k] ? delta_w[indexN_k] < 0 : delta_w[indexN_k] > 0) {
+								// don't bother checking if lo=hi=0
+								//dReal *indexlh = pairslh + (sizeint)indexN_k * PLH__MAX;
+								if (/*indexlh[PLH_LO]*/lo[indexN_k] == 0 && /*indexlh[PLH_HI]*/hi[indexN_k] == 0) continue;
+								double s2 = -w[indexN_k] / delta_w[indexN_k];
+								if (s2 < s) {
+									s = s2;
+									cmd = 4;
+									si = indexN_k;
+								}
+							}
+						}
+					}
+
+					{
+                    final int numC = lcp.numC();
+						for (int k = adj_nub; k < numC; ++k) {
+                        final int indexC_k = lcp.indexC(k);
+							//dReal *indexlh = pairslh + (sizeint)indexC_k * PLH__MAX;
+							if (delta_x[indexC_k] < 0 && /*indexlh[PLH_LO]*/lo[indexC_k] > -dInfinity) {
+								double s2 = (/*indexlh[PLH_LO]*/lo[indexC_k] - /*(pairsbx + (sizeint)indexC_k * PBX__MAX)[PBX_X]*/x[indexC_k]) / delta_x[indexC_k];
+								if (s2 < s) {
+									s = s2;
+									cmd = 5;
+									si = indexC_k;
+								}
+							}
+							if (delta_x[indexC_k] > 0 && /*indexlh[PLH_HI]*/hi[indexC_k] < dInfinity) {
+								double s2 = (/*indexlh[PLH_HI]*/hi[indexC_k] - /*(pairsbx + (sizeint)indexC_k * PBX__MAX)[PBX_X]*/x[indexC_k]) / delta_x[indexC_k];
+								if (s2 < s) {
+									s = s2;
+									cmd = 6;
+									si = indexC_k;
+								}
+							}
+						}
+					}
+
+					//static char* cmdstring[8] = {0,"->C","->NL","->NH","N->C",
+					//			     "C->NL","C->NH"};
+					//printf ("cmd=%d (%s), si=%d\n",cmd,cmdstring[cmd],(cmd>3) ? si : i);
+
+					// if s <= 0 then we've got a problem. if we just keep going then
+					// we're going to get stuck in an infinite loop. instead, just cross
+					// our fingers and exit with the current solution.
+					if (s <= /*REAL(0.0)*/0.0) {
+						dMessage (d_ERR_LCP, "LCP internal error, s <= 0 (s=%.4e)",(double)s);
+						if (i < n) {
+							//dxtSetZero<PBX__MAX>(currbx + PBX_X, n - i);
+							//dxSetZero (w + i, n - i);
+							for (int ii = i; ii < n; ii++) x[ii] = 0;
+							for (int ii = i; ii < n; ii++) w[ii] = 0;
+						}
+						s_error = true;
+						break;
+					}
+
+					// apply x = x + s * delta_x
+					lcp.pC_plusequals_s_times_qC (/*pairsbx + PBX_X*/x, s, delta_x);
+					/*currbx[PBX_X]*/x[i] = dir_positive
+							? /*currbx[PBX_X]*/x[i] + s
+							: /*currbx[PBX_X]*/x[i] - s;
+
+					// apply w = w + s * delta_w
+					lcp.pN_plusequals_s_times_qN (w, s, delta_w);
+					w[i] += s * delta_w[i];
+
+					BlockPointer tmpbuf;
+					// switch indexes between sets if necessary
+					switch (cmd) {
+						case 1:		// done
+							w[i] = 0;
+							lcp.transfer_i_to_C (i);
+							break;
+						case 2:		// done
+							/*currbx[PBX_X]*/x[i] = /*currlh[PLH_LO]*/lo[i];
+							state[i] = false;
+							lcp.transfer_i_to_N (i);
+							break;
+						case 3:		// done
+							/*currbx[PBX_X]*/x[i] = /*currlh[PLH_HI]*/hi[i];
+							state[i] = true;
+							lcp.transfer_i_to_N (i);
+							break;
+						case 4:		// keep going
+							w[si] = 0;
+							lcp.transfer_i_from_N_to_C (si);
+							break;
+						case 5:		// keep going
+							/*(pairsbx + (sizeint)si * PBX__MAX)[PBX_X]*/x[si] = /*(pairslh + (sizeint)si * PLH__MAX)[PLH_LO]*/lo[si];
+							state[si] = false;
+							tmpbuf = memarena.PeekBufferRemainder();
+							lcp.transfer_i_from_C_to_N (si, tmpbuf);
+							break;
+						case 6:		// keep going
+							/*(pairsbx + (sizeint)si * PBX__MAX)[PBX_X]*/x[si] = /*(pairslh + (sizeint)si * PLH__MAX)[PLH_HI]*/hi[si];
+							state[si] = true;
+							tmpbuf = memarena.PeekBufferRemainder();
+							lcp.transfer_i_from_C_to_N (si, tmpbuf);
+							break;
+					}
+
+					if (cmd <= 3) break;
+				} // for (;;)
+			} // else
+
+			if (s_error) {
+				break;
+			}
+		} // for (unsigned i = adj_nub; i < n; ++i)
+
+		// now we have to un-permute x and w
+		if (outer_w != null) {
+			lcp.unpermute_W();
+		}
+		lcp.unpermute_X(); // This destroys p[] and must be done last
+	}
+
 
 //	private int sizeof(Class<?> cls) {
 //	    return -1;

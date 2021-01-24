@@ -519,7 +519,7 @@ public class MainGLFW {
 		viewer.setCursor(cursor);
 
 		viewer.start();
-		viewer.updateLocation(new SbVec3f(0.0f, 0.0f, 0.0f));
+		viewer.updateLocation(new SbVec3f(0.0f, 0.0f, 0.0f),ForceProvider.Direction.STILL);
 
 
 		//viewer.getGLWidget().maximize();
@@ -690,14 +690,18 @@ public class MainGLFW {
 		heightField.setPosition(-SCENE_POSITION.getX() + heightFieldWidth / 2, -SCENE_POSITION.getY() + sg.getExtraDY() + heightFieldDepth / 2, 0);
 
 		world.setGravity(0, 0, -9.81);
-		DBody body = OdeHelper.createBody(world);
-		body.setPosition(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - 1.75f / 2 + 0.13f);
+
+		float above_ground = 0.1f; // Necessary when respawning on water
+
+		final DBody body = OdeHelper.createBody(world);
+		body.setPosition(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - /*1.75f / 2*/0.4f + 0.13f + above_ground);
 		DMass m = OdeHelper.createMass();
 		m.setBox(1000.0f, 0.25, 0.25, 1.312);
 		body.setMass(m);
 		body.setMaxAngularSpeed(0);
 
-		DGeom box = OdeHelper.createCapsule(space, 0.4, 1.75 - 2 * 0.4);
+		//DGeom box = OdeHelper.createCapsule(space, 0.4, 1.75 - 2 * 0.4);
+		DGeom box = OdeHelper.createSphere(space,0.4);
 		box.setBody(body);
 
 		DRay ray = OdeHelper.createRay(space, 10000);
@@ -705,6 +709,40 @@ public class MainGLFW {
 		//DBody rayBody = OdeHelper.createBody(world);
 		ray.setBody(body);
 		//ray.set(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - 1.75f/2 + 0.13f,0,0,-1);
+
+		DGeom ball = OdeHelper.createSphere(space, 0.4);
+		final DBody ballBody = OdeHelper.createBody(world);
+		ballBody.setPosition(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - /*1.75f / 2*/0.4f + 0.13f - 1.75f+ 2*0.4f + above_ground);
+		DMass ballm = OdeHelper.createMass();
+		ballm.setSphere(1000.0f, 0.25);
+		ballBody.setMass(ballm);
+		ball.setBody(ballBody);
+
+//		final DAMotorJoint joint = OdeHelper.createAMotorJoint(world,null);
+//		joint.attach(body,ballBody);
+//		joint.setNumAxes(3);
+//		joint.setAxis(0,1,1,0,0);
+//		joint.setAxis(1,1,0,1,0);
+//		joint.setAxis(2,1,0,0,1);
+//		joint.setParamVel(0.0f);
+//		joint.setParamFMax(9999);
+//		joint.setParamVel2(0.0f);
+//		joint.setParamFMax2(9999);
+//		joint.setParamVel3(0.0f);
+//		joint.setParamFMax3(9999);
+
+		final DHingeJoint hinge2Joint = OdeHelper.createHingeJoint (world,null);
+		hinge2Joint.attach(body,ballBody);
+		hinge2Joint.setAnchor(ballBody.getPosition());
+		//hinge2Joint.setAxis1 (0,0,1);
+		hinge2Joint.setAxis (0,1,0);
+		hinge2Joint.setParamVel(0);
+		//hinge2Joint.setParamVel2(0);
+		hinge2Joint.setParamFMax(1000);
+		//hinge2Joint.setParamFMax2(100);
+//		hinge2Joint.setParamFudgeFactor(0.1);
+//		hinge2Joint.setParamSuspensionERP (0.4);
+//		hinge2Joint.setParamSuspensionCFM (0.8);
 
 		DGeom.DNearCallback callback = new DGeom.DNearCallback() {
 			@Override
@@ -798,8 +836,80 @@ public class MainGLFW {
 			}
 		};
 
+		DGeom.DNearCallback callback2 = new DGeom.DNearCallback() {
+
+			@Override
+			public void call(Object data, DGeom geom1, DGeom geom2) {
+
+				// Get the rigid bodies associated with the geometries
+				DBody body1 = geom1.getBody();// dGeomGetBody(geom1);
+				DBody body2 = geom2.getBody();// dGeomGetBody(geom2);
+
+				// Can happen outside island
+				if(body1 != null && Double.isNaN(body1.getPosition().get0())) {
+					return;
+				}
+
+				if(body2 != null && Double.isNaN(body2.getPosition().get0())) {
+					return;
+				}
+
+//				if (body1 == body && body2 == ballBody) {
+//					return;
+//				}
+//
+//				if (body2 == body && body1 == ballBody) {
+//					return;
+//				}
+
+				// Maximum number of contacts to create between bodies (see ODE documentation)
+				int MAX_NUM_CONTACTS = 8;
+				//dContact contacts[MAX_NUM_CONTACTS];
+				DContactBuffer contacts = new DContactBuffer(MAX_NUM_CONTACTS);
+
+				// Add collision joints
+				int numc = OdeHelper.collide(geom1, geom2, MAX_NUM_CONTACTS, contacts.getGeomBuffer());
+
+				for (int i = 0; i < numc; ++i) {
+					DContact contact = contacts.get(i);
+					contact.surface.mode = OdeConstants.dContactSoftERP | OdeConstants.dContactSoftCFM | OdeConstants.dContactApprox1 |
+							OdeConstants.dContactSlip1 | OdeConstants.dContactSlip2;
+
+					//contact.surface.bounce = 0.1;
+					contact.surface.mu = 0.8;//((double[]) data)[0];//0.8;//50.0;
+					contact.surface.slip1 = 0;//.1;
+					contact.surface.slip2 = 0;//.1;
+					contact.surface.soft_erp = 0.96;
+					contact.surface.soft_cfm = 1e-5;
+					contact.surface.rho = 0;
+					contact.surface.rho2 = 0;
+
+					// struct dSurfaceParameters {
+					//      int mode;
+					//      dReal mu;
+					//      dReal mu2;
+					//      dReal rho;
+					//      dReal rho2;
+					//      dReal rhoN;
+					//      dReal bounce;
+					//      dReal bounce_vel;
+					//      dReal soft_erp;
+					//      dReal soft_cfm;
+					//      dReal motion1, motion2, motionN;
+					//      dReal slip1, slip2;
+					// };
+
+					DContactJoint contactJoint = OdeHelper.createContactJoint(/*collision_data->world*/world,
+							/*collision_data->contact_group*/contactGroup, contacts.get(i));
+
+					contactJoint.attach(body1, body2);
+				}
+
+			}
+		};
+
 		final double[] data = new double[1];
-		data[0] = 0.8;
+		data[0] = 100.0;//0.8;
 
 		int nb_step = 20;
 
@@ -809,7 +919,7 @@ public class MainGLFW {
 			}
 			double dt = Math.min(1, viewer1.dt());
 			for (int i = 0; i < nb_step; i++) {
-				space.collide(data, callback);
+				space.collide(data, /*callback*/callback2);
 				world.step(dt / nb_step);
 				contactGroup.empty();
 			}
@@ -820,21 +930,51 @@ public class MainGLFW {
 			public SbVec3f getPosition() {
 				DVector3C position = body.getPosition();
 
-				return new SbVec3f((float) position.get0(), (float) position.get1(), (float) position.get2() + 1.75f / 2 - 0.13f);
+				if(Double.isNaN(position.get0())) {
+					return null;
+				}
+
+				return new SbVec3f((float) position.get0(), (float) position.get1(), (float) position.get2() + /*1.75f / 2*/0.4f - 0.13f);
 			}
 		});
 
 		viewer.setForceProvider(new ForceProvider() {
 
 			@Override
-			public void apply(SbVec3f force) {
+			public void apply(SbVec3f force, Direction direction) {
 				if (force.length() == 0) {
 					data[0] = 1.0;
 				} else {
 					//force.setZ(82*200/2000);
 					data[0] = 0;
 				}
-				body.addForce(force.getX() * 2000, force.getY() * 2000, force.getZ() * 2000);
+				//body.addForce(force.getX() * 2000, force.getY() * 2000, force.getZ() * 2000);
+				SbVec3f xvec = new SbVec3f(0,0,1);
+				SbVec3f vwVec = camera.orientation.getValue().multVec( new SbVec3f(0,0,-1) );
+				//SbVec3f dir = camera.orientation.getValue().multVec(xvec);
+				switch (direction) {
+
+					case STILL:
+						hinge2Joint.setAxis ( - vwVec.y(),vwVec.x(),0);
+						hinge2Joint.setParamVel(0);
+						break;
+					case FRONT:
+						hinge2Joint.setAxis ( - vwVec.y(),vwVec.x(),0);
+						hinge2Joint.setParamVel(-10/0.4);
+						break;
+					case BACK:
+						hinge2Joint.setAxis ( - vwVec.y(),vwVec.x(),0);
+						hinge2Joint.setParamVel(10);
+						break;
+					case LEFT:
+						hinge2Joint.setAxis ( vwVec.x(),vwVec.y(),0);
+						hinge2Joint.setParamVel(10);
+						break;
+					case RIGHT:
+						hinge2Joint.setAxis ( vwVec.x(),vwVec.y(),0);
+						hinge2Joint.setParamVel(-10);
+						break;
+				}
 			}
 		});
 

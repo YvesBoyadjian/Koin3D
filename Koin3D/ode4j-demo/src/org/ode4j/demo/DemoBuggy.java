@@ -75,7 +75,7 @@ class DemoBuggy extends dsFunctions {
 	private static DHinge2Joint[] joint = new DHinge2Joint[3];	// joint[0] is the front wheel
 	private static DJointGroup contactgroup;
 	private static DPlane ground;
-	private static DSpace car_space;
+	//private static DSpace car_space;
 	private static DBox[] box = new DBox[1];
 	private static DSphere[] sphere = new DSphere[3];
 	private static DBox ground_box;
@@ -241,7 +241,7 @@ class DemoBuggy extends dsFunctions {
 		m.setBox(1, LENGTH, WIDTH, HEIGHT);
 		m.adjust(CMASS);
 		body[0].setMass(m);
-		box[0] = OdeHelper.createBox (null,LENGTH,WIDTH,HEIGHT);
+		box[0] = OdeHelper.createBox (/*null*/space,LENGTH,WIDTH,HEIGHT);
 		box[0].setBody(body[0]);
 
 		// wheel bodies
@@ -253,7 +253,7 @@ class DemoBuggy extends dsFunctions {
 			m.setSphere(1,RADIUS);
 			m.adjust(WMASS);
 			body[i].setMass(m);
-			sphere[i-1] = OdeHelper.createSphere (null,RADIUS);
+			sphere[i-1] = OdeHelper.createSphere (/*null*/space,RADIUS);
 			sphere[i-1].setBody(body[i]);
 		}
 		body[1].setPosition(0.5*LENGTH,0,STARTZ-HEIGHT*0.5);
@@ -289,12 +289,12 @@ class DemoBuggy extends dsFunctions {
 		}
 
 		// create car space and add it to the top level space
-		car_space = OdeHelper.createSimpleSpace(space);
-		car_space.setCleanup(false);
-		car_space.add (box[0]);
-		car_space.add (sphere[0]);
-		car_space.add (sphere[1]);
-		car_space.add (sphere[2]);
+//		car_space = OdeHelper.createSimpleSpace(space);
+//		car_space.setCleanup(false);
+//		car_space.add (box[0]);
+//		car_space.add (sphere[0]);
+//		car_space.add (sphere[1]);
+//		car_space.add (sphere[2]);
 
 		// environment
 		ground_box = OdeHelper.createBox (space,2,1.5,1);

@@ -1411,8 +1411,12 @@ dmaxcallcountestimate_fn_t {
 
 				// solve the LCP problem and get lambda.
 				// this will destroy A but that's OK
-				DLCP.dSolveLCP (memarena, m, A, lambda, rhs, null, nub, lo, hi, findex);
-
+				if(nub >= m) { // YB
+					DLCP.dSolveLCP(memarena, m, A, lambda, rhs, null, nub, lo, hi, findex);
+				}
+				else {
+					DLCP.dSolveLCP_Generic(memarena, m, A, lambda, rhs, null, nub, lo, hi, findex);
+				}
 			} 
 			memarena.END_STATE_SAVE(lcpstate);
 		}
