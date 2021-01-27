@@ -79,6 +79,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	public static final float WATER_BRIGHTNESS = 0.4f;
 	
 	private static final SbColor SUN_COLOR = new SbColor(1f, 0.85f, 0.8f);
+
+	private static final float SUN_INTENSITY = 1.0f;
 	
 	public static final SbColor SKY_COLOR = new SbColor(0.3f, 0.3f, 0.5f);
 	
@@ -539,7 +541,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	for(int is=0;is<4;is++) {
 	    sun[is] = new SoShadowDirectionalLight();
 	    //sun = new SoDirectionalLight();
-	    sun[is].color.setValue(SUN_COLOR);
+	    sun[is].color.setValue(new SbColor(SUN_COLOR.operator_mul(SUN_INTENSITY)));
 	    
 	    sun[is].maxShadowDistance.setValue(2e4f);
 	    //sun[is].bboxCenter.setValue(10000, 0, 0);

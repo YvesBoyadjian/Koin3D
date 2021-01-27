@@ -77,6 +77,10 @@ public class DouglasChunk {
 	public float getRandomBottomTree(int i) {
 		return df.randomBottomTree[insideTrees.get(i)];
 	}
+
+	public float getRandomBaseTree(int i) {
+		return df.randomBaseTree[insideTrees.get(i)];
+	}
 	
 	public int getRandomColorMultiplierTree(int i) {
 		return df.randomColorMultiplierTree[insideTrees.get(i)];
@@ -227,14 +231,14 @@ public class DouglasChunk {
 			
 			float foliageWidth = getRandomBottomTree(tree);//(height+ forest.randomBottomTrees.nextFloat()*12.0f) * 0.1f;
 			
-			
+			float foliageBase = getRandomBaseTree(tree); // 2.5
 			
 			douglasVerticesF.setFloat(vertexCoordIndice, getX(tree) + foliageWidth * (float)Math.cos(angleRadian1));
 			douglasVerticesF.setFloat(vertexCoordIndice+1, getY(tree) + foliageWidth * (float)Math.sin(angleRadian1));
 
 			float z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),indices) + df.sg.getzTranslation();
 			
-			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + 2.5f,z+0.2f));
+			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + foliageBase,z+0.2f));
 			
 			douglasNormalsF.setFloat(vertexCoordIndice,  (float)Math.cos(angleRadian1));
 			douglasNormalsF.setFloat(vertexCoordIndice+1,  (float)Math.sin(angleRadian1));
@@ -251,7 +255,7 @@ public class DouglasChunk {
 			
 			z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),indices) + df.sg.getzTranslation();
 			
-			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + 2.5f,z+0.2f));
+			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + foliageBase,z+0.2f));
 			
 			douglasNormalsF.setFloat(vertexCoordIndice,   (float)Math.cos(angleRadian2));
 			douglasNormalsF.setFloat(vertexCoordIndice+1,  (float)Math.sin(angleRadian2));
@@ -268,7 +272,7 @@ public class DouglasChunk {
 			
 			z = df.sg.getInternalZ(douglasVerticesF.getFloat(vertexCoordIndice),douglasVerticesF.getFloat(vertexCoordIndice+1),indices) + df.sg.getzTranslation();
 			
-			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + 2.5f,z+0.2f));
+			douglasVerticesF.setFloat(vertexCoordIndice+2, Math.max(getZ(tree) + foliageBase,z+0.2f));
 			
 			douglasNormalsF.setFloat(vertexCoordIndice, (float)Math.cos(angleRadian3));
 			douglasNormalsF.setFloat(vertexCoordIndice+1, (float)Math.sin(angleRadian3));

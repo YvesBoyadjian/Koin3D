@@ -43,6 +43,7 @@ public class DouglasForest {
 	final static int SEED_COLOR_MULTIPLIER = 47;
 	final static int SEED_LEAN_ANGLE_TREES = 48;
 	final static int SEED_LEAN_DIRECTION_ANGLE_TREES = 49;
+	final static int SEED_BASE_TREES = 50;
 	
 	float[] xArray = new float[NB_DOUGLAS_SEEDS]; 
 	float[] yArray = new float[NB_DOUGLAS_SEEDS]; 
@@ -51,6 +52,7 @@ public class DouglasForest {
 	float[] angleDegree1 = new float[NB_DOUGLAS_SEEDS];
 	float[] randomTopTree = new float[NB_DOUGLAS_SEEDS];
 	float[] randomBottomTree = new float[NB_DOUGLAS_SEEDS];
+	float[] randomBaseTree = new float[NB_DOUGLAS_SEEDS];
 	int[] randomColorMultiplierTree = new int[NB_DOUGLAS_SEEDS];
 	float[] randomLeanAngleTree = new float[NB_DOUGLAS_SEEDS];
 	float[] randomLeanDirectionAngleTree = new float[NB_DOUGLAS_SEEDS];
@@ -78,6 +80,7 @@ public class DouglasForest {
 			Random randomColorMultiplier  = new Random(SEED_COLOR_MULTIPLIER);
 			Random randomLeanAngle = new Random(SEED_LEAN_ANGLE_TREES);
 			Random randomLeanDirectionAngle = new Random(SEED_LEAN_DIRECTION_ANGLE_TREES);
+			Random randomBaseTrees = new Random(SEED_BASE_TREES);
 			
 			int[] indices = new int[4];
 			
@@ -123,6 +126,8 @@ public class DouglasForest {
 					randomTopTree[i] = widthTop;
 					float foliageWidth = (height+ randomBottom/*randomBottomTrees.nextFloat()*/*12.0f) * 0.1f;
 					randomBottomTree[i] = foliageWidth;
+
+					randomBaseTree[i] = 1.5f + randomBaseTrees.nextFloat()*height/10;
 					
 					float leanAngleTree = randomLeanAngle_;//randomLeanAngle.nextFloat();
 					randomLeanAngleTree[i] = (float)(Math.pow(leanAngleTree, 5)*Math.PI/2/10);
@@ -207,7 +212,10 @@ public class DouglasForest {
 			
 			bb.asFloatBuffer().put(randomBottomTree);
 			fos.write(ba);
-			
+
+			bb.asFloatBuffer().put(randomBaseTree);
+			fos.write(ba);
+
 			bb.asFloatBuffer().put(randomLeanAngleTree);
 			fos.write(ba);
 			
@@ -258,6 +266,7 @@ public class DouglasForest {
 			fb.get(angleDegree1);
 			fb.get(randomTopTree);
 			fb.get(randomBottomTree);
+			fb.get(randomBaseTree);
 			fb.get(randomLeanAngleTree);
 			fb.get(randomLeanDirectionAngleTree);
 			

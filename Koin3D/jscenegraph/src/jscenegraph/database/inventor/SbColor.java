@@ -90,8 +90,13 @@ public class SbColor extends SbVec3f {
 	public SbColor(SbColor other) {
 		copyFrom(other);
 	}
-	
-	// Constructors for color vector. 
+
+	// Copy constructor
+	public SbColor(SbVec3f other) {
+		copyFrom(other);
+	}
+
+	// Constructors for color vector.
 	public SbColor(final float[] rgb) {
 		 setValue(rgb); 
 	}
