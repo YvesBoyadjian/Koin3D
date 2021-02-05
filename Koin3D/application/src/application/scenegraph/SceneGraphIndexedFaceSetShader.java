@@ -10,10 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 import javax.imageio.ImageIO;
 
@@ -31,24 +28,23 @@ import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
 import jscenegraph.coin3d.fxviz.nodes.SoVolumetricShadowGroup;
 import jscenegraph.coin3d.inventor.SbBSPTree;
 import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLBillboard;
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
 import jscenegraph.coin3d.inventor.nodes.SoTexture2;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
-import jscenegraph.database.inventor.SbBox3f;
-import jscenegraph.database.inventor.SbColor;
-import jscenegraph.database.inventor.SbRotation;
-import jscenegraph.database.inventor.SbVec2s;
-import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.SbViewportRegion;
+import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.*;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
+import org.ode4j.ode.DGeom;
+import org.ode4j.ode.DSpace;
+import org.ode4j.ode.OdeHelper;
 
 /**
  * @author Yves Boyadjian
@@ -189,6 +185,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	final SbVec3f sealsRefPoint = new SbVec3f();
 
+	final SbBSPTree treesBSPTree = new SbBSPTree();
+
 	Raster rw;
 	Raster re;
 	int overlap;
@@ -202,6 +200,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	final SoText2 fpsDisplay = new SoText2();
 
 	private int max_i;
+
+	private DSpace space;
 
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation, int max_i) {
 		super();
@@ -449,6 +449,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    
 	    SoMaterial sunMat = new SoMaterial();
 	    sunMat.emissiveColor.setValue(SUN_COLOR);
+	    sunMat.diffuseColor.setValue(1,1,1); // In order to see the sun white
 	    sunMat.ambientColor.setValue(0, 0, 0);
 	    
 	    sunSep.addChild(sunMat);
@@ -845,7 +846,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		sun[3].shadowMapScene.setValue(castingShadowScene);
 		
 		//sep.ref();
-		forest = null; // for garbage collection
+		//forest = null; // for garbage collection : no, we need forest
 
 		SoSeparator billboardSeparator = new SoSeparator();
 
@@ -1063,7 +1064,12 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		    sun[is].bboxSize.setValue(5000+is*3000 + (1 - sinus)*10000, 5000+is*3000 + (1 - sinus)*10000, 2000);
 		}
 	}
-	
+
+	private final SbVec3f dummy = new SbVec3fSingle();
+
+	private final Map<Integer,DGeom> geoms = new HashMap<>();
+
+	private final Set<Integer> nearGeoms = new HashSet<>();
 	
 	public float getZ(float x, float y, float z) {
 		
@@ -1078,6 +1084,42 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		float newZ = getGroundZ();
 		
 		current_z = newZ;
+
+		if( null != forest && null != space) {
+			SbVec3f trans = transl.translation.getValue();
+			dummy.setValue(current_x - trans.getX(), current_y - trans.getY(), current_z - trans.getZ());
+
+			SbSphere sphere = new SbSphere(dummy,99);
+			SbListInt points = new SbListInt();
+			treesBSPTree.findPoints(sphere,points);
+			float trunk_width_coef = DouglasFir.trunk_diameter_angle_degree*(float)Math.PI/180.0f;
+			nearGeoms.clear();
+			for(int i=0; i< points.getLength();i++) {
+				int bsp_index = points.operator_square_bracket(i);
+				if (bsp_index != -1) {
+					int tree_index = (int) treesBSPTree.getUserData(bsp_index);
+					if (!geoms.containsKey(tree_index)) {
+						float xd = forest.xArray[tree_index];
+						float yd = forest.yArray[tree_index];
+						float zd = forest.zArray[tree_index];
+						float height = forest.heightArray[tree_index];
+						float width = height * trunk_width_coef;
+
+						DGeom box = OdeHelper.createCapsule(space, width, height);
+						box.setPosition(xd + trans.getX(), yd + trans.getY(), zd + trans.getZ()+height/2);
+						geoms.put(tree_index,box);
+					}
+					nearGeoms.add(bsp_index);
+				}
+			}
+			for( Map.Entry entry : geoms.entrySet()) {
+				if(nearGeoms.contains(entry.getKey())) {
+					space.remove((DGeom)entry.getValue());
+					geoms.remove(entry.getKey());
+				}
+			}
+		}
+
 		//setBBoxCenter();
 		return current_z;
 	}
@@ -1328,7 +1370,20 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		forest.fillDouglasChunks();
 		
 		forest.computeDouglas();
-		
+
+		final SbVec3fSingle treePoint = new SbVec3fSingle();
+
+		for( int i=0; i< forest.NB_DOUGLAS_SEEDS; i++) {
+			float x = forest.xArray[i];
+			float y = forest.yArray[i];
+			float z = forest.zArray[i];
+
+			if(Float.isNaN(x)) {
+				continue;
+			}
+			treePoint.setValue(x,y,z);
+			treesBSPTree.addPoint(treePoint,i);
+		}
 	}
 		
 	SoGroup getDouglasTreesT(SbVec3f refPoint, final float[] distance) {
@@ -1467,5 +1522,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	public void setMaxI(int max_i) {
 		this.max_i = max_i;
+	}
+
+	public void setSpace(DSpace space) {
+		this.space = space;
 	}
 }

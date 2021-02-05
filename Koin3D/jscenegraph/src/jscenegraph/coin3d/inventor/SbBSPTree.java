@@ -33,11 +33,15 @@
 package jscenegraph.coin3d.inventor;
 
 import jscenegraph.coin3d.inventor.lists.SbList;
+import jscenegraph.coin3d.inventor.lists.SbListIndexable;
+import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbSphere;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.port.Destroyable;
+import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 
 /**
  * @author Yves Boyadjian
@@ -59,11 +63,11 @@ public class SbBSPTree implements Destroyable {
 		  private coin_bspnode right; // ptr
 		  private int dimension;   // which dimension?
 		  private double position;  // position in dimension (double to avoid floating point precision problems)
-		  private SbList <Integer> indices;
-		  private SbList <SbVec3f> pointsArray; //ptr
+		  private final SbListInt indices = new SbListInt(4);
+		  private SbListIndexable<SbVec3f, SbVec3fArray> pointsArray; //ptr
 
-		public coin_bspnode(SbList <SbVec3f> ptsarray) {			
-		  indices = new SbList<>(4);
+		public coin_bspnode(SbListIndexable<SbVec3f, SbVec3fArray> ptsarray) {
+		  //indices = new SbListInt(4);
 		
 		  this.left = this.right = null;
 		  this.pointsArray = ptsarray;
@@ -72,6 +76,7 @@ public class SbBSPTree implements Destroyable {
 
 		@Override
 		public void destructor() {
+			indices.destructor();
 			  Destroyable.delete( left);
 			  Destroyable.delete( right);
 		}
@@ -80,6 +85,12 @@ public class SbBSPTree implements Destroyable {
 		leftOf(final SbVec3f pt) 
 		{
 		  return (double)(pt.getValueRead()[this.dimension]) < this.position;
+		}
+
+		public boolean
+		leftOf(final SbVec3fSingle pt)
+		{
+			return (double)(pt.getValue()[this.dimension]) < this.position;
 		}
 
 public int addPoint(final SbVec3f pt, final int maxpts)
@@ -95,7 +106,7 @@ public int addPoint(final SbVec3f pt, final int maxpts)
   else {
     int n = this.indices.getLength();
     int i;
-    final SbVec3f tmp = new SbVec3f();
+    final SbVec3fSingle tmp = new SbVec3fSingle();
     for (i = 0; i < n; i++) {
       tmp.copyFrom((pointsArray).operator_square_bracket(this.indices.operator_square_bracket(i)));
       if (pt.operator_equal_equal(tmp)) break;
@@ -122,7 +133,7 @@ split()
   for (i = 0; i < n; i++) {
     box.extendBy((pointsArray).operator_square_bracket(this.indices.operator_square_bracket(i)));
   }
-  SbVec3f diag = box.getMax().operator_minus( box.getMin());
+  final SbVec3f diag = box.getMax().operator_minus( box.getMin());
   int dim;
   double pos;
 
@@ -183,9 +194,9 @@ split()
       this.right.indices.getLength() == 0) {
     System.err.print("Left:\n");
     n = this.indices.getLength();
-    final SbVec3f[] pts = this.pointsArray.getArrayPtr(new SbVec3f[pointsArray.getLength()]);
+    //final SbVec3f[] pts = this.pointsArray.getArrayPtr(new SbVec3f[pointsArray.getLength()]);
     for (i = 0; i < n; i++) {
-      SbVec3f vec = pts[this.indices.operator_square_bracket(i)];
+      SbVec3f vec = pointsArray.operator_square_bracket(this.indices.operator_square_bracket(i));
       System.err.print("pt: "+vec.getValueRead()[0]+" "+vec.getValueRead()[1]+" "+vec.getValueRead()[2]+"\n");
     }
     System.err.print("pos: "+pos+"\n"
@@ -208,7 +219,7 @@ split()
 }
 
 public void
-findPoints(final SbSphere sphere, final SbList <Integer> array)
+findPoints(final SbSphere sphere, final SbListInt array)
 {
   if (this.left != null) {
     final SbVec3fSingle min = new SbVec3fSingle(), max = new SbVec3fSingle();
@@ -224,14 +235,15 @@ findPoints(final SbSphere sphere, final SbList <Integer> array)
     int i, n = this.indices.getLength();
     for (i = 0; i < n; i++) {
       SbVec3f pt = (pointsArray).operator_square_bracket(this.indices.operator_square_bracket(i));
-      if (sphere.pointInside(pt)) array.append(this.indices.operator_square_bracket(i));
+      if (sphere.pointInside(pt))
+      	array.append(this.indices.operator_square_bracket(i));
     }
   }
 }
 
 	}
 	
-	private SbList<SbVec3f> pointsArray;// = new SbList<>();
+	private SbListIndexable<SbVec3f, SbVec3fArray> pointsArray;// = new SbList<>();
 	private SbList<Object> userdataArray;// = new SbList<>();
 	private coin_bspnode topnode; //ptr
 	private int maxnodepoints;
@@ -246,7 +258,7 @@ findPoints(final SbSphere sphere, final SbList <Integer> array)
 	}
 	
 	public SbBSPTree(int maxnodepts, int initsize) {
-		  pointsArray = new SbList<>(initsize);
+		  pointsArray = new SbListIndexable((size)-> { return new SbVec3fArray(FloatMemoryBuffer.allocateFloats(size*3)); },initsize);
 		  userdataArray = new SbList<>(initsize);
 		  
 		  this.topnode = new coin_bspnode(this.pointsArray);
@@ -258,7 +270,19 @@ findPoints(final SbSphere sphere, final SbList <Integer> array)
 		pointsArray.destructor();
 		userdataArray.destructor();
 	}
-	
+
+/*!
+  Returns the user data for the point at index \a idx.
+  \sa SbBSPTree::addPoint()
+  \sa SbBSPTree::numPoints()
+*/
+	public Object
+	getUserData(int idx)
+	{
+		assert(idx < this.userdataArray.getLength());
+		return this.userdataArray.operator_square_bracket(idx);
+	}
+
 	/*!
 	  Adds a new point \a pt to the BSP tree, and returns the index to
 	  the new point. The user data for that point will be set to \a data.
@@ -312,7 +336,7 @@ findPoints(final SbSphere sphere, final SbList <Integer> array)
 	  float currsize = siz / 65536.0f;  // max 16 iterations (too much?).
 
 	  final SbSphere sphere = new SbSphere(pos, currsize);
-	  final SbList <Integer> tmparray = new SbList<>(); // use only one array to avoid reallocs
+	  final SbListInt tmparray = new SbListInt(); // use only one array to avoid reallocs
 	  int idx = -1;
 
 	  // double size of sphere until a vertex is found
@@ -337,7 +361,7 @@ findPoints(final SbSphere sphere, final SbList <Integer> array)
 	*/
 	public int
 	findClosest(final SbSphere sphere,
-	                       final SbList <Integer> arr) 
+	                       final SbListInt arr)
 	{
 	  this.findPoints(sphere, arr);
 	  final SbVec3f pos = new SbVec3f(sphere.getCenter());
@@ -365,7 +389,7 @@ findPoints(final SbSphere sphere, final SbList <Integer> array)
 	*/
 	public void
 	findPoints(final SbSphere sphere,
-	                      SbList <Integer> array)
+	                      SbListInt array)
 	{
 	  this.topnode.findPoints(sphere, array);
 	}

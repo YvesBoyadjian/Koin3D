@@ -662,6 +662,8 @@ public class MainGLFW {
 		SbVec3f cameraPositionValue = camera.position.getValue();
 		DGeom water = OdeHelper.createPlane(space, 0, 0, 1, -Z_TRANSLATION + 1000 - 150);
 
+		sg.setSpace(space);
+
 		DHeightfieldData heightFieldData = OdeHelper.createHeightfieldData();
 
 		int nbi = sg.getNbI();
@@ -841,6 +843,11 @@ public class MainGLFW {
 			@Override
 			public void call(Object data, DGeom geom1, DGeom geom2) {
 
+				boolean withCapsule = false;
+				if(geom1 instanceof DCapsule || geom2 instanceof DCapsule) {
+					withCapsule = true;
+				}
+
 				// Get the rigid bodies associated with the geometries
 				DBody body1 = geom1.getBody();// dGeomGetBody(geom1);
 				DBody body2 = geom2.getBody();// dGeomGetBody(geom2);
@@ -852,6 +859,10 @@ public class MainGLFW {
 
 				if(body2 != null && Double.isNaN(body2.getPosition().get0())) {
 					return;
+				}
+
+				if(body1 == null && body2 == null) {
+					return; // no joint between two still objects
 				}
 
 //				if (body1 == body && body2 == ballBody) {
