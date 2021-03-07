@@ -205,7 +205,16 @@ public class MainGLFW {
 		window.setVisible(true);
 
 		SwingUtilities.invokeLater(() -> {
-			mainGame();
+			try {
+				mainGame();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(window,e.toString(),"Exception in Mount Rainier Island",JOptionPane.ERROR_MESSAGE);
+				System.exit(-1); // Necessary, because of Linux
+			}
+			catch (Error e) {
+				JOptionPane.showMessageDialog(window,e.toString(),"Error in Mount Rainier Island",JOptionPane.ERROR_MESSAGE);
+				System.exit(-1); // Necessary, because of Linux
+			}
 		});
 	}
 
