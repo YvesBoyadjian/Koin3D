@@ -41,6 +41,9 @@ public class TerrainLoader {
         	tiffFile = new File("loader/ressource/"+fileName);
             if(!tiffFile.exists()) {
             	tiffFile = new File("ressource/"+fileName);
+            	if(!tiffFile.exists()) {
+					tiffFile = new File("../ressource/"+fileName);
+				}
             }
         }
         try {
