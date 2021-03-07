@@ -209,10 +209,12 @@ public class MainGLFW {
 				mainGame();
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(window,e.toString(),"Exception in Mount Rainier Island",JOptionPane.ERROR_MESSAGE);
+				e.printStackTrace();
 				System.exit(-1); // Necessary, because of Linux
 			}
 			catch (Error e) {
 				JOptionPane.showMessageDialog(window,e.toString(),"Error in Mount Rainier Island",JOptionPane.ERROR_MESSAGE);
+				e.printStackTrace();
 				System.exit(-1); // Necessary, because of Linux
 			}
 		});
