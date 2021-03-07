@@ -14,12 +14,13 @@ import java.util.*;
 
 import javax.imageio.ImageIO;
 
+import application.nodes.SoTarget;
+import application.nodes.SoTargets;
+import application.objects.Target;
 import com.jogamp.opengl.GL2;
 
 import application.nodes.SoAbort;
 import application.nodes.SoNoSpecularDirectionalLight;
-import application.nodes.SoSeal;
-import application.nodes.SoSeals;
 import application.objects.DouglasFir;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
@@ -202,6 +203,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	private int max_i;
 
 	private DSpace space;
+
+	final Collection<Target> targets = new ArrayList<>();
 
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation, int max_i) {
 		super();
@@ -702,74 +705,79 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		
 		if(WITH_DOUGLAS)
 			shadowGroup.addChild(douglasSep);
-		
-		SoSeals sealsSeparator = new SoSeals() {
-		public void notify(SoNotList list) {
-			super.notify(list);
-		}
-	};
+
+		Seals seals_ = new Seals(this);
+		addTarget(seals_);
+
+		for( Target target : targets) {
+
+			SoTargets targetsSeparator = new SoTargets() {
+				public void notify(SoNotList list) {
+					super.notify(list);
+				}
+			};
 		//sealsSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.ON);
 		
 		//SoTranslation sealsTranslation = new SoTranslation();
 		
 		//sealsTranslation.translation.setValue(0, 0, - getzTranslation());
-		
-		sealsSeparator.addChild(transl);
+
+			targetsSeparator.addChild(transl);
 	    
 		//sealsSeparator.addChild(sealsTranslation);
 		
-		SoTexture2 sealTexture = new SoTexture2();
+			SoTexture2 targetTexture = new SoTexture2();
 
-		String sealPath = "ressource/robbe-3080459.jpg";
+			String texturePath = target.getTexturePath();
 
-		File sealFile = new File(sealPath);
+			File textureFile = new File(texturePath);
 
-		if(!sealFile.exists()) {
-			sealPath = "application/"+sealPath;
-		}
+			if(!textureFile.exists()) {
+				texturePath = "application/"+texturePath;
+			}
 
-		sealTexture.filename.setValue(sealPath);
-		
-		sealsSeparator.addChild(sealTexture);
-		
-		Seals seals = new Seals(this);
+			targetTexture.filename.setValue(texturePath);
+
+			targetsSeparator.addChild(targetTexture);
 		
 		final float[] vector = new float[3];
 		
-		final SbVec3f sealPosition = new SbVec3f();
-		
-		for( int seal = 0; seal < seals.getNbSeals(); seal++) {
-			SoSeal sealSeparator = new SoSeal();
-			//sealSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
-			
-			SoTranslation sealTranslation = new SoTranslation();
-			
-			sealPosition.setValue(seals.getSeal(seal,vector));
-			sealPosition.setZ(sealPosition.getZ()+0.3f);
-			
-			sealTranslation.translation.setValue(/*seals.getSeal(seal,vector)*/sealPosition);
-			
-			sealSeparator.addChild(sealTranslation);
-			
-			SoVRMLBillboard billboard = new SoVRMLBillboard();
-			//billboard.axisOfRotation.setValue(0, 1, 0);
-						
-			SoCube sealCube = new SoCube();
-			sealCube.width.setValue(1920.0f/1280.0f*sealCube.width.getValue());
-			//sealCube.height.setValue(4);
-			sealCube.depth.setValue(0.1f);
-			
-			billboard.addChild(sealCube);
-			
-			sealSeparator.addChild(billboard);
-			
-			//int sealIndex = sealsBSPTree.addPoint(sealPosition, sealSeparator);
-			//sealSeparator.setSealIndex(sealIndex);
-			sealSeparator.setReferencePoint(sealsRefPoint);
-			sealsSeparator.addChild(sealSeparator);
+		final SbVec3f targetPosition = new SbVec3f();
+
+			for (int instance = 0; instance < target.getNbTargets(); instance++) {
+				SoTarget sealSeparator = new SoTarget();
+				//sealSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
+
+				SoTranslation sealTranslation = new SoTranslation();
+
+				targetPosition.setValue(target.getTarget(instance, vector));
+				targetPosition.setZ(targetPosition.getZ() + 0.3f);
+
+				sealTranslation.translation.setValue(/*seals.getSeal(seal,vector)*/targetPosition);
+
+				sealSeparator.addChild(sealTranslation);
+
+				SoVRMLBillboard billboard = new SoVRMLBillboard();
+				//billboard.axisOfRotation.setValue(0, 1, 0);
+
+				SoCube targetCube = new SoCube();
+				targetCube.width.setValue(1920.0f / 1280.0f * targetCube.width.getValue());
+				//sealCube.height.setValue(4);
+				targetCube.depth.setValue(0.1f);
+
+				billboard.addChild(targetCube);
+
+				sealSeparator.addChild(billboard);
+
+				//int sealIndex = sealsBSPTree.addPoint(sealPosition, sealSeparator);
+				//sealSeparator.setSealIndex(sealIndex);
+				sealSeparator.setReferencePoint(sealsRefPoint);
+				targetsSeparator.addChild(sealSeparator);
+			}
+
+			shadowGroup.addChild(targetsSeparator);
+
 		}
-		
-		shadowGroup.addChild(sealsSeparator);
 
 		addWater(shadowGroup,185 + zTranslation, 0.0f, true,false);
 		addWater(shadowGroup,175 + zTranslation, 0.2f, true,false);
@@ -1210,8 +1218,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 //			}
 		}
 		
-		float seals_x = current_x + xTransl+SoSeal.MAX_DISTANCE*world_camera_direction.getX()*0.8f;
-		float seals_y = current_y + yTransl+SoSeal.MAX_DISTANCE*world_camera_direction.getY()*0.8f;
+		float seals_x = current_x + xTransl+SoTarget.MAX_DISTANCE*world_camera_direction.getX()*0.8f;
+		float seals_y = current_y + yTransl+SoTarget.MAX_DISTANCE*world_camera_direction.getY()*0.8f;
 		
 		sealsRefPoint.setValue(seals_x,seals_y,current_z + zTransl);
 	}
@@ -1526,5 +1534,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	public void setSpace(DSpace space) {
 		this.space = space;
+	}
+
+	public void addTarget(Target target) {
+		targets.add(target);
 	}
 }

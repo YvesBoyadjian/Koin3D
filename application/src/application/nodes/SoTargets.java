@@ -12,9 +12,9 @@ import jscenegraph.database.inventor.nodes.SoSeparator;
  * @author Yves Boyadjian
  *
  */
-public class SoSeals extends SoSeparator {
+public class SoTargets extends SoSeparator {
 	
-	public SoSeals() {
+	public SoTargets() {
 		super();
 		renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	}

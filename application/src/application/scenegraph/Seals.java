@@ -5,6 +5,7 @@ package application.scenegraph;
 
 import java.util.Random;
 
+import application.objects.Target;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
@@ -13,7 +14,7 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
  * @author Yves Boyadjian
  *
  */
-public class Seals {
+public class Seals implements Target {
 
 	final int FOUR_MILLION = 4000000;
 	final int FIVE_HUNDRED_THOUSAND = 500000;
@@ -109,4 +110,18 @@ public class Seals {
 		return yMin + (yMax - yMin) * randomPlacementTrees.nextFloat();
 	}
 
+	@Override
+	public String getTexturePath() {
+		return "ressource/robbe-3080459.jpg";
+	}
+
+	@Override
+	public int getNbTargets() {
+		return getNbSeals();
+	}
+
+	@Override
+	public float[] getTarget(int sealIndex, float[] vector) {
+		return getSeal(sealIndex,vector);
+	}
 }

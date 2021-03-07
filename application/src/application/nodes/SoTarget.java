@@ -14,7 +14,7 @@ import jscenegraph.database.inventor.nodes.SoTranslation;
  * @author Yves Boyadjian
  *
  */
-public class SoSeal extends SoSeparator {
+public class SoTarget extends SoSeparator {
 	
 	private static final float TWO_KILOMETERS = 2000;
 	
@@ -28,7 +28,7 @@ public class SoSeal extends SoSeparator {
 	private SbVec3f referencePoint;
 	private final SbVec3f dummy = new SbVec3f();
 
-	public SoSeal() {
+	public SoTarget() {
 		super();
 		renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 	}
