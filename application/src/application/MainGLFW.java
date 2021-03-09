@@ -98,6 +98,8 @@ import org.ode4j.math.DQuaternion;
 import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
 import org.ode4j.ode.*;
+import org.ode4j.ode.internal.ErrorHandler;
+import org.ode4j.ode.internal.ErrorHdl;
 import org.ode4j.ode.internal.Rotation;
 
 import static com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION;
@@ -225,6 +227,9 @@ public class MainGLFW {
 	static SceneGraphIndexedFaceSetShader sg;
 
 	static SoQtWalkViewer viewer;
+
+
+	static boolean physics_error = false;
 
 	public static void mainGame() {
 		display = new Display();
@@ -933,19 +938,36 @@ public class MainGLFW {
 		final double[] data = new double[1];
 		data[0] = 100.0;//0.8;
 
-		int nb_step = 20;
+		int nb_step = 30;
 
+		DVector3 saved_pos = new DVector3();
 		viewer.addIdleListener((viewer1) -> {
 			if (viewer1.isFlying()) {
 				return;
 			}
 			double dt = Math.min(1, viewer1.dt());
 			for (int i = 0; i < nb_step; i++) {
+				physics_error = false;
+				saved_pos.set(body.getPosition());
 				space.collide(data, /*callback*/callback2);
 				world.step(dt / nb_step);
 				contactGroup.empty();
+				if(physics_error) {
+					saved_pos.add2(1);
+					body.setPosition(saved_pos);
+				}
 			}
 		});
+
+		ErrorHandler.dMessageFunction function = new ErrorHandler.dMessageFunction() {
+			@Override
+			public void call(int errnum, String msg, Object... ap) {
+				physics_error = true;
+				System.err.println(msg);
+			}
+		};
+
+		ErrorHdl.dSetMessageHandler(function);
 
 		viewer.setPositionProvider(new PositionProvider() {
 			@Override
