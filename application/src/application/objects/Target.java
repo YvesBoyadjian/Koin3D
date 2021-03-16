@@ -7,4 +7,8 @@ public interface Target {
     int getNbTargets();
 
     float[] getTarget(int sealIndex, float[] vector);
+
+    float getSize();
+
+    float getRatio();
 }

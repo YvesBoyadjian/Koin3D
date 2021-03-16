@@ -709,6 +709,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		Seals seals_ = new Seals(this);
 		addTarget(seals_);
 
+		BigFoots bigfoots_ = new BigFoots(this);
+		addTarget(bigfoots_);
+
 		for( Target target : targets) {
 
 			SoTargets targetsSeparator = new SoTargets() {
@@ -761,7 +764,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 				//billboard.axisOfRotation.setValue(0, 1, 0);
 
 				SoCube targetCube = new SoCube();
-				targetCube.width.setValue(1920.0f / 1280.0f * targetCube.width.getValue());
+				targetCube.height.setValue(target.getSize());
+				targetCube.width.setValue(target.getRatio() * targetCube.height.getValue());
 				//sealCube.height.setValue(4);
 				targetCube.depth.setValue(0.1f);
 
@@ -1120,7 +1124,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 					nearGeoms.add(bsp_index);
 				}
 			}
-			for( Map.Entry entry : geoms.entrySet()) {
+			Set<Map.Entry<Integer,DGeom>> entrySet = new HashSet<>();
+			entrySet.addAll(geoms.entrySet()); // To avoid ConcurrentModificationException
+			for( Map.Entry entry : entrySet) {
 				if(nearGeoms.contains(entry.getKey())) {
 					space.remove((DGeom)entry.getValue());
 					geoms.remove(entry.getKey());

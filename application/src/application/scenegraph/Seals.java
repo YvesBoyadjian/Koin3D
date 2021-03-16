@@ -64,7 +64,7 @@ public class Seals implements Target {
 		
 		float[] xyz = new float[3];
 		int start;
-		
+
 		for( int i = 0; i < NB_SEAL_BIRTHS; i++) {
 			float x = getRandomX(randomPlacementSeals);
 			float y = getRandomY(randomPlacementSeals);
@@ -123,5 +123,15 @@ public class Seals implements Target {
 	@Override
 	public float[] getTarget(int sealIndex, float[] vector) {
 		return getSeal(sealIndex,vector);
+	}
+
+	@Override
+	public float getSize() {
+		return 1.5f;
+	}
+
+	@Override
+	public float getRatio() {
+		return 1920.0f / 1280.0f;
 	}
 }
