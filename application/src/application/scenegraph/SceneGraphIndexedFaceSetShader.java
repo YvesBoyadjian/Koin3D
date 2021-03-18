@@ -298,14 +298,45 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 			int red_,green_,blue_;
 			
 			float[] xyz = new float[3];
-			
+
+			float sharp = 0.06f;
+			float sharp2 = 0.05f;
+
 			for(int i=0;i<w;i++) {
-			for(int j=0; j<h;j++) {
+				for(int j=0; j<h;j++) {
 					int index = i*h+j;
 					//chunks.verticesPut(index*3+0, i * delta_x);
 					//chunks.verticesPut(index*3+1, (h - j -1) * delta_y);
-					float z = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i+I_START, j, fArray)[0]);
-					if( Math.abs(z)> 1e30 || i == 0 || j == 0 || i == w-1 || j == h-1 ) {
+					int i0 = Math.max(i-1,0);
+					int i1 = Math.min(i+1,w-1);
+					int j0 = Math.max(j-1,0);
+					int j1 = Math.min(j+1,h-1);
+
+					float zi0 = ((i0+I_START) >= wImageW ? re.getPixel(i0+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i0+I_START, j, fArray)[0]);
+					float zi1 = ((i1+I_START) >= wImageW ? re.getPixel(i1+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i1+I_START, j, fArray)[0]);
+					float zj0 = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j0, fArray)[0] - delta : rw.getPixel(i+I_START, j0, fArray)[0]);
+					float zj1 = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j1, fArray)[0] - delta : rw.getPixel(i+I_START, j1, fArray)[0]);
+
+					float zi0j0 = ((i0+I_START) >= wImageW ? re.getPixel(i0+I_START-wImageW+overlap, j0, fArray)[0] - delta : rw.getPixel(i0+I_START, j0, fArray)[0]);
+					float zi1j1 = ((i1+I_START) >= wImageW ? re.getPixel(i1+I_START-wImageW+overlap, j1, fArray)[0] - delta : rw.getPixel(i1+I_START, j1, fArray)[0]);
+					float zi1j0 = ((i1+I_START) >= wImageW ? re.getPixel(i1+I_START-wImageW+overlap, j0, fArray)[0] - delta : rw.getPixel(i1+I_START, j0, fArray)[0]);
+					float zi0j1 = ((i0+I_START) >= wImageW ? re.getPixel(i0+I_START-wImageW+overlap, j1, fArray)[0] - delta : rw.getPixel(i0+I_START, j1, fArray)[0]);
+
+					float zc = ((i+I_START) >= wImageW ? re.getPixel(i+I_START-wImageW+overlap, j, fArray)[0] - delta : rw.getPixel(i+I_START, j, fArray)[0]);
+
+					float z = zc*(1 + 4*sharp + 4*sharp2) - sharp *( zi0 + zi1 + zj0 + zj1 ) - sharp2 * ( zi0j0 + zi1j1 + zi1j0 + zi0j1 );
+
+					if(
+							Math.abs(zi0j0)> 1e30 ||
+									Math.abs(zi1j1)> 1e30 ||
+									Math.abs(zi1j0)> 1e30 ||
+									Math.abs(zi0j1)> 1e30 ||
+							Math.abs(zi0)> 1e30 ||
+									Math.abs(zi1)> 1e30 ||
+									Math.abs(zj0)> 1e30 ||
+									Math.abs(zj1)> 1e30 ||
+									Math.abs(zc)> 1e30 ||
+									i == 0 || j == 0 || i == w-1 || j == h-1 ) {
 						z= ZMIN;
 					}
 					else {

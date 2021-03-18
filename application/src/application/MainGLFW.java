@@ -903,7 +903,7 @@ public class MainGLFW {
 							OdeConstants.dContactSlip1 | OdeConstants.dContactSlip2;
 
 					//contact.surface.bounce = 0.1;
-					contact.surface.mu = 0.8;//((double[]) data)[0];//0.8;//50.0;
+					contact.surface.mu = 0.835;//((double[]) data)[0];//0.8;//50.0;
 					contact.surface.slip1 = 0;//.1;
 					contact.surface.slip2 = 0;//.1;
 					contact.surface.soft_erp = 0.96;
