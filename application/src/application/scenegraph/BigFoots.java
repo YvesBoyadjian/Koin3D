@@ -79,7 +79,7 @@ public class BigFoots implements Target {
             float y = getRandomY(randomPlacementBigFoots);
             float z = sg.getInternalZ(x,y,indices) + sg.getzTranslation();
 
-            boolean isNearWater = false;
+            boolean isNearWater = Math.abs(z - zWater) < 15;
             boolean isAboveWater = z > zWater;
 
             float z1 = sg.getInternalZ(x+0.5f,y,indices) + sg.getzTranslation();
