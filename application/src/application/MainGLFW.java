@@ -938,13 +938,19 @@ public class MainGLFW {
 		final double[] data = new double[1];
 		data[0] = 100.0;//0.8;
 
-		int nb_step = 30;
+		int nb_step = 50;
 
 		DVector3 saved_pos = new DVector3();
 		viewer.addIdleListener((viewer1) -> {
 			if (viewer1.isFlying()) {
 				return;
 			}
+
+			// TODO : getGroundZ() is not accurate
+			float camz = sg.getGroundZ() + 1.75f - 0.13f;
+
+			float zref = camz - 0.4f + 0.13f;
+
 			double dt = Math.min(1, viewer1.dt());
 			for (int i = 0; i < nb_step; i++) {
 				physics_error = false;
@@ -956,6 +962,11 @@ public class MainGLFW {
 					saved_pos.add2(1);
 					body.setPosition(saved_pos);
 				}
+			}
+			if(body.getPosition().get2() < zref - 0.4f) {
+				System.err.println("Error in placement, too low");
+				saved_pos.set2(zref + above_ground);
+				body.setPosition(saved_pos);
 			}
 		});
 
