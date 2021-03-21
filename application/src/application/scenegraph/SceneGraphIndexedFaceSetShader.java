@@ -741,6 +741,12 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		MountainGoats goats_ = new MountainGoats(this);
 		addTarget(goats_);
 
+		HoaryMarmots marmots_ = new HoaryMarmots(this);
+		addTarget(marmots_);
+
+		GroundSquirrels squirrels_ = new GroundSquirrels(this);
+		addTarget(squirrels_);
+
 		for( Target target : targets) {
 
 			SoTargets targetsSeparator = new SoTargets() {

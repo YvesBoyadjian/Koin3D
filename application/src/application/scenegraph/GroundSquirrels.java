@@ -7,29 +7,29 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
 
 import java.util.Random;
 
-public class MountainGoats implements Target {
+public class GroundSquirrels implements Target {
     @Override
     public String getTexturePath() {
-        return "ressource/Mountain_Goat_USFWS.jpg";
+        return "ressource/Golden-Mantled_Ground_Squirrel,_Mount_Rainier,_July_2006.jpg";
     }
 
     @Override
     public int getNbTargets() {
 
-        if( nbGoats == 0 ) {
+        if( nbSquirrels == 0 ) {
             compute();
         }
-        return nbGoats;
+        return nbSquirrels;
     }
 
     @Override
-    public float[] getTarget(int goatIndex, float[] vector) {
+    public float[] getTarget(int marmotIndex, float[] vector) {
 
-        if (nbGoats == 0) {
+        if (nbSquirrels == 0) {
             compute();
         }
 
-        SbVec3f oneGoatCoords = goatCoords.getValueAt(goatIndex);
+        SbVec3f oneGoatCoords = squirrelCoords.getValueAt(marmotIndex);
         vector[0] = oneGoatCoords.getX();
         vector[1] = oneGoatCoords.getY();
         vector[2] = oneGoatCoords.getZ();
@@ -39,33 +39,33 @@ public class MountainGoats implements Target {
 
     @Override
     public float getSize() {
-        return 1.7f;
+        return 0.5f;
     }
 
     @Override
     public float getRatio() {
-        return 2663.0f/1804.0f;
+        return 1;
     }
 
     SceneGraphIndexedFaceSetShader sg;
 
-    int nbGoats = 0;
+    int nbSquirrels = 0;
 
-    SoMFVec3f goatCoords = new SoMFVec3f();
+    SoMFVec3f squirrelCoords = new SoMFVec3f();
 
     final int HUNDRED_THOUSAND = 100000;
 
-    int NB_GOAT_BIRTHS = HUNDRED_THOUSAND;
+    int NB_SQUIRREL_BIRTHS = HUNDRED_THOUSAND;
 
-    final static int SEED_GOAT_PLACEMENT = 50;
+    final static int SEED_SQUIRREL_PLACEMENT = 52;
 
-    public MountainGoats( SceneGraphIndexedFaceSetShader sg ) {
+    public GroundSquirrels( SceneGraphIndexedFaceSetShader sg ) {
         this.sg = sg;
     }
 
     private void compute() {
 
-        Random randomPlacementBigFoots = new Random(SEED_GOAT_PLACEMENT);
+        Random randomPlacementSquirrels = new Random(SEED_SQUIRREL_PLACEMENT);
 
         int[] indices = new int[4];
 
@@ -74,9 +74,9 @@ public class MountainGoats implements Target {
         float[] xyz = new float[3];
         int start;
 
-        for( int i = 0; i < NB_GOAT_BIRTHS; i++) {
-            float x = getRandomX(randomPlacementBigFoots);
-            float y = getRandomY(randomPlacementBigFoots);
+        for( int i = 0; i < NB_SQUIRREL_BIRTHS; i++) {
+            float x = getRandomX(randomPlacementSquirrels);
+            float y = getRandomY(randomPlacementSquirrels);
             float z = sg.getInternalZ(x,y,indices) + sg.getzTranslation();
 
             boolean isNearWater = Math.abs(z - zWater) < 200;
@@ -97,26 +97,26 @@ public class MountainGoats implements Target {
             if( !isNearWater && isAboveWater && isNotTooSteep && isNotInSnow ) {
                 xyz[0] = x;
                 xyz[1] = y;
-                xyz[2] = z + 0.45f;
-                start = goatCoords.getNum();
-                goatCoords.setValues(start, xyz);
+                xyz[2] = z - 0.1f;
+                start = squirrelCoords.getNum();
+                squirrelCoords.setValues(start, xyz);
 
-                nbGoats++;
+                nbSquirrels++;
             }
         }
     }
 
-    float getRandomX(Random randomPlacementGoat) {
+    float getRandomX(Random randomPlacementSquirrel) {
         SbBox3f sceneBox = sg.getChunks().getSceneBoxFullIsland();
         float xMin = sceneBox.getBounds()[0];
         float xMax = sceneBox.getBounds()[3];
-        return xMin + (xMax - xMin) * randomPlacementGoat.nextFloat();
+        return xMin + (xMax - xMin) * randomPlacementSquirrel.nextFloat();
     }
 
-    float getRandomY(Random randomPlacementGoat) {
+    float getRandomY(Random randomPlacementSquirrel) {
         SbBox3f sceneBox = sg.getChunks().getSceneBoxFullIsland();
         float yMin = sceneBox.getBounds()[1];
         float yMax = sceneBox.getBounds()[4];
-        return yMin + (yMax - yMin) * randomPlacementGoat.nextFloat();
+        return yMin + (yMax - yMin) * randomPlacementSquirrel.nextFloat();
     }
 }

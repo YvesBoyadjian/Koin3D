@@ -59,6 +59,8 @@ public class BigFoots implements Target {
 
     final static int SEED_BIGFOOT_PLACEMENT = 49;
 
+    final float MIN_DISTANCE_BETWEEN_BIGFOOT = 300;
+
     public BigFoots( SceneGraphIndexedFaceSetShader sg ) {
         this.sg = sg;
     }
@@ -73,6 +75,8 @@ public class BigFoots implements Target {
 
         float[] xyz = new float[3];
         int start;
+
+        final float MIN_DISTANCE_BETWEEN_BIGFOOT_SQUARE = MIN_DISTANCE_BETWEEN_BIGFOOT*MIN_DISTANCE_BETWEEN_BIGFOOT;
 
         for( int i = 0; i < NB_BIGFOOT_BIRTHS; i++) {
             float x = getRandomX(randomPlacementBigFoots);
@@ -93,10 +97,23 @@ public class BigFoots implements Target {
             float dzMax = 0.3f;
             boolean isNotTooSteep = (d1<dzMax) && (d2<dzMax) && (d3<dzMax) && (d4<dzMax);
 
-            if( !isNearWater && isAboveWater && isNotTooSteep ) {
+            boolean isTooCloseFromOther = false;
+            int num = bigFootCoords.getNum();
+            for( int other=0; other<num;other++) {
+                SbVec3f coords = bigFootCoords.getValueAt(other);
+                float dx = Math.abs(x - coords.getX());
+                float dy = Math.abs(y - coords.getY());
+
+                if ((dx*dx+dy*dy) < MIN_DISTANCE_BETWEEN_BIGFOOT_SQUARE) {
+                    isTooCloseFromOther = true;
+                    break;
+                }
+            }
+
+            if( !isNearWater && isAboveWater && isNotTooSteep  && !isTooCloseFromOther) {
                 xyz[0] = x;
                 xyz[1] = y;
-                xyz[2] = z + 0.65f;
+                xyz[2] = z + 0.7f;
                 start = bigFootCoords.getNum();
                 bigFootCoords.setValues(start, xyz);
 
