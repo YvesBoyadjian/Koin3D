@@ -963,7 +963,7 @@ public class MainGLFW {
 					body.setPosition(saved_pos);
 				}
 			}
-			if(body.getPosition().get2() < zref - 0.4f) {
+			if(body.getPosition().get2() < zref - 0.5f) {
 				System.err.println("Error in placement, too low");
 				saved_pos.set2(zref + above_ground);
 				body.setPosition(saved_pos);
