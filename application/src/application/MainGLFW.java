@@ -394,7 +394,9 @@ public class MainGLFW {
 				SbViewportRegion vr = this.getSceneHandler().getViewportRegion();
 				SoNode sg = this.getSceneHandler().getSceneGraph();
 
-				SwingUtilities.invokeLater(new TargetSearchRunnable(this, vr, sg));
+				TargetSearchRunnable tsr = new TargetSearchRunnable(this, vr, sg);
+				tsr.run();
+				//SwingUtilities.invokeLater(new TargetSearchRunnable(this, vr, sg));
 				//new Thread(new TargetSearchRunnable(this, vr, sg)).start();
 			}
 		};
