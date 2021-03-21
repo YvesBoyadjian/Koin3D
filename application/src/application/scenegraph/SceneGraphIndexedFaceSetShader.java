@@ -1350,10 +1350,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		if(getIndexes(x,y,indices) == null) {
 			return ZMIN - zTranslation;			
 		}
-		int index0 = indices[0];
-		int index1 = indices[1];
-		int index2 = indices[2];
-		int index3 = indices[3];
+		int index0 = indices[0]; // imin, jmin
+		int index1 = indices[1]; // imax, jmin
+		int index2 = indices[2]; // imax, jmax
+		int index3 = indices[3]; // imin, jmax
 		
 		float z0 = chunks.verticesGetZ(index0) - zTranslation;
 		float z1 = chunks.verticesGetZ(index1) - zTranslation;
@@ -1368,14 +1368,27 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		
 		//z = chunks.verticesGet(index*3+2) - zTranslation;
 
-		float z;
-		
-		if(alpha + beta < 1) {
-			z = z0 + (z1 - z0)*alpha + (z3 - z0)*beta;
+		float za = 0;
+
+		if(alpha + beta < 1) { // imin, jmin
+			za = z0 + (z1 - z0)*alpha + (z3 - z0)*beta;
 		}
-		else {
-			z = z2 + (z3 - z2)*(1-alpha) + (z1 - z2)*(1-beta);			
+		else { // imax, jmax
+			za = z2 + (z3 - z2)*(1-alpha) + (z1 - z2)*(1-beta);
 		}
+
+		float zb = 0;
+
+		if(alpha + (1-beta) < 1) { // imin, jmax
+			zb = z3 + (z2 - z3)*alpha + (z0 - z3)*(1-beta);
+		}
+		else { // imax, jmin
+			zb = z1 + (z0 - z1)*(1-alpha) + (z2 - z1)*beta;
+		}
+
+		float z = Math.min(za,zb);
+
+		//z/= 2.0f;
 		
 //		float xx = chunks.verticesGet(index*3+0);
 //		float yy = chunks.verticesGet(index*3+1);

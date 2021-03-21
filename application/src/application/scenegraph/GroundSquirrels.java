@@ -79,7 +79,7 @@ public class GroundSquirrels implements Target {
             float y = getRandomY(randomPlacementSquirrels);
             float z = sg.getInternalZ(x,y,indices) + sg.getzTranslation();
 
-            boolean isNearWater = Math.abs(z - zWater) < 200;
+            boolean isNearWater = Math.abs(z - zWater) < 10;
             boolean isAboveWater = z > zWater;
             boolean isNotInSnow = z - zWater < 2000;
 

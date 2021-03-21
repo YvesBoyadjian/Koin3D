@@ -701,7 +701,7 @@ public class MainGLFW {
 		double offset = 0;
 		double thickness = 10;
 		heightFieldData.build(pHeightData, false, heightFieldWidth, heightFieldDepth, widthSamples, depthSamples, scale, offset, thickness, false);
-		DHeightfield heightField = OdeHelper.createHeightfield(space, heightFieldData, true);
+		final DHeightfield heightField = OdeHelper.createHeightfield(space, heightFieldData, true);
 		DQuaternion q = new DQuaternion();
 		Rotation.dQFromAxisAndAngle(q, 1, 0, 0, Math.PI / 2);
 		heightField.setQuaternion(q);
@@ -963,9 +963,9 @@ public class MainGLFW {
 					body.setPosition(saved_pos);
 				}
 			}
-			if(body.getPosition().get2() < zref - 0.5f) {
+			if(body.getPosition().get2() < zref - 1.5f) {
 				System.err.println("Error in placement, too low");
-				saved_pos.set2(zref + above_ground);
+				saved_pos.set2(zref + 1.0f);
 				body.setPosition(saved_pos);
 			}
 		});

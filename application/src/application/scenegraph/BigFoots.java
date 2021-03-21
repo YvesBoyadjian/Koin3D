@@ -59,7 +59,7 @@ public class BigFoots implements Target {
 
     final static int SEED_BIGFOOT_PLACEMENT = 49;
 
-    final float MIN_DISTANCE_BETWEEN_BIGFOOT = 300;
+    final float MIN_DISTANCE_BETWEEN_BIGFOOT = 250;
 
     public BigFoots( SceneGraphIndexedFaceSetShader sg ) {
         this.sg = sg;

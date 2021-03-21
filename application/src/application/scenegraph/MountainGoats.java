@@ -39,7 +39,7 @@ public class MountainGoats implements Target {
 
     @Override
     public float getSize() {
-        return 1.7f;
+        return 1.6f;
     }
 
     @Override
