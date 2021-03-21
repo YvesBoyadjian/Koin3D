@@ -253,18 +253,16 @@ public void search(SoSearchAction action)
   SoGroup_doAction(action);
 }
 
-	
-
-	private final SbRotation rot = new SbRotation(); // SINGLE_THREAD
-	
-	private final SbMatrix imm = new SbMatrix(); // SINGLE_THREAD
-
 	//
 	// private method that appends the needed rotation to the state
 	//
 	public void
 	performRotation(SoState state)
 	{
+		// For multithreading reasons, these variables must be instantiated
+		final SbRotation rot = new SbRotation();
+		final SbMatrix imm = new SbMatrix();
+
 	  /*imm = new SbMatrix(*/SoModelMatrixElement.get(state).inverse(imm)/*)*/;
 	  final SbViewVolume vv = SoViewVolumeElement.get(state); // ref
 
@@ -273,12 +271,6 @@ public void search(SoSearchAction action)
 	  // append the desired rotation to the state
 	  SoModelMatrixElement.rotateBy(state, (SoNode) this, rot);
 	}
-
-	  private final SbVec3f up = new SbVec3f(), look = new SbVec3f(), right = new SbVec3f(); // SINGLE_THREAD
-	  private final SbVec3f zero = new SbVec3f(); // SINGLE_THREAD
-	  private final SbVec3f zVector = new SbVec3f(0.0f, 0.0f, 1.0f); // SINGLE_THREAD
-	  private final SbVec3f dummy = new SbVec3f(); // SINGLE_THREAD
-	  private final SbMatrix matrix = new SbMatrix(); // SINGLE_THREAD 
 	//
 	// private method that computes the needed rotation
 	//
@@ -287,7 +279,14 @@ public void search(SoSearchAction action)
 	{
 	  final SbVec3f rotaxis = /*new SbVec3f(*/this.axisOfRotation.getValue()/*)*/;
 
-	  up.constructor(); look.constructor(); right.constructor();
+	  // For multithreading reasons, these variables must be instantiated
+		final SbVec3f up = new SbVec3f(), look = new SbVec3f(), right = new SbVec3f();
+		final SbVec3f zero = new SbVec3f();
+		final SbVec3f zVector = new SbVec3f(0.0f, 0.0f, 1.0f);
+		final SbVec3f dummy = new SbVec3f();
+		final SbMatrix matrix = new SbMatrix();
+
+	  //up.constructor(); look.constructor(); right.constructor();
 	  
 	  invMM.multDirMatrix(vv.getViewUp(dummy), up);
 	  invMM.multDirMatrix(vv.getProjectionDirection().operator_minus_with_dummy(dummy), look);

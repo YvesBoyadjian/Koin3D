@@ -817,7 +817,8 @@ public abstract class SoAction implements Destroyable {
 	                 }
 	                 return /*appliedTo.curPathCode*/currentpathcode;
 	             }
-	     	   	
+
+	final SoNodeProfiling profiling = new SoNodeProfiling(); // YB Optimisation
 	   	
 	   	// Does traversal of a graph rooted by a node. 
 	   	public void traverse(SoNode node) {
@@ -831,12 +832,11 @@ public abstract class SoAction implements Destroyable {
 	   			SoType typeId = node.getTypeId();
 	   			int actionMethodIndex = SoNode.getActionMethodIndex(typeId);
 	   			SoActionMethod method = traversalMethods.operator_square_bracket(actionMethodIndex);
-	   		  final SoNodeProfiling profiling = new SoNodeProfiling();
 	   		  profiling.preTraversal(this);
   				method.run(this, node);
 	   	      //traversalMethods.operator_square_bracket(SoNode.getActionMethodIndex(node.getTypeId())).run(this, node);
     			  profiling.postTraversal(this);
-    			  profiling.destructor();
+    			  //profiling.destructor(); YB optimisation
 	   	   
 	   	      //SO_CATCH_ELSE(;)
 	        	   	   

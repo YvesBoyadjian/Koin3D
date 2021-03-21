@@ -19,13 +19,10 @@ import application.nodes.SoTargets;
 import application.objects.Target;
 import com.jogamp.opengl.GL2;
 
-import application.nodes.SoAbort;
 import application.nodes.SoNoSpecularDirectionalLight;
 import application.objects.DouglasFir;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
-import jscenegraph.coin3d.fxviz.nodes.SoVolumetricShadowGroup;
-import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
 import jscenegraph.coin3d.fxviz.nodes.SoVolumetricShadowGroup;
 import jscenegraph.coin3d.inventor.SbBSPTree;
 import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLBillboard;
@@ -33,11 +30,9 @@ import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
 import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
 import jscenegraph.coin3d.inventor.nodes.SoTexture2;
-import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
 import jscenegraph.database.inventor.*;
-import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.*;
@@ -184,7 +179,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	final SbBSPTree sealsBSPTree = new SbBSPTree();
 	
-	final SbVec3f sealsRefPoint = new SbVec3f();
+	final SbVec3f targetsRefPoint = new SbVec3f();
 
 	final SbBSPTree treesBSPTree = new SbBSPTree();
 
@@ -743,6 +738,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		BigFoots bigfoots_ = new BigFoots(this);
 		addTarget(bigfoots_);
 
+		MountainGoats goats_ = new MountainGoats(this);
+		addTarget(goats_);
+
 		for( Target target : targets) {
 
 			SoTargets targetsSeparator = new SoTargets() {
@@ -779,7 +777,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		final SbVec3f targetPosition = new SbVec3f();
 
 			for (int instance = 0; instance < target.getNbTargets(); instance++) {
-				SoTarget sealSeparator = new SoTarget();
+				SoTarget targetSeparator = new SoTarget();
 				//sealSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.OFF);
 
 				SoTranslation sealTranslation = new SoTranslation();
@@ -787,9 +785,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 				targetPosition.setValue(target.getTarget(instance, vector));
 				targetPosition.setZ(targetPosition.getZ() + 0.3f);
 
-				sealTranslation.translation.setValue(/*seals.getSeal(seal,vector)*/targetPosition);
+				sealTranslation.translation.setValue(targetPosition);
 
-				sealSeparator.addChild(sealTranslation);
+				targetSeparator.addChild(sealTranslation);
 
 				SoVRMLBillboard billboard = new SoVRMLBillboard();
 				//billboard.axisOfRotation.setValue(0, 1, 0);
@@ -797,17 +795,14 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 				SoCube targetCube = new SoCube();
 				targetCube.height.setValue(target.getSize());
 				targetCube.width.setValue(target.getRatio() * targetCube.height.getValue());
-				//sealCube.height.setValue(4);
 				targetCube.depth.setValue(0.1f);
 
 				billboard.addChild(targetCube);
 
-				sealSeparator.addChild(billboard);
+				targetSeparator.addChild(billboard);
 
-				//int sealIndex = sealsBSPTree.addPoint(sealPosition, sealSeparator);
-				//sealSeparator.setSealIndex(sealIndex);
-				sealSeparator.setReferencePoint(sealsRefPoint);
-				targetsSeparator.addChild(sealSeparator);
+				targetSeparator.setReferencePoint(targetsRefPoint);
+				targetsSeparator.addChild(targetSeparator);
 			}
 
 			shadowGroup.addChild(targetsSeparator);
@@ -1152,13 +1147,13 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 						box.setPosition(xd + trans.getX(), yd + trans.getY(), zd + trans.getZ()+height/2);
 						geoms.put(tree_index,box);
 					}
-					nearGeoms.add(bsp_index);
+					nearGeoms.add(tree_index);
 				}
 			}
 			Set<Map.Entry<Integer,DGeom>> entrySet = new HashSet<>();
 			entrySet.addAll(geoms.entrySet()); // To avoid ConcurrentModificationException
 			for( Map.Entry entry : entrySet) {
-				if(nearGeoms.contains(entry.getKey())) {
+				if(!nearGeoms.contains(entry.getKey())) {
 					space.remove((DGeom)entry.getValue());
 					geoms.remove(entry.getKey());
 				}
@@ -1255,10 +1250,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 //			}
 		}
 		
-		float seals_x = current_x + xTransl+SoTarget.MAX_DISTANCE*world_camera_direction.getX()*0.8f;
-		float seals_y = current_y + yTransl+SoTarget.MAX_DISTANCE*world_camera_direction.getY()*0.8f;
+		float targets_x = current_x + xTransl+SoTarget.MAX_VIEW_DISTANCE*world_camera_direction.getX()*0.8f;
+		float targets_y = current_y + yTransl+SoTarget.MAX_VIEW_DISTANCE*world_camera_direction.getY()*0.8f;
 		
-		sealsRefPoint.setValue(seals_x,seals_y,current_z + zTransl);
+		targetsRefPoint.setValue(targets_x,targets_y,current_z + zTransl);
 	}
 	
 	public int[] getIndexes(float x, float y, int[] indices) {

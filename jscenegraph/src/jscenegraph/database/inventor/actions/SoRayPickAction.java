@@ -713,11 +713,11 @@ computeMatrices()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    SbMatrix m = new SbMatrix(SoModelMatrixElement.get(getState()));
+    SbMatrix m = /*new SbMatrix(*/SoModelMatrixElement.get(getState())/*)*/; // YB : no need to copy matrix
 
     if (m.operator_diff_equal( objToWorld)) {
         objToWorld.copyFrom(m);
-        worldToObj.copyFrom(m.inverse());
+        m.inverse(worldToObj);//worldToObj.copyFrom(m.inverse()); // YB : faster
     }
 }
 
