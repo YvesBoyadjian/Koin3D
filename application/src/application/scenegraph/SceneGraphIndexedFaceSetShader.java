@@ -177,9 +177,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	SoTouchLODMaster master;
 	SoTouchLODMaster masterS;
 	
-	final SbBSPTree sealsBSPTree = new SbBSPTree();
+	//final SbBSPTree sealsBSPTree = new SbBSPTree();
 	
 	final SbVec3f targetsRefPoint = new SbVec3f();
+
+	final SbVec3f cameraDirection = new SbVec3f();
 
 	final SbBSPTree treesBSPTree = new SbBSPTree();
 
@@ -732,6 +734,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		if(WITH_DOUGLAS)
 			shadowGroup.addChild(douglasSep);
 
+		// _______________________________________________________________________ Targets
+
 		Seals seals_ = new Seals(this);
 		addTarget(seals_);
 
@@ -749,11 +753,13 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		for( Target target : targets) {
 
-			SoTargets targetsSeparator = new SoTargets() {
+			SoTargets targetsSeparator = new SoTargets(target) {
 				public void notify(SoNotList list) {
 					super.notify(list);
 				}
 			};
+			targetsSeparator.setReferencePoint(targetsRefPoint);
+			targetsSeparator.setCameraDirection(cameraDirection);
 		//sealsSeparator.renderCaching.setValue(SoSeparator.CacheEnabled.ON);
 		
 		//SoTranslation sealsTranslation = new SoTranslation();
@@ -1256,8 +1262,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 //			}
 		}
 		
-		float targets_x = current_x + xTransl+SoTarget.MAX_VIEW_DISTANCE*world_camera_direction.getX()*0.8f;
-		float targets_y = current_y + yTransl+SoTarget.MAX_VIEW_DISTANCE*world_camera_direction.getY()*0.8f;
+		float targets_x = current_x + xTransl/*+SoTarget.MAX_VIEW_DISTANCE*world_camera_direction.getX()*0.8f*/;
+		float targets_y = current_y + yTransl/*+SoTarget.MAX_VIEW_DISTANCE*world_camera_direction.getY()*0.8f*/;
+
+		cameraDirection.setValue(world_camera_direction);
+		cameraDirection.setZ(0);
 		
 		targetsRefPoint.setValue(targets_x,targets_y,current_z + zTransl);
 	}

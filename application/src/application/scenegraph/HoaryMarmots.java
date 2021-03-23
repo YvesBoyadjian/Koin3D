@@ -47,6 +47,11 @@ public class HoaryMarmots implements Target {
         return 1707.0f/1219.0f;
     }
 
+    @Override
+    public float getViewDistance() {
+        return 500;
+    }
+
     SceneGraphIndexedFaceSetShader sg;
 
     int nbMarmots = 0;

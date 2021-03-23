@@ -71,7 +71,8 @@ public class TargetSearchRunnable implements Runnable {
 				});
 			}
 		};
-		pickThread.start();
+		//pickThread.start();
+		pickThread.run(); // No need now to do multithreading
 	}
 
 }

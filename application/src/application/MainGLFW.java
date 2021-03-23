@@ -394,9 +394,9 @@ public class MainGLFW {
 				SbViewportRegion vr = this.getSceneHandler().getViewportRegion();
 				SoNode sg = this.getSceneHandler().getSceneGraph();
 
-				TargetSearchRunnable tsr = new TargetSearchRunnable(this, vr, sg);
-				tsr.run();
-				//SwingUtilities.invokeLater(new TargetSearchRunnable(this, vr, sg));
+//				TargetSearchRunnable tsr = new TargetSearchRunnable(this, vr, sg);
+//				tsr.run();
+				SwingUtilities.invokeLater(new TargetSearchRunnable(this, vr, sg));
 				//new Thread(new TargetSearchRunnable(this, vr, sg)).start();
 			}
 		};
@@ -940,7 +940,7 @@ public class MainGLFW {
 		final double[] data = new double[1];
 		data[0] = 100.0;//0.8;
 
-		int nb_step = 50;
+		int nb_step = 20;
 
 		DVector3 saved_pos = new DVector3();
 		viewer.addIdleListener((viewer1) -> {
@@ -953,7 +953,7 @@ public class MainGLFW {
 
 			float zref = camz - 0.4f + 0.13f;
 
-			double dt = Math.min(1, viewer1.dt());
+			double dt = Math.min(0.5, viewer1.dt());
 			for (int i = 0; i < nb_step; i++) {
 				physics_error = false;
 				saved_pos.set(body.getPosition());

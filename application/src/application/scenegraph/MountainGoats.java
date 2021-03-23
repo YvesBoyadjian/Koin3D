@@ -47,6 +47,11 @@ public class MountainGoats implements Target {
         return 2663.0f/1804.0f;
     }
 
+    @Override
+    public float getViewDistance() {
+        return 1000;
+    }
+
     SceneGraphIndexedFaceSetShader sg;
 
     int nbGoats = 0;

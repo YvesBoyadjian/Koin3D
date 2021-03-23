@@ -133,4 +133,9 @@ public class Seals implements Target {
 	public float getRatio() {
 		return 1920.0f / 1280.0f;
 	}
+
+	@Override
+	public float getViewDistance() {
+		return 2000;
+	}
 }

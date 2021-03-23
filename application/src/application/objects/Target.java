@@ -11,4 +11,6 @@ public interface Target {
     float getSize();
 
     float getRatio();
+
+    float getViewDistance();
 }

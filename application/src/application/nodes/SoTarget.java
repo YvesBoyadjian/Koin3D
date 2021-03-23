@@ -50,7 +50,7 @@ public class SoTarget extends SoSeparator {
 		this.referencePoint = referencePoint;
 	}
 	
-	private SbVec3f getCoordinates() {
+	public SbVec3f getCoordinates() {
 		return ((SoTranslation)getChild(0)).translation.getValue();
 	}
 
@@ -59,9 +59,9 @@ public class SoTarget extends SoSeparator {
 
 	////////////////////////////////////////////////////////////////////////
 	{
-		if(referencePoint.operator_minus(getCoordinates(), dummyRender).sqrLength() > MAX_SQUARE_VIEW_DISTANCE) {
-			return;
-		}		
+//		if(referencePoint.operator_minus(getCoordinates(), dummyRender).sqrLength() > MAX_SQUARE_VIEW_DISTANCE) {
+//			return;
+//		}
 		super.GLRenderBelowPath(action);
 	}
 
@@ -69,9 +69,9 @@ public class SoTarget extends SoSeparator {
 	public void
 	pick(SoPickAction action)
 	{
-		if(referencePoint.operator_minus(getCoordinates()).sqrLength() > MAX_SQUARE_SHOOT_DISTANCE) {
-			return;
-		}		
+//		if(referencePoint.operator_minus(getCoordinates()).sqrLength() > MAX_SQUARE_SHOOT_DISTANCE) {
+//			return;
+//		}
 	  super.pick( action);
 	}
 

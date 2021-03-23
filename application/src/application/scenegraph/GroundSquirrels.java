@@ -47,6 +47,11 @@ public class GroundSquirrels implements Target {
         return 1;
     }
 
+    @Override
+    public float getViewDistance() {
+        return 500;
+    }
+
     SceneGraphIndexedFaceSetShader sg;
 
     int nbSquirrels = 0;

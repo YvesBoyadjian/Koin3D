@@ -47,6 +47,11 @@ public class BigFoots implements Target {
         return 1;
     }
 
+    @Override
+    public float getViewDistance() {
+        return 2000;
+    }
+
     SceneGraphIndexedFaceSetShader sg;
 
     int nbBigFoots = 0;
