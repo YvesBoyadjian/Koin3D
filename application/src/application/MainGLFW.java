@@ -905,7 +905,7 @@ public class MainGLFW {
 							OdeConstants.dContactSlip1 | OdeConstants.dContactSlip2;
 
 					//contact.surface.bounce = 0.1;
-					contact.surface.mu = 0.835;//((double[]) data)[0];//0.8;//50.0;
+					contact.surface.mu = 0.838;//((double[]) data)[0];//0.8;//50.0;
 					contact.surface.slip1 = 0;//.1;
 					contact.surface.slip2 = 0;//.1;
 					contact.surface.soft_erp = 0.96;
@@ -940,7 +940,7 @@ public class MainGLFW {
 		final double[] data = new double[1];
 		data[0] = 100.0;//0.8;
 
-		int nb_step = 20;
+		int nb_step = 50;
 
 		DVector3 saved_pos = new DVector3();
 		viewer.addIdleListener((viewer1) -> {
