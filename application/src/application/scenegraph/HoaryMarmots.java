@@ -1,6 +1,7 @@
 package application.scenegraph;
 
 import application.objects.Target;
+import jscenegraph.coin3d.inventor.lists.SbListFloat;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
@@ -29,10 +30,9 @@ public class HoaryMarmots implements Target {
             compute();
         }
 
-        SbVec3f oneGoatCoords = marmotCoords.getValueAt(marmotIndex);
-        vector[0] = oneGoatCoords.getX();
-        vector[1] = oneGoatCoords.getY();
-        vector[2] = oneGoatCoords.getZ();
+        vector[0] = marmotCoords.get(marmotIndex*3);
+        vector[1] = marmotCoords.get(marmotIndex*3+1);
+        vector[2] = marmotCoords.get(marmotIndex*3+2);
 
         return vector;
     }
@@ -56,7 +56,7 @@ public class HoaryMarmots implements Target {
 
     int nbMarmots = 0;
 
-    SoMFVec3f marmotCoords = new SoMFVec3f();
+    SbListFloat marmotCoords = new SbListFloat();
 
     final int HUNDRED_THOUSAND = 100000;
 
@@ -75,9 +75,6 @@ public class HoaryMarmots implements Target {
         int[] indices = new int[4];
 
         float zWater = - 150 + sg.getzTranslation() - sg.CUBE_DEPTH/2;
-
-        float[] xyz = new float[3];
-        int start;
 
         for( int i = 0; i < NB_MARMOT_BIRTHS; i++) {
             float x = getRandomX(randomPlacementBigFoots);
@@ -100,11 +97,9 @@ public class HoaryMarmots implements Target {
             boolean isNotTooSteep = (d1<dzMax) && (d2<dzMax) && (d3<dzMax) && (d4<dzMax);
 
             if( !isNearWater && isAboveWater && isNotTooSteep && isNotInSnow ) {
-                xyz[0] = x;
-                xyz[1] = y;
-                xyz[2] = z;
-                start = marmotCoords.getNum();
-                marmotCoords.setValues(start, xyz);
+                marmotCoords.append(x);
+                marmotCoords.append(y);
+                marmotCoords.append(z);
 
                 nbMarmots++;
             }

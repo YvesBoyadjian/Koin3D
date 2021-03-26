@@ -41,7 +41,7 @@ public class CharPtr implements Destroyable {
 	}
 	
 	public int getByteOffset() {
-		return (int)(floatOffset*(long)Float.SIZE/Byte.SIZE);
+		return floatOffset*Float.BYTES;
 	}
 	
 	public int getFloatOffset() {

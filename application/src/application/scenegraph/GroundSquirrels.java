@@ -1,6 +1,7 @@
 package application.scenegraph;
 
 import application.objects.Target;
+import jscenegraph.coin3d.inventor.lists.SbListFloat;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
@@ -29,10 +30,9 @@ public class GroundSquirrels implements Target {
             compute();
         }
 
-        SbVec3f oneGoatCoords = squirrelCoords.getValueAt(marmotIndex);
-        vector[0] = oneGoatCoords.getX();
-        vector[1] = oneGoatCoords.getY();
-        vector[2] = oneGoatCoords.getZ();
+        vector[0] = squirrelCoords.get(marmotIndex*3);
+        vector[1] = squirrelCoords.get(marmotIndex*3+1);
+        vector[2] = squirrelCoords.get(marmotIndex*3+2);
 
         return vector;
     }
@@ -56,7 +56,7 @@ public class GroundSquirrels implements Target {
 
     int nbSquirrels = 0;
 
-    SoMFVec3f squirrelCoords = new SoMFVec3f();
+    SbListFloat squirrelCoords = new SbListFloat();
 
     final int HUNDRED_THOUSAND = 100000;
 
@@ -103,8 +103,9 @@ public class GroundSquirrels implements Target {
                 xyz[0] = x;
                 xyz[1] = y;
                 xyz[2] = z - 0.1f;
-                start = squirrelCoords.getNum();
-                squirrelCoords.setValues(start, xyz);
+                squirrelCoords.append( xyz[0]);
+                squirrelCoords.append( xyz[1]);
+                squirrelCoords.append( xyz[2]);
 
                 nbSquirrels++;
             }

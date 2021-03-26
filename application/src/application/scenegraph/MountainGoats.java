@@ -1,6 +1,7 @@
 package application.scenegraph;
 
 import application.objects.Target;
+import jscenegraph.coin3d.inventor.lists.SbListFloat;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
@@ -29,10 +30,9 @@ public class MountainGoats implements Target {
             compute();
         }
 
-        SbVec3f oneGoatCoords = goatCoords.getValueAt(goatIndex);
-        vector[0] = oneGoatCoords.getX();
-        vector[1] = oneGoatCoords.getY();
-        vector[2] = oneGoatCoords.getZ();
+        vector[0] = goatCoords.get(goatIndex*3);
+        vector[1] = goatCoords.get(goatIndex*3+1);
+        vector[2] = goatCoords.get(goatIndex*3+2);
 
         return vector;
     }
@@ -56,7 +56,7 @@ public class MountainGoats implements Target {
 
     int nbGoats = 0;
 
-    SoMFVec3f goatCoords = new SoMFVec3f();
+    SbListFloat goatCoords = new SbListFloat();
 
     final int HUNDRED_THOUSAND = 100000;
 
@@ -77,7 +77,6 @@ public class MountainGoats implements Target {
         float zWater = - 150 + sg.getzTranslation() - sg.CUBE_DEPTH/2;
 
         float[] xyz = new float[3];
-        int start;
 
         for( int i = 0; i < NB_GOAT_BIRTHS; i++) {
             float x = getRandomX(randomPlacementBigFoots);
@@ -103,8 +102,9 @@ public class MountainGoats implements Target {
                 xyz[0] = x;
                 xyz[1] = y;
                 xyz[2] = z + 0.45f;
-                start = goatCoords.getNum();
-                goatCoords.setValues(start, xyz);
+                goatCoords.append(xyz[0]);
+                goatCoords.append(xyz[1]);
+                goatCoords.append(xyz[2]);
 
                 nbGoats++;
             }

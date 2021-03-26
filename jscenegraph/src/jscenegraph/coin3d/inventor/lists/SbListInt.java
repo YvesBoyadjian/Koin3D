@@ -82,7 +82,6 @@ public class SbListInt implements Destroyable, Mutable {
 		      int[] newitembuffer = this.builtinbuffer;
 		      boolean copyDone = false;
 		      if (items > DEFAULTSIZE) {
-		    	  //newitembuffer = new int[items];
 		    	  newitembuffer = Arrays.copyOf(this.itembuffer, items);
 		    	  copyDone = true;
 		      }
@@ -91,7 +90,6 @@ public class SbListInt implements Destroyable, Mutable {
 		        for (int i = 0; i < items; i++) newitembuffer[i] = this.itembuffer[i];
 		      }
 
-		      // if (this.itembuffer != this.builtinbuffer) delete[] this.itembuffer; java magic !
 		      this.itembuffer = newitembuffer;
 		      this.itembuffersize = items > DEFAULTSIZE ? items : DEFAULTSIZE;
 			  internalIntArrayPtr = null; // invalidate internal IntArrayPtr
@@ -117,11 +115,7 @@ public class SbListInt implements Destroyable, Mutable {
 	    else if (size <= this.itembuffersize) return;
 	    else { this.itembuffersize = size; }
 
-	    //int[] newbuffer = new int[this.itembuffersize];
 	    int[] newbuffer = Arrays.copyOf(this.itembuffer,this.itembuffersize);
-	    int n = this.numitems;
-	    //for (int i = 0; i < n; i++) newbuffer[i] = this.itembuffer[i];
-	    // if (this.itembuffer != this.builtinbuffer) delete[] this.itembuffer; java magic !
 	    this.itembuffer = newbuffer;
 	    internalIntArrayPtr = null; // invalidate internal IntArrayPtr
 	}
@@ -142,6 +136,8 @@ public class SbListInt implements Destroyable, Mutable {
 
 	@Override
 	public void destructor() {
+		numitems = -1;
+		itembuffersize = -1;
 		itembuffer = null;
 		Destroyable.delete(internalIntArrayPtr);
 		internalIntArrayPtr = null;
@@ -152,24 +148,6 @@ public class SbListInt implements Destroyable, Mutable {
 		SbListInt otherList = (SbListInt)other;
 		copy(otherList);
 	}
-
-	 //
-	   // Copies a pointer list
-	   //
-	   
-//	  public void
-//	   copy(final SbListInt pl)
-//	   {
-//	       int i;
-//	   
-//	       int size = pl.size();
-//	       
-//	       grow(size);
-//	       truncate(size);
-//	   
-//	       for (i = 0; i < size; i++)
-//	    	   itembuffer[i] = pl.get(i);
-//	   }
 
 /*!
   Make this list a copy of \a l.
@@ -184,7 +162,7 @@ public void copy(final SbListInt l)
 	  
 		// java port
 		public void operator_square_bracket(int i, int object) {
-			 if (i >= size()) grow(i);
+//			 if (i >= size()) grow(i);
 			 itembuffer[i] = object; 
 		}
 

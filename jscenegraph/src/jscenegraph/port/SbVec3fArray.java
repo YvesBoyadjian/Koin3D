@@ -212,10 +212,13 @@ public class SbVec3fArray extends Indexable<SbVec3f> implements ByteBufferAble, 
 	 * @param num
 	 * @param source
 	 */
-	public void copy(int num, SbVec3fArray source) {
-//		for (int i = 0; i < num; i++) {
-//			setO(i, source.getO(i));
-//		}
-		FloatMemoryBuffer.arraycopy(source.valuesArray,source.delta*3,valuesArray,delta*3,num*3);
+	public void copy(int num, Indexable<SbVec3f> source) {
+		if(source instanceof  SbVec3fArray) {
+			SbVec3fArray source_ = (SbVec3fArray) source;
+			FloatMemoryBuffer.arraycopy(source_.valuesArray,source_.delta*3,valuesArray,delta*3,num*3);
+		}
+		else {
+			super.copy(num,source);
+		}
 	}
 }

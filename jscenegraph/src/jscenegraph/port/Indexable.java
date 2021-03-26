@@ -38,6 +38,7 @@ public abstract class Indexable<T extends Object> {
 
 	/**
 	 * Default implementation
+	 * To be redefined in derived classes for better performance
 	 * @param num
 	 * @param source
 	 */

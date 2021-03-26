@@ -95,10 +95,16 @@ public class IntArray extends Indexable<Integer> implements IntBufferAble {
 		return intBuffer;		
 	}
 
-	public void copy(int num, IntArray source) {
+	public void copy(int num, Indexable<Integer> source) {
 //		for (int i = 0; i < num; i++) {
 //			set(i, source.get(i));
 //		}
-		System.arraycopy(source.values,source.start,values,start,num);
+		if(source instanceof IntArray) {
+			IntArray source_ = (IntArray)source;
+			System.arraycopy(source_.values, source_.start, values, start, num);
+		}
+		else {
+			super.copy(num,source);
+		}
 	}
 }
