@@ -58,9 +58,9 @@ public class MountainGoats implements Target {
 
     SbListFloat goatCoords = new SbListFloat();
 
-    final int HUNDRED_THOUSAND = 100000;
+    final int FIFTY_THOUSAND = 50000;
 
-    int NB_GOAT_BIRTHS = HUNDRED_THOUSAND;
+    int NB_GOAT_BIRTHS = FIFTY_THOUSAND;
 
     final static int SEED_GOAT_PLACEMENT = 50;
 

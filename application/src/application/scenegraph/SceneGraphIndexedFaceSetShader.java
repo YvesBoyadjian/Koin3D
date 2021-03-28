@@ -751,6 +751,62 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		GroundSquirrels squirrels_ = new GroundSquirrels(this);
 		addTarget(squirrels_);
 
+		Owls spottedOwlFront_ = new Owls(this,53) {
+
+			@Override
+			public String getTexturePath() {
+				return "ressource/SPOW-front_web.jpg";
+			}
+
+			@Override
+			public float getRatio() {
+				return 218.0f/292.0f;
+			}
+		};
+		addTarget(spottedOwlFront_);
+
+		Owls spottedOwlBack_ = new Owls(this,54) {
+
+			@Override
+			public String getTexturePath() {
+				return "ressource/SPOW-back_web.jpg";
+			}
+
+			@Override
+			public float getRatio() {
+				return 209.0f/329.0f;
+			}
+		};
+		addTarget(spottedOwlBack_);
+
+		Owls barredOwlFront_ = new Owls(this,55) {
+
+			@Override
+			public String getTexturePath() {
+				return "ressource/BDOW-front_web.jpg";
+			}
+
+			@Override
+			public float getRatio() {
+				return 217.0f/289.0f;
+			}
+		};
+		addTarget(barredOwlFront_);
+
+		Owls barredOwlBack_ = new Owls(this,56) {
+
+			@Override
+			public String getTexturePath() {
+				return "ressource/BDOW-back_web.jpg";
+			}
+
+			@Override
+			public float getRatio() {
+				return 222.0f/330.0f;
+			}
+		};
+		addTarget(barredOwlBack_);
+
 		for( Target target : targets) {
 
 			SoTargets targetsSeparator = new SoTargets(target) {
