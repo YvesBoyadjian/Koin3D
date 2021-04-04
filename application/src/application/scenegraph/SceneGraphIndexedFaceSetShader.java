@@ -70,7 +70,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	public static final float WATER_BRIGHTNESS = 0.4f;
 	
-	private static final SbColor SUN_COLOR = new SbColor(1f, 0.9f, 0.8f);
+	private static final SbColor SUN_COLOR = new SbColor(1f, 0.95f, 0.8f);
 
 	private static final float SUN_INTENSITY = 1.0f;
 	
