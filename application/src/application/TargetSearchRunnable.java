@@ -58,7 +58,9 @@ public class TargetSearchRunnable implements Runnable {
 							int len = p.getLength();
 							if( len > 3) {
 								SoNode parent = p.getNode(len-2);
-								if(parent.isOfType(SoGroup.getClassTypeId())) {
+								SoNode maybe_targets = p.getNode(len-4);
+								if(parent.isOfType(SoGroup.getClassTypeId()) &&
+								maybe_targets instanceof SoTargets) {
 									v.addOneShotIdleListener((viewer1)->{
 										SoGroup g = (SoGroup)parent;
 										SoMaterial c = new SoMaterial();
@@ -66,11 +68,11 @@ public class TargetSearchRunnable implements Runnable {
 										g.enableNotify(false);
 										g.insertChild(c, 0);
 										g.enableNotify(true);
+										SoTargets targets = (SoTargets) maybe_targets;
+										Target t = targets.getTarget();
+										main.shootTarget(t);
 									});
 								}
-								SoTargets targets = (SoTargets) p.getNode(len-4);
-								Target t = targets.getTarget();
-								main.shootTarget(t);
 							}
 							//System.out.println(pp.getPath().getTail().getClass());
 						}
