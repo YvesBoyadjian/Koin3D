@@ -717,10 +717,14 @@ setFragmentShader(SoState state)
     eps = "const float THRESHOLD = "+master.threshold.getValue()+";"
                 ;
     gen.addDeclaration(eps, false);
-    eps = "const int NB_STEPS = 32;"
+    eps = "const int NB_STEPS = 12;"
 			;
 	  gen.addDeclaration(eps, false);
   }
+
+	if (numshadowlights != 0) { //YB
+		gen.addDeclaration("uniform mat4 cameraTransform;", false);
+	}
   for (i = 0; i < numshadowlights; i++) {
   	gen.addDeclaration("// ____________________ Begin ShadowLight "+i,false);
     String str;
@@ -865,7 +869,7 @@ setFragmentShader(SoState state)
       gen.addMainStatement("scolor += shadeFactor * gl_FrontMaterial.specular.rgb * specular.rgb;\n");
       gen.addMainStatement("color += ambient.rgb * gl_FrontMaterial.ambient.rgb;\n");
 
-      endShadowLight(gen,cache.lightid);
+      endShadowLight(gen,cache.lightid,cache.texunit,i);
 
       gen.addMainStatement("// ____________________ End ShadowLight\n");
     }
@@ -1119,7 +1123,7 @@ setFragmentShader(SoState state)
 		// does nothing in this class
 	}
 
-protected void endShadowLight(SoShaderGenerator gen, int index) {
+protected void endShadowLight(SoShaderGenerator gen, int index,int texunit,int shadowlightnumber) {
 	  	// does nothing in this class
 }
 

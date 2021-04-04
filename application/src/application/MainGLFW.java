@@ -312,6 +312,7 @@ public class MainGLFW {
 		sg.setTreeShadowDistance(tree_shadow_distance);
 
 		sg.getShadowGroup().isVolumetricActive.setValue(volumetric_sky);
+		sg.getEnvironment().fogColor.setValue(volumetric_sky ? sg.SKY_COLOR.darker().darker().darker().darker().darker().darker() : sg.SKY_COLOR.darker());
 
 		sg.enableFPS(display_fps);
 
@@ -711,7 +712,7 @@ public class MainGLFW {
 
 		world.setGravity(0, 0, -9.81);
 
-		float above_ground = 0.1f; // Necessary when respawning on water
+		float above_ground = 0.2f; // Necessary when respawning on water
 
 		final DBody body = OdeHelper.createBody(world);
 		body.setPosition(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - /*1.75f / 2*/0.4f + 0.13f + above_ground);
@@ -961,7 +962,7 @@ public class MainGLFW {
 				world.step(dt / nb_step);
 				contactGroup.empty();
 				if(physics_error) {
-					saved_pos.add2(1);
+					saved_pos.add2(0.1);
 					body.setPosition(saved_pos);
 				}
 			}

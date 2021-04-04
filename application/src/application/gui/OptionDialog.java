@@ -91,7 +91,9 @@ public class OptionDialog extends JDialog {
         sg.setTreeDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeDistance.getModel()).getNumber())));
         sg.setTreeShadowDistance((float)((double)((Double)((SpinnerNumberModel)spinnerTreeShadowDistance.getModel()).getNumber())));
         sg.setMaxI(((int)((Integer)((SpinnerNumberModel)spinnerMaxI.getModel()).getNumber())));
-        sg.getShadowGroup().isVolumetricActive.setValue(volumetricSkyCheckBox.getModel().isSelected());
+        boolean volumetric = volumetricSkyCheckBox.getModel().isSelected();
+        sg.getShadowGroup().isVolumetricActive.setValue(volumetric);
+        sg.getEnvironment().fogColor.setValue(volumetric ? sg.SKY_COLOR.darker().darker().darker().darker().darker().darker() : sg.SKY_COLOR.darker());
         sg.enableFPS(displayFPSCheckBox.getModel().isSelected());
         //sg.disableNotifySun();
     }

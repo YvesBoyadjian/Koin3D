@@ -70,7 +70,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	public static final float WATER_BRIGHTNESS = 0.4f;
 	
-	private static final SbColor SUN_COLOR = new SbColor(1f, 0.85f, 0.8f);
+	private static final SbColor SUN_COLOR = new SbColor(1f, 0.9f, 0.8f);
 
 	private static final float SUN_INTENSITY = 1.0f;
 	
@@ -152,7 +152,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	float total_width_meter;
 	
 	int jstart;
-	
+
+	SoEnvironment environment = new SoEnvironment();
+
 	SoVolumetricShadowGroup shadowGroup;
 	SoNode shadowTree;
 	SoNode chunkTree;
@@ -443,7 +445,6 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	    
 	    //sep.addChild(new SoAbort());
 	    
-	    SoEnvironment environment = new SoEnvironment();
 	    environment.ambientColor.setValue(0, 0, 0);
 	    environment.ambientIntensity.setValue(0);
 	    environment.fogType.setValue(SoEnvironment.FogType.FOG);
@@ -1571,6 +1572,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	public SoVolumetricShadowGroup getShadowGroup() {
 		return shadowGroup;
+	}
+
+	public SoEnvironment getEnvironment() {
+		return environment;
 	}
 
 	public void enableNotifySun() {
