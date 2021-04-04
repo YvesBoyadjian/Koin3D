@@ -38,6 +38,7 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.*;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
+import org.lwjgl.system.CallbackI;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.OdeHelper;
@@ -199,11 +200,15 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	final SoText2 fpsDisplay = new SoText2();
 
+	final SoText2 targetDisplay = new SoText2();
+
 	private int max_i;
 
 	private DSpace space;
 
 	final Collection<Target> targets = new ArrayList<>();
+
+	private final Set<String> shotTargets = new HashSet<>();
 
 	public SceneGraphIndexedFaceSetShader(Raster rw, Raster re, int overlap, float zTranslation, int max_i) {
 		super();
@@ -755,6 +760,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		Owls spottedOwlFront_ = new Owls(this,53) {
 
 			@Override
+			public String targetName() {
+				return "Spotted Owl";
+			}
+
+			@Override
 			public String getTexturePath() {
 				return "ressource/SPOW-front_web.jpg";
 			}
@@ -767,6 +777,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		addTarget(spottedOwlFront_);
 
 		Owls spottedOwlBack_ = new Owls(this,54) {
+
+			@Override
+			public String targetName() {
+				return "Spotted Owl";
+			}
 
 			@Override
 			public String getTexturePath() {
@@ -783,6 +798,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		Owls barredOwlFront_ = new Owls(this,55) {
 
 			@Override
+			public String targetName() {
+				return "Barred Owl";
+			}
+
+			@Override
 			public String getTexturePath() {
 				return "ressource/BDOW-front_web.jpg";
 			}
@@ -795,6 +815,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		addTarget(barredOwlFront_);
 
 		Owls barredOwlBack_ = new Owls(this,56) {
+
+			@Override
+			public String targetName() {
+				return "Barred Owl";
+			}
 
 			@Override
 			public String getTexturePath() {
@@ -985,6 +1010,34 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		fpsSwitch.addChild(billboardSeparator);
 		fpsSwitch.whichChild.setValue(SoSwitch.SO_SWITCH_NONE);
 		sep.addChild(fpsSwitch);
+
+		SoSeparator targetSeparator = new SoSeparator();
+
+		SoOrthographicCamera billboardTargetCamera = new SoOrthographicCamera();
+
+		targetSeparator.addChild(billboardTargetCamera);
+
+		textTransl = new SoTranslation();
+		textTransl.translation.setValue(-1,0.9f,0);
+
+		targetSeparator.addChild(textTransl);
+
+//		SoFont font = new SoFont();
+//		font.size.setValue(40.0f);
+
+		targetSeparator.addChild(font);
+
+		color = new SoBaseColor();
+
+		color.rgb.setValue(1,0,0);
+
+		targetSeparator.addChild(color);
+
+		targetDisplay.string.setValue("");
+
+		targetSeparator.addChild(targetDisplay);
+
+		sep.addChild(targetSeparator);
 	}
 
 	public float getZ(int i, int j) {
@@ -1659,5 +1712,17 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	public void addTarget(Target target) {
 		targets.add(target);
+	}
+
+	public void shootTarget(Target t) {
+		shotTargets.add(t.targetName());
+
+		String[] targets = new String[shotTargets.size()];
+		int i=0;
+		for(String name : shotTargets) {
+			targets[i] = name;
+			i++;
+		}
+		targetDisplay.string.setValues(0,targets);
 	}
 }

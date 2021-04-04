@@ -9,6 +9,11 @@ import java.util.Random;
 
 public class BigFoots implements Target {
     @Override
+    public String targetName() {
+        return "Bigfoot";
+    }
+
+    @Override
     public String getTexturePath() {
         return "ressource/bf.jpg";
     }

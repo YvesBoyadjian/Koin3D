@@ -10,6 +10,11 @@ import java.util.Random;
 
 public class HoaryMarmots implements Target {
     @Override
+    public String targetName() {
+        return "Marmot";
+    }
+
+    @Override
     public String getTexturePath() {
         return "ressource/Hoary_marmot_rainier_2008.jpg";
     }

@@ -2,6 +2,8 @@ package application.objects;
 
 public interface Target {
 
+    String targetName();
+
     String getTexturePath();
 
     int getNbTargets();

@@ -110,6 +110,11 @@ public class Seals implements Target {
 	}
 
 	@Override
+	public String targetName() {
+		return "Seal";
+	}
+
+	@Override
 	public String getTexturePath() {
 		return "ressource/robbe-3080459.jpg";
 	}

@@ -10,6 +10,11 @@ import java.util.Random;
 
 public class GroundSquirrels implements Target {
     @Override
+    public String targetName() {
+        return "Squirrel";
+    }
+
+    @Override
     public String getTexturePath() {
         return "ressource/Golden-Mantled_Ground_Squirrel,_Mount_Rainier,_July_2006.jpg";
     }

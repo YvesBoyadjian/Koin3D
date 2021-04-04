@@ -127,4 +127,8 @@ public class SoTargets extends SoSeparator {
 		target.ref();
 		super.removeChild(target);
 	}
+
+	public Target getTarget() {
+		return target;
+	}
 }

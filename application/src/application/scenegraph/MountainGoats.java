@@ -10,6 +10,11 @@ import java.util.Random;
 
 public class MountainGoats implements Target {
     @Override
+    public String targetName() {
+        return "Goat";
+    }
+
+    @Override
     public String getTexturePath() {
         return "ressource/Mountain_Goat_USFWS.jpg";
     }

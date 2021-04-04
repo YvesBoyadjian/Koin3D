@@ -3,6 +3,9 @@
  */
 package application;
 
+import application.nodes.SoTargets;
+import application.objects.Target;
+import application.scenegraph.SceneGraphIndexedFaceSetShader;
 import application.viewer.glfw.SoQtWalkViewer;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoPath;
@@ -24,11 +27,13 @@ public class TargetSearchRunnable implements Runnable {
 	SoQtWalkViewer v;
 	SbViewportRegion vr;
 	SoNode sg;
+	SceneGraphIndexedFaceSetShader main;
 	
-	public TargetSearchRunnable(SoQtWalkViewer v, SbViewportRegion vr, SoNode sg) {
+	public TargetSearchRunnable(SoQtWalkViewer v, SbViewportRegion vr, SoNode sg, SceneGraphIndexedFaceSetShader main) {
 		this.v = v;
 		this.vr = vr;
 		this.sg = sg;
+		this.main = main;
 	}
 
 	@Override
@@ -51,7 +56,7 @@ public class TargetSearchRunnable implements Runnable {
 						SoNode n = p.getTail();
 						if( n.isOfType(SoCube.getClassTypeId())) {
 							int len = p.getLength();
-							if( len > 1) {
+							if( len > 3) {
 								SoNode parent = p.getNode(len-2);
 								if(parent.isOfType(SoGroup.getClassTypeId())) {
 									v.addOneShotIdleListener((viewer1)->{
@@ -63,6 +68,9 @@ public class TargetSearchRunnable implements Runnable {
 										g.enableNotify(true);
 									});
 								}
+								SoTargets targets = (SoTargets) p.getNode(len-4);
+								Target t = targets.getTarget();
+								main.shootTarget(t);
 							}
 							//System.out.println(pp.getPath().getTail().getClass());
 						}

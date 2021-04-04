@@ -113,9 +113,16 @@ public boolean read1Value(SoInput in, int index)
 }
 
 	public void setValues(int start, String[] values) {
+		int localNum = values != null ? values.length : 0;
+		int newNum = start + localNum;
+
+		if (newNum > getNum())
+			makeRoom(newNum);
+
 		int length = values.length;
 		for( int i=0; i<length;i++) {
 			this.values.setO(i+start, values[i]);
 		}
+		valueChanged();
 	}
 }
