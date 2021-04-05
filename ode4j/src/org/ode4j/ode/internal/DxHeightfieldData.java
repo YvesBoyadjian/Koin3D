@@ -26,13 +26,22 @@ package org.ode4j.ode.internal;
 
 import java.util.Arrays;
 
+import org.ode4j.math.DVector3;
 import org.ode4j.math.DVector3C;
+import org.ode4j.ode.DContactGeom;
 import org.ode4j.ode.DContactGeomBuffer;
+import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DHeightfieldData;
 import org.ode4j.ode.DHeightfield.DHeightfieldGetHeight;
 import org.ode4j.ode.internal.DxHeightfield.HeightFieldVertex;
 
+import static org.ode4j.ode.DGeom.dRayClass;
+import static org.ode4j.ode.DGeom.dSphereClass;
 import static org.ode4j.ode.OdeMath.*;
+import static org.ode4j.ode.internal.DxCollisionUtil.dVector3Copy;
+import static org.ode4j.ode.internal.DxCollisionUtil.dVector3Length;
+import static org.ode4j.ode.internal.DxCollisionUtil.dVector3Scale;
+import static org.ode4j.ode.internal.DxGeom.NUMC_MASK;
 
 /**
  * dHeightfield Collider
@@ -279,40 +288,119 @@ public class DxHeightfieldData implements DHeightfieldData {
 	}
 
 
+//	//returns whether point is over terrain Cell triangle?
+//	//bool dxHeightfieldData::IsOnHeightfield2 ( const HeightFieldVertex * const CellCorner,
+//	//		const double * const pos,  const bool isABC) const
+//	boolean IsOnHeightfield2 ( final HeightFieldVertex CellCorner,
+//			final DVector3C pos,  final boolean isABC)
+//	{
+//		// WARNING!!!
+//		// This function must be written in the way to make sure that every point on
+//		// XZ plane falls in one and only one triangle. Keep that in mind if you
+//		// intend to change the code.
+//		// Also remember about computational errors and possible mismatches in
+//		// values if they are calculated differently in different places in the code.
+//		// Currently both the implementation has been optimized and effects of
+//		// computational errors have been eliminated.
+//
+//		double MaxX, MinX;
+//		double MaxZ, MinZ;
+//
+//		if (isABC)
+//		{
+//			// point A
+//			MinX = CellCorner.vertex.get0();
+//			if (pos.get0() < MinX)
+//				return false;
+//
+//			MaxX = (CellCorner.coords0 + 1) * m_fSampleWidth;
+//			if (pos.get0() >= MaxX)
+//				return false;
+//
+//			MinZ = CellCorner.vertex.get2();
+//			if (pos.get2() < MinZ)
+//				return false;
+//
+//			MaxZ = (CellCorner.coords1 + 1) * m_fSampleDepth;
+//			if (pos.get2() >= MaxZ)
+//				return false;
+//
+//			return (MaxZ - pos.get2()) > (pos.get0() - MinX) * m_fSampleZXAspect;
+//		}
+//		else
+//		{
+//			// point D
+//			MaxX = CellCorner.vertex.get0();
+//			if (pos.get0() >= MaxX)
+//				return false;
+//
+//			MinX = (CellCorner.coords0 - 1) * m_fSampleWidth;
+//			if (pos.get0() < MinX)
+//				return false;
+//
+//			MaxZ = CellCorner.vertex.get2();
+//			if (pos.get2() >= MaxZ)
+//				return false;
+//
+//			MinZ = (CellCorner.coords1 - 1) * m_fSampleDepth;
+//			if (pos.get2() < MinZ)
+//				return false;
+//
+//			return (MaxZ - pos.get2()) <= (pos.get0() - MinX) * m_fSampleZXAspect;
+//		}
+//	}
+
 	//returns whether point is over terrain Cell triangle?
-	//bool dxHeightfieldData::IsOnHeightfield2 ( const HeightFieldVertex * const CellCorner, 
+	//bool dxHeightfieldData::IsOnHeightfield2 ( const HeightFieldVertex * const CellCorner,
 	//		const double * const pos,  const bool isABC) const
-	boolean IsOnHeightfield2 ( final HeightFieldVertex CellCorner, 
-			final DVector3C pos,  final boolean isABC) 
+	boolean IsOnHeightfield2 ( final DxHeightfield.HeightFieldTriangle tri,
+							   final DVector3C pos,  final byte[] checkedEdges )
 	{
 		// WARNING!!!
 		// This function must be written in the way to make sure that every point on
-		// XZ plane falls in one and only one triangle. Keep that in mind if you 
+		// XZ plane falls in one and only one triangle. Keep that in mind if you
 		// intend to change the code.
-		// Also remember about computational errors and possible mismatches in 
+		// Also remember about computational errors and possible mismatches in
 		// values if they are calculated differently in different places in the code.
-		// Currently both the implementation has been optimized and effects of 
+		// Currently both the implementation has been optimized and effects of
 		// computational errors have been eliminated.
 
 		double MaxX, MinX;
 		double MaxZ, MinZ;
+		final HeightFieldVertex CellCorner = tri.vertices[0];
 
-		if (isABC)
+		if (tri.isABC)
 		{
 			// point A
 			MinX = CellCorner.vertex.get0();
+			        MaxX = (CellCorner.coords0 + 1) * m_fSampleWidth;
+			        MinZ = CellCorner.vertex.get2();
+			        MaxZ = (CellCorner.coords1 + 1) * m_fSampleDepth;
+
+					    	// Flag edges that don't need further checking. Check all three before returning.
+							    	if (pos.get0() >= MinX)
+			    		//tri->setChecked20();
+					    		checkedEdges[0] |= DxHeightfield.HEIGHTFIELD_CHECKED_EDGE_20;
+			    	if (pos.get2() >= MinZ)
+			    		//tri->setChecked01();
+					    		checkedEdges[0] |= DxHeightfield.HEIGHTFIELD_CHECKED_EDGE_01;
+			    	if ((MaxZ - pos.get2()) > (pos.get0() - MinX) * m_fSampleZXAspect)
+			    		//tri->setChecked12();
+					    		checkedEdges[0] |= DxHeightfield.HEIGHTFIELD_CHECKED_EDGE_12;
+
+					        // point A
 			if (pos.get0() < MinX)
 				return false;
 
-			MaxX = (CellCorner.coords0 + 1) * m_fSampleWidth;
+			//MaxX = (CellCorner.coords0 + 1) * m_fSampleWidth;
 			if (pos.get0() >= MaxX)
 				return false;
 
-			MinZ = CellCorner.vertex.get2();
+			//MinZ = CellCorner.vertex.get2();
 			if (pos.get2() < MinZ)
 				return false;
 
-			MaxZ = (CellCorner.coords1 + 1) * m_fSampleDepth;
+			//MaxZ = (CellCorner.coords1 + 1) * m_fSampleDepth;
 			if (pos.get2() >= MaxZ)
 				return false;
 
@@ -320,20 +408,35 @@ public class DxHeightfieldData implements DHeightfieldData {
 		}
 		else
 		{
-			// point D
+			MinX = (CellCorner.coords0 - 1) * m_fSampleWidth;
 			MaxX = CellCorner.vertex.get0();
+			        MinZ = (CellCorner.coords1 - 1) * m_fSampleDepth;
+			        MaxZ = CellCorner.vertex.get2();
+
+					        // Flag edges that don't need further checking. Check all three before returning.
+							    	if (pos.get0() < MaxX)
+			    		//tri->setChecked01();
+					    		checkedEdges[0] |= DxHeightfield.HEIGHTFIELD_CHECKED_EDGE_01;
+			    	if (pos.get2() < MaxZ)
+			    		//tri->setChecked20();
+					    		checkedEdges[0] |= DxHeightfield.HEIGHTFIELD_CHECKED_EDGE_20;
+			    	if ((MaxZ - pos.get2()) <= (pos.get0() - MinX) * m_fSampleZXAspect)
+			    		//tri->setChecked12();
+					    		checkedEdges[0] |= DxHeightfield.HEIGHTFIELD_CHECKED_EDGE_12;
+
+					    	// point D
 			if (pos.get0() >= MaxX)
 				return false;
 
-			MinX = (CellCorner.coords0 - 1) * m_fSampleWidth;
+			//MinX = (CellCorner.coords0 - 1) * m_fSampleWidth;
 			if (pos.get0() < MinX)
 				return false;
 
-			MaxZ = CellCorner.vertex.get2();
+			//MaxZ = CellCorner.vertex.get2();
 			if (pos.get2() >= MaxZ)
 				return false;
 
-			MinZ = (CellCorner.coords1 - 1) * m_fSampleDepth;
+			//MinZ = (CellCorner.coords1 - 1) * m_fSampleDepth;
 			if (pos.get2() < MinZ)
 				return false;
 
@@ -443,6 +546,78 @@ public class DxHeightfieldData implements DHeightfieldData {
 //
 //		return y;
 //	}
+
+// Erik Schuitema <e.schuitema@tudelft.nl>, 2011
+		// Collide a a sphere and a segment.
+		// In contrast to a sphere-ray collision, this collider
+		// returns the point on the segment closest to the sphere's center,
+		// if inside the sphere. Otherwise, no contact is created.
+		// The code is very similar to, e.g., gim_geometry.h:CLOSEST_POINT_ON_SEGMENT().
+		// TODO: write segment collider functions for the other geom primitives (box, capsule, etc).
+		//
+		// This function returns 0 when the closest point is outside the segment. Technically,
+		// the end point of the segment collides in that case (when inside the sphere) and we should return 1,
+		// but with this quick hack we pass the collision on to the edge's vertex afterwards instead.
+		static int dCollideSphereSegment(final DGeom o1, final DGeom o2, int flags,
+										 final DContactGeomBuffer contact/*, int skip*/)
+{
+			//dIASSERT (skip >= (int)sizeof(DContactGeom));
+			//dIASSERT (o1.type == dRayClass);
+			//dIASSERT (o2.type == dSphereClass);
+			dIASSERT ((flags & NUMC_MASK) >= 1);
+
+					DxRay ray = (DxRay) o1;
+			DxSphere sphere = (DxSphere) o2;
+			contact.get().g1 = ray;
+			contact.get().g2 = sphere;
+			contact.get().side1 = -1;
+			contact.get().side2 = -1;
+
+					// The edge starts in A and goes to B. P is the sphere center.
+							// Q is the point closest to the sphere's center. AB = B-A, etc.
+
+											// Calculate closest point by projecting the sphere's center onto the line
+													final DVector3 AB		= new DVector3();
+													{ AB.set(ray._final_posr.R().get02()/*[2]*/, ray._final_posr.R().get12()/*[6]*/, ray._final_posr.R().get22()/*[10]*/);/*, 0*/};
+			final DVector3 AP = new DVector3();
+			AP.eqDiff(sphere._final_posr.pos,ray._final_posr.pos);//dOP(AP, -, sphere._final_posr.pos, ray._final_posr.pos);
+			float t         = (float)(dDOT(AP, AB) / dDOT(AB, AB)); // the projection parameter on the line
+
+					// Check whether the contacts are above the heightfield's edge.
+							// We reject collision positions whose projection is not on the line
+									//if (t < 0.0f) t = 0.0f; else if (t > 1.0f) t = 1.0f;
+											if (t < 0.0f)
+					return 0;
+			if (t >= 1.0f)
+					return 0;
+
+					// Calculate Q
+							final DVector3 Q = new DVector3();// Q = A + AB * t;
+			Q.set(AB);Q.scale(t);//dOPC(Q,*, AB, t);	// Q = AB*t
+			Q.add(ray._final_posr.pos);//dOP(Q, +, Q, ray._final_posr.pos);	// Q = Q + A
+
+					// Check if Q is inside the sphere
+							final DVector3 PQ = new DVector3();
+			PQ.eqDiff(Q,sphere._final_posr.pos);//dOP(PQ, -, Q, sphere._final_posr.pos);
+			float pq2	= (float)dDOT(PQ, PQ);// = PQ.Dot(PQ);
+			float r2  = (float)(sphere.dGeomSphereGetRadius() * sphere.dGeomSphereGetRadius());
+
+					if (pq2 > r2)	// Outside the sphere
+					return 0;
+			else
+			{
+						// Take PQ as the contact normal
+								dVector3Copy(PQ, contact.get().normal);
+				float pqlen = (float)dVector3Length(contact.get().normal);
+				dVector3Scale(contact.get().normal, /*REAL(*/1.0/*)*/ / pqlen);
+				contact.get().depth = sphere.dGeomSphereGetRadius() - pqlen;
+				// pos = PQ*r + sphere.center
+				contact.get().pos.set(contact.get().normal);contact.get().pos.scale(sphere.dGeomSphereGetRadius());		//dOPC(contact.pos, *, contact.normal, sphere.dGeomSphereGetRadius());
+				contact.get().pos.add(sphere._final_posr.pos);//dOP(contact.pos, +, contact.pos, sphere._final_posr.pos);
+				return 1;
+			}
+			//return 0;
+		}
 
 
 	//dxHeightfieldData destructor

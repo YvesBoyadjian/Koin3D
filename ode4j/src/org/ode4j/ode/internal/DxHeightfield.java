@@ -33,6 +33,8 @@ import static org.ode4j.ode.internal.Common.dEpsilon;
 import static org.ode4j.ode.internal.Common.dFabs;
 import static org.ode4j.ode.internal.Common.dFloor;
 import static org.ode4j.ode.internal.Common.dIASSERT;
+import static org.ode4j.ode.internal.DxCollisionUtil.dVector3Length;
+import static org.ode4j.ode.internal.DxCollisionUtil.dVector3Subtract;
 
 import org.ode4j.math.DMatrix3;
 import org.ode4j.math.DVector3;
@@ -52,6 +54,11 @@ import org.ode4j.ode.internal.cpp4j.java.ObjArray;
 public class DxHeightfield extends DxAbstractHeightfield {
 
 	static final int HEIGHTFIELDMAXCONTACTPERCELL = 10;
+// Bit flags for edge checking
+	static final int HEIGHTFIELD_CHECKED_EDGE_01		= 0x01;	// Edge vertex[0] to vertex[1]
+	static final int HEIGHTFIELD_CHECKED_EDGE_12		= 0x02;	// Edge vertex[1] to vertex[2]
+	static final int HEIGHTFIELD_CHECKED_EDGE_20		= 0x04;	// Edge vertex[2] to vertex[0]
+	static final int HEIGHTFIELD_CHECKED_EDGE_ALL	 = (HEIGHTFIELD_CHECKED_EDGE_01 | HEIGHTFIELD_CHECKED_EDGE_12 | HEIGHTFIELD_CHECKED_EDGE_20);	// All three edges
 
 	//#define dMIN(A,B)  ((A)>(B) ? (B) : (A))
 	private static final double dMIN(double A, double B) { return ((A)>(B) ? (B) : (A)); }
@@ -484,13 +491,28 @@ public class DxHeightfield extends DxAbstractHeightfield {
 	class HeightFieldVertex
 	{
 		//	public:
-		HeightFieldVertex(){};
+		HeightFieldVertex(){
+			edgecheck = 0;
+		};
 
 		DVector3 vertex = new DVector3();
 		//HeightFieldVertexCoords coords;
 		//int[] coords = new int[2]; //use c1 & c2 (TZ)
 		int coords0, coords1;
 		boolean state;
+
+		    // bit-code to indicate whether edges are already checked for collisions or not
+		    // edgecheck is a bitwise OR of up to 3 codes:
+		    // 1) EDGE_PX	(positive-X edge): (coords[0], coords[1]) -> (coords[0]+1, coords[1])
+		    // 2) EDGE_PXNZ	(posX-negZ  edge): (coords[0], coords[1]) -> (coords[0]+1, coords[1]-1)
+		    // 3) EDGE_NZ	(negative-Z edge): (coords[0], coords[1]) -> (coords[0], coords[1]-1)
+		    static final byte EDGE_PX	= 0x01;		// Positive-X edge
+    static final byte EDGE_PXNZ	= 0x02;	// PosX-NegZ-edge
+    static final byte EDGE_NZ	= 0x04;		// Negative-Z edge
+    byte			edgecheck;
+    void	setEdgeChecked( byte edge)		{ edgecheck |= edge;}
+    void	resetEdgeChecked( byte edge)	{ edgecheck &= ~edge;}
+    boolean	isEdgeChecked( byte edge)		{ return (edgecheck & edge)!= 0;}
 	};
 
 	//TODO TZ not used
@@ -503,7 +525,7 @@ public class DxHeightfield extends DxAbstractHeightfield {
 //		HeightFieldVertex[]   vertices = new HeightFieldVertex[2];  //TODO v1/v1 (TZ)
 //	};
 
-	private class HeightFieldTriangle
+	class HeightFieldTriangle
 	{
 		//public:
 		HeightFieldTriangle(){};
@@ -521,8 +543,106 @@ public class DxHeightfield extends DxAbstractHeightfield {
 		double planeDefD;				 
 		double               maxAAAB;
 
-		boolean                isUp;
+		//boolean                isUp;
+		boolean					isABC;
 		boolean                state;
+
+
+    boolean			isChecked01() 	// Checked edge between vertex0 and vertex1 for collisions?
+		    {
+		    	if (isABC)
+			    		// Edge AB
+					    		return vertices[0].isEdgeChecked(HeightFieldVertex.EDGE_PX);
+		    	else // DBC
+		    		// Edge DB
+				    		return vertices[0].isEdgeChecked(HeightFieldVertex.EDGE_NZ);
+		    }
+    void			setChecked01()
+    {
+		    	if (isABC)
+			    		vertices[0].setEdgeChecked(HeightFieldVertex.EDGE_PX);
+		    	else
+		    		vertices[0].setEdgeChecked(HeightFieldVertex.EDGE_NZ);
+		    }
+
+		    boolean		isChecked12() 	// Checked edge between vertex1 and vertex2 for collisions?
+			    {
+		    	if (isABC)
+			    		// Edge BC
+					    		return vertices[2].isEdgeChecked(HeightFieldVertex.EDGE_PXNZ);
+		    	else // DBC
+		    		// Edge BC
+				    		return vertices[2].isEdgeChecked(HeightFieldVertex.EDGE_PXNZ);
+		    }
+    void			setChecked12()
+    {
+		    	if (isABC)
+			    		vertices[2].setEdgeChecked(HeightFieldVertex.EDGE_PXNZ);
+		    	else
+		    		vertices[2].setEdgeChecked(HeightFieldVertex.EDGE_PXNZ);
+		    }
+
+		    boolean			isChecked20() 	// Checked edge between vertex2 and vertex0 for collisions?
+			    {
+		    	if (isABC)
+			    		// Edge CA
+					    		return vertices[2].isEdgeChecked(HeightFieldVertex.EDGE_NZ);
+		    	else // DBC
+		    		// Edge CD
+				    		return vertices[2].isEdgeChecked(HeightFieldVertex.EDGE_PX);
+		    }
+    void			setChecked20()
+    {
+		    	if (isABC)
+			    		vertices[2].setEdgeChecked(HeightFieldVertex.EDGE_NZ);
+		    	else
+		    		vertices[2].setEdgeChecked(HeightFieldVertex.EDGE_PX);
+		    }
+
+		    // isChecked(int m) and setChecked(int m) checking for vertex[m] and vertex[m+1%3]
+		    boolean			isChecked(int m)
+			    {
+		    	switch (m)
+				    	{
+							case 0: return isChecked01();
+					case 1: return isChecked12();
+					case 2: return isChecked20();
+					default: return false;
+		    	}
+		    }
+    void			setChecked(int m)
+    {
+		    	switch (m)
+				    	{
+							case 0: setChecked01(); break;
+					case 1: setChecked12(); break;
+					case 2: setChecked20(); break;
+					default: break;
+		    	}
+		    }
+    // Set all edge states to checked
+		    void			setEdgesChecked()
+    {
+				setChecked01();
+				setChecked12();
+				setChecked20();
+		    }
+    void			resetEdgesChecked()
+    {
+		    	// Don't reset all edges; vertices are often shared between different triangles.
+				    	if (isABC)
+			    	{
+					    		vertices[0].resetEdgeChecked(HeightFieldVertex.EDGE_PX);	// 01
+		    		vertices[2].resetEdgeChecked(HeightFieldVertex.EDGE_PXNZ);// 12
+		    		vertices[2].resetEdgeChecked(HeightFieldVertex.EDGE_NZ);	// 20
+		    	}
+		    	else
+		    	{
+				    		vertices[0].resetEdgeChecked(HeightFieldVertex.EDGE_NZ);	// 01
+		    		vertices[2].resetEdgeChecked(HeightFieldVertex.EDGE_PXNZ);// 12
+		    		vertices[2].resetEdgeChecked(HeightFieldVertex.EDGE_PX);	// 20
+		    	}
+		    }
 	};
 
 	private class HeightFieldPlane
@@ -766,7 +886,8 @@ public class DxHeightfield extends DxAbstractHeightfield {
 			}
 		}
 		// get All Planes that could collide against.
-		DColliderFn geomRayNCollider=null;
+		//DColliderFn geomRayNCollider=null;
+		DColliderFn geomNSegmentCollider=null;
 		DColliderFn geomNPlaneCollider=null;
 		dGetDepthFn geomNDepthGetter=null;
 
@@ -774,14 +895,20 @@ public class DxHeightfield extends DxAbstractHeightfield {
 		switch (o2.type)
 		{
 		case dRayClass:
-			geomRayNCollider		= null;
+			geomNSegmentCollider	= null;//geomRayNCollider		= null;
 			geomNPlaneCollider	    = new DxRay.CollideRayPlane();//dCollideRayPlane;
 			geomNDepthGetter		= null;
 			//max_collisionContact    = 1;
 			break;
 
 		case dSphereClass:
-			geomRayNCollider		= new DxRay.CollideRaySphere();//dCollideRaySphere;
+			geomNSegmentCollider	= new DColliderFn() {
+
+				@Override
+				public int dColliderFn(DGeom o1, DGeom o2, int flags, DContactGeomBuffer contacts) {
+					return DxHeightfieldData.dCollideSphereSegment(o1,o2,flags,contacts);
+				}
+			};//geomRayNCollider		= new DxRay.CollideRaySphere();//dCollideRaySphere;
 			geomNPlaneCollider  	= new DxSphere.CollideSpherePlane();//.dCollideSpherePlane;
 			geomNDepthGetter		= //dGeomSpherePointDepth;
 				new dGetDepthFn() {
@@ -793,7 +920,7 @@ public class DxHeightfield extends DxAbstractHeightfield {
 				break;
 
 		case dBoxClass:
-			geomRayNCollider		= new DxRay.CollideRayBox();//dCollideRayBox;
+			geomNSegmentCollider	/*geomRayNCollider*/		= new DxRay.CollideRayBox();//dCollideRayBox;
 			geomNPlaneCollider	    = new CollideBoxPlane();//dCollideBoxPlane;
 			geomNDepthGetter		= //dGeomBoxPointDepth;
 				new dGetDepthFn() {
@@ -805,7 +932,7 @@ public class DxHeightfield extends DxAbstractHeightfield {
 				break;
 
 		case dCapsuleClass:
-			geomRayNCollider		= new DxRay.CollideRayCapsule();//dCollideRayCapsule;
+			geomNSegmentCollider	/*geomRayNCollider*/		= new DxRay.CollideRayCapsule();//dCollideRayCapsule;
 			geomNPlaneCollider  	= new DxCapsule.CollideCapsulePlane();//dCollideCapsulePlane;
 			geomNDepthGetter		= //dGeomCapsulePointDepth;
 				new dGetDepthFn() {
@@ -817,14 +944,14 @@ public class DxHeightfield extends DxAbstractHeightfield {
 				break;
 
 		case dCylinderClass:
-			geomRayNCollider		= new DxRay.CollideRayCylinder();//dCollideRayCylinder;
+			geomNSegmentCollider	/*geomRayNCollider*/		= new DxRay.CollideRayCylinder();//dCollideRayCylinder;
 			geomNPlaneCollider	    = new CollideCylinderPlane();//dCollideCylinderPlane;
 			geomNDepthGetter		= null;// TODO: dGeomCCylinderPointDepth
 			//max_collisionContact    = 3;
 			break;
 
 		case dConvexClass:
-			geomRayNCollider		= new DxConvex.CollideRayConvex();//dCollideRayConvex;
+			geomNSegmentCollider	/*geomRayNCollider*/		= new DxConvex.CollideRayConvex();//dCollideRayConvex;
 			geomNPlaneCollider  	= new DxConvex.CollideConvexPlane();//dCollideConvexPlane;
 			geomNDepthGetter		= null;// TODO: dGeomConvexPointDepth;
 			//max_collisionContact    = 3;
@@ -833,7 +960,7 @@ public class DxHeightfield extends DxAbstractHeightfield {
 			//	#if dTRIMESH_ENABLED
 
 		case dTriMeshClass:
-			geomRayNCollider		= new CollideRayTrimesh();//dCollideRayTrimesh;
+			geomNSegmentCollider	/*geomRayNCollider*/		= new CollideRayTrimesh();//dCollideRayTrimesh;
 			geomNPlaneCollider	    = new CollideTrimeshPlane();//dCollideTrimeshPlane;
 			geomNDepthGetter		= null;// TODO: dGeomTrimeshPointDepth;
 			//max_collisionContact    = 3;
@@ -985,7 +1112,13 @@ public class DxHeightfield extends DxAbstractHeightfield {
 
 		// if small heightfield triangle related to O2 colliding
 		// or no Triangle colliding at all.
-		boolean needFurtherPasses = (o2.type == dTriMeshClass);
+		//boolean needFurtherPasses = (o2.type == dTriMeshClass);
+
+					// Erik Schuitema <e.schuitema@tudelft.nl>, 2011
+						    // We need further passes by default for all objects.
+								    boolean needFurtherPasses = true;
+		    /*
++    bool needFurtherPasses = (o2->type == dTriMeshClass) || (o2->type == dSphereClass);
 		//compute Ratio between Triangle size and O2 aabb size
 		// no FurtherPasses are needed in ray class
 		if (o2.type != dRayClass  && needFurtherPasses == false)
@@ -1001,6 +1134,8 @@ public class DxHeightfield extends DxAbstractHeightfield {
 			}
 
 		}
+
+		     */
 
 		//unsigned 
 		int numTri = 0;
@@ -1086,7 +1221,9 @@ public class DxHeightfield extends DxAbstractHeightfield {
 
 					if (isContactNumPointsLimited)
 						CurrTriUp.setMinMax();
-					CurrTriUp.isUp = true;
+					//CurrTriUp.isUp = true;
+					                CurrTriUp.isABC = true;
+					                CurrTriUp.resetEdgesChecked();
 				}
 
 				if (isBCollide || isCCollide || isDCollide)
@@ -1103,23 +1240,34 @@ public class DxHeightfield extends DxAbstractHeightfield {
 
 					if (isContactNumPointsLimited)
 						CurrTriDown.setMinMax();
-					CurrTriDown.isUp = false;
+					//CurrTriDown.isUp = false;
+					                CurrTriDown.isABC = false;
+					                CurrTriDown.resetEdgesChecked();
 				}
 
 
+				        	// Erik Schuitema <e.schuitema@tudelft.nl>, 2011
+						            // A correct concavity check for line BC is whether line BC is below line AD.
+								            // We can check that at the center of the square, where BC and AD cross.
+										            // It is sufficient to compare the line heights at their center:
+												            // (AHeight+DHeight)/2  >  (BHeight+CHeight)/2  (and the division (/2) can be dropped)
 				if (needFurtherPasses &&
-						(isBCollide || isCCollide)
-						&&
-						(AHeight > CHeight &&
-						AHeight > BHeight &&
-						DHeight > CHeight &&
-						DHeight > BHeight ))
+//						(isBCollide || isCCollide)
+//						&&
+//						(AHeight > CHeight &&
+//						AHeight > BHeight &&
+//						DHeight > CHeight &&
+//						DHeight > BHeight ))
+						                (isBCollide || isCCollide) &&
+						                (AHeight+DHeight > BHeight+CHeight))
 				{
 					// That means Edge BC is concave, therefore
-					// BC Edge and B and C vertices cannot collide
-
-					B.state = true;
-					C.state = true;
+//					// BC Edge and B and C vertices cannot collide
+//
+//					B.state = true;
+//					C.state = true;
+					                // BC Edge cannot collide. Vertices, however, can still collide, e.g., at saddle points!
+							                C.edgecheck |= HeightFieldVertex.EDGE_PXNZ;	// This is the edge from C to B
 				}
 				// should find a way to check other edges (AB, BD, CD) too for concavity
 			}
@@ -1146,7 +1294,7 @@ public class DxHeightfield extends DxAbstractHeightfield {
 				Edge2.eqDiff(itTriangle.vertices[1].vertex, itTriangle.vertices[0].vertex);
 
 				// find a perpendicular vector to the triangle
-				if  (itTriangle.isUp)
+				if  (itTriangle./*isUp*/isABC)
 					DxCollisionUtil.dVector3Cross(Edge1, Edge2, triplaneV);
 				else
 					DxCollisionUtil.dVector3Cross(Edge2, Edge1, triplaneV);
@@ -1265,35 +1413,66 @@ public class DxHeightfield extends DxAbstractHeightfield {
 				boolean didCollide = false;
 				final int numPlaneContacts = 
 					geomNPlaneCollider.dColliderFn(o2, sliding_plane, planeTestFlags, PlaneContact);//, sizeof(dContactGeom));
+							int numValidPlaneContacts = 0;	// The number of contacts that actually belong to this plane
 				final int planeTriListSize = itPlane.trianglelistCurrentSize;
+							// One triangle can contain multiple constacts. Keep track of the edges that can be marked 'checked' for all contacts.
+									byte[] planeTriEdgeCheck = new byte[planeTriListSize];
+							// Set all edges to checked and bitwise-AND with the results from all IsOnHeightfield2() calls
+									for(int i=0;i<planeTriListSize;i++)planeTriEdgeCheck[i] = HEIGHTFIELD_CHECKED_EDGE_ALL;//memset(planeTriEdgeCheck, HEIGHTFIELD_CHECKED_EDGE_ALL, sizeof(char)*planeTriListSize);
 				for (int i = 0; i < numPlaneContacts; i++)
 				{
 					DContactGeom planeCurrContact = PlaneContact.get(i);
 					// Check if contact point found in plane is inside Triangle.
-					final DVector3C pCPos = planeCurrContact.pos;
+					//final DVector3C pCPos = planeCurrContact.pos;
+
+											// Erik Schuitema <e.schuitema@tudelft.nl>, 2011
+									                // Project the contact position back onto the plane (the contact position is below the plane)
+					final						                DVector3 pCPos = new DVector3();
+					                pCPos.set(itPlane.planeDefV);pCPos.scale(planeCurrContact.depth);//dOPC(pCPos,*,itPlane.planeDef, planeCurrContact.depth);	// Multiply plane normal by contact depth
+					                pCPos.add(planeCurrContact.pos);//dOP(pCPos,+,pCPos,planeCurrContact->pos);// Add it to the contact position
+
 					for (int b = 0; planeTriListSize > b; b++)
 					{
-						if (m_p_data.IsOnHeightfield2 (itPlane.trianglelist[b].vertices[0],
-								pCPos,
-								itPlane.trianglelist[b].isUp))
+//						if (m_p_data.IsOnHeightfield2 (itPlane.trianglelist[b].vertices[0],
+//								pCPos,
+//								itPlane.trianglelist[b].isUp))
+						                	final byte[] triEdgeCheck = new byte[1];
+						                    if (m_p_data.IsOnHeightfield2 (itPlane.trianglelist[b], pCPos, triEdgeCheck))
 						{
 							pContact = contacts.get(numTerrainContacts*skip);//CONTACT(contact, numTerrainContacts*skip);
-							pContact.pos.set(pCPos);//dVector3Copy(pCPos, pContact.pos);
+							pContact.pos.set(/*pCPos*/planeCurrContact.pos);//dVector3Copy(pCPos, pContact.pos);
 							//dOPESIGN(pContact.normal, =, -, itPlane.planeDef);
 							pContact.normal.set(itPlane.planeDefV).scale(-1);
 							pContact.depth = planeCurrContact.depth;
 							pContact.side1 = planeCurrContact.side1;
 							pContact.side2 = planeCurrContact.side2;
 							numTerrainContacts++;
+													numValidPlaneContacts++;
 							if ( numTerrainContacts == numMaxContactsPossible )
 								return numTerrainContacts;
 
 							didCollide = true;
 							break;
 						}
+						                    planeTriEdgeCheck[b] &= triEdgeCheck[0];
 					}
 				}
-				if (didCollide)
+				//if (didCollide)
+				            // Process tri-edge-check results.
+						            for (int b = 0; b < planeTriListSize; b++)
+				            {
+						            	if ((planeTriEdgeCheck[b] & HEIGHTFIELD_CHECKED_EDGE_01)!=0)
+				            		itPlane.trianglelist[b].setChecked01();
+				            	if ((planeTriEdgeCheck[b] & HEIGHTFIELD_CHECKED_EDGE_12)!=0)
+				            		itPlane.trianglelist[b].setChecked12();
+				            	if ((planeTriEdgeCheck[b] & HEIGHTFIELD_CHECKED_EDGE_20)!=0)
+				            		itPlane.trianglelist[b].setChecked20();
+				            }
+							//TODO: flag edges too that are inside planes consisting of multiple triangles
+
+						//		            delete[] planeTriEdgeCheck;
+				            // If all found contacts are above the plane, we don't need to check this plane, nor its edges or vertices
+						            if (numPlaneContacts == numValidPlaneContacts)
 				{
 					if (NO_CONTACT_CULLING_BY_ISONHEIGHTFIELD2) {//#if defined(NO_CONTACT_CULLING_BY_ISONHEIGHTFIELD2)
 						/* Note by Oleh_Derevenko:
@@ -1309,6 +1488,8 @@ public class DxHeightfield extends DxAbstractHeightfield {
 						// to prevent any collision test of those
 						for (int i = 0; i < 3; i++)
 							itPlane.trianglelist[b].vertices[i].state = true;
+						                    // Flag triangle's edges as collided to prevent edge testing
+								                    itPlane.trianglelist[b].setEdgesChecked();
 					}
 				}
 				else
@@ -1324,8 +1505,91 @@ public class DxHeightfield extends DxAbstractHeightfield {
 		}
 
 
+//		#ifdef _HEIGHTFIELDEDGECOLLIDING
+		    // pass2: VS triangle Edges
+				    if (needFurtherPasses)
+		    {
+				        final DVector3 Edge = new DVector3();
+		        final DxRay edgeRay = new DxRay(/*0*/null, 1);
 
-		// pass2: VS triangle vertices
+						int numMaxContactsPerTri = /*dMIN*/Math.min(numMaxContactsPossible - numTerrainContacts, HEIGHTFIELDMAXCONTACTPERCELL);
+				int triTestFlags = (flags & ~NUMC_MASK) | numMaxContactsPerTri;
+				dIASSERT((HEIGHTFIELDMAXCONTACTPERCELL & ~NUMC_MASK) == 0);
+
+				       for (int k = 0; k < numTri; k++)
+		        {
+				            final HeightFieldTriangle itTriangle = tempTriangleBuffer[k];
+
+				            if (itTriangle.state == true)
+		                continue;// plane did already collide.
+
+				            // Check edges
+						            for (int m = 0; m < 3; m++)
+		            {
+				                final int next = (m + 1) % 3;
+		                HeightFieldVertex vertex0 = itTriangle.vertices[m];
+		                HeightFieldVertex vertex1 = itTriangle.vertices[next];
+
+				                // not concave or under the AABB
+						                // nor edge already checked
+								                if (itTriangle.isChecked(m))
+		                    continue;
+
+				                dVector3Subtract(vertex1.vertex, vertex0.vertex, Edge);
+		                edgeRay.setLength( dVector3Length (Edge));
+		                dGeomRaySetNoNormalize(edgeRay, vertex0.vertex, Edge);
+						int prevTerrainContacts = numTerrainContacts;
+						pContact = contacts.get(prevTerrainContacts*skip);//CONTACT(contact, prevTerrainContacts*skip);
+						DContactGeomBuffer dummy = contacts.createView(prevTerrainContacts*skip);
+		                final int numCollision = geomNSegmentCollider.dColliderFn(edgeRay,o2,triTestFlags,/*pContact,skip*/dummy);
+						dIASSERT(numCollision <= numMaxContactsPerTri);
+
+								if (numCollision != 0)
+						{
+									numTerrainContacts += numCollision;
+							// Removed by Erik Schuitema <e.schuitema@tudelft.nl>, 2011
+									/* A proper segment collider returns a fully populated contact already.
+					 * In addition, it should project the contact (with non-zero depth) back onto the segment,
+					 * analogous to how it is done with plane collisions.
+					do
+					{
+						pContact = CONTACT(contact, prevTerrainContacts*skip);
+
+						//create contact using Plane Normal
+						dOPESIGN(pContact->normal, =, -, itTriangle->planeDef);
+
+						pContact->depth = DistancePointToLine(pContact->pos, vertex1->vertex, Edge, edgeRay.length);
+					}
+					while (++prevTerrainContacts != numTerrainContacts);
+					*/
+
+													if ( numTerrainContacts == numMaxContactsPossible )
+								return numTerrainContacts;
+
+									numMaxContactsPerTri = /*dMIN*/Math.min(numMaxContactsPossible - numTerrainContacts, HEIGHTFIELDMAXCONTACTPERCELL);
+							triTestFlags = (flags & ~NUMC_MASK) | numMaxContactsPerTri;
+							dIASSERT((HEIGHTFIELDMAXCONTACTPERCELL & ~NUMC_MASK) == 0);
+							// Flag vertices of this edge that they don't need further checking
+									vertex0.state = true;
+							vertex1.state = true;
+						}
+						// Flag edge that it is checked - but vertices may need further checking
+								tempTriangleBuffer[k].setChecked(m);
+		            }
+
+				            // Erik Schuitema <e.schuitema@tudelft.nl>, 2011
+						            // We cannot set the vertex states to true since
+								            // every vertex can be part of 6 edges. Setting their
+										            // state to true can erroneously skip certain edges.
+												            //itTriangle->vertices[0]->state = true;
+														            //itTriangle->vertices[1]->state = true;
+																            //itTriangle->vertices[2]->state = true;
+																		        }
+		    }
+//		#endif // _HEIGHTFIELDEDGECOLLIDING
+
+//			#ifdef _HEIGHTFIELDVERTEXCOLLIDING
+		    // pass3: VS triangle vertices
 		if (needFurtherPasses)
 		{
 			DxRay tempRay = new DxRay(null, 1);
@@ -1372,7 +1636,7 @@ public class DxHeightfield extends DxAbstractHeightfield {
 						//    - itTriangle->Normal[0], - itTriangle->Normal[1], - itTriangle->Normal[2] );
 						dGeomRaySetNoNormalize(tempRay, triVertex, itTriangle.planeDefV);
 
-						if ( geomRayNCollider.dColliderFn( tempRay, o2, rayTestFlags, PlaneContact) != 0)//, sizeof( dContactGeom ) ) )
+						if ( /*geomRayNCollider*/geomNSegmentCollider.dColliderFn( tempRay, o2, rayTestFlags, PlaneContact) != 0)//, sizeof( dContactGeom ) ) )
 						{
 							depth = PlaneContact.get(0).depth;
 							vertexCollided = true;

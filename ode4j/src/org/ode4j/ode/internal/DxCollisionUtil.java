@@ -99,7 +99,7 @@ public class DxCollisionUtil {
 
 	//Some vector math
 	//inline void dVector3Scale(dVector3& a,dReal nScale)
-	void dVector3Scale(DVector3 a,double nScale)
+	static void dVector3Scale(DVector3 a,double nScale)
 	{
 		a.scale(nScale);
 		//		a.v[0] *= nScale ;
@@ -142,7 +142,7 @@ public class DxCollisionUtil {
 	}
 
 	//inline dReal dVector3Length(final dVector3& a)
-	double dVector3Length(final DVector3 a)
+	static double dVector3Length(final DVector3 a)
 	{
 		//return dSqrt(a.v[0]*a.v[0]+a.v[1]*a.v[1]+a.v[2]*a.v[2]);
 		return a.length();
