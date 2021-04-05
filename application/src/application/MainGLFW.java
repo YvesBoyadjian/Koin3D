@@ -318,7 +318,7 @@ public class MainGLFW {
 
 		viewer = new SoQtWalkViewer(SoQtFullViewer.BuildFlag.BUILD_NONE, SoQtCameraController.Type.BROWSER,/*shell*/null, style) {
 
-			public void onClose() {
+			public void onClose(boolean resetToDefault) {
 				File saveGameFile = new File("savegame.mri");
 
 				Properties saveGameProperties = new Properties();
@@ -329,18 +329,19 @@ public class MainGLFW {
 
 					SoCamera camera = getCameraController().getCamera();
 
-					saveGameProperties.setProperty(HERO_X, String.valueOf(camera.position.getValue().getX()));
+					if(!resetToDefault) {
+						saveGameProperties.setProperty(HERO_X, String.valueOf(camera.position.getValue().getX()));
 
-					saveGameProperties.setProperty(HERO_Y, String.valueOf(camera.position.getValue().getY()));
+						saveGameProperties.setProperty(HERO_Y, String.valueOf(camera.position.getValue().getY()));
 
-					saveGameProperties.setProperty(HERO_Z, String.valueOf(camera.position.getValue().getZ() + Z_TRANSLATION));
+						saveGameProperties.setProperty(HERO_Z, String.valueOf(camera.position.getValue().getZ() + Z_TRANSLATION));
 
-					saveGameProperties.setProperty(TIME, String.valueOf(getNow()));
+						saveGameProperties.setProperty(TIME, String.valueOf(getNow()));
 
-					saveGameProperties.setProperty(TIME_STOP, isTimeStop() ? "true" : "false");
+						saveGameProperties.setProperty(TIME_STOP, isTimeStop() ? "true" : "false");
 
-					saveGameProperties.setProperty(FLY, isFlying() ? "true" : "false");
-
+						saveGameProperties.setProperty(FLY, isFlying() ? "true" : "false");
+					}
 					saveGameProperties.store(out, "Mount Rainier Island save game");
 
 					out.close();

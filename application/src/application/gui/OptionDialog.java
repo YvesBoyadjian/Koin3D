@@ -20,6 +20,7 @@ public class OptionDialog extends JDialog {
     private JCheckBox volumetricSkyCheckBox;
     private JCheckBox displayFPSCheckBox;
     private JSpinner spinnerMaxI;
+    private JButton buttonNew;
     SoQtWalkViewer viewer;
     SceneGraphIndexedFaceSetShader sg;
 
@@ -31,6 +32,12 @@ public class OptionDialog extends JDialog {
 
         this.viewer = viewer;
         this.sg = sg;
+
+        buttonNew.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onLeaveToNew();
+            }
+        });
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -79,7 +86,19 @@ public class OptionDialog extends JDialog {
         if(viewer.isTimeStop()) {
             viewer.toggleTimeStop();
         }
-        viewer.onClose();
+        viewer.onClose(false);
+        glfwSetWindowShouldClose(viewer.getGLWidget().getWindow(), true);
+    }
+
+    private void onLeaveToNew() {
+        // add your code here
+        //dispose();
+        setVisible(false);
+        apply();
+        if(viewer.isTimeStop()) {
+            viewer.toggleTimeStop();
+        }
+        viewer.onClose(true);
         glfwSetWindowShouldClose(viewer.getGLWidget().getWindow(), true);
     }
 

@@ -292,7 +292,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  		escapeCallback.accept(this);
 			}
 		  	else {
-				onClose();
+				onClose(false);
 				glfwSetWindowShouldClose(getGLWidget().getWindow(), true);
 			}
 		    return true;
@@ -647,7 +647,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	}
 
 	// to be redefined
-    public void onClose() {
+    public void onClose(boolean resetToDefault) {
     	
     }
 
