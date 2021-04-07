@@ -998,7 +998,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		SoBaseColor color = new SoBaseColor();
 
-		color.rgb.setValue(0,0,0);
+		color.rgb.setValue(0,1,0);
 
 		billboardSeparator.addChild(color);
 
