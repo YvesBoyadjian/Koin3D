@@ -38,6 +38,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 import application.gui.OptionDialog;
+import application.scenario.FirstApproachQuest;
+import application.scenario.Scenario;
 import application.viewer.glfw.ForceProvider;
 import application.viewer.glfw.PositionProvider;
 import com.badlogic.gdx.math.Matrix4;
@@ -1063,6 +1065,17 @@ public class MainGLFW {
 		window.setVisible(false);
 
 		boolean success = viewer.setFocus();
+
+		// _____________________________________________________ Story
+		Scenario scenario = new Scenario(sg);
+
+		scenario.addQuest(new FirstApproachQuest());
+
+		scenario.start();
+
+		viewer.addIdleListener((viewer1)->{
+			scenario.idle(viewer1);
+		});
 
 		SwingUtilities.invokeLater(() -> {
 			loop();

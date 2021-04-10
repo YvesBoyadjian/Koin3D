@@ -97,6 +97,12 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	static final boolean WITH_DOUGLAS = true;
 
+	static public final float ORACLE_X = 317.56f;
+
+	static public final float ORACLE_Y = 137.62f;
+
+	static public final float ORACLE_Z = 1248.5f;
+
 	private final float[] douglas_distance_trunk = new float[1];
 
 	private final float[] douglas_distance_foliage = new float[1];
@@ -1052,7 +1058,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		SoTranslation oraclePosition = new SoTranslation();
 
-		oraclePosition.translation.setValue(317.56f,137.62f,1248.5f-zTranslation - 0.74f);
+		oraclePosition.translation.setValue(ORACLE_X,ORACLE_Y,ORACLE_Z-zTranslation - 0.74f);
 
 		oracleSeparator.addChild(oraclePosition);
 

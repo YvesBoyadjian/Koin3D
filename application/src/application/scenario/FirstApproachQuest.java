@@ -1,0 +1,38 @@
+package application.scenario;
+
+import application.MainGLFW;
+import application.scenegraph.SceneGraphIndexedFaceSetShader;
+import application.viewer.glfw.SoQtWalkViewer;
+import jscenegraph.database.inventor.nodes.SoCamera;
+
+public class FirstApproachQuest implements Quest {
+
+    SceneGraphIndexedFaceSetShader sceneGraph;
+
+    @Override
+    public void setSceneGraph(SceneGraphIndexedFaceSetShader sceneGraph) {
+        this.sceneGraph = sceneGraph;
+    }
+
+    @Override
+    public boolean isAchieved(SoQtWalkViewer viewer) {
+        boolean achieved = getDistanceFromOracle(viewer) <= 3.0;
+        if(achieved) {
+            System.out.println("Oracle found");
+        }
+        return achieved;
+    }
+
+    double getDistanceFromOracle(SoQtWalkViewer viewer) {
+        SoCamera camera = viewer.getCameraController().getCamera();
+        float x = camera.position.getValue().x();
+        float y = camera.position.getValue().y();
+        float z = camera.position.getValue().z() + MainGLFW.Z_TRANSLATION;
+
+        float xOracle = SceneGraphIndexedFaceSetShader.ORACLE_X;
+        float yOracle = SceneGraphIndexedFaceSetShader.ORACLE_Y;
+        float zOracle = SceneGraphIndexedFaceSetShader.ORACLE_Z;
+
+        return Math.sqrt(Math.pow(x-xOracle,2)+Math.pow(y-yOracle,2)+Math.pow(z-zOracle,2));
+    }
+}
