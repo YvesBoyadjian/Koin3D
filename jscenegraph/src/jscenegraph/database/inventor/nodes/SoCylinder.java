@@ -222,11 +222,11 @@ public class SoCylinder extends SoShape {
     
     //! Defines how many sides are used for tesselation. If set to <= 0, the sides are
     //! calculated by the SoComplexityElement.
-    public static SoSFInt32           sides = new SoSFInt32();
+    //public final SoSFInt32           sides = new SoSFInt32();
 
     //! Defines how many sections are used for tesselation. If set to <= 0, the sections are
     //! calculated by the SoComplexityElement.
-    public static SoSFInt32           sections = new SoSFInt32();
+    //public final SoSFInt32           sections = new SoSFInt32();
     //@}
 
     
@@ -274,8 +274,8 @@ public SoCylinder()
   nodeHeader.SO_NODE_ADD_FIELD(radius,"radius", (1.0f));
   nodeHeader.SO_NODE_ADD_FIELD(height,"height", (2.0f));
 
-  nodeHeader.SO_NODE_ADD_FIELD(sides,"sides", (0));
-  nodeHeader.SO_NODE_ADD_FIELD(sections,"sections", (0));
+  //nodeHeader.SO_NODE_ADD_FIELD(sides,"sides", (0));
+  //nodeHeader.SO_NODE_ADD_FIELD(sections,"sections", (0));
 
   // Set up static info for enumerated type field
   nodeHeader.SO_NODE_DEFINE_ENUM_VALUE(Part.SIDES);

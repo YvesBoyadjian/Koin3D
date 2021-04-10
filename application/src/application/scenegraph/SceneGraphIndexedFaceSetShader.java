@@ -909,7 +909,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		addWater(shadowGroup,160 + zTranslation, 0.4f, true,false);
 		addWater(shadowGroup,155 + zTranslation, 0.6f, true,false);
 		addWater(shadowGroup,150 + zTranslation, 0.7f, true,false);		
-		
+
+		SoNode oracleSeparator = buildOracle();
+
+		shadowGroup.addChild(oracleSeparator);
+
 		sep.addChild(shadowGroup);
 		
 		SoSeparator castingShadowScene = new SoSeparator();
@@ -971,6 +975,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		
 		if(WITH_DOUGLAS)
 			castingShadowScene.addChild(douglasSepS);
+
+		castingShadowScene.addChild(buildOracle());
 		
 		sun[0].shadowMapScene.setValue(castingShadowScene);
 		sun[1].shadowMapScene.setValue(castingShadowScene);
@@ -1038,6 +1044,65 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		targetSeparator.addChild(targetDisplay);
 
 		sep.addChild(targetSeparator);
+	}
+
+	private SoNode buildOracle() {
+
+		SoSeparator oracleSeparator = new SoSeparator();
+
+		SoTranslation oraclePosition = new SoTranslation();
+
+		oraclePosition.translation.setValue(317.56f,137.62f,1248.5f-zTranslation - 0.74f);
+
+		oracleSeparator.addChild(oraclePosition);
+
+		//oracleSeparator.addChild(transl);
+
+		SoRotation oracleRot = new SoRotation();
+		oracleRot.rotation.setValue(new SbVec3f(1,0,0),(float)Math.PI/2);
+
+		oracleSeparator.addChild(oracleRot);
+
+		SoComplexity complexity = new SoComplexity();
+		complexity.value.setValue(10);
+
+		oracleSeparator.addChild(complexity);
+
+		SoMaterial material = new SoMaterial();
+
+		material.diffuseColor.setValue(1,0,0);
+
+		oracleSeparator.addChild(material);
+
+		SoCylinder oracle = new SoCylinder();
+
+		oracle.height.setValue(1.75f - 0.8f);
+		oracle.radius.setValue(0.4f);
+		oracle.parts.setValue(SoCylinder.Part.SIDES);
+
+		oracleSeparator.addChild(oracle);
+
+		SoTranslation headPos = new SoTranslation();
+
+		headPos.translation.setValue(0,1.75f/2 - 0.4f,0);
+
+		oracleSeparator.addChild(headPos);
+
+		SoSphere oracleHead = new SoSphere();
+		oracleHead.radius.setValue(0.4f);
+		oracleHead.subdivision.setValue(32);
+
+		oracleSeparator.addChild(oracleHead);
+
+		SoTranslation footPos = new SoTranslation();
+
+		footPos.translation.setValue(0,(-1.75f/2 + 0.4f)*2,0);
+
+		oracleSeparator.addChild(footPos);
+
+		oracleSeparator.addChild(oracleHead);
+
+		return oracleSeparator;
 	}
 
 	public float getZ(int i, int j) {
