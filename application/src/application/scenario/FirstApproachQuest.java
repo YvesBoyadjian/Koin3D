@@ -16,11 +16,17 @@ public class FirstApproachQuest implements Quest {
 
     @Override
     public boolean isAchieved(SoQtWalkViewer viewer) {
-        boolean achieved = getDistanceFromOracle(viewer) <= 3.0;
+        boolean achieved = getDistanceFromOracle(viewer) <= 4;
         if(achieved) {
             System.out.println("Oracle found");
         }
         return achieved;
+    }
+
+    @Override
+    public void actionIfNextNotAchieved() {
+        String[] speech = {"Hello, I am the Oracle. I am hungry.","Get me a squirrel, a marmot, a seal, a goat, a spotted owl, a barred owl, and of course, a big foot." };
+        sceneGraph.talk(speech);
     }
 
     double getDistanceFromOracle(SoQtWalkViewer viewer) {

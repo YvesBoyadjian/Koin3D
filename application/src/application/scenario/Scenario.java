@@ -34,7 +34,10 @@ public class Scenario {
         }
     }
 
-    public void idle(SoQtWalkViewer viewer) {
+    public boolean idle(SoQtWalkViewer viewer) {
+
+        Quest thisQuest = currentQuest;
+
         if( !over && currentQuest.isAchieved(viewer) ) {
             int currentQuestIndex = quests.indexOf(currentQuest);
             if(currentQuestIndex >= 0 && currentQuestIndex < quests.size()-1) {
@@ -43,6 +46,11 @@ public class Scenario {
             else {
                 over = true;
             }
+            if(!idle(viewer)) {
+                thisQuest.actionIfNextNotAchieved();
+            }
+            return true;
         }
+        return false;
     }
 }

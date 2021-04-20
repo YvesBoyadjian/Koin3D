@@ -208,6 +208,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	final SoText2 targetDisplay = new SoText2();
 
+	final SoText3 oracleSpeech = new SoText3();
+
+	final SoRotation oracleSpeechRotation = new SoRotation();
+
 	private int max_i;
 
 	private DSpace space;
@@ -1108,6 +1112,29 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		oracleSeparator.addChild(oracleHead);
 
+		SoTranslation speechTranslation = new SoTranslation();
+
+		speechTranslation.translation.setValue(0,0.2f + 1.75f/2 + 0.4f,0);
+
+		oracleSeparator.addChild(speechTranslation);
+
+		SoFont font = new SoFont();
+
+		font.size.setValue(0.1f);
+
+		oracleSeparator.addChild(font);
+
+		SoMaterial materialFont = new SoMaterial();
+
+		materialFont.emissiveColor.setValue(1,1,0);
+		materialFont.diffuseColor.setValue(1,1,0);
+
+		oracleSeparator.addChild(materialFont);
+
+		oracleSeparator.addChild(oracleSpeechRotation);
+
+		oracleSeparator.addChild(oracleSpeech);
+
 		return oracleSeparator;
 	}
 
@@ -1795,5 +1822,25 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 			i++;
 		}
 		targetDisplay.string.setValues(0,targets);
+	}
+
+	public void talk(String[] whatToSay) {
+		oracleSpeech.justification.setValue(SoText3.Justification.CENTER);
+
+		float angle = (float)Math.atan2(current_y - ORACLE_Y, current_x - ORACLE_X) + (float)Math.PI/2;
+
+		oracleSpeechRotation.rotation.setValue(new SbVec3f(0,1,0),angle);
+
+		int nbLines = whatToSay.length;
+		String[] whatToSay2 = new String[nbLines*2];
+		int i;
+		for( i=0;i<nbLines;i++) {
+			whatToSay2[i] = whatToSay[i];
+		}
+		for(;i<nbLines*2;i++) {
+			whatToSay2[i] = "";
+		}
+
+		oracleSpeech.string.setValues(0,whatToSay2);
 	}
 }
