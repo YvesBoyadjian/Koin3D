@@ -9,9 +9,12 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
 import java.util.Random;
 
 public class HoaryMarmots implements Target {
+
+    public static final String HOARY_MARMOT_NAME = "Marmot";
+
     @Override
     public String targetName() {
-        return "Marmot";
+        return HOARY_MARMOT_NAME;
     }
 
     @Override

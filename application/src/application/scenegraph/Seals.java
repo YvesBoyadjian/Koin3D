@@ -16,6 +16,8 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
  */
 public class Seals implements Target {
 
+	public static final String SEAL_NAME = "Seal";
+
 	final int THREE_HUNDRED_THOUSAND = 300000;
 	int NB_SEAL_BIRTHS = THREE_HUNDRED_THOUSAND;
 	
@@ -111,7 +113,7 @@ public class Seals implements Target {
 
 	@Override
 	public String targetName() {
-		return "Seal";
+		return SEAL_NAME;
 	}
 
 	@Override

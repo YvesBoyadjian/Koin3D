@@ -9,9 +9,12 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
 import java.util.Random;
 
 public class MountainGoats implements Target {
+
+    public static final String MOUNTAIN_GOAT_NAME = "Goat";
+
     @Override
     public String targetName() {
-        return "Goat";
+        return MOUNTAIN_GOAT_NAME;
     }
 
     @Override

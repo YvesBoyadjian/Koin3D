@@ -2132,7 +2132,7 @@ sendDiffuseByIndex(int index)
 	      // this test is really not necessary. SoMaterialBundle does the
 	      // same test.  We also need to send the color here to work around
 	      // an nVIDIA bug
-	      if (col != this.glState.diffuse) // YB : reactivate the test, as bug should have been corrected
+	      //if (col != this.glState.diffuse) // YB : reactivate the test, as bug should have been corrected (maybe a bug in Coin3D ? Need to send the color)
 	        this.sendPackedDiffuse(col);
 	    }
 	

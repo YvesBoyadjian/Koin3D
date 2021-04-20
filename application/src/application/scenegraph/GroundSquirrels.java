@@ -9,9 +9,12 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
 import java.util.Random;
 
 public class GroundSquirrels implements Target {
+
+    public final static String GROUND_SQUIRREL_NAME = "Squirrel";
+
     @Override
     public String targetName() {
-        return "Squirrel";
+        return GROUND_SQUIRREL_NAME;
     }
 
     @Override

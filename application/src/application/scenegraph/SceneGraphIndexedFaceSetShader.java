@@ -771,7 +771,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 			@Override
 			public String targetName() {
-				return "Spotted Owl";
+				return Owls.SPOTTED_OWL_NAME;
 			}
 
 			@Override
@@ -790,7 +790,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 			@Override
 			public String targetName() {
-				return "Spotted Owl";
+				return Owls.SPOTTED_OWL_NAME;
 			}
 
 			@Override
@@ -809,7 +809,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 			@Override
 			public String targetName() {
-				return "Barred Owl";
+				return Owls.BARRED_OWL_NAME;
 			}
 
 			@Override
@@ -828,7 +828,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 			@Override
 			public String targetName() {
-				return "Barred Owl";
+				return Owls.BARRED_OWL_NAME;
 			}
 
 			@Override
@@ -1842,5 +1842,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		}
 
 		oracleSpeech.string.setValues(0,whatToSay2);
+	}
+
+	public boolean haveShot(String targetName) {
+		return shotTargets.contains(targetName);
 	}
 }

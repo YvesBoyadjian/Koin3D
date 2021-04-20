@@ -8,9 +8,12 @@ import jscenegraph.database.inventor.fields.SoMFVec3f;
 import java.util.Random;
 
 public class BigFoots implements Target {
+
+    public static final String BIGFOOT_NAME = "Bigfoot";
+
     @Override
     public String targetName() {
-        return "Bigfoot";
+        return BIGFOOT_NAME;
     }
 
     @Override

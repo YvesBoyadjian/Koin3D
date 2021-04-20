@@ -7,6 +7,11 @@ import jscenegraph.database.inventor.SbBox3f;
 import java.util.Random;
 
 public abstract class Owls implements Target {
+
+    public static final String SPOTTED_OWL_NAME = "Spotted Owl";
+
+    public static final String BARRED_OWL_NAME = "Barred Owl";
+
     @Override
     public abstract String getTexturePath();
 

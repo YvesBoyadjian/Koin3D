@@ -40,6 +40,7 @@ import javax.swing.*;
 import application.gui.OptionDialog;
 import application.scenario.FirstApproachQuest;
 import application.scenario.Scenario;
+import application.scenario.TargetsKillingQuest;
 import application.viewer.glfw.ForceProvider;
 import application.viewer.glfw.PositionProvider;
 import com.badlogic.gdx.math.Matrix4;
@@ -1069,7 +1070,10 @@ public class MainGLFW {
 		// _____________________________________________________ Story
 		Scenario scenario = new Scenario(sg);
 
+		// __________________________________________ Oracle encounter
 		scenario.addQuest(new FirstApproachQuest());
+		// __________________________________________ Killing targets
+		scenario.addQuest(new TargetsKillingQuest());
 
 		scenario.start();
 
