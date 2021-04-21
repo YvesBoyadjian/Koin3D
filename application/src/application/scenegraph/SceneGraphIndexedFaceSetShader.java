@@ -47,7 +47,10 @@ import org.ode4j.ode.OdeHelper;
  * @author Yves Boyadjian
  *
  */
-public class SceneGraphIndexedFaceSetShader implements SceneGraph {		
+public class SceneGraphIndexedFaceSetShader implements SceneGraph {
+
+	// Put it to false, if you do not want to save mri files
+	private static final boolean SAVE_CHUNK_MRI = false;
 	
 	private static final float ZMAX = 4392.473f;
 	
@@ -395,8 +398,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 					chunks.colorsPut(index, red, green, blue, alpha);
 				}
 			}
-			
-			chunks.saveZ();
+
+			if(SAVE_CHUNK_MRI) {
+				chunks.saveZ();
+			}
 			need_to_save_colors = true;
 		}
 		
@@ -444,9 +449,13 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 				}
 			}
 			if ( need_to_save_colors ) {
-				chunks.saveColors();
+				if(SAVE_CHUNK_MRI) {
+					chunks.saveColors();
+				}
 			}
-			chunks.saveNormalsAndStones();
+			if(SAVE_CHUNK_MRI) {
+				chunks.saveNormalsAndStones();
+			}
 		}
 		
 		chunks.initIndexedFaceSets();
