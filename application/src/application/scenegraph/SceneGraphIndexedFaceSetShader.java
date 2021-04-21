@@ -208,6 +208,14 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	final SoText2 targetDisplay = new SoText2();
 
+	final SoSwitch oracleSwitch = new SoSwitch();
+
+	final SoSwitch oracleSwitchShadow = new SoSwitch();
+
+	final SoSwitch oracleSpeechSwitch = new SoSwitch();
+
+	final SoSwitch oracleSpeechSwitchShadow = new SoSwitch();
+
 	final SoText3 oracleSpeech = new SoText3();
 
 	final SoRotation oracleSpeechRotation = new SoRotation();
@@ -922,9 +930,10 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		addWater(shadowGroup,155 + zTranslation, 0.6f, true,false);
 		addWater(shadowGroup,150 + zTranslation, 0.7f, true,false);		
 
-		SoNode oracleSeparator = buildOracle();
+		SoNode oracleSeparator = buildOracle(false);
 
-		shadowGroup.addChild(oracleSeparator);
+		oracleSwitch.addChild(oracleSeparator);
+		shadowGroup.addChild(oracleSwitch);
 
 		sep.addChild(shadowGroup);
 		
@@ -988,7 +997,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		if(WITH_DOUGLAS)
 			castingShadowScene.addChild(douglasSepS);
 
-		castingShadowScene.addChild(buildOracle());
+		oracleSwitchShadow.addChild(buildOracle(true));
+
+		castingShadowScene.addChild(oracleSwitchShadow);
 		
 		sun[0].shadowMapScene.setValue(castingShadowScene);
 		sun[1].shadowMapScene.setValue(castingShadowScene);
@@ -1058,7 +1069,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		sep.addChild(targetSeparator);
 	}
 
-	private SoNode buildOracle() {
+	private SoNode buildOracle(boolean shadow) {
 
 		SoSeparator oracleSeparator = new SoSeparator();
 
@@ -1114,26 +1125,56 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		oracleSeparator.addChild(oracleHead);
 
+		oracleSeparator.addChild( shadow ? oracleSpeechSwitchShadow : oracleSpeechSwitch);
+
+		SoGroup speechGroup = new SoGroup();
+
+		if(shadow) {
+			oracleSpeechSwitchShadow.addChild(speechGroup);
+		}
+		else {
+			oracleSpeechSwitch.addChild(speechGroup);
+		}
+
 		SoFont font = new SoFont();
 
 		font.size.setValue(0.1f);
 
-		oracleSeparator.addChild(font);
+		speechGroup.addChild(font);
 
 		SoMaterial materialFont = new SoMaterial();
 
 		materialFont.emissiveColor.setValue(1,1,0);
 		materialFont.diffuseColor.setValue(1,1,0);
 
-		oracleSeparator.addChild(materialFont);
+		speechGroup.addChild(materialFont);
 
-		oracleSeparator.addChild(oracleSpeechRotation);
+		speechGroup.addChild(oracleSpeechRotation);
 
-		oracleSeparator.addChild(speechTranslation);
+		speechGroup.addChild(speechTranslation);
 
-		oracleSeparator.addChild(oracleSpeech);
+		speechGroup.addChild(oracleSpeech);
 
 		return oracleSeparator;
+	}
+
+	private void hideOracleIfTooFar() {
+		double squareDist = Math.pow(current_x - ORACLE_X,2) + Math.pow(current_y-ORACLE_Y,2);
+		boolean isShown = oracleSwitch.whichChild.getValue() == SoSwitch.SO_SWITCH_ALL;
+		boolean speechShown = oracleSpeechSwitch.whichChild.getValue() == SoSwitch.SO_SWITCH_ALL;
+		double hysteresis = speechShown ? 50 : 0;
+		boolean mustShow = squareDist < 200*200;
+		boolean mustShowSpeech = squareDist < 20*20 + hysteresis;
+
+		if( mustShow != isShown) {
+			oracleSwitch.whichChild.setValue(mustShow ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
+			oracleSwitchShadow.whichChild.setValue(mustShow ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
+		}
+
+		if(mustShowSpeech != speechShown) {
+			oracleSpeechSwitch.whichChild.setValue(mustShowSpeech ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
+			oracleSpeechSwitchShadow.whichChild.setValue(mustShowSpeech ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
+		}
 	}
 
 	public float getZ(int i, int j) {
@@ -1709,6 +1750,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	@Override
 	public void idle() {
 		setBBoxCenter();
+		hideOracleIfTooFar();
 	}
 
 	public float getzTranslation() {
