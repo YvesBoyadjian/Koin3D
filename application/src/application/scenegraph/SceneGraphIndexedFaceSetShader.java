@@ -212,6 +212,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	final SoRotation oracleSpeechRotation = new SoRotation();
 
+	SoTranslation speechTranslation = new SoTranslation();
+
 	private int max_i;
 
 	private DSpace space;
@@ -1112,12 +1114,6 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		oracleSeparator.addChild(oracleHead);
 
-		SoTranslation speechTranslation = new SoTranslation();
-
-		speechTranslation.translation.setValue(0,0.2f + 1.75f/2 + 0.4f,0);
-
-		oracleSeparator.addChild(speechTranslation);
-
 		SoFont font = new SoFont();
 
 		font.size.setValue(0.1f);
@@ -1132,6 +1128,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		oracleSeparator.addChild(materialFont);
 
 		oracleSeparator.addChild(oracleSpeechRotation);
+
+		oracleSeparator.addChild(speechTranslation);
 
 		oracleSeparator.addChild(oracleSpeech);
 
@@ -1831,17 +1829,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		oracleSpeechRotation.rotation.setValue(new SbVec3f(0,1,0),angle);
 
-		int nbLines = whatToSay.length;
-		String[] whatToSay2 = new String[nbLines*2];
-		int i;
-		for( i=0;i<nbLines;i++) {
-			whatToSay2[i] = whatToSay[i];
-		}
-		for(;i<nbLines*2;i++) {
-			whatToSay2[i] = "";
-		}
+		speechTranslation.translation.setValue(0,0.2f + 1.75f/2,0.5f);
 
-		oracleSpeech.string.setValues(0,whatToSay2);
+		oracleSpeech.string.setValues(0,whatToSay);
 	}
 
 	public boolean haveShot(String targetName) {
