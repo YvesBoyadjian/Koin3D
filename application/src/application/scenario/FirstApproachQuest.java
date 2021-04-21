@@ -16,7 +16,7 @@ public class FirstApproachQuest implements Quest {
 
     @Override
     public boolean isAchieved(SoQtWalkViewer viewer) {
-        boolean achieved = getDistanceFromOracle(viewer) <= 4;
+        boolean achieved = getDistanceFromOracle(viewer) <= 4.5;
         if(achieved) {
             System.out.println("Oracle found");
         }

@@ -99,7 +99,7 @@ public abstract class Owls implements Target {
             float dzMax = 0.35f;
              */
             //boolean isNotTooSteep = (d1<dzMax) && (d2<dzMax) && (d3<dzMax) && (d4<dzMax);
-            float altitude = 2.0f + 20.0f*(float)Math.pow(randomPlacementOwls.nextFloat(),1.5f);
+            float altitude = 2.0f + 15.0f*(float)Math.pow(randomPlacementOwls.nextFloat(),1.5f);
 
             if( /*!isNearWater &&*/ isAboveWater /*&& isNotTooSteep */&& isNotInSnow ) {
                 owlCoords.append(x);

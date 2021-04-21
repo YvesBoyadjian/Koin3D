@@ -1873,6 +1873,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 		speechTranslation.translation.setValue(0,0.2f + 1.75f/2,0.5f);
 
+		oracleSpeech.string.setNum(0);
 		oracleSpeech.string.setValues(0,whatToSay);
 	}
 

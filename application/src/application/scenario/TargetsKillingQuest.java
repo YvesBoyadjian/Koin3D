@@ -16,7 +16,7 @@ public class TargetsKillingQuest implements Quest {
 
     @Override
     public boolean isAchieved(SoQtWalkViewer viewer) {
-        boolean achieved = getDistanceFromOracle(viewer) <= 4;
+        boolean achieved = getDistanceFromOracle(viewer) <= 4.5;
         achieved &= sceneGraph.haveShot(GroundSquirrels.GROUND_SQUIRREL_NAME);
         achieved &= sceneGraph.haveShot(HoaryMarmots.HOARY_MARMOT_NAME);
         achieved &= sceneGraph.haveShot(Seals.SEAL_NAME);
@@ -29,7 +29,7 @@ public class TargetsKillingQuest implements Quest {
 
     @Override
     public void actionIfNextNotAchieved() {
-        String[] speech = {"Hooray, I have enough to eat.","To show my gratitude, I'm allowing you to fly by pressing the 'F' key."};
+        String[] speech = {"Hooray, I now have enough to eat.","To show my gratitude, I'm allowing you to fly", "by pressing the 'F' key."};
         sceneGraph.talk(speech);
     }
 
