@@ -121,6 +121,8 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	private boolean timeStop = false;
 
 	private Consumer<SoQtWalkViewer> escapeCallback;
+
+	private boolean allowToggleFly = false;
 	
 	public SoQtWalkViewer(SoQtFullViewer.BuildFlag flag, SoQtCameraController.Type type, Composite parent, int f) {
 		super(flag, type, parent, f);
@@ -362,7 +364,9 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  }
 		  else if(
 				  SoKeyboardEvent.SO_KEY_RELEASE_EVENT(event, SoKeyboardEvent.Key.F) ) {
-			  toggleFly();
+		  	if(allowToggleFly || fly) {
+				toggleFly();
+			}
 			  return true;
 		  }
 		  else if(
@@ -672,7 +676,7 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 	public void toggleFly() {
 		fly = !fly;
 		if(fly) {
-			SPEED = GOD;
+			SPEED = JET;
 		}
 		else {
 			SPEED = USAIN_BOLT_RUN;			
@@ -688,6 +692,10 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
     	else {
     		setStartDate( now - System.nanoTime()/1e9 );
 		}
+	}
+
+	public void setAllowToggleFly(boolean allowToggleFly) {
+    	this.allowToggleFly = allowToggleFly;
 	}
 
 	public boolean isTimeStop() {

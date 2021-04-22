@@ -47,7 +47,7 @@ public class Scenario {
                 over = true;
             }
             if(!idle(viewer)) {
-                thisQuest.actionIfNextNotAchieved();
+                thisQuest.actionIfNextNotAchieved(viewer);
             }
             return true;
         }

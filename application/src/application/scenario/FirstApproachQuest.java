@@ -24,7 +24,7 @@ public class FirstApproachQuest implements Quest {
     }
 
     @Override
-    public void actionIfNextNotAchieved() {
+    public void actionIfNextNotAchieved(SoQtWalkViewer viewer) {
         String[] speech = {"Hello, I am the Oracle. I am hungry.","Get me a squirrel, a marmot, a seal, a goat,", "a spotted owl, a barred owl, and of course, a big foot." };
         sceneGraph.talk(speech);
     }

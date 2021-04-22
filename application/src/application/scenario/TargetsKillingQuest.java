@@ -28,7 +28,8 @@ public class TargetsKillingQuest implements Quest {
     }
 
     @Override
-    public void actionIfNextNotAchieved() {
+    public void actionIfNextNotAchieved(SoQtWalkViewer viewer) {
+        viewer.setAllowToggleFly(true);
         String[] speech = {"Hooray, I now have enough to eat.","To show my gratitude, I'm allowing you to fly", "by pressing the 'F' key."};
         sceneGraph.talk(speech);
     }
