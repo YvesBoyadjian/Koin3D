@@ -895,7 +895,12 @@ public class DxHeightfield extends DxAbstractHeightfield {
 		switch (o2.type)
 		{
 		case dRayClass:
-			geomNSegmentCollider	= null;//geomRayNCollider		= null;
+			geomNSegmentCollider	= new DColliderFn() {
+				@Override
+				public int dColliderFn(DGeom o1, DGeom o2, int flags, DContactGeomBuffer contacts) {
+					return 0; // YB : To avoid a NPE when using DRay
+				}
+			};//null;//geomRayNCollider		= null;
 			geomNPlaneCollider	    = new DxRay.CollideRayPlane();//dCollideRayPlane;
 			geomNDepthGetter		= null;
 			//max_collisionContact    = 1;

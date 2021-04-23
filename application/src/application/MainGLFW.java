@@ -716,7 +716,7 @@ public class MainGLFW {
 
 		world.setGravity(0, 0, -9.81);
 
-		float above_ground = 0.2f; // Necessary when respawning on water
+		final float above_ground = 0.2f; // Necessary when respawning on water
 
 		final DBody body = OdeHelper.createBody(world);
 		body.setPosition(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - /*1.75f / 2*/0.4f + 0.13f + above_ground);
@@ -737,7 +737,10 @@ public class MainGLFW {
 
 		DGeom ball = OdeHelper.createSphere(space, 0.4);
 		final DBody ballBody = OdeHelper.createBody(world);
-		ballBody.setPosition(cameraPositionValue.getX(), cameraPositionValue.getY(), cameraPositionValue.getZ() - /*1.75f / 2*/0.4f + 0.13f - 1.75f+ 2*0.4f + above_ground);
+		ballBody.setPosition(
+				body.getPosition().get0()/*cameraPositionValue.getX()*/,
+				body.getPosition().get1()/*cameraPositionValue.getY()*/,
+				body.getPosition().get2() /*cameraPositionValue.getZ() - 0.4f + 0.13f + above_ground*/ - 1.75f+ 2*0.4f);
 		DMass ballm = OdeHelper.createMass();
 		ballm.setSphere(1000.0f, 0.25);
 		ballBody.setMass(ballm);
@@ -949,15 +952,25 @@ public class MainGLFW {
 
 		DVector3 saved_pos = new DVector3();
 		viewer.addIdleListener((viewer1) -> {
-			if (viewer1.isFlying()) {
-				return;
-			}
 
 			// TODO : getGroundZ() is not accurate
 			float camz = sg.getGroundZ() + 1.75f - 0.13f;
 
 			float zref = camz - 0.4f + 0.13f;
 
+			if (viewer1.isFlying()) {
+				saved_pos.set0(camera.position.getValue().getX());
+				saved_pos.set1(camera.position.getValue().getY());
+				saved_pos.set2(camera.position.getValue().getZ()/*zref + 1.0f*/ - /*1.75f / 2*/0.4f + 0.13f + above_ground);
+				body.setPosition(saved_pos);
+				//body.setLinearVel(0,0,0);
+				//ballBody.setPosition(camera.position.getValue().getX(), camera.position.getValue().getY(), camera.position.getValue().getZ() - /*1.75f / 2*/0.4f + 0.13f - 1.75f+ 2*0.4f + above_ground);
+				ballBody.setPosition(
+						body.getPosition().get0()/*cameraPositionValue.getX()*/,
+						body.getPosition().get1()/*cameraPositionValue.getY()*/,
+						body.getPosition().get2() /*cameraPositionValue.getZ() - 0.4f + 0.13f + above_ground*/ - 1.75f+ 2*0.4f);
+				return;
+			}
 			double dt = Math.min(0.5, viewer1.dt());
 			for (int i = 0; i < nb_step; i++) {
 				physics_error = false;
@@ -968,12 +981,20 @@ public class MainGLFW {
 				if(physics_error) {
 					saved_pos.add2(0.1);
 					body.setPosition(saved_pos);
+					ballBody.setPosition(
+							body.getPosition().get0()/*cameraPositionValue.getX()*/,
+							body.getPosition().get1()/*cameraPositionValue.getY()*/,
+							body.getPosition().get2() /*cameraPositionValue.getZ() - 0.4f + 0.13f + above_ground*/ - 1.75f+ 2*0.4f);
 				}
 			}
 			if(body.getPosition().get2() < zref - 1.5f) {
 				System.err.println("Error in placement, too low");
 				saved_pos.set2(zref + 1.0f);
 				body.setPosition(saved_pos);
+				ballBody.setPosition(
+						body.getPosition().get0()/*cameraPositionValue.getX()*/,
+						body.getPosition().get1()/*cameraPositionValue.getY()*/,
+						body.getPosition().get2() /*cameraPositionValue.getZ() - 0.4f + 0.13f + above_ground*/ - 1.75f+ 2*0.4f);
 			}
 		});
 
