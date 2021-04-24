@@ -21,6 +21,12 @@ public class OptionDialog extends JDialog {
     private JCheckBox displayFPSCheckBox;
     private JSpinner spinnerMaxI;
     private JButton buttonNew;
+    private JButton lowButton;
+    private JButton mediumButton;
+    private JButton highButton;
+    private JButton ultraButton;
+    private JButton lowestButton;
+    private JButton extremeButton;
     SoQtWalkViewer viewer;
     SceneGraphIndexedFaceSetShader sg;
 
@@ -50,6 +56,13 @@ public class OptionDialog extends JDialog {
                 onCancel();
             }
         });
+
+        lowestButton.addActionListener((e)->onLowest());
+        lowButton.addActionListener((e)->onLow());
+        mediumButton.addActionListener((e)->onMedium());
+        highButton.addActionListener((e)->onHigh());
+        ultraButton.addActionListener((e)->onUltra());
+        extremeButton.addActionListener((e)->onExtreme());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -102,6 +115,66 @@ public class OptionDialog extends JDialog {
         glfwSetWindowShouldClose(viewer.getGLWidget().getWindow(), true);
     }
 
+    private void onLowest() {
+        setShadowPrecision(0.05);
+        setLODFactor(0.05);
+        setLODFactorShadow(0.05);
+        setTreeDistance(500);
+        setTreeShadowDistance(500);
+        setIslandDepth(7000);
+        setVolumetricSky(false);
+    }
+
+    private void onLow() {
+        setShadowPrecision(0.25);
+        setLODFactor(0.2);
+        setLODFactorShadow(0.2);
+        setTreeDistance(1500);
+        setTreeShadowDistance(500);
+        setIslandDepth(7000);
+        setVolumetricSky(false);
+    }
+
+    private void onMedium() {
+        setShadowPrecision(0.25);
+        setLODFactor(0.5);
+        setLODFactorShadow(0.5);
+        setTreeDistance(3000);
+        setTreeShadowDistance(1500);
+        setIslandDepth(7000);
+        setVolumetricSky(false);
+    }
+
+    private void onHigh() {
+        setShadowPrecision(0.3);
+        setLODFactor(1.0);
+        setLODFactorShadow(1.0);
+        setTreeDistance(7000);
+        setTreeShadowDistance(3000);
+        setIslandDepth(14000);
+        setVolumetricSky(false);
+    }
+
+    private void onUltra() {
+        setShadowPrecision(0.3);
+        setLODFactor(1.0);
+        setLODFactorShadow(1.0);
+        setTreeDistance(7000);
+        setTreeShadowDistance(3000);
+        setIslandDepth(14000);
+        setVolumetricSky(true);
+    }
+
+    private void onExtreme() {
+        setShadowPrecision(0.4);
+        setLODFactor(2.0);
+        setLODFactorShadow(2.0);
+        setTreeDistance(30000);
+        setTreeShadowDistance(30000);
+        setIslandDepth(14000);
+        setVolumetricSky(true);
+    }
+
     private void apply() {
         //sg.enableNotifySun();
         sg.getShadowGroup().precision.setValue((float)((double)((Double)((SpinnerNumberModel) spinnerShadowgroup.getModel()).getNumber())));
@@ -137,6 +210,34 @@ public class OptionDialog extends JDialog {
             displayFPSCheckBox.getModel().setSelected(sg.isFPSEnabled());
         }
         super.setVisible(b);
+    }
+
+    public void setShadowPrecision(double precision) {
+        spinnerShadowgroup.getModel().setValue(precision);
+    }
+
+    public void setLODFactor(double lodFactor) {
+        spinnerLODFactor.getModel().setValue(lodFactor);
+    }
+
+    public void setLODFactorShadow(double lodFactorShadow) {
+        spinnerLODFactorShadow.getModel().setValue(lodFactorShadow);
+    }
+
+    public void setTreeDistance(double treeDistance) {
+        spinnerTreeDistance.getModel().setValue(treeDistance);
+    }
+
+    public void setTreeShadowDistance(double treeShadowDistance) {
+        spinnerTreeShadowDistance.getModel().setValue(treeShadowDistance);
+    }
+
+    public void setIslandDepth(int islandDepth) {
+        spinnerMaxI.getModel().setValue(islandDepth);
+    }
+
+    public void setVolumetricSky(boolean volumetricSky) {
+        volumetricSkyCheckBox.getModel().setSelected(volumetricSky);
     }
 
     public static void main(String[] args) {
