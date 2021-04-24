@@ -3243,7 +3243,9 @@ ByteBuffer data ) {
 	}
 
 	default void glCallLists(int arg1, int arg2, ByteBuffer arg3) {
-		org.lwjgl.opengl.GL11.glCallLists(arg2, arg3);
+		if(arg1!=0) { // test for Intel HD 630 driver
+			org.lwjgl.opengl.GL11.glCallLists(arg2, arg3);
+		}
 	}
 
 	default void glListBase(int arg) {
