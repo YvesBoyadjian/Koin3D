@@ -126,7 +126,7 @@ public class OptionDialog extends JDialog {
     }
 
     private void onLow() {
-        setShadowPrecision(0.25);
+        setShadowPrecision(0.05);
         setLODFactor(0.2);
         setLODFactorShadow(0.2);
         setTreeDistance(1500);
@@ -136,7 +136,7 @@ public class OptionDialog extends JDialog {
     }
 
     private void onMedium() {
-        setShadowPrecision(0.25);
+        setShadowPrecision(0.15);
         setLODFactor(0.5);
         setLODFactorShadow(0.5);
         setTreeDistance(3000);

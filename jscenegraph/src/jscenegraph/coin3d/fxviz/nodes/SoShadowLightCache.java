@@ -138,7 +138,7 @@ public class SoShadowLightCache implements Destroyable {
     // YB : no more need to have a power of two size in modern opengl
     precision = sg.precision.getValue();
 
-    int TEXSIZE = /*Tidbits.coin_geq_power_of_two(*/(int) (precision * Math.min(maxsize, maxtexsize))/*)*/;
+    int TEXSIZE = /*Tidbits.coin_geq_power_of_two(*/(int) Math.min(precision * maxtexsize,Math.min(maxsize, maxtexsize))/*)*/;
 
     this.lightid = -1;
     this.vsm_program = null;
