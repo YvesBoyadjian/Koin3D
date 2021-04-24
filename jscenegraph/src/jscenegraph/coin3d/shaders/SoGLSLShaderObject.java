@@ -237,6 +237,9 @@ didOpenGLErrorOccur( String source, cc_glglue g)
     
     retCode = true;
     glErr = g.getGL2().glGetError();
+    if(glErr == GL2.GL_OUT_OF_MEMORY) {
+      return retCode;
+    }
   }
   return retCode;
 }
