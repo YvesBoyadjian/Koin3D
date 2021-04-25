@@ -252,13 +252,13 @@ public class MainGLFW {
 		//SoSeparator.setNumRenderCaches(0);
 		//SceneGraph sg = new SceneGraphQuadMesh(r);
 
-		float shadow_precision = 0.4f;
-		float level_of_detail = 1f;
-		float level_of_detail_shadow = 1f;
-		float tree_distance = 7000f;
-		float tree_shadow_distance = 3000f;
-		int max_i = 14000;
-		boolean volumetric_sky = true;
+		float shadow_precision = (float)OptionDialog.DEFAULT_SHADOW_PRECISION;
+		float level_of_detail = (float)OptionDialog.DEFAULT_LOD_FACTOR;
+		float level_of_detail_shadow = (float) OptionDialog.DEFAULT_LOD_FACTOR_SHADOW;
+		float tree_distance = (float)OptionDialog.DEFAULT_TREE_DISTANCE;
+		float tree_shadow_distance = (float)OptionDialog.DEFAULT_TREE_SHADOW_DISTANCE;
+		int max_i = OptionDialog.DEFAULT_ISLAND_DEPTH;
+		boolean volumetric_sky = OptionDialog.DEFAULT_VOLUMETRIC_SKY;
 		boolean display_fps = false;
 
 		File graphicsFile = new File("graphics.mri");
