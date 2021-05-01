@@ -385,10 +385,22 @@ public class SoQtWalkViewer extends SoQtConstrainedViewer {
 		  if (SoMouseButtonEvent.SO_MOUSE_RELEASE_EVENT(event, SoMouseButtonEvent.Button.BUTTON1)) {
 		  	return true;
 		  }
+		if (SoMouseButtonEvent.SO_MOUSE_PRESS_EVENT(event, SoMouseButtonEvent.Button.BUTTON2)) {
+			onAim(event,true);
+			return true;
+		}
+		if (SoMouseButtonEvent.SO_MOUSE_RELEASE_EVENT(event, SoMouseButtonEvent.Button.BUTTON2)) {
+			onAim(event,false);
+			return true;
+		}
 		return false;
 	}
 	
 	protected void onFire(SoMouseButtonEvent event) {
+		// do nothing by default
+	}
+
+protected void onAim(SoMouseButtonEvent event, boolean aim) {
 		// do nothing by default
 	}
 

@@ -127,7 +127,28 @@ public class GLCanvas extends Composite {
 
 			@Override
 			public void invoke(long window, double xpos, double ypos) {
-				mouseMoveCB(xpos, ypos);
+
+				boolean left_button = false;
+
+				int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+				if (state == GLFW_PRESS) {
+						left_button = true;
+				}
+
+				boolean right_button = false;
+
+				state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+				if (state == GLFW_PRESS) {
+					right_button = true;
+				}
+				MouseEvent me = new MouseEvent(xpos, ypos);
+				if(left_button) {
+					me.stateMask |= SWT.BUTTON1;
+				}
+				if(right_button) {
+					me.stateMask |= SWT.BUTTON2;
+				}
+				mouseMoveCB(me);
 			}
         	
         });

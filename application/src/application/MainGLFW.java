@@ -413,6 +413,10 @@ public class MainGLFW {
 				SwingUtilities.invokeLater(new TargetSearchRunnable(this, vr, sg_, sg));
 				//new Thread(new TargetSearchRunnable(this, vr, sg)).start();
 			}
+
+			protected void onAim(SoMouseButtonEvent event, boolean aim) {
+				sg.aim(aim);
+			}
 		};
 		GLData glf = new GLData(/*GLProfile.getDefault()*/);
 		glf.redSize = 8;//10;

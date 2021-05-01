@@ -27,10 +27,7 @@ import jscenegraph.coin3d.fxviz.nodes.SoVolumetricShadowGroup;
 import jscenegraph.coin3d.inventor.SbBSPTree;
 import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLBillboard;
 import jscenegraph.coin3d.inventor.lists.SbListInt;
-import jscenegraph.coin3d.inventor.nodes.SoDepthBuffer;
-import jscenegraph.coin3d.inventor.nodes.SoFragmentShader;
-import jscenegraph.coin3d.inventor.nodes.SoTexture2;
-import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
+import jscenegraph.coin3d.inventor.nodes.*;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
 import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
@@ -220,6 +217,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	final SoSwitch oracleSpeechSwitch = new SoSwitch();
 
 	final SoSwitch oracleSpeechSwitchShadow = new SoSwitch();
+
+	final SoSwitch aimSwitch = new SoSwitch();
 
 	final SoText3 oracleSpeech = new SoText3();
 
@@ -1112,6 +1111,34 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		messageSeparator.addChild(messageDisplay);
 
 		sep.addChild(messageSeparator);
+
+		// _____________________________________________________ ViewFinder
+		SoSeparator viewFinderSeparator = new SoSeparator();
+
+		SoOrthographicCamera billboardFinderCamera = new SoOrthographicCamera();
+
+		aimSwitch.addChild(billboardFinderCamera);
+
+		color = new SoBaseColor();
+
+		color.rgb.setValue(0.5f,0,0);
+
+		aimSwitch.addChild(color);
+
+		SoMarkerSet markerSet = new SoMarkerSet();
+
+		markerSet.markerIndex.setValue(SoMarkerSet.MarkerType.CIRCLE_LINE_9_9.getValue());
+
+		SoVertexProperty vertexProperty = new SoVertexProperty();
+		vertexProperty.vertex.setValue(new SbVec3f());
+
+		markerSet.vertexProperty.setValue(vertexProperty);
+
+		aimSwitch.addChild(markerSet);
+
+		viewFinderSeparator.addChild(aimSwitch);
+
+		sep.addChild(viewFinderSeparator);
 	}
 
 	private SoNode buildOracle(boolean shadow) {
@@ -1928,5 +1955,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	public void setMessage(String message) {
 		messageDisplay.string.setValue(message);
+	}
+
+	public void aim(boolean aim) {
+		aimSwitch.whichChild.setValue(aim ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
 	}
 }

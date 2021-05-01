@@ -512,13 +512,13 @@ void synthesizeCurrentButtonState (MouseEvent me, EventType type)
     int buttonState = (type == EventType.MOUSE_EVENT_MOUSE_MOVE) ? buttons(me) : (buttons(me) ^ button(me));
     if (buttonState != storedButtonState) {
         // first generate button release events for every button that is different:
-        synthesizeButtonState (buttonState, GLFW.GLFW_MOUSE_BUTTON_1,  me, false);
-        synthesizeButtonState (buttonState, GLFW.GLFW_MOUSE_BUTTON_2,   me, false);
-        synthesizeButtonState (buttonState, GLFW.GLFW_MOUSE_BUTTON_3, me, false);
+        synthesizeButtonState (buttonState, /*GLFW.GLFW_MOUSE_BUTTON_1*/SWT.BUTTON1,  me, false);
+        synthesizeButtonState (buttonState, /*GLFW.GLFW_MOUSE_BUTTON_2*/SWT.BUTTON2,   me, false);
+        synthesizeButtonState (buttonState, /*GLFW.GLFW_MOUSE_BUTTON_3*/SWT.BUTTON3, me, false);
         // then generate button press events for every button that is different:
-        synthesizeButtonState (buttonState, GLFW.GLFW_MOUSE_BUTTON_1,  me, true);
-        synthesizeButtonState (buttonState, GLFW.GLFW_MOUSE_BUTTON_2,   me, true);
-        synthesizeButtonState (buttonState, GLFW.GLFW_MOUSE_BUTTON_3, me, true);
+        synthesizeButtonState (buttonState, /*GLFW.GLFW_MOUSE_BUTTON_1*/SWT.BUTTON1,  me, true);
+        synthesizeButtonState (buttonState, /*GLFW.GLFW_MOUSE_BUTTON_2*/SWT.BUTTON2,   me, true);
+        synthesizeButtonState (buttonState, /*GLFW.GLFW_MOUSE_BUTTON_3*/SWT.BUTTON3, me, true);
     }
 }
 
@@ -529,9 +529,9 @@ private static final int buttons(MouseEvent me) {
 private static final int button(MouseEvent me) {
 	int buttonCode = 0;
 	switch(me.button) {
-	case 1: buttonCode = GLFW.GLFW_MOUSE_BUTTON_1; break;
-	case 2: buttonCode = GLFW.GLFW_MOUSE_BUTTON_2; break;
-	case 3: buttonCode = GLFW.GLFW_MOUSE_BUTTON_3; break;
+	case 1: buttonCode = /*GLFW.GLFW_MOUSE_BUTTON_1*/SWT.BUTTON1; break;
+	case 2: buttonCode = /*GLFW.GLFW_MOUSE_BUTTON_2*/SWT.BUTTON2; break;
+	case 3: buttonCode = /*GLFW.GLFW_MOUSE_BUTTON_3*/SWT.BUTTON3; break;
 	}
 	return buttonCode;
 }
@@ -553,9 +553,9 @@ void synthesizeButtonState (int newButtons,
         e.y = me.y;
         int buttonNumber = 0;
         switch(button) {
-        case GLFW.GLFW_MOUSE_BUTTON_1: buttonNumber = 1; break;
-        case GLFW.GLFW_MOUSE_BUTTON_2: buttonNumber = 2; break;
-        case GLFW.GLFW_MOUSE_BUTTON_3: buttonNumber = 3; break;
+            case /*GLFW.GLFW_MOUSE_BUTTON_1*/SWT.BUTTON1: buttonNumber = 1; break;
+            case /*GLFW.GLFW_MOUSE_BUTTON_2*/SWT.BUTTON2: buttonNumber = 2; break;
+            case /*GLFW.GLFW_MOUSE_BUTTON_3*/SWT.BUTTON3: buttonNumber = 3; break;
         }
         e.button = buttonNumber;
         e.stateMask = storedButtonState + (me.stateMask & SWT.MODIFIER_MASK);

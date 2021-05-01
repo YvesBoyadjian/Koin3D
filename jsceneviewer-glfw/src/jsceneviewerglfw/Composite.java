@@ -218,12 +218,11 @@ public class Composite {
 		}
 	}
 
-	public void mouseMoveCB(double xpos, double ypos) {
+	public void mouseMoveCB(MouseEvent me) {
 		
-		MouseEvent me = new MouseEvent(xpos, ypos);
 		mouseMoveListeners.forEach((mml)->mml.mouseMove(me));
 		if(parent != null) {
-			parent.mouseMoveCB(xpos, ypos);
+			parent.mouseMoveCB(me);
 		}
 	}
 	
