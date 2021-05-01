@@ -100,11 +100,11 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	
 	static final boolean WITH_DOUGLAS = true;
 
-	static public final float ORACLE_X = 317.56f;
+	static public final float ORACLE_X = 314.9f;//317.56f;
 
-	static public final float ORACLE_Y = 137.62f;
+	static public final float ORACLE_Y = 169.77f;//137.62f;
 
-	static public final float ORACLE_Z = 1248.5f;
+	static public final float ORACLE_Z = 1250.24f;//1248.5f;
 
 	private final float[] douglas_distance_trunk = new float[1];
 
