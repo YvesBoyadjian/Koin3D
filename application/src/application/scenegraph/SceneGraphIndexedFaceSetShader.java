@@ -211,6 +211,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	final SoText2 targetDisplay = new SoText2();
 
+	final SoText2 messageDisplay = new SoText2();
+
 	final SoSwitch oracleSwitch = new SoSwitch();
 
 	final SoSwitch oracleSwitchShadow = new SoSwitch();
@@ -1049,6 +1051,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		fpsSwitch.whichChild.setValue(SoSwitch.SO_SWITCH_NONE);
 		sep.addChild(fpsSwitch);
 
+		// ____________________________________________________ Display of shot targets
 		SoSeparator targetSeparator = new SoSeparator();
 
 		SoOrthographicCamera billboardTargetCamera = new SoOrthographicCamera();
@@ -1076,6 +1079,32 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		targetSeparator.addChild(targetDisplay);
 
 		sep.addChild(targetSeparator);
+
+		// ____________________________________________________ Display of message
+		SoSeparator messageSeparator = new SoSeparator();
+
+		SoOrthographicCamera billboardMessageCamera = new SoOrthographicCamera();
+
+		messageSeparator.addChild(billboardMessageCamera);
+
+		textTransl = new SoTranslation();
+		textTransl.translation.setValue(0, -0.9f, 0);
+
+		messageSeparator.addChild(textTransl);
+
+		messageSeparator.addChild(font);
+
+		color = new SoBaseColor();
+
+		color.rgb.setValue(1,1,0);
+
+		messageSeparator.addChild(color);
+
+		messageDisplay.justification.setValue(SoText2.Justification.CENTER);
+
+		messageSeparator.addChild(messageDisplay);
+
+		sep.addChild(messageSeparator);
 	}
 
 	private SoNode buildOracle(boolean shadow) {
@@ -1888,5 +1917,9 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	public boolean haveShot(String targetName) {
 		return shotTargets.contains(targetName);
+	}
+
+	public void setMessage(String message) {
+		messageDisplay.string.setValue(message);
 	}
 }
