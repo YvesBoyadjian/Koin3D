@@ -3,13 +3,7 @@
  */
 package application;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.image.Raster;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -225,6 +219,12 @@ public class MainGLFW {
 		intro.setFont(intro.getFont().deriveFont((float) height / 20f));
 		window.getContentPane().add(
 				intro);
+
+		JLabel keys = new JLabel("[WASD] or [ZQSD] to walk, [left mouse button] to shoot, [right mouse button] to aim",null,SwingConstants.CENTER);
+		keys.setForeground(Color.yellow);
+		//keys.setFont(intro.getFont().deriveFont((float) height / 100f));
+		window.getContentPane().add(keys,BorderLayout.SOUTH);
+
 		window.getContentPane().setBackground(Color.BLACK);
 		window.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
 		//window.getContentPane().setForeground(Color.white);
