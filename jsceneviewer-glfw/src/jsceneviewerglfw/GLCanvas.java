@@ -224,4 +224,15 @@ public class GLCanvas extends Composite {
 			}
 		}
 	}
+
+	public boolean isVisible() {
+		if( 0 != window ) {
+			long visible = glfwGetWindowAttrib(window,GLFW_VISIBLE);
+			long iconified = glfwGetWindowAttrib(window,GLFW_ICONIFIED);
+			return visible != 0 && iconified == 0;
+		}
+		else {
+			return super.isVisible();
+		}
+	}
 }

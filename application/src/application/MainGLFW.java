@@ -1074,6 +1074,12 @@ public class MainGLFW {
 		dialog.setUndecorated(true);
 
 		viewer.setEscapeCallback((viewer2) -> {
+
+			if(!viewer2.isVisible()) {
+				viewer2.getGLWidget().setVisible(false);
+				return;
+			}
+
 			if (!viewer2.isTimeStop()) {
 				viewer2.toggleTimeStop();
 			}
@@ -1087,6 +1093,14 @@ public class MainGLFW {
 				dialog.setAlwaysOnTop(true);
 			}
 			//);
+		});
+
+		viewer.addIdleListener((viewer2)->{
+
+			if(!viewer2.isVisible() && viewer2.getGLWidget().isVisible()) {
+				viewer2.getGLWidget().setVisible(false);
+				return;
+			}
 		});
 
 		// _____________________________________________________ Physics with ODE4j (End)
