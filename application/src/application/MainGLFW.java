@@ -185,13 +185,37 @@ public class MainGLFW {
 
 	static JWindow window;
 
+	static boolean hasMainGameBeenCalled;
+
 	public static void showSplash() {
-		window = new JWindow();/* {
+		window = new JWindow()/* {
 			public void paint(Graphics g) {
 			      super.paint(g);
 			      g.drawImage(splashScreen, 0, 0, this);
 			   }			
 		};*/
+		{
+			public void paint(Graphics g) {
+				super.paint(g);
+
+				if(!hasMainGameBeenCalled) {
+					hasMainGameBeenCalled = true;
+					SwingUtilities.invokeLater(() -> {
+						try {
+							mainGame();
+						} catch (Exception e) {
+							JOptionPane.showMessageDialog(window, e.toString(), "Exception in Mount Rainier Island", JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+							System.exit(-1); // Necessary, because of Linux
+						} catch (Error e) {
+							JOptionPane.showMessageDialog(window, e.toString(), "Error in Mount Rainier Island", JOptionPane.ERROR_MESSAGE);
+							e.printStackTrace();
+							System.exit(-1); // Necessary, because of Linux
+						}
+					});
+				}
+			}
+		};
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		double width = screenSize.getWidth();
 		double height = screenSize.getHeight();
@@ -208,21 +232,6 @@ public class MainGLFW {
 		window.setBounds(0, 0, (int) width, (int) height);
 
 		window.setVisible(true);
-
-		SwingUtilities.invokeLater(() -> {
-			try {
-				mainGame();
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(window,e.toString(),"Exception in Mount Rainier Island",JOptionPane.ERROR_MESSAGE);
-				e.printStackTrace();
-				System.exit(-1); // Necessary, because of Linux
-			}
-			catch (Error e) {
-				JOptionPane.showMessageDialog(window,e.toString(),"Error in Mount Rainier Island",JOptionPane.ERROR_MESSAGE);
-				e.printStackTrace();
-				System.exit(-1); // Necessary, because of Linux
-			}
-		});
 	}
 
 	static Display display;
