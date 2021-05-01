@@ -1071,6 +1071,7 @@ public class MainGLFW {
 		});
 
 		OptionDialog dialog = new OptionDialog(viewer, sg);
+		dialog.setUndecorated(true);
 
 		viewer.setEscapeCallback((viewer2) -> {
 			if (!viewer2.isTimeStop()) {
@@ -1082,6 +1083,8 @@ public class MainGLFW {
 				dialog.pack();
 				dialog.setLocationRelativeTo(null);
 				dialog.setVisible(true);
+				dialog.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
+				dialog.setAlwaysOnTop(true);
 			}
 			//);
 		});
