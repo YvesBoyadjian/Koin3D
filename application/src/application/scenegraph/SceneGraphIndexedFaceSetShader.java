@@ -1020,6 +1020,13 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		//sep.ref();
 		//forest = null; // for garbage collection : no, we need forest
 
+		SoDepthBuffer db = new SoDepthBuffer();
+
+		db.test.setValue(false);
+
+		sep.addChild(db);
+
+		// ________________________________________________________________ Display of FPS
 		SoSeparator billboardSeparator = new SoSeparator();
 
 		SoOrthographicCamera billboardCamera = new SoOrthographicCamera();
