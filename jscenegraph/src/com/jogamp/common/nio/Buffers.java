@@ -26,6 +26,14 @@ public class Buffers {
 		return buffer;
 	}
 
+	public static ByteBuffer newDirectByteBuffer(byte[] array, int offset) {
+		ByteBuffer buffer = BufferUtils.createByteBuffer(array.length);
+		buffer.put(array);
+		buffer.flip();
+		buffer.position(offset);
+		return buffer;
+	}
+
 	public static ShortBuffer newDirectShortBuffer(short[] array) {
 		ShortBuffer buffer = BufferUtils.createShortBuffer(array.length);
 		buffer.put(array);

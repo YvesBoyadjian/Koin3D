@@ -1545,14 +1545,15 @@ isMarkerBitSet(int idx, int bitNumber)
 	    markerlist = new SbList<so_marker>();
 	    //coin_atexit((coin_atexit_f *)free_marker_images, CC_ATEXIT_NORMAL);
 	    convert_bitmaps();
-	    final so_marker temp = new so_marker();
 	    for (int i = 0; i < MarkerType.NUM_MARKERS.ordinal(); i++) {
-	      temp.width  = 9;
-	      temp.height = 9;
-	      temp.align  = 4;
-	      temp.data   = markerimages; temp.dataOffset = (i * 36);
-	      temp.deletedata = false;
-	      markerlist.append(temp);
+			final so_marker temp = new so_marker();
+			temp.width  = 9;
+			temp.height = 9;
+			temp.align  = 4;
+			temp.data   = markerimages;
+			temp.dataOffset = (i * 36);
+			temp.deletedata = false;
+			markerlist.append(temp);
 	    }
 	  }
 	public static void addMarker(int markerIndex2, SbVec2s size, byte[] bytes, int[] data) {

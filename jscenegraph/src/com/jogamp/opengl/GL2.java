@@ -3227,7 +3227,7 @@ ByteBuffer data ) {
 	}
 
 	default void glBitmap(int arg1, int arg2, float arg3, float arg4, float arg5, float arg6, byte[] arg7, int arg8) {
-		org.lwjgl.opengl.GL11.glBitmap(arg1,arg2,arg3,arg4,arg5,arg6, Buffers.newDirectByteBuffer(arg7));
+		org.lwjgl.opengl.GL11.glBitmap(arg1,arg2,arg3,arg4,arg5,arg6, Buffers.newDirectByteBuffer(arg7,arg8));
 	}
 
 	default void glOrtho(double arg1, double arg2, double arg3, double arg4, double arg5, double arg6) {
