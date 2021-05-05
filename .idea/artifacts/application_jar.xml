@@ -3,9 +3,6 @@
     <output-path>$PROJECT_DIR$/out/artifacts/application_jar</output-path>
     <root id="root">
       <element id="archive" name="application.jar">
-        <element id="directory" name="META-INF">
-          <element id="file-copy" path="$PROJECT_DIR$/../MRI/META-INF/MANIFEST.MF" />
-        </element>
         <element id="module-output" name="geotools" />
         <element id="module-output" name="loader" />
         <element id="module-output" name="application" />
@@ -16,58 +13,39 @@
         <element id="module-output" name="jsceneviewer-glfw" />
         <element id="module-output" name="lwjgl-utils" />
         <element id="module-output" name="gdx" />
+        <element id="module-output" name="ode4j" />
+        <element id="module-output" name="sl4j" />
         <element id="dir-copy" path="$PROJECT_DIR$/geotools/lib" />
       </element>
-      <element id="library" level="module" name="imageio-ext-geocore-1.2.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="jai_codec-1.1.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-natives-linux-arm64.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-opengl-sources.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-opengl-javadoc.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="imageio-ext-utilities-1.2.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-opengles-natives-linux-arm64.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-sources.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="ejml-core-0.32.jar" module-name="geotools" />
-      <element id="library" level="module" name="ejml-ddense-0.32.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-opengl.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-opengles-sources.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="si-units-java8-0.7.1.jar" module-name="geotools" />
-      <element id="library" level="module" name="imageio-ext-tiff-1.2.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="jaxb-api-2.4.0-b180830.0359.jar" module-name="geotools" />
-      <element id="library" level="module" name="gt-geotiff-21.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="uom-se-1.0.8.jar" module-name="geotools" />
-      <element id="library" level="module" name="si-quantity-0.7.1.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-opengles-natives-linux.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-glfw-natives-linux.jar" module-name="lwjgl-glfw" />
-      <element id="library" level="module" name="jai_core-1.1.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-opengl-natives-windows.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-opengles.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-opengles-javadoc.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="gt-opengis-21.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="gt-coverage-21.3.jar" module-name="geotools" />
       <element id="library" level="module" name="lwjgl.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="lwjgl-javadoc.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="unit-api-1.0.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-natives-windows.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="gt-render-21.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-glfw-sources.jar" module-name="lwjgl-glfw" />
-      <element id="library" level="module" name="commons-lang3-3.8.1.jar" module-name="geotools" />
-      <element id="library" level="module" name="gt-referencing-21.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="systems-common-java8-0.7.2.jar" module-name="geotools" />
+      <element id="file-copy" path="$PROJECT_DIR$/gdx/lib/gdx-platform-1.9.11-natives-desktop.jar" />
       <element id="library" level="module" name="lwjgl-glfw-natives-linux-arm64.jar" module-name="lwjgl-glfw" />
-      <element id="library" level="module" name="lwjgl-glfw-javadoc.jar" module-name="lwjgl-glfw" />
-      <element id="library" level="module" name="lwjgl-opengles-natives-windows.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="gt-metadata-21.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="lwjgl-glfw-natives-windows.jar" module-name="lwjgl-glfw" />
-      <element id="library" level="module" name="jt-utilities-1.0.22.jar" module-name="geotools" />
-      <element id="library" level="module" name="gt-main-21.3.jar" module-name="geotools" />
-      <element id="library" level="module" name="uom-lib-common-1.0.2.jar" module-name="geotools" />
-      <element id="library" level="module" name="imageio-ext-streams-1.2.3.jar" module-name="geotools" />
+      <element id="library" level="module" name="lwjgl-opengles-natives-linux.jar" module-name="lwjgl" />
       <element id="library" level="module" name="lwjgl-opengl-natives-linux.jar" module-name="lwjgl" />
-      <element id="library" level="module" name="gt-swing-21.3.jar" module-name="geotools" />
+      <element id="file-copy" path="$PROJECT_DIR$/gdx/lib/gdx-bullet-1.9.11.jar" />
+      <element id="library" level="module" name="lwjgl-opengles-sources.jar" module-name="lwjgl" />
+      <element id="file-copy" path="$PROJECT_DIR$/gdx/lib/gdx-1.9.11.jar" />
+      <element id="library" level="module" name="lwjgl-glfw-natives-windows.jar" module-name="lwjgl-glfw" />
+      <element id="library" level="module" name="lwjgl-glfw-javadoc.jar" module-name="lwjgl-glfw" />
       <element id="library" level="module" name="lwjgl-opengl-natives-linux-arm64.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-glfw-sources.jar" module-name="lwjgl-glfw" />
+      <element id="library" level="module" name="lwjgl-opengles.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-natives-linux-arm64.jar" module-name="lwjgl" />
       <element id="library" level="module" name="lwjgl-natives-linux.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-opengl-javadoc.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-opengles-natives-windows.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-javadoc.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-opengl.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-sources.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-opengl-sources.jar" module-name="lwjgl" />
+      <element id="file-copy" path="$PROJECT_DIR$/gdx/lib/gdx-bullet-platform-1.9.11-natives-desktop.jar" />
+      <element id="library" level="module" name="lwjgl-opengles-natives-linux-arm64.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-opengles-javadoc.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-natives-windows.jar" module-name="lwjgl" />
       <element id="library" level="module" name="lwjgl-glfw.jar" module-name="lwjgl-glfw" />
-      <element id="library" level="module" name="jai_imageio-1.1.jar" module-name="geotools" />
+      <element id="library" level="module" name="all_libs" module-name="geotools" />
+      <element id="library" level="module" name="lwjgl-opengl-natives-windows.jar" module-name="lwjgl" />
+      <element id="library" level="module" name="lwjgl-glfw-natives-linux.jar" module-name="lwjgl-glfw" />
     </root>
   </artifact>
 </component>

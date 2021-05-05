@@ -48,6 +48,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 
 	// Put it to false, if you do not want to save mri files
 	private static final boolean SAVE_CHUNK_MRI = false;
+
+	public static final boolean AIM = false;
 	
 	private static final float ZMAX = 4392.473f;
 	
@@ -1094,7 +1096,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		messageSeparator.addChild(billboardMessageCamera);
 
 		textTransl = new SoTranslation();
-		textTransl.translation.setValue(0, -0.9f, 0);
+		textTransl.translation.setValue(0, -0.85f, 0);
 
 		messageSeparator.addChild(textTransl);
 
@@ -1958,6 +1960,8 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 	}
 
 	public void aim(boolean aim) {
-		aimSwitch.whichChild.setValue(aim ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
+		if( AIM ) {
+			aimSwitch.whichChild.setValue(aim ? SoSwitch.SO_SWITCH_ALL : SoSwitch.SO_SWITCH_NONE);
+		}
 	}
 }

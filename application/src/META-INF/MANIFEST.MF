@@ -1,3 +1,23 @@
 Manifest-Version: 1.0
 Main-Class: application.MainGLFW
+Class-Path: lwjgl.jar gdx-platform-1.9.11-natives-desktop.jar lwjgl-glfw
+ -natives-linux-arm64.jar lwjgl-opengles-natives-linux.jar lwjgl-opengl-
+ natives-linux.jar gdx-bullet-1.9.11.jar lwjgl-opengles-sources.jar gdx-
+ 1.9.11.jar lwjgl-glfw-natives-windows.jar lwjgl-glfw-javadoc.jar lwjgl-
+ opengl-natives-linux-arm64.jar lwjgl-glfw-sources.jar lwjgl-opengles.ja
+ r lwjgl-natives-linux-arm64.jar lwjgl-natives-linux.jar lwjgl-opengl-ja
+ vadoc.jar lwjgl-opengles-natives-windows.jar lwjgl-javadoc.jar lwjgl-op
+ engl.jar lwjgl-sources.jar lwjgl-opengl-sources.jar gdx-bullet-platform
+ -1.9.11-natives-desktop.jar lwjgl-opengles-natives-linux-arm64.jar lwjg
+ l-opengles-javadoc.jar lwjgl-natives-windows.jar lwjgl-glfw.jar commons
+ -lang3-3.8.1.jar ejml-core-0.34.jar ejml-ddense-0.34.jar gt-coverage-21
+ .5.jar gt-geotiff-21.5.jar gt-main-21.5.jar gt-metadata-21.5.jar gt-ope
+ ngis-21.5.jar gt-referencing-21.5.jar gt-render-21.5.jar gt-swing-21.5.
+ jar imageio-ext-geocore-1.2.3.jar imageio-ext-streams-1.2.3.jar imageio
+ -ext-tiff-1.2.3.jar imageio-ext-utilities-1.2.3.jar jai_codec-1.1.3.jar
+  jai_core-1.1.3.jar jai_imageio-1.1.jar jaxb-api-2.4.0-b180830.0359.jar
+  jt-utilities-1.1.11.jar si-quantity-0.7.1.jar si-units-java8-0.7.1.jar
+  systems-common-java8-0.7.2.jar unit-api-1.0.jar uom-lib-common-1.0.2.j
+ ar uom-se-1.0.8.jar lwjgl-opengl-natives-windows.jar lwjgl-glfw-natives
+ -linux.jar
 
