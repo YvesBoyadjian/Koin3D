@@ -12,7 +12,7 @@ public class FirstApproachQuest implements Quest {
     @Override
     public void setSceneGraph(SceneGraphIndexedFaceSetShader sceneGraph) {
         this.sceneGraph = sceneGraph;
-        sceneGraph.setMessage("You are at Klapatche Point. Your fate is on the road, or the trail");
+        sceneGraph.setMessage("You are at Klapatche Point. Your fate is on the trail");
     }
 
     @Override
