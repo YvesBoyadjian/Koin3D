@@ -54,7 +54,6 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import com.sun.nio.zipfs.ZipFileSystemProvider;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoDB;
 import jscenegraph.database.inventor.SoInput;
@@ -305,9 +304,10 @@ private static Path findIVOrWRL(Path parentPath) {
 
     try {
         Path zipfile = Paths.get(filename);
-        ZipFileSystemProvider provider = new ZipFileSystemProvider();
-        Map<String,?> env = Collections.emptyMap();
-        fs = provider.newFileSystem(zipfile,env);
+        //ZipFileSystemProvider provider = new ZipFileSystemProvider();
+        //Map<String,?> env = Collections.emptyMap();
+        //fs = provider.newFileSystem(zipfile,env);
+        fs = FileSystems.newFileSystem(zipfile,null);
     }
     catch (IOException e) {
         zip = false;

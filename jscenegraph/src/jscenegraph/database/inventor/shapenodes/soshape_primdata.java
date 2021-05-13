@@ -19,7 +19,6 @@ import jscenegraph.database.inventor.nodes.SoShape;
 import jscenegraph.port.Array;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Util;
-import sun.security.krb5.internal.crypto.Des;
 
 /**
  * @author Yves Boyadjian
