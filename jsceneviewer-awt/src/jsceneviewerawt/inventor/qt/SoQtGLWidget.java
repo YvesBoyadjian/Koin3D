@@ -267,7 +267,10 @@ public GLData format()
             // QGLWidget::size calls QWidget::size which returns the size in window coordinates
             // we need to scale this size by the device pixel ratio.
             Dimension size = mainWidget.getSize()/*size() * mainWidget.devicePixelRatio()*/;
-            return new SbVec2s ((short)size.width, (short)size.height);
+
+            AffineTransform at = mainWidget.getGraphicsConfiguration().getDefaultTransform();
+
+            return new SbVec2s ((short)(size.width*at.getScaleX()), (short)(size.height*at.getScaleY()));
         } else {
             return new SbVec2s (/*minGLWidth*/(short)1, /*minGLHeight*/(short)1);
         }    	
@@ -277,7 +280,7 @@ public GLData format()
   //! return ratio between physical pixels and device-independent pixels of GL widget drawing area
     protected double getGlxDevicePixelRatio()
   {
-      return (mainWidget != null) ? /*mainWidget.devicePixelRatio()*/1.0 : 1.0;
+      return (mainWidget != null) ? /*mainWidget.devicePixelRatio()*/mainWidget.getGraphicsConfiguration().getDefaultTransform().getScaleX() : 1.0;
   }
 
 
