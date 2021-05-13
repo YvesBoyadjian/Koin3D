@@ -44,6 +44,7 @@ package jsceneviewerawt.inventor.qt;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -331,10 +332,16 @@ public GLData format()
 			public void componentResized(ComponentEvent e) {
 				SwingUtilities.invokeLater(() -> {
 						Rectangle bounds = mainWidget.getBounds();
-						float fAspect = (float) bounds.width / (float) bounds.height;
+
+						AffineTransform at = mainWidget.getGraphicsConfiguration().getDefaultTransform();
+
+						double w = bounds.width * at.getScaleX();
+						double h = bounds.height * at.getScaleY();
+
+						float fAspect = (float) w / (float) h;
 						//mainWidget.setCurrent();
-						int width = bounds.width;
-						int height = bounds.height;
+						int width = (int)w;
+						int height = (int)h;
 
 						if(lastRenderHeight == height && lastRenderWidth == width) {
 							return;
