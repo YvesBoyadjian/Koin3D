@@ -235,7 +235,8 @@ public GLData format()
     }
 
     public void updateGL() {
-    	mainWidget.render();//display();
+		SwingUtilities.invokeLater(()->mainWidget.render());
+    	//mainWidget.render();//display();
     }
     
     //@{ A set of virtual functions with the same meaning as in QGLWidget, calls are
