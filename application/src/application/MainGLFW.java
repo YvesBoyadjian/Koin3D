@@ -229,7 +229,7 @@ public class MainGLFW {
 		window.setCursor(new java.awt.Cursor(java.awt.Cursor.WAIT_CURSOR));
 		//window.getContentPane().setForeground(Color.white);
 
-		window.setBounds(0, 0, (int) width, (int) height);
+		window.setBounds(0, 0, (int) width, (int) height - 40);
 
 		window.setVisible(true);
 	}
