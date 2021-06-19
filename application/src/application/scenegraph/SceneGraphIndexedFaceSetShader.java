@@ -1096,7 +1096,7 @@ public class SceneGraphIndexedFaceSetShader implements SceneGraph {
 		messageSeparator.addChild(billboardMessageCamera);
 
 		textTransl = new SoTranslation();
-		textTransl.translation.setValue(0, -0.85f, 0);
+		textTransl.translation.setValue(0, -0.86f, 0);
 
 		messageSeparator.addChild(textTransl);
 

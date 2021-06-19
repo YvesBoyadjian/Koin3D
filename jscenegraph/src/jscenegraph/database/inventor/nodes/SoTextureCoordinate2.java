@@ -1,73 +1,137 @@
-/*
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
- *  Further, this software is distributed without any warranty that it is
- *  free of the rightful claim of any third person regarding infringement
- *  or the like.  Any license provided herein, whether implied or
- *  otherwise, applies only to this software file.  Patent licenses, if
- *  any, provided herein do not apply to combinations of this program with
- *  other software, or any other product whatsoever.
- * 
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
- *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
- *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
- *
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ \**************************************************************************/
 
+/*!
+  \class SoTextureCoordinate2 SoTextureCoordinate2.h Inventor/nodes/SoTextureCoordinate2.h
+  \brief The SoTextureCoordinate2 class contains a set of coordinates for the mapping of 2D textures.
 
-/*
- * Copyright (C) 1990,91   Silicon Graphics, Inc.
- *
- _______________________________________________________________________
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- |
- |   $Revision: 1.1.1.1 $
- |
- |   Description:
- |      This file defines the SoTextureCoordinate2 node class.
- |      This node is for normal (non-homogenouse), 2D texture coordinates
- |   Author(s)          : John Rohlf, Thad Beier
- |
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- _______________________________________________________________________
- */
+  \ingroup coin_nodes
+
+  When encountering a node of this type during traversal, the
+  coordinates it contains will be put on the state stack. Some shape
+  nodes (for instance SoIndexedFaceSet, among many others) can then
+  use these coordinates for explicit, detailed control of how textures
+  are mapped to its surfaces.
+
+  (If texture mapping is used without any SoTextureCoordinate2 nodes in
+  the scene graph leading up to a shape node, all shape types have
+  default fallbacks. So SoTextureCoordinate2 nodes are only necessary
+  to use if you are not satisfied with the default mapping.)
+
+  Note that an SoTextureCoordinate2 node will \e replace the
+  coordinates already present in the state (if any).
+
+  Here's a very simple example (in Inventor scene graph file format --
+  mapping it to source code is straightforward) that shows how to set
+  up two quadratic polygons, one mapped 1:1 to the texture, the other
+  using only the upper left quarter of the texture:
+
+\code
+
+Separator {
+   Texture2 {
+      image 6 8 3
+      0x00ff0000 0x00ff0000 0x000000ff 0x000000ff 0x00ff00ff 0x00ff00ff
+      0x00ff0000 0x00ff0000 0x000000ff 0x000000ff 0x00ff00ff 0x00ff00ff
+      0x00ff0000 0x00ff0000 0x000000ff 0x000000ff 0x00ff00ff 0x00ff00ff
+      0x0000ff00 0x0000ff00 0x0000ffff 0x0000ffff 0x0000ff00 0x0000ff00
+      0x0000ff00 0x0000ff00 0x0000ffff 0x0000ffff 0x0000ff00 0x0000ff00
+      0x00ffff00 0x00ffff00 0x000000ff 0x000000ff 0x00ffffff 0x00ffffff
+      0x00ffff00 0x00ffff00 0x000000ff 0x000000ff 0x00ffffff 0x00ffffff
+      0x00ffff00 0x00ffff00 0x000000ff 0x000000ff 0x00ffffff 0x00ffffff
+   }
+
+   Coordinate3 { point [ -1 -1 0, 1 -1 0, 1 1 0, -1 1 0 ] }
+
+   # "1:1 mapping" to actual texture appearance. (Note that Y goes
+   # from bottom to top, versus the common way of specifying bitmap
+   # data from top to bottom.)
+   TextureCoordinate2 { point [ 0 1, 1 1, 1 0, 0 0 ] }
+
+   IndexedFaceSet {
+      coordIndex [ 0, 1, 2, 3, -1 ]
+      textureCoordIndex [ 0, 1, 2, 3, -1 ]
+   }
+
+   Translation { translation +4 0 0 }
+
+   # Top left corner.
+   TextureCoordinate2 { point [ 0 0.5, 0.5 0.5, 0.5 0, 0 0 ] }
+
+   IndexedFaceSet {
+      coordIndex [ 0, 1, 2, 3, -1 ]
+      textureCoordIndex [ 0, 1, 2, 3, -1 ]
+   }
+}
+
+\endcode
+
+  <b>FILE FORMAT/DEFAULTS:</b>
+  \code
+    TextureCoordinate2 {
+        point [  ]
+    }
+  \endcode
+
+  \sa SoTextureCoordinateFunction, SoTextureCoordinateBinding
+*/
+
+// *************************************************************************
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
+import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFVec2f;
+import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.VoidPtr;
+
+import static com.jogamp.opengl.GL.GL_ARRAY_BUFFER;
+import static com.jogamp.opengl.GL.GL_STATIC_DRAW;
+import static jscenegraph.coin3d.misc.SoGL.cc_glglue_instance;
+import static jscenegraph.coin3d.misc.SoGL.cc_glglue_max_texture_units;
 
 /**
  * @author Yves Boyadjian
@@ -114,6 +178,25 @@ SoGLRenderAction, SoCallbackAction
 SoTexture2, SoTextureCoordinateBinding, SoTextureCoordinateFunction, SoVertexShape
 */
 ////////////////////////////////////////////////////////////////////////////////
+
+// *************************************************************************
+
+/*!
+  \var SoMFVec2f SoTextureCoordinate2::point
+
+  The set of 2D texture coordinates. Default value of field is an
+  empty set.
+
+  Texture coordinates are usually specified in normalized coordinates,
+  i.e. in the range [0, 1]. (0, 0) is the lower left corner, while
+  (1, 1) is the upper right corner of the texture image. Coordinates
+  outside the [0, 1] range can be used to repeat the texture across a
+  surface.
+
+  \sa SoTexure2::wrapS, SoTexture2::wrapT
+*/
+
+// *************************************************************************
 
 public class SoTextureCoordinate2 extends SoNode {
 
@@ -193,9 +276,10 @@ public void SoTextureCoordinate2_doAction(SoAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     SoState state = action.getState();
+    int unit = SoTextureUnitElement.get(state);
 
     if (! point.isIgnored() && point.getNum() > 0) {
-        SoMultiTextureCoordinateElement.set2(state, this,
+        SoMultiTextureCoordinateElement.set2(state, this, unit,
                                          point.getNum(), point.getValuesSbVec2fArray(/*0*/));
         if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
           SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.TEXCOORD_VBO, _vbo,
@@ -230,12 +314,45 @@ public void GLRender(SoGLRenderAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     SoState state = action.getState();
-    
-    if (! point.isIgnored() && point.getNum() > 0){
-        SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
-        SoMultiTextureCoordinateElement.set2(state, this,
-                                         point.getNum(), point.getValuesSbVec2fArray(/*0*/));
+    int unit = SoTextureUnitElement.get(state);
+
+
+  cc_glglue glue = cc_glglue_instance(SoGLCacheContextElement.get(state));
+    int maxunits = cc_glglue_max_texture_units(glue);
+
+    if (unit < maxunits) {
+        if (!point.isIgnored() && point.getNum() > 0) {
+            SoGLMultiTextureCoordinateElement.setTexGen(state, this, unit, null);
+            SoMultiTextureCoordinateElement.set2(state, this, unit,
+                    point.getNum(), point.getValuesSbVec2fArray(/*0*/));
+        }
     }
+
+    SoBase.staticDataLock();
+  final int num = this.point.getNum();
+    boolean setvbo = false;
+    if (SoGLVBOElement.shouldCreateVBO(state, num)) {
+    setvbo = true;
+    boolean dirty = false;
+    if (_vbo[0] == null) {
+        _vbo[0] = new SoVBO(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+        dirty =  true;
+    }
+    else if (_vbo[0].getBufferDataId() != this.getNodeId()) {
+        dirty = true;
+    }
+    if (dirty) {
+        _vbo[0].setBufferData(VoidPtr.create(this.point.getValues(0)),
+                num*(SbVec2f.sizeof()),
+                this.getNodeId());
+    }
+}
+  else if (_vbo[0] != null && _vbo[0].getBufferDataId() != 0) {
+    // clear buffers to deallocate VBO memory
+    _vbo[0].setBufferData(null, 0, 0);
+}
+    SoBase.staticDataUnlock();
+    SoGLVBOElement.setTexCoordVBO(state, 0, setvbo ? _vbo[0] : null);
 }
 
 ////////////////////////////////////////////////////////////////////////

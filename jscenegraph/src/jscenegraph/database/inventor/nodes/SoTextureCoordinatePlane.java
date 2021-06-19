@@ -1,66 +1,125 @@
-/*
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
- *  Further, this software is distributed without any warranty that it is
- *  free of the rightful claim of any third person regarding infringement
- *  or the like.  Any license provided herein, whether implied or
- *  otherwise, applies only to this software file.  Patent licenses, if
- *  any, provided herein do not apply to combinations of this program with
- *  other software, or any other product whatsoever.
- * 
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
- *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
- *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
- *
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ \**************************************************************************/
 
+/*!
+  \class SoTextureCoordinatePlane SoTextureCoordinatePlane.h Inventor/nodes/SoTextureCoordinatePlane.h
+  \brief The SoTextureCoordinatePlane class generates texture coordinates by projecting onto a plane.
 
-/*
- * Copyright (C) 1990,91   Silicon Graphics, Inc.
- *
- _______________________________________________________________________
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- |
- |   $Revision: 1.1.1.1 $
- |
- |   Description:
- |      The TextureCoordinatePlane.  This texture coordinate function
- |      maps object space coordinates (xyz) to texture space (st)
- |      coordinates by projecting the object space coordinates onto
- |      a plane.
- |
- |   Author(s)          : Thad Beier, Gavin Bell
- |
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- _______________________________________________________________________
- */
+  \ingroup coin_nodes
+
+  SoTextureCoordinatePlane is used for generating texture coordinates
+  by projecting the object onto a texture plane.  The s, t and r
+  texture coordinates are computed as the distance from the origin to
+  the projected point, in the respective directions. The texture plane
+  is specified using two direction vectors, given as
+  SoTextureCoordinatePlane::directionS and
+  SoTextureCoordinatePlane::directionT in object space coordinates.
+  SoTextureCoordinatePlane::directionR is used for generating the
+  third coordinate, and can be used for generating texture coordinate
+  for 3D textures. For 2D textures you can just leave this field alone.
+
+  The length of the vector determines the repeat interval of the
+  texture per unit length.
+
+  A simple usage example:
+
+  \code
+  SoSeparator *root = new SoSeparator;
+  root->ref();
+
+  // the texture image
+  SoTexture2 *tex = new SoTexture2;
+  tex->filename.setValue("foo.png");
+  root->addChild(tex);
+
+  // the texture plane
+  SoTextureCoordinatePlane *texPlane = new SoTextureCoordinatePlane;
+  texPlane->directionS.setValue(SbVec3f(1,0,0));
+  texPlane->directionT.setValue(SbVec3f(0,1,0));
+  root->addChild(texPlane);
+
+  // add a simple cube
+  SoCube * c = new SoCube;
+  c->width.setValue(1.0);
+  c->height.setValue(1.0)
+  c->depth.setValue(1.0);
+  root->addChild(new SoCube);
+  \endcode
+
+  Here, we are projecting a texture onto a cube. The texture
+  coordinate plane is specified by directionS = (1,0,0) and directionT
+  = (0,1,0), meaning that it is parallel to the front face of the
+  cube. Setting e.g. directionS = (0,1,0) and directionT = (-1,0,0)
+  would rotate the texture counterclockwise by 90 degrees. Setting
+  them to ((2,0,0), (0,2,0)) results to the texture being repeated twice
+  per unit, so the texture appears four times on the 1x1 face.
+
+  Note that when you transform the cube, the transformation will also
+  affect the texture - it will be transformed vs. the rest of the
+  world, but appear "fixed" on the object. If you want to change the
+  placement of the texture on the object, you have to insert a
+  SoTexture2Transform node before the texture coordinate plane. For
+  instance in the example above, since the cube is centered in its
+  coordinate system, the lower left corner of the texture appears to
+  be in the middle of the face. To move the texture's origin to
+  coincide with the lower left corner of the face, insert
+
+  \code
+  SoTexture2Transform * tf = new SoTexture2Transform;
+  tf->translation.setValue(-0.5,-0.5);
+  root->addChild(tf);
+  \endcode
+
+  before adding the texture coordinate plane.
+
+  <b>FILE FORMAT/DEFAULTS:</b>
+  \code
+    TextureCoordinatePlane {
+        directionS 1 0 0
+        directionT 0 1 0
+    }
+  \endcode
+*/
+
+// *************************************************************************
 
 package jscenegraph.database.inventor.nodes;
 
 import com.jogamp.opengl.GL2;
 
+import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SbVec4fSingle;
@@ -69,11 +128,15 @@ import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.actions.SoPickAction;
+import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFVec3f;
 import jscenegraph.database.inventor.misc.SoState;
+
+import static jscenegraph.coin3d.misc.SoGL.cc_glglue_instance;
+import static jscenegraph.coin3d.misc.SoGL.cc_glglue_max_texture_units;
 
 /**
  * @author Yves Boyadjian
@@ -125,6 +188,30 @@ SoGLRenderAction, SoCallbackAction, SoRayPickAction
 SoTexture2, SoTexture2Transform, SoTextureCoordinateDefault, SoTextureCoordinateEnvironment
 */
 ////////////////////////////////////////////////////////////////////////////////
+
+/*!
+  \var SoSFVec3f SoTextureCoordinatePlane::directionS
+  The S texture coordinate plane direction.
+  The length of the vector determines the repeat interval of the
+  texture per unit length.
+
+*/
+/*!
+  \var SoSFVec3f SoTextureCoordinatePlane::directionT
+  The T texture coordinate plane direction.
+  The length of the vector determines the repeat interval of the
+  texture per unit length.
+*/
+
+/*!
+  \var SoSFVec3f SoTextureCoordinatePlane::directionR
+  The R texture coordinate plane direction.
+  The length of the vector determines the repeat interval of the
+  texture per unit length.
+*/
+
+
+// *************************************************************************
 
 public class SoTextureCoordinatePlane extends SoTextureCoordinateFunction {
 
@@ -228,14 +315,20 @@ public void GLRender(SoGLRenderAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     SoState state = action.getState();
+    int unit = SoTextureUnitElement.get(state);
 
     // Special case to workaround OpenGL on Indigo/IndigoII bug:
     if (SoTextureOverrideElement.getQualityOverride(state) &&
         SoTextureQualityElement.get(state) == 0.0) return;
 
-    SoGLMultiTextureCoordinateElement.setTexGen(state, this, 
-                                            (me)->doTexgen(state,me), this,
-                                            (instance, position, normal)->valueCallback( instance, position, normal), this);
+
+  final cc_glglue glue = cc_glglue_instance(SoGLCacheContextElement.get(state));
+    int maxunits = cc_glglue_max_texture_units(glue);
+    if (unit < maxunits) {
+        SoGLMultiTextureCoordinateElement.setTexGen(state, this, unit,
+                (me) -> doTexgen(state, me), this,
+                (instance, position, normal) -> valueCallback(instance, position, normal), this);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -318,8 +411,9 @@ SoTextureCoordinatePlane_doAction(SoAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     SoState state = action.getState();
+    int unit = SoTextureUnitElement.get(state);
 
-    SoMultiTextureCoordinateElement.setFunction(state, this,
+    SoMultiTextureCoordinateElement.setFunction(state, this, unit,
                                             (instance,position,normal)-> valueCallback(instance,position,normal), this);
 }
 	  

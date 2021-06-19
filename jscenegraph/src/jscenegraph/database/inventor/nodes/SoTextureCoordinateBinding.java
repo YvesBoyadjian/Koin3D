@@ -1,56 +1,53 @@
-/*
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
- *  Further, this software is distributed without any warranty that it is
- *  free of the rightful claim of any third person regarding infringement
- *  or the like.  Any license provided herein, whether implied or
- *  otherwise, applies only to this software file.  Patent licenses, if
- *  any, provided herein do not apply to combinations of this program with
- *  other software, or any other product whatsoever.
- * 
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
- *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
- *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
- *
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ \**************************************************************************/
 
+/*!
+  \class SoTextureCoordinateBinding SoTextureCoordinateBinding.h Inventor/nodes/SoTextureCoordinateBinding.h
+  \brief The SoTextureCoordinateBinding class says how texture coordinates should be bound to shapes.
 
-/*
- * Copyright (C) 1990,91   Silicon Graphics, Inc.
- *
- _______________________________________________________________________
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- |
- |   $Revision $
- |
- |   Description:
- |      This file defines the SoTextureCoordinateBinding node class.
- |
- |   Author(s)          : John Rohlf
- |
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- _______________________________________________________________________
- */
+  \ingroup coin_nodes
+
+  SoTextureCoordinateBinding binds current coordinates to subsequent
+  shapes by using either per vertex or per indexed vertex binding.
+
+  <b>FILE FORMAT/DEFAULTS:</b>
+  \code
+    TextureCoordinateBinding {
+        value PER_VERTEX_INDEXED
+    }
+  \endcode
+*/
+
+// *************************************************************************
 
 package jscenegraph.database.inventor.nodes;
 
@@ -98,6 +95,49 @@ SoGLRenderAction, SoCallbackAction
 SoMaterialBinding, SoNormalBinding, SoTexture2, SoTexture2Transform, SoTextureCoordinate2, SoTextureCoordinateFunction, SoVertexShape
 */
 ////////////////////////////////////////////////////////////////////////////////
+
+// *************************************************************************
+
+/*!
+  \enum SoTextureCoordinateBinding::Binding
+
+  The binding types available for the
+  SoTextureCoordinateBinding::value field.
+*/
+/*!
+  \var SoTextureCoordinateBinding::Binding SoTextureCoordinateBinding::PER_VERTEX
+  Get a new texture coordinate from the pool of texture coordinates for
+  each vertex of the shape.
+
+  Texture Coordinates are fetched from index 0 and onwards, incrementing
+  the index into the texture coordinates pool by 1 for each new vertex
+  of the shape node.
+*/
+/*!
+  \var SoTextureCoordinateBinding::Binding SoTextureCoordinateBinding::PER_VERTEX_INDEXED
+  Get a new texture coordinate from the pool of texture coordinates for
+  each vertex of the shape.
+
+  Texture coordinates are fetched by the index value settings of the shape.
+*/
+/*!
+  \var SoTextureCoordinateBinding::Binding SoTextureCoordinateBinding::DEFAULT
+
+  Obsolete value, please don't use.
+*/
+
+
+/*!
+  \var SoSFEnum SoTextureCoordinateBinding::value
+
+  Type of texture map binding for subsequent shape nodes in the
+  scene graph. Default field value is
+  SoTextureCoordinateBinding::PER_VERTEX_INDEXED.
+*/
+
+
+// *************************************************************************
+
 
 public class SoTextureCoordinateBinding extends SoNode {
 

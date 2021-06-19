@@ -1,64 +1,59 @@
-/*
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
  *
- *  Copyright (C) 2000 Silicon Graphics, Inc.  All Rights Reserved. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation; either
- *  version 2.1 of the License, or (at your option) any later version.
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
  *
- *  Further, this software is distributed without any warranty that it is
- *  free of the rightful claim of any third person regarding infringement
- *  or the like.  Any license provided herein, whether implied or
- *  otherwise, applies only to this software file.  Patent licenses, if
- *  any, provided herein do not apply to combinations of this program with
- *  other software, or any other product whatsoever.
- * 
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
  *
- *  Contact information: Silicon Graphics, Inc., 1600 Amphitheatre Pkwy,
- *  Mountain View, CA  94043, or:
- * 
- *  http://www.sgi.com 
- * 
- *  For further information regarding this notice, see: 
- * 
- *  http://oss.sgi.com/projects/GenInfo/NoticeExplan/
- *
- */
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ \**************************************************************************/
 
+/*!
+  \class SoTextureCoordinateDefault SoTextureCoordinateDefault.h Inventor/nodes/SoTextureCoordinateDefault.h
+  \brief The SoTextureCoordinateDefault class removes texture coordinates from the state.
 
-/*
- * Copyright (C) 1990,91   Silicon Graphics, Inc.
- *
- _______________________________________________________________________
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- |
- |   $Revision: 1.1.1.1 $
- |
- |   Description:
- |      TextureCoordinateDefault causes there to be no texture
- |      coordinates (either explicit from a Texture2 node or implicit
- |      from a texture coordinate function node) in the state, forcing
- |      shapes to use their own, default coordinates.
- |
- |   Author(s)          : Thad Beier, Gavin Bell
- |
- ______________  S I L I C O N   G R A P H I C S   I N C .  ____________
- _______________________________________________________________________
- */
+  \ingroup coin_nodes
+
+  Shapes below this node in the scene graph will have to use its default
+  texture coordinates as SoTextureCoordinateDefault cleans out all previously
+  defined texture coordinates and texture coordinate functions.
+
+  <b>FILE FORMAT/DEFAULTS:</b>
+  \code
+    TextureCoordinateDefault {
+    }
+  \endcode
+*/
+
+// *************************************************************************
 
 package jscenegraph.database.inventor.nodes;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
+import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
@@ -164,6 +159,7 @@ GLRender(SoGLRenderAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     SoState state = action.getState();
+	SoTextureUnitElement.get(state);
 
     SoGLMultiTextureCoordinateElement.setTexGen(state, this, 0, null);
 
@@ -213,9 +209,10 @@ SoTextureCoordinateDefault_doAction(SoAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     SoState state = action.getState();
+	int unit = SoTextureUnitElement.get(state);
     // Store a pointer to the function used to compute the texture
     // coordinates in the state.
-    SoMultiTextureCoordinateElement.setDefault(state, this, 0);
+    SoMultiTextureCoordinateElement.setDefault(state, this, unit);
 }
 	  
 	  
