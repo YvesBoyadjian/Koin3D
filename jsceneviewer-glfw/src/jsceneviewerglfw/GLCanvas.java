@@ -240,8 +240,8 @@ public class GLCanvas extends Composite {
 				glfwHideWindow(window);
 				glfwIconifyWindow(window);
 			} else {
-				glfwShowWindow(window);
 				glfwRestoreWindow(window);
+				glfwShowWindow(window);
 			}
 		}
 	}
