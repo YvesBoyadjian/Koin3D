@@ -1960,7 +1960,7 @@ public boolean readConnection(SoInput in)
 		SoSFVec3f.initClass(SoSFVec3f.class);
 		SoSFVec3d.initClass(SoSFVec3d.class);
 		SoSFVec4f.initClass(SoSFVec4f.class);
-		// SoSFVec4d.initClass();
+		SoSFVec4d.initClass(SoSFVec4d.class);
 
 		SoMFBool.initClass(SoMFBool.class);
 		SoMFColor.initClass(SoMFColor.class);
@@ -1989,7 +1989,7 @@ public boolean readConnection(SoInput in)
 		SoMFVec3f.initClass(SoMFVec3f.class);
 		SoMFVec3d.initClass(SoMFVec3d.class);
 		SoMFVec4f.initClass(SoMFVec4f.class);
-		// SoMFVec4d.initClass();
+		SoMFVec4d.initClass(SoMFVec4d.class);
 
 	}
 

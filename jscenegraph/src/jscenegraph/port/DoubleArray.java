@@ -61,7 +61,7 @@ public class DoubleArray extends Indexable<Double> {
 	}
 
 	@Override
-	public Indexable<Double> plus(int delta) {
+	public DoubleArray plus(int delta) {
 		return new DoubleArray(delta,this);
 	}
 
