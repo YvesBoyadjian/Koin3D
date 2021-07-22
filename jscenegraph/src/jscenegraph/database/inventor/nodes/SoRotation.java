@@ -218,7 +218,7 @@ getMatrix(SoGetMatrixAction action)
 ////////////////////////////////////////////////////////////////////////
 {
     if (! rotation.isIgnored() && ! rotation.isDefault()) {
-        final SbRotation      rot  = rotation.getValue();
+        final SbRotation      rot  = new SbRotation(rotation.getValue());
         final SbMatrix        ctm = action.getMatrix();
         final SbMatrix        inv = action.getInverse();
         final SbMatrix        m = new SbMatrix();
