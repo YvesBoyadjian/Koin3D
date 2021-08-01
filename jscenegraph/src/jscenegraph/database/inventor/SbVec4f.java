@@ -220,8 +220,54 @@ operator_add(SbVec4f v2)
     	}
 		return vec4.toFloatArray();
 	}
-	
-	
+
+
+	public float sqrLength() { return g(0) * g(0) + g(1) * g(1) + g(2) * g(2) + g(3) * g(3); }
+
+	/*!
+      Return the length of the vector in 4D space.
+     */
+	public float
+	length()
+	{
+		return (float)(Math.sqrt(this.sqrLength()));
+	}
+
+	public SbVec4f operator_mul_equal(float d) { s(0,g(0) * d); s(1,g(1) * d); s(2,g(2) * d); s(3,g(3) * d); return this; }
+	public SbVec4f operator_div_equal (float d) { /*SbDividerChk("SbVec4f::operator/=(float)", d);*/ return operator_mul_equal (1.0f / d); }
+
+/*!
+  Normalize the vector to unit length. Return value is the original
+  length of the vector before normalization.
+*/
+
+	//This number is found by doing some testing, but I suspect it to be a bit to high. BFG
+	static final float NORMALIZATION_TOLERANCE = 1.0f/16777216f;
+
+	public float
+	normalize()
+	{
+		float len = this.length();
+
+		if (len > 0.0f) {
+			//We don't want to normalize if we are close enough, as we are
+			//probably just going to make things worse
+			if (Math.abs(len-1.0) > NORMALIZATION_TOLERANCE) {
+				operator_div_equal(len);
+			}
+		}
+//#if COIN_DEBUG
+//  else if (coin_debug_normalize()) {
+//		SoDebugError.postWarning("SbVec4f::normalize",
+//				"The length of the vector should be > 0.0f "+
+//		"to be able to normalize.");
+//	}
+//#endif // COIN_DEBUG
+
+		return len;
+	}
+
+
 //
 // Sets value of vector from array of 4 components
 //

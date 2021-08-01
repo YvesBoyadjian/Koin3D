@@ -334,7 +334,35 @@ getValue(final SbVec3f axis, final float[] radians)
 		    return this;
 		   
 		  }
-	
+
+	/*!
+      Reset the rotation by the four quaternions in the array.
+      \sa getValue().
+     */
+	public SbRotation
+	setValue(float[] q)
+	{
+		this.quat[0] = q[0];
+		this.quat[1] = q[1];
+		this.quat[2] = q[2];
+		this.quat[3] = q[3];
+
+		SbVec4f quatVec = new SbVec4f(q);
+
+		if (quatVec.normalize() == 0.0f) {
+//#if COIN_DEBUG
+			SoDebugError.postWarning("SbRotation::setValue",
+					"Quarternion has zero length => "+
+							"undefined rotation.");
+//#endif // COIN_DEBUG
+		}
+		q = quatVec.getValueRead();
+		this.quat[0] = q[0];
+		this.quat[1] = q[1];
+		this.quat[2] = q[2];
+		this.quat[3] = q[3];
+		return this;
+	}
 
 ////////////////////////////////////////////////////////////////////////
 //
