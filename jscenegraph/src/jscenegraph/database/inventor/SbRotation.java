@@ -102,8 +102,13 @@ public class SbRotation implements Mutable {
 	
 	private final float[] quat = new float[4];
 
+	/*!
+      The default constructor just initializes a valid rotation. The
+      actual value is unspecified, and you should not depend on it.
+    */
 	public SbRotation() {
-		
+		// This translates to zero rotation around the positive Z-axis.
+		quat[3] = 1;
 	}
 	
 	public SbRotation(SbRotation other) {
