@@ -88,4 +88,13 @@ public class SbListOfMutableRefs<T extends Mutable> extends SbList<T> {
 		this.itembuffer[index] = this.itembuffer[--this.numitems];
 		((Mutable)this.itembuffer[numitems]).copyFrom(supplier.get()); // java port
 	}
+
+	public void truncate(int length) {
+		int dofit = 0;
+		for(int i=length;i<numitems;i++) {
+			itembuffer[i] = supplier.get();
+		}
+		this.numitems = length;
+		if (dofit!=0) this.fit();
+	}
 }
