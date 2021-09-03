@@ -394,5 +394,15 @@ findPoints(final SbSphere sphere, final SbListInt array)
 	  this.topnode.findPoints(sphere, array);
 	}
 
-	
+	/*!
+      Returns the point at index \a idx.
+      \sa SbBSPTree::numPoints()
+    */
+	public SbVec3f
+	getPoint(final int idx)
+	{
+		assert(idx < this.pointsArray.getLength());
+		return new SbVec3fSingle(this.pointsArray.operator_square_bracket(idx));
+	}
+
 }
