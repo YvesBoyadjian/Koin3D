@@ -964,16 +964,24 @@ public static void flSetHint(
 		  szPath = (systemRoot != null ? systemRoot : "/usr/share")+"/fonts";//SHGetSpecialFolderPathA(NULL, szPath, CSIDL_FONTS, 0); //TODO
 		  fontPath = szPath;
 
-		  /* setup fallback font */
-		  fontDefault = fontPath + "/times.ttf";
-		  File fontFile = new File(fontDefault);
-		  if(!fontFile.exists()) {
-		  	fontDefault = fontPath + "/liberation/LiberationSerif-Regular.ttf";
-		  	fontFile = new File(fontDefault);
-		  	if(!fontFile.exists()) {
-				fontDefault = fontPath + "/truetype/liberation/LiberationSerif-Regular.ttf";
+		/* setup fallback font */
+		fontDefault = fontPath + "/times.ttf";
+		File fontFile = new File(fontDefault);
+		if(!fontFile.exists()) {
+			fontDefault = fontPath + "/liberation/LiberationSerif-Regular.ttf";
+			fontFile = new File(fontDefault);
+			if(!fontFile.exists()) {
+				fontDefault = fontPath + "/liberation-serif/LiberationSerif-Regular.ttf";
+				fontFile = new File(fontDefault);
+				if (!fontFile.exists()) {
+					fontDefault = fontPath + "/truetype/liberation/LiberationSerif-Regular.ttf";
+					fontFile = new File(fontDefault);
+					if (!fontFile.exists()) {
+						fontDefault = fontPath + "/dejavu/DejaVuSerif.ttf";
+					}
+				}
 			}
-		  }
+		}
 
 		  ev = System.getenv("FL_DEBUG");
 		  fl_debug = (ev!=null && !ev.isEmpty());
