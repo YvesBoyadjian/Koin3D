@@ -28,13 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
 import org.freetype.FT_Bitmap;
@@ -980,6 +974,19 @@ public static void flSetHint(
 						fontDefault = fontPath + "/dejavu/DejaVuSerif.ttf";
 					}
 				}
+			}
+		}
+		fontFile = new File(fontDefault);
+		if (!fontFile.exists()) {
+			try {
+				Optional<Path> hit = Files.walk(Path.of(fontPath))
+						.filter(file -> file.getFileName().toFile().getName().equals("LiberationSerif-Regular.ttf"))
+						.findAny();
+				if(hit.isPresent()) {
+					fontDefault = hit.get().toRealPath().toString();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 
