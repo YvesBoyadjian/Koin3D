@@ -56,6 +56,7 @@ package jscenegraph.database.inventor.fields;
 import java.util.Objects;
 
 import jscenegraph.database.inventor.SoInput;
+import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoReadError;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Indexable;
@@ -467,36 +468,80 @@ public abstract class SoMField<T extends Object, U extends Indexable<T>> extends
 		deleteValues(start, -1);
 	}
 
-	public void deleteValues(int start, // Starting index
-			int numToDelete) // Number of values to delete
-	//
-	////////////////////////////////////////////////////////////////////////
+//	public void deleteValues(int start, // Starting index
+//			int numToDelete) // Number of values to delete
+//	//
+//	////////////////////////////////////////////////////////////////////////
+//	{
+//		int lastToCopy, i;
+//
+//		if (numToDelete < 0)
+//			numToDelete = getNum() - start;
+//
+//		// Special case of deleting all values
+//		if (numToDelete == getNum())
+//			deleteAllValues();
+//
+//		else {
+//			// Copy from the end of the array to the middle
+//			lastToCopy = (getNum() - 1) - numToDelete;
+//			for (i = start; i <= lastToCopy; i++)
+//				copyValue(i, i + numToDelete);
+//
+//			// Truncate the array
+//			makeRoom(getNum() - numToDelete);
+//		}
+//
+//		// The field value has changed...
+//		valueChanged();
+//	}
+
+	/*!
+      Remove value elements from index \a start up to and including index
+      \a start + \a num - 1.
+
+      Elements with indices larger than the last deleted element will
+      be moved downwards in the value array.
+
+      If \a num equals -1, delete from index \a start and to the end of
+      the array.
+    */
+	public void
+	deleteValues(int start, int numarg)
 	{
-		int lastToCopy, i;
+		// Note: this function is overridden in SoMFNode, SoMFEngine and
+		// SoMFPath, so if you do any changes here, take a look at those
+		// methods as well (they are collected in the common template
+		// MFNodeEnginePath.tpl).
 
-		if (numToDelete < 0)
-			numToDelete = getNum() - start;
+		// Don't use getNum(), so we avoid recursive evaluate() calls.
+		int oldnum = this.num;
 
-		// Special case of deleting all values
-		if (numToDelete == getNum())
-			deleteAllValues();
+		if (numarg == -1) numarg = oldnum - start;
+		if (numarg == 0) return;
+		int end = start + numarg; // First element behind the delete block.
 
-		else {
-			// Copy from the end of the array to the middle
-			lastToCopy = (getNum() - 1) - numToDelete;
-			for (i = start; i <= lastToCopy; i++)
-				copyValue(i, i + numToDelete);
-
-			// Truncate the array
-			makeRoom(getNum() - numToDelete);
+//#if COIN_DEBUG
+		if (start < 0 || start >= oldnum || end > oldnum || numarg < -1) {
+			SoDebugError.post("SoMField::deleteValues",
+					"invalid indices ["+start+", "+(end-1)+"] for array of size "+oldnum);
+			return;
 		}
+//#endif // COIN_DEBUG
 
-		// The field value has changed...
-		valueChanged();
+		// Move elements downward to fill the gap.
+		for (int i = 0; i < oldnum-(start+numarg); i++)
+			this.copyValue(start+i, start+numarg+i);
+
+		// Truncate array.
+		this.allocValues(oldnum - numarg);
+
+		// Send notification.
+		this.valueChanged();
 	}
-	
 
-/*!
+
+	/*!
   Can be used to make Coin delete the array pointer set through
   a setValuesPointer() call. See SoMField documentation for
   information about the setValuesPointer() function.

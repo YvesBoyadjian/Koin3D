@@ -271,62 +271,62 @@ setVal(int index, SoNode[] newValue)
 }
 
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+////
+//// This overrides the definition in SO_MFIELD_ALLOC_SOURCE() to
+//// keep track of references and auditors.
+////
+//////////////////////////////////////////////////////////////////////////
 //
-// This overrides the definition in SO_MFIELD_ALLOC_SOURCE() to
-// keep track of references and auditors.
+//public void
+//allocValues(int newNum)
+//{
+//    int i;
 //
-////////////////////////////////////////////////////////////////////////
-
-public void
-allocValues(int newNum)
-{
-    int i;
-
-    if (values == null) {
-        if (newNum > 0) {
-            values = new SoNodePtrArray(newNum);
-
-            // Make sure all pointers are initialized to NULL
-//            for (i = 0; i < newNum; i++)
-//                values[i] = new SoNodePtr();
-        }
-    }
-    else {
-        SoNodePtrArray  oldValues = values;
-
-        if (newNum > 0) {
-            values = new SoNodePtrArray(newNum);
-//            for (i = 0; i < newNum; i++) // java port
-//                values[i] = new SoNodePtr();
-            
-            for (i = 0; i < num && i < newNum; i++)
-                values.getO(i).set( oldValues.getO(i).get());
-
-            // Initialize unused pointers to NULL
-            for (i = num; i < newNum; i++)
-                values.getO(i).set( null);
-        }
-        else
-            values = null;
-
-        // Free up any old stuff
-        if (oldValues != null) {
-
-            // Remove auditors and references on unused values
-            for (i = newNum; i < num; i++) {
-                if (oldValues.getO(i).get() != null) {
-                    oldValues.getO(i).get().removeAuditor(this, SoNotRec.Type.FIELD);
-                    oldValues.getO(i).get().unref();
-                }
-            }
-
-            //delete [] oldValues; java port
-        }
-    }
-
-    num = maxNum = newNum;
-}
+//    if (values == null) {
+//        if (newNum > 0) {
+//            values = new SoNodePtrArray(newNum);
+//
+//            // Make sure all pointers are initialized to NULL
+////            for (i = 0; i < newNum; i++)
+////                values[i] = new SoNodePtr();
+//        }
+//    }
+//    else {
+//        SoNodePtrArray  oldValues = values;
+//
+//        if (newNum > 0) {
+//            values = new SoNodePtrArray(newNum);
+////            for (i = 0; i < newNum; i++) // java port
+////                values[i] = new SoNodePtr();
+//
+//            for (i = 0; i < num && i < newNum; i++)
+//                values.getO(i).set( oldValues.getO(i).get());
+//
+//            // Initialize unused pointers to NULL
+//            for (i = num; i < newNum; i++)
+//                values.getO(i).set( null);
+//        }
+//        else
+//            values = null;
+//
+//        // Free up any old stuff
+//        if (oldValues != null) {
+//
+//            // Remove auditors and references on unused values
+//            for (i = newNum; i < num; i++) {
+//                if (oldValues.getO(i).get() != null) {
+//                    oldValues.getO(i).get().removeAuditor(this, SoNotRec.Type.FIELD);
+//                    oldValues.getO(i).get().unref();
+//                }
+//            }
+//
+//            //delete [] oldValues; java port
+//        }
+//    }
+//
+//    num = maxNum = newNum;
+//}
 
 /**
  * Java port
@@ -470,5 +470,32 @@ public void replaceNode(SoNode oldnode, SoNode newnode)
   int idx = this.findNode(oldnode);
   if (idx >= 0) this.replaceNode(idx, newnode);
 }
+
+    // Overridden to handle unref() and removeAuditor().
+    public void
+    deleteValues(int start, int numarg)
+    {
+        // Note: this function overrides the one in SoMField, so if you do
+        // any changes here, take a look at that method as well.
+
+        if (numarg == -1) numarg = this.num - start;
+        for (int i=start; i < start+numarg; i++) {
+            SoNode n = this.values.getO(i).get();
+            if (null != n) {
+                n.removeAuditor(this, SoNotRec.Type.FIELD);
+                n.unref();
+            }
+//#ifdef COIN_INTERNAL_SOMFPATH
+//            SoNode * h = this->pathheads[start];
+//            this->pathheads.remove(start);
+//            if (h) {
+//                h->removeAuditor(this, SoNotRec::FIELD);
+//                h->unref();
+//            }
+//#endif // COIN_INTERNAL_SOMFPATH
+        }
+
+        super.deleteValues(start, numarg);
+    }
 
 }
