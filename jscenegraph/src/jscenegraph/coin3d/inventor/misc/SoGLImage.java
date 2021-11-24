@@ -1218,7 +1218,7 @@ setData(final SbImage image,
     final SbVec3s size = new SbVec3s();
     final int[] nc = new int[1];
     MemoryBuffer bytes = image.getValue(size, nc);
-    copyok = copyok && bytes != null && (size == this.glsize) && (nc[0] == this.glcomp);
+    copyok = copyok && bytes != null && (size.operator_equal_equal(this.glsize)) && (nc[0] == this.glcomp);
 
     boolean is3D = (size.getValue()[2]==0)?false:true;
     boolean usesubimage = SoGLImage.COIN_TEX2_USE_GLTEXSUBIMAGE != 0 &&
