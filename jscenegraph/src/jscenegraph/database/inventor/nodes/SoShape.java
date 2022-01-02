@@ -107,6 +107,7 @@ import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
 import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 
+import jscenegraph.database.inventor.elements.*;
 import org.lwjglx.util.glu.GLUtessellator;
 import org.lwjglx.util.glu.GLUtessellatorCallback;
 import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
@@ -154,21 +155,6 @@ import jscenegraph.database.inventor.caches.SoBoundingBoxCache;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.details.SoFaceDetail;
 import jscenegraph.database.inventor.details.SoPointDetail;
-import jscenegraph.database.inventor.elements.SoCacheElement;
-import jscenegraph.database.inventor.elements.SoComplexityElement;
-import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
-import jscenegraph.database.inventor.elements.SoCoordinateElement;
-import jscenegraph.database.inventor.elements.SoDrawStyleElement;
-import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
-import jscenegraph.database.inventor.elements.SoGLLazyElement;
-import jscenegraph.database.inventor.elements.SoLazyElement;
-import jscenegraph.database.inventor.elements.SoModelMatrixElement;
-import jscenegraph.database.inventor.elements.SoPickStyleElement;
-import jscenegraph.database.inventor.elements.SoProjectionMatrixElement;
-import jscenegraph.database.inventor.elements.SoShapeHintsElement;
-import jscenegraph.database.inventor.elements.SoShapeStyleElement;
-import jscenegraph.database.inventor.elements.SoViewingMatrixElement;
-import jscenegraph.database.inventor.elements.SoViewportRegionElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.misc.SoNotList;
@@ -630,6 +616,14 @@ SoShape_shouldGLRender(SoGLRenderAction action) // YB FIXME : use COIN3D version
     if (SoDrawStyleElement.get(action.getState()) ==
         SoDrawStyleElement.Style.INVISIBLE)
         return false;
+
+    if (pimpl.bboxcache != null && !state.isCacheOpen() && !SoCullElement.completelyInside(state)) {
+    if (pimpl.bboxcache.isValid(state)) {
+        if (SoCullElement.cullTest(state, pimpl.bboxcache.getProjectedBox())) {
+            return false;
+        }
+    }
+}
 
     boolean transparent = (shapestyleflags & (SoShapeStyleElement.Flags.TRANSP_TEXTURE.getValue()|
             SoShapeStyleElement.Flags.TRANSP_MATERIAL.getValue())) != 0;
@@ -1734,7 +1728,7 @@ public void
 getBBox(SoAction action, final SbBox3f box, final SbVec3f center)
 {
   SoState state = action.getState();
-  boolean isvalid = pimpl.bboxcache != null && pimpl.bboxcache.isValid(state);
+  boolean isvalid = (pimpl.bboxcache != null) && pimpl.bboxcache.isValid(state);
   if (isvalid) {
     box.copyFrom(pimpl.bboxcache.getProjectedBox());
     // we know center will be set, so just fetch it from the cache
