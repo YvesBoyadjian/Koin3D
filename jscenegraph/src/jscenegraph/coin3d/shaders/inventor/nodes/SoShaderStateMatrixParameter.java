@@ -188,21 +188,21 @@ public void updateParameter(SoGLShaderObject shader)
 public void
 updateValue(SoState state)
 {
-  SbMatrix matrix = SbMatrix.identity();
+  final SbMatrix matrix = SbMatrix.identity();
   switch (MatrixType.fromValue(this.matrixType.getValue())) {
     case MODELVIEW: {
-      matrix = SoModelMatrixElement.get(state);
+      matrix.copyFrom(SoModelMatrixElement.get(state));
       matrix.multRight(SoViewingMatrixElement.get(state));
     } break;
     case PROJECTION: {
-      matrix = SoProjectionMatrixElement.get(state); 
+      matrix.copyFrom(SoProjectionMatrixElement.get(state));
     } break;
     case TEXTURE: {
       int unit = SoTextureUnitElement.get(state);
-      matrix = SoGLMultiTextureMatrixElement.get(state, unit);
+      matrix.copyFrom(SoGLMultiTextureMatrixElement.get(state, unit));
     } break;
     case MODELVIEW_PROJECTION: {
-      matrix = SoModelMatrixElement.get(state);
+      matrix.copyFrom(SoModelMatrixElement.get(state));
       matrix.multRight(SoViewingMatrixElement.get(state));
       matrix.multRight(SoProjectionMatrixElement.get(state)); 
     } break;
