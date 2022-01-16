@@ -129,6 +129,11 @@ public class SbList<T extends Object> implements Mutable, Destroyable { //FIXME
       }
 
       //if (this.itembuffer != this.builtinbuffer) delete[] this.itembuffer;
+		// java port
+		if(newitembuffer != builtinbuffer && itembuffer == builtinbuffer) {
+			for( int i=0; i< DEFAULTSIZE; i++)
+				builtinbuffer[i] = null;
+		}
       this.itembuffer = newitembuffer;
       this.itembuffersize = items > DEFAULTSIZE ? items : DEFAULTSIZE;
     }
@@ -201,6 +206,10 @@ protected void grow(final int size) {
     int n = this.numitems;
     for (int i = 0; i < n; i++) newbuffer[i] = this.itembuffer[i];
     //if (this.itembuffer != this.builtinbuffer) delete[] this->itembuffer; java port
+	if(newbuffer != builtinbuffer && itembuffer == builtinbuffer) {
+		for( int i=0; i< DEFAULTSIZE; i++)
+			builtinbuffer[i] = null;
+	}
     this.itembuffer = newbuffer;
   }
 @Override

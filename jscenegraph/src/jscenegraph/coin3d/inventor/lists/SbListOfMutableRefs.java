@@ -44,6 +44,10 @@ public class SbListOfMutableRefs<T extends Mutable> extends SbList<T> {
 		    	newbuffer[i] = supplier.get();
 		    }
 		    //if (this.itembuffer != this.builtinbuffer) delete[] this->itembuffer; java port
+		  if(newbuffer != builtinbuffer && itembuffer == builtinbuffer) {
+			  for( int i=0; i< DEFAULTSIZE; i++)
+				  builtinbuffer[i] = null;
+		  }
 		    this.itembuffer = newbuffer;
 		  }
 
