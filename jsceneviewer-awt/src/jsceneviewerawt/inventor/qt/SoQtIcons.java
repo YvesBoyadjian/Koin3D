@@ -42,8 +42,6 @@
 
 package jsceneviewerawt.inventor.qt;
 
-import sun.awt.image.BytePackedRaster;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
