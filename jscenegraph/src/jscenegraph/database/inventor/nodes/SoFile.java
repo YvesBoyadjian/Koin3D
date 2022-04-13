@@ -307,7 +307,7 @@ private static Path findIVOrWRL(Path parentPath) {
         //ZipFileSystemProvider provider = new ZipFileSystemProvider();
         //Map<String,?> env = Collections.emptyMap();
         //fs = provider.newFileSystem(zipfile,env);
-        fs = FileSystems.newFileSystem(zipfile,null);
+        fs = FileSystems.newFileSystem(zipfile, (ClassLoader) null);
     }
     catch (IOException e) {
         zip = false;

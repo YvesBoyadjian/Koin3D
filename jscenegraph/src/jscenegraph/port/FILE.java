@@ -86,7 +86,7 @@ public class FILE {
 	    }
 	    
 	    try {
-			InputStream inputStream = Files.newInputStream(fileNamePath, option);
+			InputStream inputStream = new BufferedInputStream(Files.newInputStream(fileNamePath, option),BUFFER_SIZE);
 			GZIPInputStream gzip;
 			try {
 				gzip = new GZIPInputStream(inputStream);
@@ -98,7 +98,7 @@ public class FILE {
 				inputStream = gzip;
 			}
 			else {
-				inputStream = Files.newInputStream(fileNamePath, option);
+				inputStream = new BufferedInputStream(Files.newInputStream(fileNamePath, option),BUFFER_SIZE);
 			}
 
 			long length;

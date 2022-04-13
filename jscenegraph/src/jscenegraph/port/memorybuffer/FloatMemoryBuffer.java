@@ -100,9 +100,16 @@ public class FloatMemoryBuffer extends MemoryBuffer {
 			int destPos,
 			int length
 	) {
-		for(int i=0; i<length; i++) {
-			dest.setFloat(i+destPos,src.getFloat(i+srcPos));
-		}
+		FloatBuffer destSlice = dest.toFloatBuffer().position(destPos).slice();
+		FloatBuffer srcSlice = src.toFloatBuffer().position(srcPos).slice().limit(length);
+		destSlice.put(srcSlice);
+
+		dest.toFloatBuffer().position(0);
+		src.toFloatBuffer().position(0);
+
+//		for(int i=0; i<length; i++) {
+//			dest.setFloat(i+destPos,src.getFloat(i+srcPos));
+//		}
 	}
 
 	public void setFloats(float[] srcFloats, int numFloats) {
