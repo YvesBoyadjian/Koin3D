@@ -29,6 +29,7 @@ public class FILE {
 	
 	public static final int EOF = -1;
 	private static final int BUFFER_SIZE = 1 << 20;
+	private static final int MAX_PUSHBACK_SIZE = 1 << 24;
 	/* Seek method constants */
 
 	public static final int SEEK_CUR    =1;
@@ -36,18 +37,18 @@ public class FILE {
 	public static final int SEEK_SET    =0;
 
 	
-	PushbackInputStream in;
+	final PushbackInputStream in;
 	
 	SbListInt rl = new SbListInt();
 	
 	long position_indicator;
 
 	public FILE(InputStream in) {
-		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE));
+		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE), BUFFER_SIZE);
 	}
 
 	public FILE(InputStream in, long length) {
-		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE),(int)length);
+		this.in = new PushbackInputStream(new BufferedInputStream(in, BUFFER_SIZE),(int)Math.min(length,MAX_PUSHBACK_SIZE));
 	}
 
 	public static int fclose(FILE fp) {
@@ -104,7 +105,7 @@ public class FILE {
 			long length;
 			try {
 				File file = fileNamePath.toFile();
-				length = fileNamePath.toFile().length();
+				length = file.length();
 			}catch (UnsupportedOperationException e) {
 				length = BUFFER_SIZE;
 			}
