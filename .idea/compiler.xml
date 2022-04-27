@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="jsceneviewer-awt" options="--add-exports java.desktop/sun.awt.image=ALL-UNNAMED" />
-    </option>
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="11" />
   </component>
 </project>

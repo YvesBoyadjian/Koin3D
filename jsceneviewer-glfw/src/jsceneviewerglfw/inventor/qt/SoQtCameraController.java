@@ -497,7 +497,7 @@ public void updateHeadlight()
     if (headlightFlag && camera != null) {
         // only update if the value is different, otherwise we get ping-pong effects
         // if the same camera is used for different viewers
-        if (headlightRot.rotation.getValue() != camera.orientation.getValue()) {
+        if (headlightRot.rotation.getValue().operator_not_equal(camera.orientation.getValue())) {
             headlightRot.rotation.setValue(camera.orientation.getValue());
         }
     }
