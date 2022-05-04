@@ -542,6 +542,9 @@ public class SoVertexPropertyCache {
 
   public    FloatBuffer getVertices(int i) 
         {
+            if(null == vertexPtr) {
+                return null;
+            }
 	  	int offset = (int)((long)vertexStride*i/Float.BYTES);
 	  	int length = vertexPtr.size()/* .length*/ - offset;
 	  	ByteBuffer bb = vertexPtr.toByteBuffer();
