@@ -114,6 +114,7 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
             FloatBuffer vertex_array = null;
             IntBuffer index_array = null;
             final SbColor  mycolor1 = new SbColor(),mycolor2 = new SbColor(),mycolor3 = new SbColor();
+            float mytransparency = 0.0f;
             final MutableSbVec3fArray mynormal1 = new MutableSbVec3fArray(currnormal);
             final MutableSbVec3fArray mynormal2 = new MutableSbVec3fArray(currnormal);
             final MutableSbVec3fArray mynormal3 = new MutableSbVec3fArray(currnormal);
@@ -176,6 +177,8 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
                 mycolor1.copyFrom(SoLazyElement.getDiffuse(state,0));
                 mycolor2.copyFrom(SoLazyElement.getDiffuse(state,0));
                 mycolor3.copyFrom(SoLazyElement.getDiffuse(state,0));
+
+                mytransparency = SoLazyElement.getTransparency(state,0);
 
                 pi = piptr.lessThan(piendptr) ? piptr.getPlusPlus() : -1;
                 while (pi == 0) {
@@ -290,7 +293,7 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
                     Rf = (((float )R) / 255.0f);
                     Gf = (((float )G) / 255.0f);
                     Bf = (((float )B) / 255.0f);
-                    Af = (((float )A) / 255.0f);
+                    Af = (((float )A) / 255.0f); Af = mytransparency;
 
                     vertex_array.put(indice+6, Rf);
                     vertex_array.put(indice+7, Gf);
@@ -317,7 +320,7 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
                     Rf = (((float )R) / 255.0f);
                     Gf = (((float )G) / 255.0f);
                     Bf = (((float )B) / 255.0f);
-                    Af = (((float )A) / 255.0f);
+                    Af = (((float )A) / 255.0f); Af = mytransparency;
 
                     vertex_array.put(indice+6, Rf);
                     vertex_array.put(indice+7, Gf);
@@ -344,7 +347,7 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
                     Rf = (((float )R) / 255.0f);
                     Gf = (((float )G) / 255.0f);
                     Bf = (((float )B) / 255.0f);
-                    Af = (((float )A) / 255.0f);
+                    Af = (((float )A) / 255.0f); Af = mytransparency;
 
                     vertex_array.put(indice+6, Rf);
                     vertex_array.put(indice+7, Gf);
@@ -499,7 +502,7 @@ public class SoBrepFaceSet extends SoIndexedFaceSet {
                     pindices = this.partIndex.getValues(0);
                     numparts = this.partIndex.getNum();
 
-                    renderShape(/*state*/action, /*vboAvailable*/false, (
+                    renderShape(/*state*/action, /*vboAvailable*/true, (
                                     SoGLCoordinateElement) (coords[0]), cindices[0], numindices[0],
                             pindices, numparts, normals[0], nindices[0], mb, mindices[0],
                     tb, tindices[0], nbind, mbind, doTextures ? 1 : 0);

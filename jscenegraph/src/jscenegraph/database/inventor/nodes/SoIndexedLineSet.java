@@ -55,6 +55,7 @@
 package jscenegraph.database.inventor.nodes;
 
 import java.nio.Buffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import com.jogamp.opengl.GL;
@@ -98,6 +99,9 @@ import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
 import jscenegraph.port.*;
 
+import static com.jogamp.opengl.GL.GL_LINE_STRIP;
+import static com.jogamp.opengl.GL.GL_POINTS;
+import static com.jogamp.opengl.GL3ES3.GL_LINE_STRIP_ADJACENCY;
 import static jscenegraph.database.inventor.nodes.SoShape.TriangleShape.LINE_STRIP;
 
 
@@ -245,7 +249,8 @@ public class SoIndexedLineSet extends SoIndexedShape {
     	}
     	
     	renderFunc[0] = (set, action) -> set.OmOn(action);
-    	renderFunc[6] = (set, action) -> set.OmVn(action); 
+    	renderFunc[6] = (set, action) -> set.OmVn(action);
+    	renderFunc[16] = (set, action) -> set.FmOn(action);
     }
     
     
@@ -1400,11 +1405,11 @@ OmOn
     for (int polyline = 0; polyline < np; polyline++) {
 	final int nv = (numverts[numvertsIndex]);      
 	if(renderAsPoints){
-	    gl2.glBegin(GL2.GL_POINTS);
+	    gl2.glBegin(GL_POINTS);
 	}
 	else {
 
-	    gl2.glBegin(sendAdj?GL3ES3.GL_LINE_STRIP_ADJACENCY:GL2.GL_LINE_STRIP);      
+	    gl2.glBegin(sendAdj? GL_LINE_STRIP_ADJACENCY: GL_LINE_STRIP);
 	}
 	for (v = 0; v < nv; v++) {                 
 		vertexPtr.position(vertexStride*vertexIndex.get(vtxCtr)/Float.BYTES);
@@ -1447,11 +1452,11 @@ OmVn
     for (int polyline = 0; polyline < np; polyline++) {
 	final int nv = numverts[numvertsIndex];      
 	if(renderAsPoints){
-	    gl2.glBegin(GL2.GL_POINTS);
+	    gl2.glBegin(GL_POINTS);
 	}
 	else {
 
-	    gl2.glBegin(sendAdj?GL3.GL_LINE_STRIP_ADJACENCY:GL2.GL_LINE_STRIP);      
+	    gl2.glBegin(sendAdj? GL_LINE_STRIP_ADJACENCY: GL_LINE_STRIP);
 	}
 	for (v = 0; v < nv; v++) {                  
 		normalPtr.position(normalStride*normalIndx.get(vtxCtr)/Float.BYTES);
@@ -1466,6 +1471,53 @@ OmVn
     }
 }
 
+    public void
+    FmOn
+            (SoGLRenderAction action ) {
+        GL2 gl2 = Ctx.get(action.getCacheContext());
+
+        final int np = numPolylines;
+    int[] numverts = numVertices;
+    final IntArray vertexIndex = coordIndex.getValues(0);
+        boolean renderAsPoints = (SoDrawStyleElement.get(action.getState()) ==
+                SoDrawStyleElement.Style.POINTS);
+        boolean sendAdj = sendAdjacency.getValue();
+
+        // Send one normal, if there are any normals in vpCache:
+        if (vpCache.getNumNormals() > 0)
+            vpCache.sendNormal(gl2,vpCache.getNormals(0));
+    FloatBuffer vertexPtr = vpCache.getVertices(0);
+    final int vertexStride = vpCache.getVertexStride();
+        SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    IntArrayPtr colorPtr = vpCache.getColors(0).toIntArray();
+    final int colorStride = vpCache.getColorStride();
+        SoVPCacheFunc colorFunc = vpCache.colorFunc;
+    final IntArray colorIndx = getColorIndices();
+
+        int vtxCtr = 0;
+        int v;
+        int numvertsIndex = 0; //java port
+        for (int polyline = 0; polyline < np; polyline++) {
+            (colorFunc).run(gl2,colorPtr.get(colorStride*colorIndx.get(polyline)/Integer.BYTES));
+	final int nv = (numverts[numvertsIndex]);
+            if(renderAsPoints){
+                gl2.glBegin(GL_POINTS);
+            }
+            else {
+
+                gl2.glBegin(sendAdj?GL_LINE_STRIP_ADJACENCY:GL_LINE_STRIP);
+            }
+            for (v = 0; v < nv; v++) {
+                vertexPtr.position(vertexStride*vertexIndex.get(vtxCtr)/Float.BYTES);
+                (vertexFunc).run(gl2,vertexPtr);
+                vtxCtr++;
+            }
+            gl2.glEnd();
+            vtxCtr++;  //skip over -1 at end of polyline
+            //++numverts;
+            ++numvertsIndex; // java port
+        }
+    }
 
 
 ////////////////////////////////////////////////////////////////////////

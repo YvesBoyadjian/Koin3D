@@ -303,6 +303,15 @@ public class SoVertexPropertyCache {
 						abgr[3] = (byte)(v & 0xFF);
 						vp_glColor4ubv(gl2,abgr);
 					}
+					else if(argument instanceof Integer) {
+                        int v = (Integer)argument;
+                        byte[] abgr = new byte[4];
+                        abgr[0] = (byte)(v & 0xFF); v = v >>> 8;
+                        abgr[1] = (byte)(v & 0xFF); v = v >>> 8;
+                        abgr[2] = (byte)(v & 0xFF); v = v >>> 8;
+                        abgr[3] = (byte)(v & 0xFF);
+                        vp_glColor4ubv(gl2,abgr);
+                    }
 					else {
 						vp_glColor4ubv(gl2,(byte[])argument);
 					}
