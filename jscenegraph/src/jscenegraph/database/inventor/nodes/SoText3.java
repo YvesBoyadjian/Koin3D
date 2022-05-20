@@ -2471,10 +2471,16 @@ void generateFront(GL2 gl2, int line)
     		public void error(int val) {
     			SoOutlineFontCache.errorCB(val);
     		}
+
+            public void combine(double[] coords, Object[] data,
+                                float[] weight, Object[] outData) {
+                outData[0] = data[0]; // YB for compatibility with rounding errors
+            }
     	};
         GLU.gluTessCallback(tobjgenerateFront, GLU.GLU_BEGIN, cb/*(OPENGL_CALLBACKFUNC)SoText3::beginCB*/);
         GLU.gluTessCallback(tobjgenerateFront, GLU.GLU_END, cb/*(OPENGL_CALLBACKFUNC)SoText3::endCB*/);
         GLU.gluTessCallback(tobjgenerateFront, GLU.GLU_VERTEX, cb/*(OPENGL_CALLBACKFUNC)SoText3::vtxCB*/);
+        GLU.gluTessCallback(tobjgenerateFront, GLU.GLU_TESS_COMBINE, cb); // YB, to avoid errors
         GLU.gluTessCallback(tobjgenerateFront, GLU.GLU_ERROR, cb/*(OPENGL_CALLBACKFUNC)SoOutlineFontCache::errorCB*/);
     }
 
