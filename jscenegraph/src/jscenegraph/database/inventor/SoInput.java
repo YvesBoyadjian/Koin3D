@@ -3558,7 +3558,11 @@ searchForFile( final String basename,
 
       tmpstring = dirname/*.getString(),*/+
                         fullname/*.getString()*/;
-      if (test_filename(default_fs.getPath(tmpstring))) return tmpstring;
+                        try {
+                            if (test_filename(default_fs.getPath(tmpstring))) return tmpstring;
+                        } catch(InvalidPathException e) {
+                            System.err.println(e.getMessage());
+                        }
     }
   }
 //
