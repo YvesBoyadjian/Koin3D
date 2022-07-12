@@ -17,11 +17,14 @@ import jsceneviewerawt.inventor.qt.viewers.SoQtFullViewer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class VRMLViewer {
 
@@ -81,11 +84,11 @@ public static void main(String[] args) {
 
         examinerViewer.setDropTarget(new DropTarget() {
             public synchronized void drop(DropTargetDropEvent evt) {
-                try {
-                    evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    List<File> droppedFiles = (List<File>)
-                            evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    cache.removeAllChildren();
+                evt.acceptDrop(DnDConstants.ACTION_COPY);
+
+                Consumer<List<File>> doDrop = (droppedFiles) -> {
+                    try {
+                        cache.removeAllChildren();
 
 //                    SoCallback callback = new SoCallback();
 //
@@ -99,28 +102,38 @@ public static void main(String[] args) {
 //                    });
 //                    cache.addChild(callback);
 
-                    String title = "";
+                        String title = "";
 
-                    for (File file : droppedFiles) {
-                        SoFile input = new SoFile();
-                        input.name.setValue(file.toString());
+                        for (File file : droppedFiles) {
+                            SoFile input = new SoFile();
+                            input.name.setValue(file.toString());
 
-                        if(file.toString().endsWith(".iv")) {
-                            cache.renderCaching.setValue(SoSeparator.CacheEnabled.AUTO);
+                            if(file.toString().endsWith(".iv")) {
+                                cache.renderCaching.setValue(SoSeparator.CacheEnabled.AUTO);
+                            }
+                            else {
+                                cache.renderCaching.setValue(SoSeparator.CacheEnabled.ON);
+                            }
+
+                            cache.addChild(input);
+                            examinerViewer.viewAll();
+
+                            title += file.getName()+" ";
                         }
-                        else {
-                            cache.renderCaching.setValue(SoSeparator.CacheEnabled.ON);
-                        }
+                        frame.setTitle(title);
 
-                        cache.addChild(input);
-                        examinerViewer.viewAll();
-
-                        title += file.getName()+" ";
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
-                    frame.setTitle(title);
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                };
+                try {
+                    List<File> droppedFiles = (List<File>)
+                            evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    SwingUtilities.invokeLater(()->doDrop.accept(droppedFiles));
+                } catch (UnsupportedFlavorException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
