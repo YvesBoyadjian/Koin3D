@@ -103,7 +103,7 @@ import jscenegraph.port.Destroyable;
 public class SoChildList extends SoNodeList<SoNode> implements Destroyable {
 	
    private  SoNode              parent;
-	private final SbPList auditors = new SbPList();
+	private SbPList auditors = new SbPList();
 	
 	public SoChildList(SoNode parentNode) {
 		super();
@@ -143,6 +143,9 @@ public SoChildList(SoNode parentNode, final SoChildList l) {
 
 public void destructor() {
 	truncate(0);
+    auditors.destructor();
+    auditors = null;
+    parent = null;
 	super.destructor();
 }
 

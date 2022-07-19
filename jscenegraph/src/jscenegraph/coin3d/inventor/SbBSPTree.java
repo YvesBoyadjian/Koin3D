@@ -49,28 +49,27 @@ import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
  */
 public class SbBSPTree implements Destroyable {
 
-	static class coin_bspnode implements Destroyable {
+	enum Dimension {
+		// do not change these values!
+		DIM_YZ, // =0
+		DIM_XZ, // =1
+		DIM_XY, // =2
+		DIM_NONE
+	};
 
-		  enum Dimension {
-			    // do not change these values!
-			    DIM_YZ, // =0
-			    DIM_XZ, // =1
-			    DIM_XY, // =2
-			    DIM_NONE
-			  };
+	class coin_bspnode implements Destroyable {
 
 		  private coin_bspnode left; // ptr
 		  private coin_bspnode right; // ptr
 		  private int dimension;   // which dimension?
 		  private double position;  // position in dimension (double to avoid floating point precision problems)
 		  private final SbListInt indices = new SbListInt(4);
-		  private SbListIndexable<SbVec3f, SbVec3fArray> pointsArray; //ptr
 
 		public coin_bspnode(SbListIndexable<SbVec3f, SbVec3fArray> ptsarray) {
 		  //indices = new SbListInt(4);
 		
 		  this.left = this.right = null;
-		  this.pointsArray = ptsarray;
+		  //this.pointsArray = ptsarray;
 		  this.dimension = Dimension.DIM_NONE.ordinal();
 		}
 
@@ -112,8 +111,8 @@ public int addPoint(final SbVec3f pt, final int maxpts)
       if (pt.operator_equal_equal(tmp)) break;
     }
     if (i == n) {
-      int idx = this.pointsArray.getLength();
-      this.pointsArray.append(new SbVec3f(pt));
+      int idx = pointsArray.getLength();
+      pointsArray.append(/*new SbVec3f(*/pt/*)*/); // pt will be copied
       this.indices.append(idx);
       return idx;
     }
@@ -125,8 +124,8 @@ public void
 split()
 {
   assert(this.left == null && this.right == null);
-  this.left = new coin_bspnode(this.pointsArray);
-  this.right = new coin_bspnode(this.pointsArray);
+  this.left = new coin_bspnode(pointsArray);
+  this.right = new coin_bspnode(pointsArray);
 
   final SbBox3f box = new SbBox3f();
   int i, n = this.indices.getLength();

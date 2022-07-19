@@ -137,7 +137,7 @@ public abstract class SoBase implements Destroyable {
 	
 	private int refCount;
 	
-	private final SoAuditorList auditors = new SoAuditorList();
+	private SoAuditorList auditors = new SoAuditorList();
 	
 	private static class WriteStuff {
 		int writeCounter;
@@ -534,6 +534,7 @@ protected SoBase()
 		    if (myName.operator_not_equal(""))
 		    	removeName(this, myName.getString());
 		    auditors.destructor(); // java port
+		auditors = null;
 	}
 	
 	// Internal methods used to maintain the global name dictionary. 
