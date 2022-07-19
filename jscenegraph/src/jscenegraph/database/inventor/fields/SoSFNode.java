@@ -110,6 +110,7 @@ public class SoSFNode extends SoSField<SoNode> {
 	    if (value != null) {
 	        value.removeAuditor(this, SoNotRec.Type.FIELD);
 	        value.unref();
+            value = null;
 	    }		
 		super.destructor();
 	}
