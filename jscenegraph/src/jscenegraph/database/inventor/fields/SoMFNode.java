@@ -365,6 +365,29 @@ public void insertNode(SoNode node, int idx)
   this.set1Value(idx, node);
 }
 
+
+    // Overridden to insert NULL pointers in new array slots.
+    public void insertSpace(int start, int numarg)
+    {
+        // Disable temporarily so we don't send notification prematurely
+        // from inherited::insertSpace().
+        boolean notificstate = this.enableNotify(false);
+        // Important note: the notification state is reset at the end, so
+        // this function should *not* have multiple return-points.
+
+        super.insertSpace(start, numarg);
+        for (int i=start; i < start+numarg; i++) {
+//#ifdef COIN_INTERNAL_SOMFPATH
+//            this->pathheads.insert(NULL, start);
+//#endif // COIN_INTERNAL_SOMFPATH
+            this.values.setO(i, new SoNodePtr());
+        }
+
+        // Initialization done, now send notification.
+        this.enableNotify(notificstate);
+        if (notificstate) this.valueChanged();
+    }
+
 /*!
   Returns the node at index \a idx.
 
