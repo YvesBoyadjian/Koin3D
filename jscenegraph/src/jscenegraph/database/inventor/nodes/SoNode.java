@@ -120,7 +120,7 @@ public abstract class SoNode extends SoFieldContainer {
 	private static long nextAddress;
 
 
-	private final long address;
+	private long address;
 
 	//! Unique id for this node.
 	protected long uniqueId;
@@ -1267,4 +1267,10 @@ public void setNodeType(final NodeType type)
   }
   return ret;
 }
+
+	public void destructor() {
+		address = -999999; // java port
+		uniqueId = -999999; // java port
+		super.destructor();
+	}
 }

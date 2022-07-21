@@ -453,6 +453,7 @@ public abstract class SoShape extends SoNode implements Destroyable {
 	 public void destructor()
 	 {
 	   Destroyable.delete(pimpl);
+       pimpl = null;
 	   super.destructor();
 	 }
 

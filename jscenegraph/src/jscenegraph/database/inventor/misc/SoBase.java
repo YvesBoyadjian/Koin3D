@@ -535,6 +535,7 @@ protected SoBase()
 		    	removeName(this, myName.getString());
 		    auditors.destructor(); // java port
 		auditors = null;
+		refCount = -999999; // java port
 	}
 	
 	// Internal methods used to maintain the global name dictionary. 
