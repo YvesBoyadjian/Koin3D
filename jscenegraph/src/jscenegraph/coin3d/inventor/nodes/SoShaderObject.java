@@ -27,8 +27,6 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashMap;
 
-import com.jogamp.opengl.GL2;
-
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLMultiTextureImageElement;
@@ -52,7 +50,6 @@ import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoField;
 import jscenegraph.database.inventor.fields.SoFieldData;
-import jscenegraph.database.inventor.fields.SoMFNode;
 import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.database.inventor.fields.SoSFEnum;
 import jscenegraph.database.inventor.fields.SoSFString;

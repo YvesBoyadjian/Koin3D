@@ -54,14 +54,11 @@
 
 package jscenegraph.database.inventor.elements;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.misc.SoState;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL30.*;
-
 
 
 ///////////////////////////////////////////////////////////////////////////////

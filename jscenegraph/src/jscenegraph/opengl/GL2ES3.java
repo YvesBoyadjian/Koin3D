@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jogamp.opengl;
+package jscenegraph.opengl;
 
 /**
  * @author Yves Boyadjian

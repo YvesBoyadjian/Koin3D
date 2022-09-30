@@ -54,19 +54,18 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SPOT_CUTOFF;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SPOT_EXPONENT;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_AMBIENT;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_DIFFUSE;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_POSITION;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_SPOT_CUTOFF;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_SPOT_EXPONENT;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoLightElement;
 import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;

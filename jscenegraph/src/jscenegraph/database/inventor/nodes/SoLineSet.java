@@ -56,15 +56,14 @@ package jscenegraph.database.inventor.nodes;
 
 import java.nio.IntBuffer;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL3;
+import jscenegraph.opengl.GL2;
+import jscenegraph.opengl.GL3;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
-import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPrimitiveVertex;

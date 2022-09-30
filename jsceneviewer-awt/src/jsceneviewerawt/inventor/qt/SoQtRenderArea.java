@@ -42,10 +42,9 @@
 
 package jsceneviewerawt.inventor.qt;
 
-import org.lwjgl.opengl.GLCapabilities;
 import org.lwjgl.opengl.awt.GLData;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.elements.SoWindowElement;
 import jscenegraph.database.inventor.events.SoEvent;

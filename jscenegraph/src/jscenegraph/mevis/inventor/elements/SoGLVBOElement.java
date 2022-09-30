@@ -24,7 +24,7 @@
 *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *
 *  Contact information: MeVis, Center for Medical Diagnostic Systems and
-*  Visualization GmbH, Universitätsallee 29, D-28359 Bremen, GERMANY, or:
+*  Visualization GmbH, Universitï¿½tsallee 29, D-28359 Bremen, GERMANY, or:
 *
 *  http://www.mevis.de
 *
@@ -81,9 +81,7 @@
 
 package jscenegraph.mevis.inventor.elements;
 
-import java.nio.ByteBuffer;
-
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.lists.SbList;

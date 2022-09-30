@@ -58,10 +58,8 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL3;
-import com.jogamp.opengl.GL3ES3;
+import jscenegraph.opengl.GL2;
+import jscenegraph.opengl.GL3;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
@@ -99,9 +97,9 @@ import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
 import jscenegraph.port.*;
 
-import static com.jogamp.opengl.GL.GL_LINE_STRIP;
-import static com.jogamp.opengl.GL.GL_POINTS;
-import static com.jogamp.opengl.GL3ES3.GL_LINE_STRIP_ADJACENCY;
+import static jscenegraph.opengl.GL.GL_LINE_STRIP;
+import static jscenegraph.opengl.GL.GL_POINTS;
+import static jscenegraph.opengl.GL3ES3.GL_LINE_STRIP_ADJACENCY;
 import static jscenegraph.database.inventor.nodes.SoShape.TriangleShape.LINE_STRIP;
 
 

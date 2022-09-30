@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jogamp.opengl.fixedfunc;
+package jscenegraph.opengl.fixedfunc;
 
 /**
  * @author Yves Boyadjian

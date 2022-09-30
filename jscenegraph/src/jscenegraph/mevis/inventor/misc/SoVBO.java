@@ -85,9 +85,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.misc.SoContextHandler;
@@ -95,7 +94,6 @@ import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
-import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.CharPtr;

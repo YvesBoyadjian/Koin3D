@@ -60,14 +60,13 @@ import static org.lwjgl.opengl.GL11.glCallLists;
 import static org.lwjgl.opengl.GL11.glListBase;
 
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.ShortBuffer;
 
 import jscenegraph.port.Destroyable;
 import org.lwjglx.BufferUtils;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
+import jscenegraph.common.nio.Buffers;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbDict;

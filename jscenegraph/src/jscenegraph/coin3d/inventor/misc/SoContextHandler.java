@@ -24,8 +24,6 @@
 
 package jscenegraph.coin3d.inventor.misc;
 
-import com.jogamp.opengl.GL2;
-
 /**
  * @author Yves Boyadjian
  *

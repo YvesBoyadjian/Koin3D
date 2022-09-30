@@ -28,14 +28,12 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryStack;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.database.inventor.errors.SoDebugError;
-import jscenegraph.port.Util;
 
 /**
  * @author Yves Boyadjian

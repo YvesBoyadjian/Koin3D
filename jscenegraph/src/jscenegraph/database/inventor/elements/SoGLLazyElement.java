@@ -56,7 +56,7 @@ package jscenegraph.database.inventor.elements;
 
 import java.nio.IntBuffer;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.misc.SoGL;
@@ -72,13 +72,11 @@ import jscenegraph.database.inventor.SoMachine;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.caches.SoCache;
 import jscenegraph.database.inventor.caches.SoGLRenderCache;
-import jscenegraph.database.inventor.caches.SoNormalCache;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoMFColor;
 import jscenegraph.database.inventor.fields.SoMFFloat;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.*;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;

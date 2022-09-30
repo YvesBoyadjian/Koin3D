@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jogamp.common.nio;
+package jscenegraph.common.nio;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

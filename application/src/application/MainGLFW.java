@@ -5,7 +5,6 @@ package application;
 
 import java.awt.*;
 import java.awt.image.Raster;
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,21 +13,14 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.Properties;
-import java.util.function.Consumer;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 
 import application.gui.OptionDialog;
@@ -37,23 +29,7 @@ import application.scenario.Scenario;
 import application.scenario.TargetsKillingQuest;
 import application.viewer.glfw.ForceProvider;
 import application.viewer.glfw.PositionProvider;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.*;
-import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
-import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
-import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
-import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
-import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
-import com.badlogic.gdx.physics.bullet.linearmath.btTransform;
-import com.badlogic.gdx.physics.bullet.linearmath.btVector3;
-import com.badlogic.gdx.utils.GdxNativesLoader;
-import com.badlogic.gdx.utils.SharedLibraryLoader;
-import com.jogamp.opengl.GL2;
-
-import application.physics.OpenGLMotionState;
+import jscenegraph.opengl.GL2;
 
 //import org.eclipse.swt.SWT;
 //import org.eclipse.swt.graphics.Color;
@@ -65,23 +41,14 @@ import application.physics.OpenGLMotionState;
 //import org.eclipse.swt.widgets.Display;
 //import org.eclipse.swt.widgets.Shell;
 
-import application.scenegraph.SceneGraph;
-import application.scenegraph.SceneGraphIndexedFaceSet;
 import application.scenegraph.SceneGraphIndexedFaceSetShader;
-import application.scenegraph.ShadowTestSceneGraph;
 import application.scenegraph.Soleil;
 import application.viewer.glfw.SoQtWalkViewer;
 import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoGLRenderAction.TransparencyType;
 import jscenegraph.database.inventor.events.SoMouseButtonEvent;
-import jscenegraph.database.inventor.actions.SoAction;
-import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.nodes.SoCamera;
-import jscenegraph.database.inventor.nodes.SoCube;
-import jscenegraph.database.inventor.nodes.SoGroup;
-import jscenegraph.database.inventor.nodes.SoMaterial;
 import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.port.KDebug;
 import jsceneviewerglfw.inventor.qt.SoQt;
 import jsceneviewerglfw.inventor.qt.SoQtCameraController;
@@ -89,7 +56,6 @@ import jsceneviewerglfw.inventor.qt.viewers.SoQtFullViewer;
 import jsceneviewerglfw.Cursor;
 import jsceneviewerglfw.Display;
 import jsceneviewerglfw.GLData;
-import jsceneviewerglfw.SWT;
 import loader.TerrainLoader;
 import org.ode4j.math.DQuaternion;
 import org.ode4j.math.DVector3;
@@ -98,8 +64,6 @@ import org.ode4j.ode.*;
 import org.ode4j.ode.internal.ErrorHandler;
 import org.ode4j.ode.internal.ErrorHdl;
 import org.ode4j.ode.internal.Rotation;
-
-import static com.badlogic.gdx.physics.bullet.collision.CollisionConstants.DISABLE_DEACTIVATION;
 
 /**
  * @author Yves Boyadjian

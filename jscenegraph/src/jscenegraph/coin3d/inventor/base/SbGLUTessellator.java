@@ -4,7 +4,6 @@
 package jscenegraph.coin3d.inventor.base;
 
 import org.lwjglx.util.glu.GLUtessellator;
-import org.lwjglx.util.glu.GLUtessellatorCallback;
 import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
 
 import jscenegraph.coin3d.TidBits;
@@ -13,13 +12,12 @@ import jscenegraph.coin3d.glue.GLUWrapper_t;
 import jscenegraph.coin3d.inventor.SbTesselator;
 import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.caches.tTessData;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.Util;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.glu.GLU;
+import jscenegraph.opengl.GL2;
+import jscenegraph.opengl.glu.GLU;
 
 /**
  * @author Yves Boyadjian

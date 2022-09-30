@@ -24,9 +24,9 @@
 
 package jscenegraph.coin3d.inventor.elements;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL3;
+import jscenegraph.opengl.GL;
+import jscenegraph.opengl.GL2;
+import jscenegraph.opengl.GL3;
 
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.elements.SoElement;

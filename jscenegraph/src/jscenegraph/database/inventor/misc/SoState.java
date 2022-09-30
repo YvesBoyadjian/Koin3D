@@ -139,16 +139,14 @@
 
 package jscenegraph.database.inventor.misc;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
-import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.coin3d.inventor.lists.SbListInt;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.SoTypeList;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoElement;
-import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IntArrayPtr;

@@ -56,13 +56,11 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoTextureUnitElement;
@@ -84,7 +82,6 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.FloatArray;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbVec3fArray;
-import jscenegraph.port.Util;
 import jscenegraph.port.VoidPtr;
 import jscenegraph.port.memorybuffer.FloatMemoryBuffer;
 

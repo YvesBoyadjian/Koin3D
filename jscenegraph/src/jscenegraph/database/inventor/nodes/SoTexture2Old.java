@@ -59,7 +59,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;

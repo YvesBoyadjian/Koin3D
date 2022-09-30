@@ -6,9 +6,7 @@ package jscenegraph.coin3d.glue;
 import org.lwjglx.util.glu.GLUtessellator;
 import org.lwjglx.util.glu.GLUtessellatorCallback;
 
-import com.jogamp.opengl.glu.GLU;
-
-import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.opengl.glu.GLU;
 
 /**
  * @author Yves Boyadjian

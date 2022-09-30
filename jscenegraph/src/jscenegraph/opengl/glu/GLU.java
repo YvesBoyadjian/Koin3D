@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jogamp.opengl.glu;
+package jscenegraph.opengl.glu;
 
 import java.nio.ByteBuffer;
 
@@ -9,9 +9,7 @@ import org.lwjglx.util.glu.GLUtessellator;
 import org.lwjglx.util.glu.GLUtessellatorCallback;
 import org.lwjglx.util.glu.tessellation.GLUtessellatorImpl;
 
-import com.jogamp.opengl.GL;
-
-import jscenegraph.database.inventor.SbVec2f;
+import jscenegraph.opengl.GL;
 
 /**
  * @author Yves Boyadjian

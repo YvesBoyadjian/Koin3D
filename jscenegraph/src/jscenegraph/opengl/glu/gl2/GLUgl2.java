@@ -1,9 +1,9 @@
 /**
  * 
  */
-package com.jogamp.opengl.glu.gl2;
+package jscenegraph.opengl.glu.gl2;
 
-import com.jogamp.opengl.glu.GLU;
+import jscenegraph.opengl.glu.GLU;
 
 /**
  * @author Yves Boyadjian

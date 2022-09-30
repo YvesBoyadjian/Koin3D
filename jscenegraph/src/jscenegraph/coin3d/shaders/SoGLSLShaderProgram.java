@@ -29,7 +29,7 @@ import java.util.Map;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.lists.SbList;

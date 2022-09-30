@@ -56,7 +56,7 @@ package jscenegraph.database.inventor.nodes;
 
 import java.util.Arrays;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoLightElement;
 import jscenegraph.database.inventor.SbVec3f;

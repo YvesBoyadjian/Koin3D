@@ -42,7 +42,7 @@
 
 package jsceneviewerglfw.inventor.qt.viewers;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
@@ -69,7 +69,6 @@ import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSwitch;
 import jscenegraph.port.Ctx;
-import jsceneviewerglfw.inventor.qt.viewers.SoQtViewer;
 import jsceneviewerglfw.Composite;
 import jsceneviewerglfw.KeyEvent;
 import jsceneviewerglfw.MouseEvent;

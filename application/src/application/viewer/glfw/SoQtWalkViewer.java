@@ -4,8 +4,6 @@
 package application.viewer.glfw;
 
 
-import java.awt.AWTException;
-import java.awt.Robot;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,18 +16,11 @@ import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
 import org.lwjgl.*;
-import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
 
 import java.nio.*;
-import java.time.Instant;
 
-import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
 
 //import org.eclipse.swt.events.MouseEvent;
@@ -39,13 +30,12 @@ import static org.lwjgl.system.MemoryUtil.*;
 //import org.eclipse.swt.widgets.Composite;
 //import org.eclipse.swt.widgets.Display;
 //import org.lwjgl.opengl.swt.GLCanvas;
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import application.scenegraph.HeightProvider;
 import application.scenegraph.SceneGraphIndexedFaceSetShader;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec2f;
-import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.events.SoKeyboardEvent;
@@ -55,14 +45,9 @@ import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.sensors.SoIdleSensor;
 import jscenegraph.database.inventor.sensors.SoSensor;
 import jsceneviewerglfw.Composite;
-import jsceneviewerglfw.Display;
-import jsceneviewerglfw.MouseEvent;
-import jsceneviewerglfw.MouseMoveListener;
 import jsceneviewerglfw.inventor.qt.SoQtCameraController;
-import jsceneviewerglfw.inventor.qt.SoQtCameraController.Type;
 import jsceneviewerglfw.inventor.qt.viewers.SoQtConstrainedViewer;
 import jsceneviewerglfw.inventor.qt.viewers.SoQtFullViewer;
-import org.lwjgl.util.Point;
 
 /**
  * @author Yves Boyadjian

@@ -57,7 +57,7 @@
 
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;
@@ -71,7 +71,6 @@ import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFVec3f;
 import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.database.inventor.nodes.SoBaseColor;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;

@@ -3,7 +3,7 @@
  */
 package jscenegraph.port;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 /**
  * @author Yves Boyadjian

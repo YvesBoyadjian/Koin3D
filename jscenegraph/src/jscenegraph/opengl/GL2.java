@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jogamp.opengl;
+package jscenegraph.opengl;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -10,15 +10,10 @@ import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.nio.charset.Charset;
 
+import jscenegraph.common.nio.Buffers;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.ARBImaging;
 import org.lwjgl.opengl.ARBVertexBufferObject;
-import org.lwjgl.system.MemoryStack;
-
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
-
-import com.jogamp.common.nio.Buffers;
 
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.VoidPtr;

@@ -42,7 +42,7 @@
 
 package jsceneviewerawt.inventor.qt.viewers;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;

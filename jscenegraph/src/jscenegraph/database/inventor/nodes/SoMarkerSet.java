@@ -23,7 +23,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.gl.SoGLTexture3EnabledElement;
@@ -31,7 +31,6 @@ import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbMatrix;
 import jscenegraph.database.inventor.SbVec2s;
-import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SbViewVolume;
 import jscenegraph.database.inventor.SbViewportRegion;

@@ -3,7 +3,7 @@
  */
 package jscenegraph.coin3d.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SoType;

@@ -54,7 +54,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
@@ -64,8 +64,6 @@ import jscenegraph.database.inventor.fields.SoSFBool;
 import jscenegraph.port.Ctx;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL30.*;
 
 /**
  * @author Yves Boyadjian

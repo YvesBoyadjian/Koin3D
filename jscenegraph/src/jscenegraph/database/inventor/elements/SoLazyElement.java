@@ -57,19 +57,15 @@ package jscenegraph.database.inventor.elements;
 import static org.lwjgl.opengl.GL11.glDrawElements;
 
 import java.nio.ByteBuffer;
-import java.util.Objects;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbBasic;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.errors.SoDebugError;
-import jscenegraph.database.inventor.fields.SoMFColor;
-import jscenegraph.database.inventor.fields.SoMFFloat;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.database.inventor.nodes.SoPackedColor;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.port.ByteBufferAble;
 import jscenegraph.port.FloatArray;

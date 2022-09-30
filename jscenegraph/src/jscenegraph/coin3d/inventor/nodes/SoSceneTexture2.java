@@ -257,7 +257,7 @@
 
 package jscenegraph.coin3d.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
@@ -278,7 +278,6 @@ import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.actions.SoWriteAction;
 import jscenegraph.database.inventor.elements.SoCacheElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
-import jscenegraph.database.inventor.elements.SoGLDisplayList;
 import jscenegraph.database.inventor.elements.SoTextureOverrideElement;
 import jscenegraph.database.inventor.elements.SoTextureQualityElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
@@ -290,7 +289,6 @@ import jscenegraph.database.inventor.fields.SoSFNode;
 import jscenegraph.database.inventor.fields.SoSFVec4f;
 import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.misc.SoState;
-import jscenegraph.database.inventor.nodes.SoBaseColor;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoSubNode;
 import jscenegraph.mevis.inventor.fields.SoSFVec2s;

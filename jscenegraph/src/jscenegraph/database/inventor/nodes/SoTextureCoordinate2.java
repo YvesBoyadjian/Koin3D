@@ -128,8 +128,8 @@ import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.VoidPtr;
 
-import static com.jogamp.opengl.GL.GL_ARRAY_BUFFER;
-import static com.jogamp.opengl.GL.GL_STATIC_DRAW;
+import static jscenegraph.opengl.GL.GL_ARRAY_BUFFER;
+import static jscenegraph.opengl.GL.GL_STATIC_DRAW;
 import static jscenegraph.coin3d.misc.SoGL.cc_glglue_instance;
 import static jscenegraph.coin3d.misc.SoGL.cc_glglue_max_texture_units;
 

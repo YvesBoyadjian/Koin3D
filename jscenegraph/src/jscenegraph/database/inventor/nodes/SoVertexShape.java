@@ -54,20 +54,19 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import static com.jogamp.opengl.GL.GL_ARRAY_BUFFER;
-import static com.jogamp.opengl.GL.GL_FLOAT;
-import static com.jogamp.opengl.GL.GL_UNSIGNED_BYTE;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
+import static jscenegraph.opengl.GL.GL_ARRAY_BUFFER;
+import static jscenegraph.opengl.GL.GL_FLOAT;
+import static jscenegraph.opengl.GL.GL_UNSIGNED_BYTE;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
-import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec2f;
@@ -78,17 +77,14 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.bundles.SoNormalBundle;
 import jscenegraph.database.inventor.caches.SoNormalCache;
 import jscenegraph.database.inventor.elements.SoCacheElement;
-import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoCreaseAngleElement;
-import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.elements.SoShapeHintsElement;
-import jscenegraph.database.inventor.elements.SoShapeStyleElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.errors.SoError;
 import jscenegraph.database.inventor.fields.SoFieldData;

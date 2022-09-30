@@ -5,32 +5,24 @@ package application.scenegraph;
 
 import java.awt.Color;
 import java.awt.image.Raster;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.fxviz.nodes.SoShadowDirectionalLight;
 import jscenegraph.coin3d.fxviz.nodes.SoShadowGroup;
-import jscenegraph.coin3d.fxviz.nodes.SoShadowStyle;
-import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbRotation;
 import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.SoCallback;
 import jscenegraph.database.inventor.nodes.SoCamera;
 import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoDirectionalLight;
 import jscenegraph.database.inventor.nodes.SoGroup;
-import jscenegraph.database.inventor.nodes.SoIndexedFaceSet;
-import jscenegraph.database.inventor.nodes.SoLight;
 import jscenegraph.database.inventor.nodes.SoMaterial;
 import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.database.inventor.nodes.SoQuadMesh;
 import jscenegraph.database.inventor.nodes.SoSeparator;
 import jscenegraph.database.inventor.nodes.SoSphere;
 import jscenegraph.database.inventor.nodes.SoTranslation;

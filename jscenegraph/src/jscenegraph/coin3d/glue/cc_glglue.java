@@ -4,7 +4,6 @@
 package jscenegraph.coin3d.glue;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 import org.lwjgl.opengl.ARBShaderObjects;
 import org.lwjgl.opengl.EXTGeometryShader4;
@@ -12,21 +11,17 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLCapabilities;
-import org.lwjgl.system.MemoryStack;
 
-import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL3;
+import jscenegraph.common.nio.Buffers;
+import jscenegraph.opengl.GL2;
+import jscenegraph.opengl.GL3;
 
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatBufferAble;
 import jscenegraph.port.IntArrayPtr;
-import jscenegraph.port.SbColorArray;
-import jscenegraph.port.SbVec3fArray;
 import jscenegraph.port.ShortBufferAble;
 import jscenegraph.port.VoidPtr;
 

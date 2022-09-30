@@ -46,10 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.util.Point;
-
-import com.jogamp.opengl.GL2;
 
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbTime;
@@ -59,7 +56,6 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.events.SoEvent;
-import jscenegraph.database.inventor.events.SoMouseButtonEvent;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoCallback;
 import jscenegraph.database.inventor.nodes.SoCallbackCB;
@@ -69,10 +65,6 @@ import jscenegraph.interaction.inventor.SoSceneManager;
 import jscenegraph.interaction.inventor.SoSceneManager.SoSceneManagerRenderCB;
 import jscenegraph.interaction.inventor.nodes.SoSelection;
 import jscenegraph.interaction.inventor.nodes.SoSelectionClassCB;
-import jsceneviewerglfw.inventor.qt.SoQt;
-import jsceneviewerglfw.inventor.qt.SoQtRenderArea;
-import jsceneviewerglfw.inventor.qt.SoQtSceneHandler;
-import jsceneviewerglfw.inventor.qt.SoQtStandardEventTranslator;
 import jsceneviewerglfw.Composite;
 import jsceneviewerglfw.Event;
 import jsceneviewerglfw.KeyEvent;

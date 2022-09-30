@@ -199,9 +199,8 @@
 package jscenegraph.coin3d.inventor.nodes;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;

@@ -54,7 +54,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec4f;

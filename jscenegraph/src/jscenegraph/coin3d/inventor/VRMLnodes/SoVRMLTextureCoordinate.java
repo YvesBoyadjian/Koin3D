@@ -3,7 +3,7 @@
  */
 package jscenegraph.coin3d.inventor.VRMLnodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.SbVec2f;

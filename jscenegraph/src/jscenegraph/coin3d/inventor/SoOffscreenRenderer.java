@@ -314,9 +314,6 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-
 import jscenegraph.coin3d.rendering.SoOffscreenWGLData;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbName;

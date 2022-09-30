@@ -1,6 +1,6 @@
 package jscenegraph.freecad;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbVec3fSingle;
 import jscenegraph.database.inventor.SoType;

@@ -3,8 +3,6 @@
  */
 package jscenegraph.coin3d.shaders;
 
-import com.jogamp.opengl.GL2;
-
 import jscenegraph.coin3d.shaders.SoShader.Type;
 
 /**

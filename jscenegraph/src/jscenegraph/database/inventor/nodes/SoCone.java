@@ -57,7 +57,7 @@ package jscenegraph.database.inventor.nodes;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;

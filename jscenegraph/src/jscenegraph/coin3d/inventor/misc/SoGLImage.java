@@ -34,8 +34,7 @@ package jscenegraph.coin3d.inventor.misc;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.glue.Gl;
@@ -47,7 +46,6 @@ import jscenegraph.coin3d.inventor.threads.SbStorage;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec2s;
-import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3s;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.elements.SoCacheElement;

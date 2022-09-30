@@ -24,12 +24,11 @@
 
 package jscenegraph.coin3d.inventor.elements.gl;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
 import jscenegraph.coin3d.inventor.elements.SoTextureCombineElement;
-import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.coin3d.inventor.lists.SbListOfMutableRefs;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;

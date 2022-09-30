@@ -3,9 +3,8 @@
  */
 package jscenegraph.coin3d.inventor.elements;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
-import jscenegraph.coin3d.inventor.lists.SbList;
 import jscenegraph.coin3d.inventor.lists.SbListOfMutableRefs;
 import jscenegraph.database.inventor.SbColor4f;
 import jscenegraph.database.inventor.elements.SoElement;

@@ -3,10 +3,10 @@
  */
 package application.nodes;
 
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
-import static com.jogamp.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_LIGHT0;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_SPECULAR;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;

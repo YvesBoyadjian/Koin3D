@@ -23,7 +23,7 @@
 
 package jscenegraph.coin3d.inventor.elements;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2fSingle;

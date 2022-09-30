@@ -99,23 +99,20 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import static com.jogamp.opengl.GL.GL_ARRAY_BUFFER;
-import static com.jogamp.opengl.GL.GL_FLOAT;
-import static com.jogamp.opengl.GL.GL_UNSIGNED_BYTE;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
-import static com.jogamp.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
+import static jscenegraph.opengl.GL.GL_ARRAY_BUFFER;
+import static jscenegraph.opengl.GL.GL_FLOAT;
+import static jscenegraph.opengl.GL.GL_UNSIGNED_BYTE;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_COLOR_ARRAY;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_NORMAL_ARRAY;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_TEXTURE_COORD_ARRAY;
+import static jscenegraph.opengl.fixedfunc.GLPointerFunc.GL_VERTEX_ARRAY;
 
 import jscenegraph.database.inventor.elements.*;
 import org.lwjglx.util.glu.GLUtessellator;
-import org.lwjglx.util.glu.GLUtessellatorCallback;
-import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.gl2.GLUgl2;
+import jscenegraph.opengl.GL;
+import jscenegraph.opengl.GL2;
+import jscenegraph.opengl.glu.GLU;
 
 import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
 import jscenegraph.coin3d.glue.cc_glglue;

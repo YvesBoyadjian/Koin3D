@@ -50,8 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.jogamp.opengl.GL2;
-
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbTime;
 import jscenegraph.database.inventor.SbVec2s;
@@ -60,7 +58,6 @@ import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.events.SoEvent;
-import jscenegraph.database.inventor.events.SoMouseButtonEvent;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoCallback;
 import jscenegraph.database.inventor.nodes.SoCallbackCB;

@@ -3,21 +3,16 @@
  */
 package jsceneviewerglfw;
 
-import jsceneviewerglfw.inventor.qt.SoQtGLWidget;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
-import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
-
-import com.jogamp.opengl.GL2;
 
 import java.nio.*;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 

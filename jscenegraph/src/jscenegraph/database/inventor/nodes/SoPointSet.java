@@ -54,17 +54,15 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
-import jscenegraph.database.inventor.actions.SoRayPickAction;
 import jscenegraph.database.inventor.bundles.SoMaterialBundle;
 import jscenegraph.database.inventor.bundles.SoTextureCoordinateBundle;
 import jscenegraph.database.inventor.details.SoPointDetail;
-import jscenegraph.database.inventor.elements.SoComplexityElement;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLCoordinateElement;
 import jscenegraph.database.inventor.elements.SoGLLazyElement;
@@ -73,7 +71,6 @@ import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoLightModelElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoNormalBindingElement;
-import jscenegraph.database.inventor.elements.SoNormalElement;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoSFInt32;

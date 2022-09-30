@@ -3,15 +3,10 @@
  */
 package jscenegraph.coin3d.fxviz.nodes;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Random;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.fxviz.elements.SoShadowStyleElement;
 import jscenegraph.coin3d.glue.cc_glglue;

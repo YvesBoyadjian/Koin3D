@@ -63,7 +63,7 @@ package jscenegraph.database.inventor.nodes;
 
 //import org.eclipse.swt.opengl.GLCanvas;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SoFullPath;

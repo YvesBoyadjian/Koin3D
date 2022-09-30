@@ -32,7 +32,7 @@
 
 package jscenegraph.coin3d.inventor.elements.gl;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoVertexAttributeData;
@@ -40,9 +40,6 @@ import jscenegraph.coin3d.inventor.elements.SoVertexAttributeElement;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.coin3d.shaders.SoGLShaderProgram;
 import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
-import jscenegraph.database.inventor.SbVec2f;
-import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.elements.SoCoordinateElement;
 import jscenegraph.database.inventor.errors.SoDebugError;

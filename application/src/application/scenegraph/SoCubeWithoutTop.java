@@ -3,7 +3,7 @@
  */
 package application.scenegraph;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
@@ -16,8 +16,6 @@ import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
-import jscenegraph.database.inventor.SbVec4f;
-import jscenegraph.database.inventor.SbVec4fSingle;
 import jscenegraph.database.inventor.SoMachine;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
@@ -30,10 +28,8 @@ import jscenegraph.database.inventor.details.SoCubeDetail;
 import jscenegraph.database.inventor.details.SoDetail;
 import jscenegraph.database.inventor.elements.SoComplexityElement;
 import jscenegraph.database.inventor.elements.SoComplexityTypeElement;
-import jscenegraph.database.inventor.elements.SoDrawStyleElement;
 import jscenegraph.database.inventor.elements.SoGLCacheContextElement;
 import jscenegraph.database.inventor.elements.SoLazyElement;
-import jscenegraph.database.inventor.elements.SoLightModelElement;
 import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.elements.SoModelMatrixElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
@@ -42,8 +38,6 @@ import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoCube;
 import jscenegraph.database.inventor.nodes.SoShape;
 import jscenegraph.database.inventor.nodes.SoSubNode;
-import jscenegraph.database.inventor.nodes.SoShape.SimpleVertexArrayCache;
-import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.CharPtr;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.FloatPtr;

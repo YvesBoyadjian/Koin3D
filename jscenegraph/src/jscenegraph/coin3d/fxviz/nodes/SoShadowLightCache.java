@@ -3,7 +3,7 @@
  */
 package jscenegraph.coin3d.fxviz.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.misc.SoShaderGenerator;
@@ -15,7 +15,6 @@ import jscenegraph.coin3d.inventor.nodes.SoTextureUnit;
 import jscenegraph.coin3d.inventor.nodes.SoTransparencyType;
 import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
 import jscenegraph.coin3d.misc.SoGL;
-import jscenegraph.coin3d.misc.Tidbits;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1f;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1i;
 import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter4f;

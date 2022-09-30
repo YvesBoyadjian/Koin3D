@@ -6,8 +6,6 @@ package jscenegraph.coin3d.shaders.inventor.nodes;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jogamp.opengl.GL2;
-
 import jscenegraph.coin3d.shaders.SoGLShaderObject;
 import jscenegraph.coin3d.shaders.SoGLShaderParameter;
 import jscenegraph.database.inventor.SoType;

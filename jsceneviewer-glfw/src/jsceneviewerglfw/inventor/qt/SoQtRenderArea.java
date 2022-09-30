@@ -42,19 +42,13 @@
 
 package jsceneviewerglfw.inventor.qt;
 
-import org.lwjgl.opengl.GLCapabilities;
-
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.elements.SoWindowElement;
 import jscenegraph.database.inventor.events.SoEvent;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.GLXContext;
-import jsceneviewerglfw.inventor.qt.SoQt;
-import jsceneviewerglfw.inventor.qt.SoQtGLWidget;
-import jsceneviewerglfw.inventor.qt.SoQtRenderArea;
-import jsceneviewerglfw.inventor.qt.SoQtSceneHandler;
 import jsceneviewerglfw.Composite;
 import jsceneviewerglfw.Display;
 import jsceneviewerglfw.GLData;

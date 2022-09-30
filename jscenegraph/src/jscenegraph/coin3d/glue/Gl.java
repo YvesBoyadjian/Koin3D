@@ -24,9 +24,8 @@
 
 package jscenegraph.coin3d.glue;
 
-import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.GL3;
+import jscenegraph.common.nio.Buffers;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.TidBits;
 import jscenegraph.coin3d.misc.SoGL;
@@ -35,11 +34,8 @@ import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL30.*;
 
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLCapabilities;
 
 /**

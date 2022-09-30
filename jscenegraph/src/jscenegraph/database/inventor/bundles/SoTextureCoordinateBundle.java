@@ -54,7 +54,6 @@
 
 package jscenegraph.database.inventor.bundles;
 
-import com.jogamp.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement.SoTexCoordTexgenCB;

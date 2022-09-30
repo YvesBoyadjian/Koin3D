@@ -1,11 +1,11 @@
 package jscenegraph.coin3d.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 import jscenegraph.database.inventor.*;
 import jscenegraph.database.inventor.caches.SoCache;
 import jscenegraph.database.inventor.elements.*;
 import jscenegraph.database.inventor.errors.SoDebugError;
-import com.jogamp.opengl.glu.GLU;
+import jscenegraph.opengl.glu.GLU;
 import jscenegraph.database.inventor.libFL.FLcontext;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoProfile;

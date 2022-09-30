@@ -54,7 +54,7 @@
 
 package jscenegraph.database.inventor.elements;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.misc.SoGL;
@@ -65,7 +65,6 @@ import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.ARBVertexBufferObject.*;
 
 /////////////////////////////////////////////////////////////////////////

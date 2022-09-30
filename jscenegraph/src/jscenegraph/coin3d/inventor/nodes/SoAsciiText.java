@@ -139,7 +139,7 @@
 
 package jscenegraph.coin3d.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;
 import jscenegraph.database.inventor.*;
@@ -150,9 +150,8 @@ import jscenegraph.database.inventor.elements.SoMaterialBindingElement;
 import jscenegraph.database.inventor.fields.*;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.*;
-import org.lwjgl.system.CallbackI;
 import org.lwjglx.util.glu.GLUtessellator;
-import com.jogamp.opengl.glu.GLU;
+import jscenegraph.opengl.glu.GLU;
 import org.lwjglx.util.glu.GLUtessellatorCallback;
 import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
 

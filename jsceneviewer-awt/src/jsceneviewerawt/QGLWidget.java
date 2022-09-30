@@ -1,6 +1,6 @@
 package jsceneviewerawt;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 import jsceneviewerawt.inventor.qt.SoQtGLWidget;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.awt.AWTGLCanvas;

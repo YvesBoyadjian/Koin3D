@@ -24,7 +24,7 @@
  *************************************************************************/
 package org.ode4j.drawstuff.internal;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 import jsceneviewerawt.inventor.qt.SoQtGLWidget;
 //import org.lwjgl.LWJGLException;
 //import org.lwjgl.Sys;
@@ -32,7 +32,6 @@ import jsceneviewerawt.inventor.qt.SoQtGLWidget;
 //import org.lwjgl.input.Mouse;
 //import org.lwjgl.opengl.Display;
 //import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 //import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.awt.GLData;

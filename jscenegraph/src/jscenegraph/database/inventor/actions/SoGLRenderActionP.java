@@ -462,17 +462,10 @@
 // *************************************************************************
 package jscenegraph.database.inventor.actions;
 
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
-import jscenegraph.database.inventor.nodes.SoCamera;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.TidBits;
 import jscenegraph.coin3d.glue.cc_glglue;
@@ -501,8 +494,6 @@ import jscenegraph.database.inventor.misc.SoCallbackList;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.port.Util;
-
-import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
 
 /**
  * @author Yves Boyadjian

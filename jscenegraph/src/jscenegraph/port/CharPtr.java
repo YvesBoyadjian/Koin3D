@@ -5,7 +5,7 @@ package jscenegraph.port;
 
 import java.nio.ByteBuffer;
 
-import com.jogamp.common.nio.Buffers;
+import jscenegraph.common.nio.Buffers;
 
 /**
  * @author Yves Boyadjian

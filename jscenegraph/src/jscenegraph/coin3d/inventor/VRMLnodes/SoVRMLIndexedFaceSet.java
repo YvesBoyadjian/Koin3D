@@ -213,7 +213,7 @@ package jscenegraph.coin3d.inventor.VRMLnodes;
 
 import java.util.Objects;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
 import jscenegraph.coin3d.inventor.elements.SoVertexAttributeBindingElement;

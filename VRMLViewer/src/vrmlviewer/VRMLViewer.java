@@ -1,14 +1,10 @@
 package vrmlviewer;
 
-import com.jogamp.opengl.GL2;
 import jscenegraph.coin3d.inventor.VRMLnodes.SoVRMLImageTexture;
 import jscenegraph.database.inventor.SbColor;
 import jscenegraph.database.inventor.SbViewportRegion;
-import jscenegraph.database.inventor.SoInput;
-import jscenegraph.database.inventor.SoInputFile;
 import jscenegraph.database.inventor.actions.SoGLRenderAction;
 import jscenegraph.database.inventor.nodes.*;
-import jscenegraph.port.Ctx;
 import jsceneviewerawt.inventor.qt.SoQt;
 import jsceneviewerawt.inventor.qt.SoQtCameraController;
 import jsceneviewerawt.inventor.qt.viewers.SoQtExaminerViewer;

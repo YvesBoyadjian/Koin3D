@@ -5,14 +5,13 @@ package jscenegraph.coin3d.inventor.nodes;
 
 import java.util.Objects;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoLightElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.misc.SoGLImage;
-import jscenegraph.coin3d.inventor.nodes.SoSceneTexture2.fbo_deletedata;
 import jscenegraph.coin3d.inventor.threads.SbMutex;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.coin3d.misc.Tidbits;

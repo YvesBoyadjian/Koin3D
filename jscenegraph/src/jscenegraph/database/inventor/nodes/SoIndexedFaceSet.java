@@ -240,18 +240,15 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Objects;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.bundles.SoVertexAttributeBundle;
-import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;
 import jscenegraph.coin3d.inventor.elements.SoVertexAttributeBindingElement;
 import jscenegraph.coin3d.inventor.misc.SoGLDriverDatabase;
 import jscenegraph.coin3d.inventor.nodes.SoVertexProperty;
 import jscenegraph.coin3d.misc.SoGL;
 import jscenegraph.database.inventor.SbMatrix;
-import jscenegraph.database.inventor.SbVec3f;
 import jscenegraph.database.inventor.SbVec3fSingle;
-import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.database.inventor.SoDebug;
 import jscenegraph.database.inventor.SoPickedPoint;
 import jscenegraph.database.inventor.SoPrimitiveVertex;

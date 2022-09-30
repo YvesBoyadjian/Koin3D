@@ -49,15 +49,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jsceneviewerawt.QGLWidget;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GLCapabilities;
-import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.opengl.awt.GLData;
-import org.lwjgl.system.Callback;
 import org.lwjgl.glfw.GLFW;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.port.Ctx;

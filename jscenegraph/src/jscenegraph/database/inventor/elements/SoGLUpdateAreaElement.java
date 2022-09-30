@@ -54,8 +54,6 @@
 
 package jscenegraph.database.inventor.elements;
 
-import com.jogamp.opengl.GL2;
-
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbVec2fSingle;
 import jscenegraph.database.inventor.SbVec2s;
@@ -63,8 +61,6 @@ import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.misc.SoState;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL30.*;
 
 
 ///////////////////////////////////////////////////////////////////////////////

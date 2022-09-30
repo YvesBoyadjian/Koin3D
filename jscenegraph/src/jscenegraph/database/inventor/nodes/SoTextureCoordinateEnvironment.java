@@ -72,7 +72,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureCoordinateElement;

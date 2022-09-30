@@ -5,19 +5,11 @@ package jscenegraph.port;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.WeakHashMap;
 
-import com.jogamp.common.nio.Buffers;
+import jscenegraph.common.nio.Buffers;
 
-import jscenegraph.database.inventor.SbVec2f;
-import jscenegraph.database.inventor.SbVec3f;
-import jscenegraph.database.inventor.SbVec4f;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
 
 /**

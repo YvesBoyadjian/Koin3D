@@ -54,30 +54,21 @@
 
 package jscenegraph.database.inventor.actions;
 
-import static com.jogamp.opengl.GL.GL_COLOR_BUFFER_BIT;
-import static com.jogamp.opengl.GL.GL_DEPTH_BUFFER_BIT;
-import static com.jogamp.opengl.GL.GL_LINE_SMOOTH;
-import static com.jogamp.opengl.GL.GL_ONE;
-import static com.jogamp.opengl.GL.GL_ONE_MINUS_SRC_ALPHA;
-import static com.jogamp.opengl.GL.GL_SRC_ALPHA;
-import static com.jogamp.opengl.GL2.GL_ACCUM;
-import static com.jogamp.opengl.GL2.GL_LOAD;
-import static com.jogamp.opengl.GL2.GL_RETURN;
-import static com.jogamp.opengl.GL2ES1.GL_POINT_SMOOTH;
+import static jscenegraph.opengl.GL.GL_LINE_SMOOTH;
+import static jscenegraph.opengl.GL.GL_ONE;
+import static jscenegraph.opengl.GL.GL_ONE_MINUS_SRC_ALPHA;
+import static jscenegraph.opengl.GL.GL_SRC_ALPHA;
+import static jscenegraph.opengl.GL2ES1.GL_POINT_SMOOTH;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.glue.cc_glglue;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureEnabledElement;
-import jscenegraph.coin3d.inventor.elements.SoMultiTextureImageElement;
-import jscenegraph.coin3d.inventor.nodes.SoTransparencyType;
 import jscenegraph.coin3d.misc.SoGL;
-import jscenegraph.database.inventor.SbBox3f;
 import jscenegraph.database.inventor.SbName;
 import jscenegraph.database.inventor.SbVec2f;
 import jscenegraph.database.inventor.SbViewportRegion;
 import jscenegraph.database.inventor.SoPath;
-import jscenegraph.database.inventor.SoPathList;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoActionMethodList.SoActionMethod;
 import jscenegraph.database.inventor.elements.SoCacheElement;
@@ -101,8 +92,6 @@ import jscenegraph.database.inventor.misc.SoCallbackListCB;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.database.inventor.nodes.SoGroup;
 import jscenegraph.database.inventor.nodes.SoNode;
-import jscenegraph.mevis.inventor.system.SbOpenGL;
-import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
 import jscenegraph.port.IGLCallback;
 

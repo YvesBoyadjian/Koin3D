@@ -1,8 +1,8 @@
-package com.jogamp.opengl;
+package jscenegraph.opengl;
 
-import com.jogamp.opengl.fixedfunc.GLLightingFunc;
-import com.jogamp.opengl.fixedfunc.GLMatrixFunc;
-import com.jogamp.opengl.fixedfunc.GLPointerFunc;
+import jscenegraph.opengl.fixedfunc.GLLightingFunc;
+import jscenegraph.opengl.fixedfunc.GLMatrixFunc;
+import jscenegraph.opengl.fixedfunc.GLPointerFunc;
 
 public interface GL2ES1 extends GL, GLPointerFunc, GLLightingFunc, GLMatrixFunc {
 

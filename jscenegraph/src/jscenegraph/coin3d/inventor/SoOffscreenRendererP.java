@@ -3,8 +3,8 @@
  */
 package jscenegraph.coin3d.inventor;
 
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.TidBits;
 import jscenegraph.coin3d.inventor.misc.SoGLBigImage;

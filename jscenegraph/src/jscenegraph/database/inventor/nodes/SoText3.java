@@ -63,9 +63,9 @@ import org.lwjglx.util.glu.GLUtessellator;
 import org.lwjglx.util.glu.GLUtessellatorCallback;
 import org.lwjglx.util.glu.GLUtessellatorCallbackAdapter;
 
-import com.jogamp.opengl.GL2;
-import com.jogamp.opengl.glu.GLU;
-import com.jogamp.opengl.glu.gl2.GLUgl2;
+import jscenegraph.opengl.GL2;
+import jscenegraph.opengl.glu.GLU;
+import jscenegraph.opengl.glu.gl2.GLUgl2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.coin3d.inventor.elements.SoMultiTextureCoordinateElement;

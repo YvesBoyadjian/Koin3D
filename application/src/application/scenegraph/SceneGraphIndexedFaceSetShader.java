@@ -17,7 +17,7 @@ import javax.imageio.ImageIO;
 import application.nodes.SoTarget;
 import application.nodes.SoTargets;
 import application.objects.Target;
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import application.nodes.SoNoSpecularDirectionalLight;
 import application.objects.DouglasFir;
@@ -35,7 +35,6 @@ import jscenegraph.database.inventor.misc.SoNotList;
 import jscenegraph.database.inventor.nodes.*;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.memorybuffer.MemoryBuffer;
-import org.lwjgl.system.CallbackI;
 import org.ode4j.ode.DGeom;
 import org.ode4j.ode.DSpace;
 import org.ode4j.ode.OdeHelper;

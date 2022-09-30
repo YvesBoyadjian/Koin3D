@@ -54,17 +54,14 @@ import org.lwjgl.util.Rectangle;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GLCapabilities;
-import org.lwjgl.opengl.GLUtil;
 //import org.lwjgl.opengl.swt.GLData;
-import org.lwjgl.system.Callback;
 import org.lwjgl.glfw.GLFW;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.database.inventor.SbVec2s;
 import jscenegraph.port.Ctx;
 import jscenegraph.port.Destroyable;
-import jsceneviewerglfw.inventor.qt.SoQtGLWidget;
 import jsceneviewerglfw.Composite;
 import jsceneviewerglfw.Cursor;
 import jsceneviewerglfw.Event;

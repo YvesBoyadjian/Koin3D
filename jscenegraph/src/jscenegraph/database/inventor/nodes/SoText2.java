@@ -54,10 +54,9 @@
 
 package jscenegraph.database.inventor.nodes;
 
-import java.nio.CharBuffer;
 import java.nio.ShortBuffer;
 
-import com.jogamp.opengl.GL2;
+import jscenegraph.opengl.GL2;
 
 import jscenegraph.coin3d.inventor.elements.SoGLMultiTextureEnabledElement;
 import jscenegraph.database.inventor.SbBox3f;
