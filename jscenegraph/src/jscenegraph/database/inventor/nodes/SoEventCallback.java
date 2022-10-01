@@ -194,6 +194,9 @@ public class SoEventCallback extends SoNode implements Destroyable {
 	     * @param f
 	     * @param userData
 	     */
+		public void addEventCallback(Class eventType, SoEventCallbackCB f) {
+			addEventCallback(SoType.getClassTypeId(eventType),f, null);
+		}
 	 	public void addEventCallback(Class eventType, SoEventCallbackCB f, Object userData) {
 	 		addEventCallback(SoType.getClassTypeId(eventType),f, userData);
 	 	}
