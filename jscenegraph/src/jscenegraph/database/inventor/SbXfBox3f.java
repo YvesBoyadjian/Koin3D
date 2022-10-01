@@ -140,8 +140,8 @@ public void copyFrom(Object otherObject) {
 }
 	
 	
-	   public SbVec3f getMin() { return super.getMin(); }
-	public SbVec3f getMax() { return super.getMax(); }
+	   public SbVec3fSingle getMin() { return super.getMin(); }
+	public SbVec3fSingle getMax() { return super.getMax(); }
 		    	
     private final SbMatrix xform = new SbMatrix();
     private final SbMatrix xformInv = new SbMatrix();

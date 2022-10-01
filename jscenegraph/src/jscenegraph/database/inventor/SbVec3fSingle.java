@@ -23,6 +23,10 @@ public class SbVec3fSingle extends SbVec3f {
 		super(other);
 	}
 
+	public SbVec3fSingle(float[] xyz) {
+		super(xyz);
+	}
+
 	public final float[] getValue() {
     	return getValueRef(); 
     }

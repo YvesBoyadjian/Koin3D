@@ -148,7 +148,7 @@ public class SbBox3f implements Mutable {
 	 *
 	 * @return
 	 */
-	public SbVec3f getMin() {
+	public SbVec3fSingle getMin() {
 		 return min;
 	}
 
@@ -159,7 +159,7 @@ public class SbBox3f implements Mutable {
 	 *
 	 * @return
 	 */
-	public SbVec3f getMax() {
+	public SbVec3fSingle getMax() {
 		 return max;
 	}
 
@@ -688,10 +688,10 @@ operator_equal_equal( final SbBox3f b2)
     return ( (b1.min == b2.min) && (b1.max == b2.max ) );
 }
 
-public SbVec3f getSize() { // java port
+public SbVec3fSingle getSize() { // java port
 	float[] xyz = new float[3];
 	getSize(xyz);
-	return new SbVec3f(xyz);
+	return new SbVec3fSingle(xyz);
 }
 
 /**
