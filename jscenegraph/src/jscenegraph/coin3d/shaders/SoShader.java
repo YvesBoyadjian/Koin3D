@@ -32,17 +32,7 @@ import jscenegraph.coin3d.inventor.nodes.SoGeometryShader;
 import jscenegraph.coin3d.inventor.nodes.SoShaderObject;
 import jscenegraph.coin3d.inventor.nodes.SoVertexShader;
 import jscenegraph.coin3d.shaders.inventor.elements.SoGLShaderProgramElement;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1f;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter1i;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter2f;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameter4f;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameterArray1f;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameterArray2f;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderParameterMatrix;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderProgram;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoShaderStateMatrixParameter;
-import jscenegraph.coin3d.shaders.inventor.nodes.SoUniformShaderParameter;
+import jscenegraph.coin3d.shaders.inventor.nodes.*;
 import jscenegraph.coin3d.shaders.lights.DirSpotLight;
 import jscenegraph.coin3d.shaders.lights.DirectionalLight;
 import jscenegraph.coin3d.shaders.lights.PointLight;
@@ -120,8 +110,8 @@ init()
     SoShaderParameterArray2f.initClass();
 //  if (SoShaderParameterArray3f.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray3f.initClass();
-//  if (SoShaderParameterArray4f.getClassTypeId().operator_equal_equal(SoType.badType()))
-//    SoShaderParameterArray4f.initClass();
+  if (SoShaderParameterArray4f.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderParameterArray4f.initClass();
 
   // matrix parameter nodes
   if (SoShaderStateMatrixParameter.getClassTypeId().operator_equal_equal(SoType.badType()))
