@@ -424,6 +424,15 @@ public void setValue(SbVec2f newValue) {
 	valueChanged();
 }
 
+/*!
+  Set this field to contain a single vector with the given
+  element values.
+*/
+	public void	setValue(float x, float y)
+	{
+		this.setValue(new SbVec2f(x, y));
+	}
+
 /* Get non-const pointer into array of values for batch edits */          
 //public SbVec2f[] startEditing()                                
 //    { 
