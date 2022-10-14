@@ -1,6 +1,35 @@
-/**
- * 
- */
+
+/**************************************************************************\
+ * Copyright (c) Kongsberg Oil & Gas Technologies AS
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the copyright holder nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ \**************************************************************************/
 package jscenegraph.interaction.inventor;
 
 import static jscenegraph.opengl.GL.GL_COLOR_BUFFER_BIT;
@@ -54,6 +83,8 @@ public class SoSceneManager {
     private int bkgIndex;
     private boolean graphicsInitNeeded;
  	private boolean rgbMode;
+
+	private SoRenderManager rendermanager;
 	
 	private static SoSensorCB sceneSensorCallback = new SoSensorCB() {
 
@@ -82,6 +113,8 @@ public class SoSceneManager {
      //
      ////////////////////////////////////////////////////////////////////////
      {
+		 rendermanager = new SoRenderManager();
+
          bkgColor.setValue(0,0,0);
          bkgIndex = 0;
          rgbMode = true;
@@ -528,7 +561,9 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    // delete actions
+	rendermanager.destructor();
+
+	// delete actions
     if (raCreatedHere) {
         renderAction.destructor(); renderAction = null;
     }
@@ -694,4 +729,43 @@ public void destructor()
 		   {
 		       return sceneSensor.getPriority();
 		   }
+
+
+/*!
+  Update our SoGLRenderAction's viewport settings.
+
+  This will change \e both the information about window dimensions and
+  the actual viewport size and origin.
+
+  \sa setWindowSize()
+*/
+	public void setViewportRegion(SbViewportRegion newregion)
+	{
+//#if COIN_DEBUG && 0 // debug
+//  const SbVec2s & ws = newregion.getWindowSize();
+//  const SbVec2s & vpop = newregion.getViewportOriginPixels();
+//  const SbVec2s & vpsp = newregion.getViewportSizePixels();
+//		SoDebugError::postInfo("SoSceneManager::setViewportRegion",
+//			"windowsize=(%d, %d) "
+//		"viewportorigin=(%d, %d) "
+//		"viewportsize=(%d, %d) ",
+//				ws[0], ws[1],
+//				vpop[0], vpop[1],
+//				vpsp[0], vpsp[1]);
+//#endif // debug
+
+		rendermanager.setViewportRegion(newregion);
+		//PRIVATE(this)->eventmanager->setViewportRegion(newregion);
+	}
+
+/*!
+  Returns current viewport region used by the render action and the
+  event handling.
+
+  \sa setViewportRegion()
+*/
+public SbViewportRegion getViewportRegion()
+	{
+		return rendermanager.getViewportRegion();
+	}
 }
