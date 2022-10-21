@@ -664,7 +664,9 @@ public void notify(SoNotList list)
         bboxCache.unref();
         bboxCache = null;
     }
-    cacheList.invalidateAll();
+    if (cacheList != null) { // Can happen if called from base destructor
+        cacheList.invalidateAll();
+    }
 
     // Then do the usual stuff
     super.notify(list);
