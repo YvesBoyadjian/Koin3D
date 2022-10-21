@@ -61,7 +61,7 @@ import jscenegraph.database.inventor.SoPath;
 import jscenegraph.database.inventor.SoPrimitiveVertex;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoActionMethodList.SoActionMethod;
-import jscenegraph.database.inventor.elements.SoElement;
+import jscenegraph.database.inventor.elements.*;
 import jscenegraph.database.inventor.errors.SoDebugError;
 import jscenegraph.database.inventor.nodes.SoNode;
 import jscenegraph.database.inventor.nodes.SoShape;
@@ -313,6 +313,20 @@ public void destructor()
 	       methods = new SoActionMethodList(SoAction.methods);          
 	       classTypeId    = SoType.createType(SoAction.getClassTypeId(),        
 	                                           new SbName("SoCallbackAction"), null);
+
+		   SO_ENABLE(SoCallbackAction.class, SoViewportRegionElement.class);
+//		   SO_ENABLE(SoCallbackAction.class, SoDecimationTypeElement.class);
+//		   SO_ENABLE(SoCallbackAction.class, SoDecimationPercentageElement.class);
+		   SO_ENABLE(SoCallbackAction.class, SoOverrideElement.class);
+		   SO_ENABLE(SoCallbackAction.class, SoTextureOverrideElement.class);
+		   SO_ENABLE(SoCallbackAction.class, SoLazyElement.class);
+		   SO_ENABLE(SoCallbackAction.class, SoCacheElement.class);
+
+		   // view frustum culling is normally not used for this action, but
+		   // the application programmer can manually add any number of culling
+		   // planes to optimize callback action traversal. This is used by the
+		   // SoExtSelection node.
+		   SO_ENABLE(SoCallbackAction.class, SoCullElement.class);
 	   }
 	   
 
