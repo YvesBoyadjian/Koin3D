@@ -503,10 +503,15 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-    if (bboxCache != null)
+    if (bboxCache != null) {
         bboxCache.unref();
+        bboxCache = null;
+    }
 
-    cacheList.destructor();
+    if (cacheList != null) {
+        cacheList.destructor();
+        cacheList = null;
+    }
 	super.destructor();
 }
 

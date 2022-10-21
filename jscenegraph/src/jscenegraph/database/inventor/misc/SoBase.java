@@ -537,6 +537,10 @@ protected SoBase()
 		auditors = null;
 		refCount = -999999; // java port
 	}
+
+	public boolean isDestroyed() {
+		return refCount == -999999;
+	}
 	
 	// Internal methods used to maintain the global name dictionary. 
 	public static void addName(SoBase b, String name) {
