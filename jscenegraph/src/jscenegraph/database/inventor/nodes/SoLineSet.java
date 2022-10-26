@@ -54,6 +54,8 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import java.nio.Buffer;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import jscenegraph.opengl.GL2;
@@ -97,9 +99,11 @@ import jscenegraph.database.inventor.misc.SoNotRec;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
-import jscenegraph.port.IntArrayPtr;
-import jscenegraph.port.IntPtr;
-import jscenegraph.port.SbVec3fArray;
+import jscenegraph.port.*;
+
+import static jscenegraph.opengl.GL.GL_LINE_STRIP;
+import static jscenegraph.opengl.GL.GL_POINTS;
+import static jscenegraph.opengl.GL3ES3.GL_LINE_STRIP_ADJACENCY;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +231,10 @@ public class SoLineSet extends SoNonIndexedShape {
 	 public final SoMFInt32 numVertices = new SoMFInt32();
 	  
 	   public final SoSFBool sendAdjacency = new SoSFBool();
-	  
+
+	//! If enabled, GL_LINES are drawn for all vertice pairs, independent of the numVertices field (MeVis Only)
+	public final SoSFBool independentLines = new SoSFBool(); // MeVisLab
+
     //! This stores the total number of vertices; we use this
     //! information to influence Separator's auto-caching algorithm
     //! (shapes with very few triangles should be cached because
@@ -243,7 +250,8 @@ public class SoLineSet extends SoNonIndexedShape {
     		final int ii = i;
     		renderFunc[i] = (ifs,a) -> SoError.post("SoLineSet RenderFunc number "+ii+" not yet implemented");
     	}
-    	    	
+
+		renderFunc[0] = (set, action) -> set.OmOn(action);
     }
     
 ////////////////////////////////////////////////////////////////////////
@@ -260,6 +268,7 @@ public SoLineSet()
   nodeHeader.SO_NODE_CONSTRUCTOR(/*SoLineSet*/);
   nodeHeader.SO_NODE_ADD_MFIELD(numVertices,"numVertices",  (SO_LINE_SET_USE_REST_OF_VERTICES));
   nodeHeader.SO_NODE_ADD_SFIELD(sendAdjacency,"sendAdjacency", (false));
+  nodeHeader.SO_NODE_ADD_SFIELD(independentLines,"independentLines", (false)); // MeVisLab
   isBuiltIn = true;
   totalNumVertices = -1;
 }
@@ -1097,7 +1106,7 @@ void GLRenderInternal( SoGLRenderAction  action, int useTexCoordsAnyway, SoShape
 
     int np = numVertices.getNum();
     IntPtr numverts = new IntPtr(numVertices.getValuesI(0));
-    int mode = sendAdjacency.getValue()?GL3.GL_LINE_STRIP_ADJACENCY:GL2.GL_LINE_STRIP;
+    int mode = sendAdjacency.getValue()? GL_LINE_STRIP_ADJACENCY: GL_LINE_STRIP;
 
     int offset = startIndex.getValue();
     for (int polyline = 0; polyline < np; polyline++) {
@@ -1220,4 +1229,54 @@ findNormalBinding(SoState state)
 }
 
 
-	 }
+//////////////////////////////////////////////////////////////////////////
+// Following preprocessor-generated routines handle all combinations of
+// Normal binding (per vertex, per face, per part, overall/none)
+// Color Binding (per vertex, per face, per part, overall)
+// Textures (on or off)
+//////////////////////////////////////////////////////////////////////////
+
+// Material overall:
+
+	public void	OmOn
+			(SoGLRenderAction action ) {
+
+		GL2 gl2 = Ctx.get(action.getCacheContext());
+
+		boolean independent = independentLines.getValue();
+    final int np = independent ? totalNumVertices / 2 : numVertices.getNum();
+    final IntArray numverts = independent ? null : numVertices.getValues(0);
+		boolean renderAsPoints = (SoDrawStyleElement.get(action.getState()) ==
+				SoDrawStyleElement.Style.POINTS);
+		boolean sendAdj = sendAdjacency.getValue();
+
+		// Send one normal, if there are any normals in vpCache:
+		if (vpCache.getNumNormals() > 0)
+			vpCache.sendNormal(gl2,vpCache.getNormals(0));
+    FloatBuffer vertexPtr = vpCache.getVertices(startIndex.getValue());
+    final int vertexStride = vpCache.getVertexStride();
+		SoVertexPropertyCache.SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+		int v;
+		int numvertsIndex = 0; //java port
+		int vertexPtrIndex = 0; //java port
+		for (int polyline = 0; polyline < np; polyline++) {
+	final int nv = numverts != null ? (numverts.get(numvertsIndex)) : 2;
+			if(renderAsPoints){
+				gl2.glBegin(GL_POINTS);
+			}
+			else {
+
+				gl2.glBegin(sendAdj?GL_LINE_STRIP_ADJACENCY:GL_LINE_STRIP);
+			}
+			for (v = 0; v < nv; v++) {
+				vertexPtr.position(vertexPtrIndex/Float.BYTES);
+				(vertexFunc).run(gl2,vertexPtr);
+				vertexPtrIndex += vertexStride; //java port
+			}
+			gl2.glEnd();
+			if (numverts != null) { ++numvertsIndex; } // java port
+		}
+	}
+
+
+}
