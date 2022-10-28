@@ -22,12 +22,7 @@ import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -2342,9 +2337,14 @@ private static int FT_Stream_Open(InputStream[] stream, String pathname) {
 private static String _flSearchFont(String fontName) {
 	
 	FileSystem fs = FileSystems.getDefault();
-	Path path = fs.getPath(fontPath,fontName+".ttf");
-	if(path.toFile().exists() && path.toFile().isFile()) {
-		return path.toString();
+	Path path;
+	try {
+		path = fs.getPath(fontPath, fontName + ".ttf");
+		if (path.toFile().exists() && path.toFile().isFile()) {
+			return path.toString();
+		}
+	} catch (InvalidPathException e) {
+		// do nothing. Can happen if ":" was in the name
 	}
 	path = fs.getPath(fontDefault);
 	if(path.toFile().exists() && path.toFile().isFile()) {
