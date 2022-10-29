@@ -94,6 +94,9 @@ import jscenegraph.port.Ctx;
 import jscenegraph.port.IntArrayPtr;
 import jscenegraph.port.SbVec3fArray;
 
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_FLAT;
+import static jscenegraph.opengl.fixedfunc.GLLightingFunc.GL_SMOOTH;
+
 /**
  * @author Yves Boyadjian
  *
@@ -252,6 +255,7 @@ private interface PMTSS  {
 		renderFunc[4] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmFn(action);			
 		renderFunc[6] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.OmVn(action);		
 		renderFunc[14] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.PmVn(action);
+		renderFunc[16] = (SoTriangleStripSet set, SoGLRenderAction action) -> set.FmOn(action);
 	}
 
 ////////////////////////////////////////////////////////////////////////
@@ -1213,7 +1217,7 @@ public void OmFn (SoGLRenderAction action) {
     Buffer normalPtr = vpCache.getNormals(0);
     final int normalStride = vpCache.getNormalStride();
     SoVPCacheFunc normalFunc = vpCache.normalFunc;
-    gl2.glShadeModel(GL2.GL_FLAT);
+    gl2.glShadeModel(GL_FLAT);
     final int numStrips = numVertices.getNum();
     final int[] numVerts = numVertices.getValuesI(0);
 
@@ -1250,7 +1254,7 @@ public void OmFn (SoGLRenderAction action) {
 	gl2.glEnd();
 	++numVertsIndex;
     }
-    gl2.glShadeModel(GL2.GL_SMOOTH);
+    gl2.glShadeModel(GL_SMOOTH);
 }
 
 
@@ -1355,6 +1359,60 @@ public void PmVn (SoGLRenderAction action ) {
     }
 }
 
+
+	public void	FmOn
+			(SoGLRenderAction action ) {
+
+		GL2 gl2 = Ctx.get(action.getCacheContext());
+
+		// Send one normal, if there are any normals in vpCache:
+		if (vpCache.getNumNormals() > 0)
+			vpCache.sendNormal(gl2,vpCache.getNormals(0));
+    FloatBuffer vertexPtr = vpCache.getVertices(startIndex.getValue());
+    final int vertexStride = vpCache.getVertexStride();
+		SoVPCacheFunc vertexFunc = vpCache.vertexFunc;
+    IntBuffer colorPtr = vpCache.getColors(0).toByteBuffer().asIntBuffer();
+    int colorStride = vpCache.getColorStride();
+		SoVPCacheFunc colorFunc = vpCache.colorFunc;
+		gl2.glShadeModel(GL_FLAT);
+    final int numStrips = numVertices.getNum();
+    final var numVerts = numVertices.getValues(0);
+
+		int v;
+		int numVertsIndex = 0; // java port
+		int vertexPtrIndex = 0;
+		int colorPtrIndex = 0;
+		for (int strip = 0; strip < numStrips; strip++) {
+	final int nv = (numVerts.get(numVertsIndex));
+			gl2.glBegin(GL2.GL_TRIANGLE_STRIP);
+			for (v = 0; v < nv-1; v+=2) {
+				// Per-face cases:
+				if (v != 0) {
+					colorPtr.position(colorPtrIndex/Integer.BYTES);
+					(colorFunc).run(gl2,colorPtr); colorPtrIndex += colorStride;
+				}
+				vertexPtr.position(vertexPtrIndex/Float.BYTES);
+				(vertexFunc).run(gl2,vertexPtr/*+0*vertexStride*/);
+				// Per-face cases:
+				if (v != 0) {
+					colorPtr.position(colorPtrIndex/Integer.BYTES);
+					(colorFunc).run(gl2,colorPtr); colorPtrIndex += colorStride;
+				}
+				vertexPtr.position((vertexPtrIndex+vertexStride)/Float.BYTES);
+				(vertexFunc).run(gl2,vertexPtr/*+1*vertexStride*/);
+				vertexPtrIndex += 2*vertexStride;
+			}
+			if (v < nv) { // Leftovers
+				colorPtr.position(colorPtrIndex/Integer.BYTES);
+				(colorFunc).run(gl2,colorPtr); colorPtrIndex += colorStride;
+				vertexPtr.position(vertexPtrIndex/Float.BYTES);
+				(vertexFunc).run(gl2,vertexPtr); vertexPtrIndex += vertexStride;
+			}
+			gl2.glEnd();
+			++numVertsIndex;
+		}
+		gl2.glShadeModel(GL_SMOOTH);
+	}
 
 
 ////////////////////////////////////////////////////////////////////////
