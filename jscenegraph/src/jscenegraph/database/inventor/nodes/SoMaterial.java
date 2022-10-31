@@ -491,7 +491,24 @@ public SoMaterial()
 //	       SO_ENABLE(SoGLRenderAction.class, SoSpecularColorElement.class);
 //	       SO_ENABLE(SoGLRenderAction.class, SoShininessElement.class);
 //	       SO_ENABLE(SoGLRenderAction.class, SoTransparencyElement.class);
-	       
+
+
+//            SO_ENABLE(SoGLRenderAction.class, SoGLLazyElement.class);
+//            SO_ENABLE(SoCallbackAction.class, SoLazyElement.class);
+//
+//            SO_ENABLE(SoCallbackAction.class, SoAmbientColorElement.class);
+//            SO_ENABLE(SoCallbackAction.class, SoDiffuseColorElement.class);
+//            SO_ENABLE(SoCallbackAction.class, SoEmissiveColorElement.class);
+//            SO_ENABLE(SoCallbackAction.class, SoSpecularColorElement.class);
+//            SO_ENABLE(SoCallbackAction.class, SoShininessElement.class);
+//            SO_ENABLE(SoCallbackAction.class, SoTransparencyElement.class);
+//
+//            SO_ENABLE(SoGLRenderAction.class, SoAmbientColorElement.class);
+//            SO_ENABLE(SoGLRenderAction.class, SoDiffuseColorElement.class);
+//            SO_ENABLE(SoGLRenderAction.class, SoEmissiveColorElement.class);
+//            SO_ENABLE(SoGLRenderAction.class, SoSpecularColorElement.class);
+//            SO_ENABLE(SoGLRenderAction.class, SoShininessElement.class);
+//            SO_ENABLE(SoGLRenderAction.class, SoTransparencyElement.class);
 	   }
 	  
 ////////////////////////////////////////////////////////////////////////
@@ -531,6 +548,7 @@ private static boolean TEST_OVERRIDE(SoOverrideElement.ElementMask bit, int flag
 }
 
 static int didwarn = 0;
+
 
 // Doc from superclass.
 public void // COIN 3D
