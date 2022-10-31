@@ -54,6 +54,7 @@
 
 package jscenegraph.database.inventor.nodes;
 
+import jscenegraph.coin3d.inventor.elements.SoDiffuseColorElement;
 import jscenegraph.database.inventor.SoType;
 import jscenegraph.database.inventor.actions.SoAction;
 import jscenegraph.database.inventor.actions.SoCallbackAction;
@@ -64,10 +65,14 @@ import jscenegraph.database.inventor.elements.SoLazyElement;
 import jscenegraph.database.inventor.elements.SoOverrideElement;
 import jscenegraph.database.inventor.fields.SoFieldData;
 import jscenegraph.database.inventor.fields.SoMFColor;
+import jscenegraph.database.inventor.misc.SoBase;
 import jscenegraph.database.inventor.misc.SoState;
 import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.port.Destroyable;
+
+import static jscenegraph.opengl.GL.GL_ARRAY_BUFFER;
+import static jscenegraph.opengl.GL.GL_STATIC_DRAW;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,6 +149,12 @@ public class SoBaseColor extends SoNode implements Destroyable {
 	       SoSubNode.SO__NODE_INIT_CLASS(SoBaseColor.class, "BaseColor", SoNode.class);
 	       //SO_ENABLE(SoGLRenderAction, SoGLVBOElement);
 	       SoGLRenderAction.enableElement(SoGLVBOElement.class);
+
+           SO_ENABLE(SoGLRenderAction.class, SoGLLazyElement.class);
+           SO_ENABLE(SoCallbackAction.class, SoLazyElement.class);
+
+           SO_ENABLE(SoCallbackAction.class, SoDiffuseColorElement.class);
+           SO_ENABLE(SoGLRenderAction.class, SoDiffuseColorElement.class);
 	   }
 	  
 
@@ -183,6 +194,10 @@ public void destructor()
     super.destructor();
 }
 
+public void doAction(SoAction action) {
+          SoBaseColor_doAction(action);
+}
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Description:
@@ -190,28 +205,65 @@ public void destructor()
 //
 // Use: extender
 
-public void
-SoBaseColor_doAction(SoAction action)
+//public void
+//SoBaseColor_doAction(SoAction action)
+////
+//////////////////////////////////////////////////////////////////////////
+//{
+//    SoState state = action.getState();
 //
-////////////////////////////////////////////////////////////////////////
-{
-    SoState state = action.getState();
+//    if (! rgb.isIgnored() && rgb.getNum() > 0
+//        && ! SoOverrideElement.getDiffuseColorOverride(state)) {
+//        if (isOverride()) {
+//            SoOverrideElement.setDiffuseColorOverride(state, this, true);
+//        }
+//        SoGLLazyElement.setDiffuse(state, this, rgb.getNum(),
+//            rgb.getValuesSbColorArray(/*0*/), colorPacker);
+//
+//        if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
+//          // update the VBO, no data is passed since that is done by SoColorPacker later on
+//          //SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.COLOR_VBO, _vbo);
+//          SoGLVBOElement.setColorVBO(state, this/*.pimpl*/._vbo[0]);
+//        }
+//    }
+//}
 
-    if (! rgb.isIgnored() && rgb.getNum() > 0
-        && ! SoOverrideElement.getDiffuseColorOverride(state)) {
-        if (isOverride()) {
-            SoOverrideElement.setDiffuseColorOverride(state, this, true);
-        }
-        SoGLLazyElement.setDiffuse(state, this, rgb.getNum(), 
-            rgb.getValuesSbColorArray(/*0*/), colorPacker);
+// Doc from superclass.
+    public void
+    SoBaseColor_doAction(SoAction action)
+    {
+        SoState state = action.getState();
+
+        if (!this.rgb.isIgnored() && this.rgb.getNum() != 0 &&
+            !SoOverrideElement.getDiffuseColorOverride(state)) {
+    final int num = this.rgb.getNum();
+        SoLazyElement.setDiffuse(state, this, num,
+                              this.rgb.getValues(0), colorPacker);
 
         if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
-          // update the VBO, no data is passed since that is done by SoColorPacker later on
-          //SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.COLOR_VBO, _vbo);
-          SoGLVBOElement.setColorVBO(state, this/*.pimpl*/._vbo[0]);
+            boolean setvbo = false;
+            SoBase.staticDataLock();
+            if (SoGLVBOElement.shouldCreateVBO(state, num)) {
+                setvbo = true;
+                if (_vbo[0] == null) {
+                    _vbo[0] = new SoVBO(GL_ARRAY_BUFFER, GL_STATIC_DRAW);
+                }
+            }
+      else if (_vbo[0] != null) {
+                _vbo[0].setBufferData(null, 0, 0);
+            }
+            // don't fill in any data in the VBO. Data will be filled in
+            // using the ColorPacker right before the VBO is used
+            SoBase.staticDataUnlock();
+            if (setvbo) {
+                SoGLVBOElement.setColorVBO(state, _vbo[0]);
+            }
+        }
+        if (this.isOverride()) {
+            SoOverrideElement.setDiffuseColorOverride(state, this, true);
         }
     }
-}
+    }
 
 ////////////////////////////////////////////////////////////////////////
 //
@@ -230,8 +282,8 @@ GLRender(SoGLRenderAction action)
     // If there's only one color, we might as well send it now.  This
     // prevents cache dependencies in some cases that were
     // specifically optimized for Inventor 2.0.
-    if (rgb.getNum() == 1)
-        SoGLLazyElement.sendAllMaterial(action.getState());
+//    if (rgb.getNum() == 1)
+//        SoGLLazyElement.sendAllMaterial(action.getState());
 }
 
 ////////////////////////////////////////////////////////////////////////
