@@ -1947,4 +1947,14 @@ public void jacobi3(final float[] evalues,
 
 			  return true;
 	}
+
+	public boolean iFinite() {
+		for (int i=0; i < 4; i++) {
+			for (int j=0; j < 4; j++) {
+				if (!Float.isFinite(matrix[i][j]))
+					return false;
+			}
+		}
+		return true;
+	}
 }
