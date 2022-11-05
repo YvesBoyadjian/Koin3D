@@ -732,6 +732,9 @@ public class SoVertexProperty extends SoNode {
 			        SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.COLOR_VBO, pimpl.colorvbo);
 			    }
 			    if ( texCoord.getNum() > 0) {
+					if (0 >= this.pimpl.texcoordvbo.getLength()) { // java port
+						this.pimpl.texcoordvbo.append(/*null*/new SoVBO[1]);
+					}
 			      SoGLVBOElement.updateVBO(state, SoGLVBOElement.VBOType.TEXCOORD_VBO, pimpl.texcoordvbo.operator_square_bracket(0),
 			        texCoord.getNum() * SbVec2f.sizeof(), VoidPtr.create(texCoord.getValuesArray(0)), getNodeId());
 			    }
