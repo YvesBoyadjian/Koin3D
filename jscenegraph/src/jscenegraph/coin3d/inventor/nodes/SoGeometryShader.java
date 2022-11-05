@@ -172,6 +172,10 @@ public class SoGeometryShader extends SoShaderObject {
 		  default: return null;
 		  }
 	  }
+
+      public int getValue() {
+        return ordinal();
+      }
   };
 
   enum OutputType {
@@ -187,6 +191,10 @@ public class SoGeometryShader extends SoShaderObject {
 		  default: return null;
 		  }
 	  }
+
+      public int getValue() {
+        return ordinal();
+      }
   };
 
   public final SoSFEnum inputType = new SoSFEnum();
