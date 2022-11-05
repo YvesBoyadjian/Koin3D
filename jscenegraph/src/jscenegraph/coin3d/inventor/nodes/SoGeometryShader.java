@@ -159,7 +159,7 @@ public class SoGeometryShader extends SoShaderObject {
         { return SoSubNode.getFieldDataPtr(SoGeometryShader.class); }              
 
   
-  enum InputType {
+  public enum InputType {
     POINTS_IN,
     LINES_IN,
     TRIANGLES_IN;
@@ -178,7 +178,7 @@ public class SoGeometryShader extends SoShaderObject {
       }
   };
 
-  enum OutputType {
+  public enum OutputType {
     POINTS_OUT,
     LINE_STRIP_OUT,
     TRIANGLE_STRIP_OUT;
