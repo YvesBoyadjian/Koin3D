@@ -261,6 +261,9 @@ public int[] getValuesI(int start) {
 	evaluate();
 	
 	if(start == 0) {
+		if (values == null) {
+			return null;
+		}
 		return values.values();
 	}
 	
