@@ -98,6 +98,7 @@ import jscenegraph.mevis.inventor.elements.SoGLVBOElement;
 import jscenegraph.mevis.inventor.misc.SoVBO;
 import jscenegraph.mevis.inventor.misc.SoVertexArrayIndexer;
 import jscenegraph.port.Ctx;
+import jscenegraph.port.Destroyable;
 import jscenegraph.port.IntArray;
 import jscenegraph.port.SbVec3fArray;
 
@@ -256,7 +257,8 @@ public void destructor()
 //
 ////////////////////////////////////////////////////////////////////////
 {
-  _triangleIndexer.destructor();
+  Destroyable.delete(_triangleIndexer);
+  _triangleIndexer = null;
   super.destructor();
 }
 
