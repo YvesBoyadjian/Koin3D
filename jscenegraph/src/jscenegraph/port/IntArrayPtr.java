@@ -203,4 +203,11 @@ public class IntArrayPtr implements Destroyable, IntBufferAble {
 		}
 		return (intOffset + delta) < other.intOffset;
 	}
+
+	public static int minus(IntArrayPtr first, IntArrayPtr second) {
+		if (first == null && second == null) {
+			return 0;
+		}
+		return first.minus(second);
+	}
 }

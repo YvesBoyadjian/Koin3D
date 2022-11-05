@@ -1069,7 +1069,7 @@ GLRender(SoGLRenderAction action)
 	  int[] dummyarray = new int[1];
 	  IntArrayPtr ptr = this.numVertices.getValuesIntArrayPtr(0); //java port
 	  IntArrayPtr end = IntArrayPtr.plus(ptr,this.numVertices.getNum());
-	  if ((end.minus(ptr) == 1) && (ptr.get(0) == 0)) return; // nothing to render
+	  if ((IntArrayPtr.minus(end,ptr) == 1) && (ptr.get(0) == 0)) return; // nothing to render
 
 	  if (pimpl.primitivetype == UNKNOWN_TYPE) {
 	    pimpl.primitivetype = MIXED_TYPE;
