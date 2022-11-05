@@ -287,7 +287,8 @@ public void destructor()
   if (numVertices != null) {
     //delete[] numVertices;
   }
-  _lineIndexer.destructor();
+  Destroyable.delete(_lineIndexer);
+    _lineIndexer = null;
   
   super.destructor();
 }
