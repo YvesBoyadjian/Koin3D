@@ -123,7 +123,7 @@ public SbImage(MemoryBuffer bytes,
 */
 public void
 setValue(final SbVec3s size, int bytesperpixel,
-                  MemoryBuffer bytes)
+                  final MemoryBuffer bytes)
 {
   //writeLock();
   schedulename = "";
@@ -147,7 +147,7 @@ setValue(final SbVec3s size, int bytesperpixel,
     // Align buffers because the binary file format has the data aligned
     // (simplifies export code in SoSFImage).
     buffersize = ((buffersize + 3) / 4) * 4;
-    bytes = MemoryBuffer.allocateBytes(buffersize);
+    this.bytes = MemoryBuffer.allocateBytes(buffersize);
     //datatype = SbImageP::INTERNAL_DATA;
 
     if (bytes != null) {
