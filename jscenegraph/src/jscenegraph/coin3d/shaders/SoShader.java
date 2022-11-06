@@ -133,8 +133,8 @@ init()
 //    SoShaderParameter3i.initClass();
 //  if (SoShaderParameter4i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameter4i.initClass();
-//  if (SoShaderParameterArray1i.getClassTypeId().operator_equal_equal(SoType.badType()))
-//    SoShaderParameterArray1i.initClass();
+  if (SoShaderParameterArray1i.getClassTypeId().operator_equal_equal(SoType.badType()))
+    SoShaderParameterArray1i.initClass();
 //  if (SoShaderParameterArray2i.getClassTypeId().operator_equal_equal(SoType.badType()))
 //    SoShaderParameterArray2i.initClass();
 //  if (SoShaderParameterArray3i.getClassTypeId().operator_equal_equal(SoType.badType()))

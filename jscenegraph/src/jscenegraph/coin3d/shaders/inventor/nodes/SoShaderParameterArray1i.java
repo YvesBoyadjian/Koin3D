@@ -34,6 +34,23 @@ public class SoShaderParameterArray1i extends SoUniformShaderParameter {
 	
 	public final SoMFInt32 value = new SoMFInt32();
 
+
+	public SoShaderParameterArray1i()
+	{
+		nodeHeader.SO_NODE_INTERNAL_CONSTRUCTOR(SoShaderParameterArray1i.class);
+		nodeHeader.SO_NODE_ADD_MFIELD(value,"value", (0));
+	}
+
+/*!
+  \copybrief SoNode::initClass(void)
+*/
+	public static void initClass()
+	{
+		SoSubNode.SO__NODE_INIT_CLASS(SoShaderParameterArray1i.class,
+				"ShaderParameterArray1i",
+				/*SO_FROM_COIN_2_5|SO_FROM_INVENTOR_5_0*/SoUniformShaderParameter.class);
+	}
+
 	/* (non-Javadoc)
 	 * @see jscenegraph.coin3d.shaders.inventor.nodes.SoUniformShaderParameter#updateParameter(jscenegraph.coin3d.shaders.SoGLShaderObject)
 	 */
