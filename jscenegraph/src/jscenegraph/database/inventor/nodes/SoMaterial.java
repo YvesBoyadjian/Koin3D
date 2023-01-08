@@ -832,8 +832,8 @@ GLRender(SoGLRenderAction action)
 //    // If there's only one color, we might as well send it now.  This
 //    // prevents cache dependencies in some cases that were
 //    // specifically optimized for Inventor 2.0.
-//    if (diffuseColor.getNum() == 1 && !diffuseColor.isIgnored())
-//        SoGLLazyElement.sendAllMaterial(action.getState());
+    if (diffuseColor.getNum() == 1 && !diffuseColor.isIgnored())
+        SoGLLazyElement.sendAllMaterial(action.getState());
 //
 //    SoState state = action.getState();
 //    if (state.isElementEnabled(SoGLVBOElement.getClassStackIndex(SoGLVBOElement.class))) {
