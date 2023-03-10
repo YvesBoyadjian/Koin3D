@@ -391,7 +391,7 @@ viewAll(SoPath path, final SbViewportRegion vpRegion, float slack)
 	       float       vpAspect, camAspect;
 	   
 	       // Start with the same region as we are given
-	       SbViewportRegion    croppedRegion = region;
+	       final SbViewportRegion    croppedRegion = new SbViewportRegion(region);
 	   
 	       
 	       switch (ViewportMapping.fromValue(viewportMapping.getValue())) {
