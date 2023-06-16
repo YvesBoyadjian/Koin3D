@@ -62,6 +62,7 @@ import org.eclipse.swt.graphics.Rectangle;
 //import org.eclipse.swt.opengl.GLCanvas;
 //import org.eclipse.swt.opengl.GLData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.lwjgl.opengl.GL;
@@ -115,7 +116,9 @@ public class SoQtGLWidget extends Composite implements Destroyable {
 	private boolean firstVisibility; // java port
 	
 	private boolean initialized; // java port
-	
+
+	private boolean paintAsked; // java port
+
     private interface eventCBType {
     	boolean run(Object userData, TypedEvent anyevent);
     }
@@ -335,6 +338,11 @@ public GLData format()
 
 			@Override
 			public void paintControl(PaintEvent e) {
+				if (!paintAsked) {
+					paintAsked = true;
+					Display.getCurrent().asynExec(() -> doPaint());
+				}
+				/*
 				mainWidget.setCurrent();
 				if(!initialized) {
 					initialized = true;
@@ -350,6 +358,7 @@ public GLData format()
 			      if(_autoBufferSwapOn) {
 			    	  swapBuffers();
 			      }
+				 */
 			}
         	
         });
@@ -364,21 +373,7 @@ public GLData format()
 				int height = bounds.height;
 			    resizeGL(new GL2() {}, width, height);
 
-				mainWidget.setCurrent();
-				if(!initialized) {
-					initialized = true;
-					initializeGL(new GL2() {});					
-				}
-				
-				if(firstVisibility) {
-					firstVisibility = false;
-					visibilityChanged(true);
-				}
-			      GL2 gl2 = new GL2() {};  // get the OpenGL 2 graphics context
-			      paintGL(gl2);
-			      if(_autoBufferSwapOn) {
-			    	  swapBuffers();
-			      }
+				doPaint();
 			}
 		});
         
@@ -461,7 +456,27 @@ public GLData format()
 			}
 			});
     }
-    
+
+	private void doPaint() {
+
+		mainWidget.setCurrent();
+		if(!initialized) {
+			initialized = true;
+			initializeGL(new GL2() {});
+		}
+
+		if(firstVisibility) {
+			firstVisibility = false;
+			visibilityChanged(true);
+		}
+		GL2 gl2 = new GL2() {};  // get the OpenGL 2 graphics context
+		paintGL(gl2);
+		if(_autoBufferSwapOn) {
+			swapBuffers();
+		}
+		paintAsked = false;
+	}
+
     public void destructor() {
         contextShareManager.removeWidget (mainWidget);
 	}
